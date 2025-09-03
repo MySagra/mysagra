@@ -1,0 +1,284 @@
+{
+  "CustomerLoginPage": {
+    "title": "Benvenuto",
+    "customer": "Cliente",
+    "customerPlaceholder": "Nome e Cognome",
+    "table": "Tavolo",
+    "tablePlaceholder": "Numero del Tavolo",
+    "clear": "Cancella",
+    "submit": "Avanti",
+    "validation": {
+      "required": "Il campo è obbligatorio",
+      "tableRange": "Il numero del tavolo deve essere un intero tra 1 e 50"
+    }
+  },
+  "Menu": {
+    "cartButton": "Vai al Carrello"
+  },
+  "OrderRecap": {
+    "clear": "Cancella Carrello",
+    "create": "Crea Ordine",
+    "dialog": {
+      "title": "Sei sicuro di voler effettuare questo ordine?",
+      "description": "La tua azione genererà un ordine al checkout, ti verrà fornito un codice ordine <strong>non dimenticarlo!</strong>",
+      "confirm": "Effettua Ordine",
+      "loading": "Ordine in corso"
+    }
+  },
+  "Checkout": {
+    "title": "Questo è il tuo codice ordine, <highlight>non dimenticarlo:</highlight>",
+    "cost": "Devi pagare",
+    "currency": "€",
+    "advise": "*Prepara i soldi per velocizzare il processo😉",
+    "steps": {
+      "title": "Cosa devo fare ora?",
+      "step1": "👉 Vai in cassa e comunica il tuo codice ordine",
+      "step2": "👛 Effettua il pagamento alla cassa",
+      "step3": "🍸 Dopo aver pagato, ritira le tue bevande al bar",
+      "step4": "🍕 Il tuo ordine sarà servito direttamente al tuo tavolo",
+      "noTableStep": "🗣️ Quando l'ordine sarà pronto, verrai chiamato con il codice ordine oppure il numero sullo scontrino"
+    },
+    "dialog": {
+      "trigger": "Crea un nuovo ordine",
+      "title": "Sei sicuro di voler creare un nuovo ordine?",
+      "description": "Creando un nuovo ordine non sarai in grado di tornare a questa schermata, ricorda il tuo <strong> codice ordine.</strong> Ma non preoccuparti troppo, è sempre disponibile presso i cassieri😉",
+      "confirm": "Conferma Creazione"
+    }
+  },
+  "Order": {
+    "order": "Ordine",
+    "orders": "Ordini",
+    "food": "Alimento",
+    "quantity": "Quantità",
+    "price": "Prezzo",
+    "total": "Totale",
+    "currency": "€",
+    "trigger": "Visualizza Ordine",
+    "table": "Tavolo",
+    "time": "it-IT",
+    "orderFor": "Ordine di",
+    "delete": {
+      "title": "Sei sicuro di voler eliminare questo ordine?",
+      "description": "Questa azione <strong>non può essere annullata</strong>, se elimini l'ordine le statistiche cambieranno.",
+      "buttonText": "Elimina Ordine"
+    },
+    "ordersManagement": "Gestione Ordini",
+    "toast": {
+      "deleteSuccess": "Ordine eliminato con successo",
+      "deleteError": "Errore nell'eliminazione dell'ordine"
+    }
+  },
+  "Admin": {
+    "Login": {
+      "title": "Accesso Admin",
+      "username": "Username",
+      "password": "Password",
+      "loginButton": "Accedi",
+      "clearButton": "Cancella",
+      "validation": {
+        "required": "Il campo è obbligatorio"
+      },
+      "error": "Username o password non sono corretti"
+    }
+  },
+  "Operator": {
+    "Dashboard": {
+      "fetch": "Recupera ultimi ordini",
+      "fetchLoading": "Caricamento ultimi ordini",
+      "exit": "Esci",
+      "search": "Cerca Ordine",
+      "searchError": {
+        "title": "Nessun risultato per",
+        "description": "Ripriova cercando con altre parole chiave"
+      },
+      "fetchError": {
+        "title": "Nessun ordine trovato",
+        "description": "Oggi nessuno non ha ancora effettuato ordini"
+      }
+    }
+  },
+  "User": {
+    "user": "Utente",
+    "users": "Utenti",
+    "userManagement": "Gestione Utenti",
+    "dialog": {
+      "trigger": "Crea Utente",
+      "title": "Crea un nuovo utente",
+      "create": "Crea",
+      "cancel": "Annulla",
+      "username": {
+        "description": "Questo è il nome visualizzato dell'utente.",
+        "placeholder": "Inserisci nome utente"
+      },
+      "password": {
+        "placeholder": "Crea una password"
+      }
+    },
+    "formFields": {
+      "username": "Username",
+      "password": "Password",
+      "role": "Ruolo"
+    },
+    "validation": {
+      "username": "Il nome utente è obbligatorio",
+      "password": "La password è obbligatoria",
+      "usernameLength": "Il nome utente deve essere lungo almeno 4 caratteri",
+      "passwordLength": "La password deve essere lunga almeno 8 caratteri",
+      "role": "Il ruolo è obbligatorio"
+    },
+    "toast": {
+      "createSuccess": "Utente creato con successo",
+      "createError": "Errore nella creazione dell'utente",
+      "updateSuccess": "Utente aggiornato con successo",
+      "updateError": "Errore nell'aggiornamento dell'utente",
+      "deleteSuccess": "Utente eliminato con successo",
+      "deleteError": "Errore nell'eliminazione dell'utente"
+    },
+    "delete": {
+      "title": "Sei sicuro di voler eliminare questo utente?",
+      "description": "Questa azione <strong>non può essere annullata</strong>, se elimini l'utente i suoi dati andranno persi.",
+      "buttonText": "Elimina Utente"
+    }
+  },
+  "Analytics": {
+    "analytics": "Dashboard - Statistiche",
+    "ordersPerDay": "Ordini al giorno",
+    "totalOrders": "Totale ordini",
+    "foodsOrdered": "Cibi ordinati",
+    "revenuePerDay": "Entrate al giorno",
+    "orders": "Ordini",
+    "foods": "Cibi",
+    "time": "it-IT"
+  },
+  "Category": {
+    "category": "Categoria",
+    "categories": "Categorie",
+    "categoryManagement": "Gestione Categorie",
+    "dialog": {
+      "trigger": "Crea Categoria",
+      "createTitle": "Crea una nuova categoria",
+      "updateTitle": "Aggiorna categoria",
+      "create": "Crea",
+      "edit": "Modifica",
+      "cancel": "Annulla"
+    },
+    "formFields": {
+      "name": {
+        "title": "Nome Categoria",
+        "description": "Questo è il nome visualizzato della categoria.",
+        "placeholder": "Inserisci nome categoria"
+      },
+      "position": {
+        "title": "Posizione Categoria",
+        "description": "Ordine di visualizzazione della categoria nel menu",
+        "placeholder": "Inserisci posizione categoria"
+      },
+      "image": {
+        "title": "Immagine Categoria",
+        "placeholder": "Trascina qui la tua immagine, oppure <highlight>sfoglia</highlight>",
+        "drop": "Trascina qui la tua immagine",
+        "supports": "Supporta",
+        "description": "Carica un'immagine per questa categoria (opzionale, max 5MB). Sono supportati solo file JPEG, JPG e PNG."
+      },
+      "available": {
+        "title": "Disponibile",
+        "description": "Mostra la categoria come disponibile."
+      }
+    },
+    "validation": {
+      "name": "Il nome della categoria è obbligatorio",
+      "nameLength": "Il nome della categoria deve essere lungo almeno 2 caratteri",
+      "position": "La posizione della categoria è obbligatoria",
+      "available": "La disponibilità della categoria è obbligatoria",
+      "imageSize": "L'immagine della categoria deve essere inferiore a 5MB",
+      "imageFormat": "L'immagine della categoria deve essere un file JPEG, JPG o PNG"
+    },
+    "delete": {
+      "title": "Sei sicuro di voler eliminare questa categoria?",
+      "description": "Questa azione <strong>non può essere annullata</strong>, se elimini la categoria perderai tutti i cibi in questa categoria!",
+      "buttonText": "Elimina Categoria"
+    },
+    "toast": {
+      "createSuccess": "Categoria creata con successo",
+      "createError": "Errore nella creazione della categoria",
+      "updateSuccess": "Categoria aggiornata con successo",
+      "updateError": "Errore nell'aggiornamento della categoria",
+      "deleteSuccess": "Categoria eliminata con successo",
+      "deleteError": "Errore nell'eliminazione della categoria"
+    }
+  },
+  "Food": {
+    "food": "Alimento",
+    "foods": "Alimenti",
+    "foodManagement": "Gestione Alimenti",
+    "dialog": {
+      "trigger": "Crea Alimento",
+      "createTitle": "Crea un nuovo alimento",
+      "updateTitle": "Aggiorna alimento",
+      "create": "Crea",
+      "edit": "Modifica",
+      "cancel": "Annulla"
+    },
+    "formFields": {
+      "name": {
+        "title": "Nome Alimento",
+        "description": "Questo è il nome visualizzato dell'alimento.",
+        "placeholder": "Inserisci nome alimento"
+      },
+      "description": {
+        "title": "Descrizione Alimento",
+        "description": "Questa è la descrizione dell'alimento.",
+        "placeholder": "Inserisci descrizione alimento"
+      },
+      "category": {
+        "title": "Categoria Alimento",
+        "description": "Questa è la categoria dell'alimento.",
+        "placeholder": "Seleziona categoria alimento"
+      },
+      "price": {
+        "title": "Prezzo Alimento (€)",
+        "description": "Questo è il prezzo dell'alimento.",
+        "placeholder": "Inserisci prezzo alimento"
+      },
+      "available": {
+        "title": "Disponibile",
+        "description": "Mostra l'alimento come disponibile."
+      }
+    },
+    "validation": {
+      "name": "Il nome dell'alimento è obbligatorio",
+      "nameLength": "Il nome dell'alimento deve essere lungo almeno 2 caratteri",
+      "price": "Il prezzo dell'alimento è obbligatorio",
+      "priceMinValue": "Il prezzo dell'alimento deve essere almeno 0",
+      "priceFormat": "Il prezzo dell'alimento deve essere un numero valido con al massimo due decimali",
+      "category": "Seleziona una categoria per l'alimento",
+      "available": "La disponibilità dell'alimento è obbligatoria"
+    },
+    "delete": {
+      "title": "Sei sicuro di voler eliminare questo alimento?",
+      "description": "Questa azione <strong>non può essere annullata</strong>, se elimini l'alimento perderai tutti i dati relativi a questo alimento!",
+      "buttonText": "Elimina Alimento"
+    },
+    "toast": {
+      "createSuccess": "Alimento creato con successo",
+      "createError": "Errore nella creazione dell'alimento",
+      "updateSuccess": "Alimento aggiornato con successo",
+      "updateError": "Errore nell'aggiornamento dell'alimento",
+      "deleteSuccess": "Alimento eliminato con successo",
+      "deleteError": "Errore nell'eliminazione dell'alimento"
+    }
+  },
+  "Utils": {
+    "currency": "€",
+    "dashboard": "Dashboard",
+    "users": "Utenti",
+    "categories": "Categorie",
+    "foods": "Alimenti",
+    "orders": "Ordini",
+    "operatorView": "Vista Operatore",
+    "logout": "Esci",
+    "cancel": "Annulla",
+    "noImage": "Nessuna Immagine",
+    "time": "it-IT"
+  }
+}

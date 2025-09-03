@@ -1,0 +1,284 @@
+{
+  "CustomerLoginPage": {
+    "title": "Welcome",
+    "customer": "Customer",
+    "customerPlaceholder": "Name and Surname",
+    "table": "Table",
+    "tablePlaceholder": "Table number",
+    "clear": "Clear",
+    "submit": "Next",
+    "validation": {
+      "required": "This field is required",
+      "tableRange": "Table number must be an integer between 1 and 50"
+    }
+  },
+  "Menu": {
+    "cartButton": "Go to Cart"
+  },
+  "OrderRecap": {
+    "clear": "Clear Cart",
+    "create": "Create Order",
+    "dialog": {
+      "title": "Are you sure you want to place this order?",
+      "description": "Your action will generate an order at the checkout, you will be given an order code <strong>don't forget it!</strong>",
+      "confirm": "Place Order",
+      "loading": "Placing Order"
+    }
+  },
+  "Checkout": {
+    "title": "This is your order code, <highlight>don't forget it:</highlight>",
+    "cost": "You need to pay",
+    "currency": "$",
+    "advise": "*Have your money ready to speed up the process😉",
+    "steps": {
+      "title": "What should I do now?",
+      "step1": "👉 Go to the checkout and tell the cashier your order code",
+      "step2": "👛 Make the payment at the checkout",
+      "step3": "🍸 After paying, collect your drinks at the bar",
+      "step4": "🍕 Your food order will be served directly to your table",
+      "noTableStep": "🗣️ When the order is ready, you will be called with the order code or the number on the receipt"
+    },
+    "dialog": {
+      "trigger": "Create a new order",
+      "title": "Are you sure you want to create a new order?",
+      "description": "By creating a new order you won't be able to return to this screen, remember your <strong> order code.</strong> But don't worry too much, it's always available from the cashiers😉",
+      "confirm": "Confirm Creation"
+    }
+  },
+  "Order": {
+    "order": "Order",
+    "orders": "Orders",
+    "food": "Food",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "currency": "$",
+    "trigger": "View Order",
+    "table": "Table",
+    "time": "en-US",
+    "orderFor": "Order for",
+    "delete": {
+      "title": "Are you sure you want to delete this order?",
+      "description": "This action <strong>cannot be undone</strong>, if you delete the order the stats will change.",
+      "buttonText": "Delete Order"
+    },
+    "ordersManagement": "Orders Management",
+    "toast": {
+      "deleteSuccess": "Order deleted successfully",
+      "deleteError": "Error deleting order"
+    }
+  },
+  "Admin": {
+    "Login": {
+      "title": "Admin Login",
+      "username": "Username",
+      "password": "Password",
+      "loginButton": "Login",
+      "clearButton": "Clear",
+      "validation": {
+        "required": "This field is required"
+      },
+      "error": "Username or password is incorrect"
+    }
+  },
+  "Operator": {
+    "Dashboard": {
+      "fetch": "Fetch latest orders",
+      "fetchLoading": "Loading latest orders",
+      "exit": "Exit",
+      "search": "Search Order",
+      "searchError": {
+        "title": "No results for",
+        "description": "Try searching with different keywords"
+      },
+      "fetchError": {
+        "title": "No orders found",
+        "description": "Today no one has placed any orders yet"
+      }
+    }
+  },
+  "User": {
+    "user": "User",
+    "users": "Users",
+    "userManagement": "User Management",
+    "dialog": {
+      "trigger": "Create User",
+      "title": "Create a new user",
+      "create": "Create",
+      "cancel": "Cancel",
+      "username": {
+        "description": "This is user display name.",
+        "placeholder": "Enter username"
+      },
+      "password": {
+        "placeholder": "Create a password"
+      }
+    },
+    "formFields": {
+      "username": "Username",
+      "password": "Password",
+      "role": "Role"
+    },
+    "validation": {
+      "username": "Username is required",
+      "password": "Password is required",
+      "usernameLength": "Username must be at least 4 characters long",
+      "passwordLength": "Password must be at least 8 characters long",
+      "role": "Role is required"
+    },
+    "delete": {
+      "title": "Are you sure you want to delete this user?",
+      "description": "This action <strong>cannot be undone</strong>, if you delete the user their data will be lost.",
+      "buttonText": "Delete User"
+    },
+    "toast": {
+      "createSuccess": "User created successfully",
+      "createError": "Error creating user",
+      "updateSuccess": "User updated successfully",
+      "updateError": "Error updating user",
+      "deleteSuccess": "User deleted successfully",
+      "deleteError": "Error deleting user"
+    }
+  },
+  "Analytics": {
+    "analytics": "Dashboard - Analytics",
+    "ordersPerDay": "Orders per day",
+    "totalOrders": "Total orders",
+    "foodsOrdered": "Foods ordered",
+    "revenuePerDay": "Revenue per day",
+    "orders": "Orders",
+    "foods": "Foods",
+    "time": "en-US"
+  },
+  "Category": {
+    "category": "Category",
+    "categories": "Categories",
+    "categoryManagement": "Category Management",
+    "dialog": {
+      "trigger": "Create Category",
+      "createTitle": "Create a new category",
+      "updateTitle": "Update category",
+      "create": "Create",
+      "edit": "Edit",
+      "cancel": "Cancel"
+    },
+    "formFields": {
+      "name": {
+        "title": "Category Name",
+        "description": "This is category display name.",
+        "placeholder": "Enter category name"
+      },
+      "position": {
+        "title": "Category Position",
+        "description": "Category display order in menu",
+        "placeholder": "Enter category position"
+      },
+      "image": {
+        "title": "Category Image",
+        "placeholder": "Drop your image here, or <highlight>browse</highlight>",
+        "drop": "Drop your image here",
+        "supports": "Supports",
+        "description": "Upload an image for this category (optional, max 5MB). Only JPEG and PNG files are supported."
+      },
+      "available": {
+        "title": "Available",
+        "description": "Show category as available."
+      }
+    },
+    "validation": {
+      "name": "Category Name is required",
+      "nameLength": "Category Name must be at least 2 characters long",
+      "position": "Category Position is required",
+      "available": "Category Availability is required",
+      "imageSize": "Category Image must be less than 5MB",
+      "imageFormat": "Category Image must be a JPEG, JPG or PNG file"
+    },
+    "delete": {
+      "title": "Are you sure you want to delete this category?",
+      "description": "This action <strong>cannot be undone</strong>, if you delete the category you will lost all foods in this category!",
+      "buttonText": "Delete Category"
+    },
+    "toast": {
+      "createSuccess": "Category created successfully",
+      "createError": "Error creating category",
+      "updateSuccess": "Category updated successfully",
+      "updateError": "Error updating category",
+      "deleteSuccess": "Category deleted successfully",
+      "deleteError": "Error deleting category"
+    }
+  },
+  "Food": {
+    "category": "Food",
+    "categories": "Foods",
+    "foodManagement": "Food Management",
+    "dialog": {
+      "trigger": "Create Food",
+      "createTitle": "Create a new food",
+      "updateTitle": "Update food",
+      "create": "Create",
+      "edit": "Edit",
+      "cancel": "Cancel"
+    },
+    "formFields": {
+      "name": {
+        "title": "Food Name",
+        "description": "This is food display name.",
+        "placeholder": "Enter food name"
+      },
+      "description": {
+        "title": "Food Description",
+        "description": "This is food description.",
+        "placeholder": "Enter food description"
+      },
+      "category": {
+        "title": "Food Category",
+        "description": "This is food category.",
+        "placeholder": "Select food category"
+      },
+      "price": {
+        "title": "Food Price ($)",
+        "description": "This is food price.",
+        "placeholder": "Enter food price"
+      },
+      "available": {
+        "title": "Available",
+        "description": "Show food as available."
+      }
+    },
+    "validation": {
+      "name": "Food Name is required",
+      "nameLength": "Food Name must be at least 2 characters long",
+      "price": "Food Price is required",
+      "priceMinValue": "Food price must be at least 0",
+      "priceFormat": "Food price must be a valid number with max two decimal places",
+      "category": "Please select a category for the food",
+      "available": "Food Availability is required"
+    },
+    "delete": {
+      "title": "Are you sure you want to delete this food?",
+      "description": "This action <strong>cannot be undone</strong>, if you delete the food you will lost all data related to this food!",
+      "buttonText": "Delete Food"
+    },
+    "toast": {
+      "createSuccess": "Food created successfully",
+      "createError": "Error creating food",
+      "updateSuccess": "Food updated successfully",
+      "updateError": "Error updating food",
+      "deleteSuccess": "Food deleted successfully",
+      "deleteError": "Error deleting food"
+    }
+  },
+  "Utils": {
+    "currency": "$",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "categories": "Categories",
+    "foods": "Foods",
+    "orders": "Orders",
+    "operatorView": "Operator View",
+    "logout": "Logout",
+    "cancel": "Cancel",
+    "noImage": "No Image",
+    "time": "en-US"
+  }
+}

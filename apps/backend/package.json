@@ -1,0 +1,68 @@
+{
+  "name": "mysagra-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "node --expose-gc --trace-gc --trace-gc-ignore-scavenger --require=perf_hooks dist/index.js",
+    "dev": "npx nodemon",
+    "dev:clean": "rimraf dist && tsx watch src/index.ts",
+    "build": "tsc -p . && tsc-alias",
+    "db:migrate": "npx prisma migrate dev",
+    "db:deploy": "npx prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "generate": "npx prisma generate",
+    "studio": "npx prisma studio",
+    "test": "vitest",
+    "test:watch": "jest --watch",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "jest --config jest.e2e.config.ts",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "_moduleAliases": {
+    "@": "dist/src"
+  },
+  "keywords": [],
+  "author": "MySagra",
+  "description": "",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "prisma": "^6.9.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "@types/bcrypt": "^5.0.2",
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^22.15.18",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "helmet": "^8.1.0",
+    "joi": "^18.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.6.3",
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  }
+}

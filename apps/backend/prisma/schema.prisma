@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output = "../generated/prisma_client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  available Boolean @default(true)
+  position  Int     @default(0)
+  image     String?
+  foods     Food[]
+}
+
+model Food {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  price       Decimal
+  available   Boolean @default(true)
+
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryId Int
+
+  FoodsOrdered FoodsOrdered[]
+}
+
+model Order {
+  id       String    @id
+  dateTime DateTime? @default(now())
+  table    String
+  customer String
+  price    String
+
+  foodsOrdered FoodsOrdered[]
+
+  @@map("orders")
+}
+
+model FoodsOrdered {
+  quantity Int
+
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  food   Food @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId Int
+
+  @@id([orderId, foodId])
+}
+
+//users sections
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  users User[]
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+
+  role   Role @relation(fields: [roleId], references: [id])
+  roleId Int
+}
