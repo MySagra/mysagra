@@ -39,6 +39,9 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
+
+      - name: Generate Prisma Client
+        run: pnpm --filter mysagra-backend exec prisma generate
  
       - name: Build
         run: pnpm build
