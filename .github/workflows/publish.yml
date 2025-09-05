@@ -38,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./docker/backend.dockerfile
+          file: ./docker/backend.Dockerfile
           push: true
           tags: ghcr.io/${{ env.IMAGE_NAME_BACKEND }}:latest
           platforms: linux/amd64,linux/arm64
@@ -47,7 +47,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./docker/frontend.dockerfile
+          file: ./docker/frontend.Dockerfile
           push: true
           tags: ghcr.io/${{ env.IMAGE_NAME_FRONTEND }}:latest
           platforms: linux/amd64,linux/arm64
