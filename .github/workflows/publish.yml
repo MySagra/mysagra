@@ -40,6 +40,7 @@ jobs:
           file: ./docker/backend.dockerfile
           push: true
           tags: ghcr.io/${{ env.IMAGE_NAME_BACKEND }}:latest
+          platforms: linux/amd64,linux/arm64
       
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
@@ -48,3 +49,4 @@ jobs:
           file: ./docker/frontend.dockerfile
           push: true
           tags: ghcr.io/${{ env.IMAGE_NAME_FRONTEND }}:latest
+          platforms: linux/amd64,linux/arm64
