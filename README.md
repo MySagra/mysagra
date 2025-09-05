@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.png" alt="Banner" height="150" width="100%" style="object-fit:cover" />
+  <img src="assets/banner.png" alt="Banner" width="100%" />
 </p>
 
 # MySagra - Smart ordering for your festival
