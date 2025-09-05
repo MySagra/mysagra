@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import Logo from "@/components/logo";
+import { Logo } from "@/components/logo";
 import { useTranslations } from "next-intl";
 
 export default function Login() {
