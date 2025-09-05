@@ -12,7 +12,7 @@ import {
 import { NavMain } from "./nav-main"
 
 import { Gauge, Pizza, Receipt, Martini, Users, ArrowLeftRight } from "lucide-react"
-import Logo from "@/components/logo"
+import { Logo } from "@/components/logo"
 import { NavUser } from "./nav-user"
 import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"

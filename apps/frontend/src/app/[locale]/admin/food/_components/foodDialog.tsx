@@ -68,7 +68,7 @@ export function FoodDialog({ food, setFoods, setShow, categories }: FoodDialogPr
 
     useEffect(() => {
         form.setValue('categoryId', lastCategoryId || 0);
-    }, [lastCategoryId])
+    }, [lastCategoryId, form])
 
     useEffect(() => {
         if (food) {

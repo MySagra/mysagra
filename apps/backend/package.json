@@ -28,7 +28,7 @@
   "description": "",
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "prisma": "^6.9.0",
+    "prisma": "^6.15.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0"

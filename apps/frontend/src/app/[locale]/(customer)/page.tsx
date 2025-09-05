@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { useOrder } from "@/contexts/OrderContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Logo from "@/components/logo";
+import { Logo } from "@/components/logo";
 import { useTranslations } from "next-intl";
 import { useTableService } from "@/contexts/ServiceTableContext";
 

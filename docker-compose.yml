@@ -2,7 +2,7 @@ services:
   mysagra-frontend:
     build:
       context: ./apps/frontend
-      dockerfile: Dockerfile
+      dockerfile: ../../docker/frontend.Dockerfile
       args:
         - APP_NAME=MySagra
     depends_on:
@@ -18,7 +18,7 @@ services:
   mysagra-backend:
     build:
       context: ./apps/backend
-      dockerfile: Dockerfile
+      dockerfile: ../../docker/backend.Dockerfile
     command: ["sh", "-c", "npm run db:deploy && npm run db:seed && npm start"]
     env_file: .env
     environment:
