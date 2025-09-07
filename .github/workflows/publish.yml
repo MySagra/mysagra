@@ -40,7 +40,7 @@ jobs:
           context: .
           file: ./docker/images/mysagra-backend/Dockerfile
           push: true
-          tags: ghcr.io/mysagra/${{ env.IMAGE_NAME_BACKEND }}:latest
+          tags: ghcr.io/MySagra/${{ env.IMAGE_NAME_BACKEND }}:latest
           platforms: linux/amd64,linux/arm64
       
       - name: Build and push frontend image
@@ -49,5 +49,5 @@ jobs:
           context: .
           file: ./docker/images/mysagra-frontend/Dockerfile
           push: true
-          tags: ghcr.io/mysagra/${{ env.IMAGE_NAME_FRONTEND }}:latest
+          tags: ghcr.io/MySagra/${{ env.IMAGE_NAME_FRONTEND }}:latest
           platforms: linux/amd64,linux/arm64
