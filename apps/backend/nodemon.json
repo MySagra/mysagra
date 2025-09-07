@@ -1,0 +1,9 @@
+{
+  "watch": ["src"],
+  "ext": ".ts,.js",
+  "ignore": ["src/**/*.spec.ts", "src/**/*.test.ts"],
+  "exec": "node -r ts-node/register -r tsconfig-paths/register src/index.ts",
+  "legacyWatch": true,
+  "delay": "1000",
+  "polling": true
+}

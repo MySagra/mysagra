@@ -1,0 +1,53 @@
+name: Build and Push Docker Image
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BACKEND: mysagra-backend
+  IMAGE_NAME_FRONTEND: mysagra-frontend
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/images/mysagra-backend/Dockerfile
+          push: true
+          tags: ghcr.io/mysagra/${{ env.IMAGE_NAME_BACKEND }}:latest
+          platforms: linux/amd64,linux/arm64
+      
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/images/mysagra-frontend/Dockerfile
+          push: true
+          tags: ghcr.io/mysagra/${{ env.IMAGE_NAME_FRONTEND }}:latest
+          platforms: linux/amd64,linux/arm64

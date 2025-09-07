@@ -1,0 +1,36 @@
+# Node modules e lockfile temporanei
+node_modules
+**/node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# Version control
+.git
+.gitignore
+.github
+
+# Editor e IDE
+.vscode
+.idea
+
+# Logs e coverage
+logs
+coverage
+
+# Build output che non serve al backend
+frontend/
+apps/frontend/.next/
+dist/
+.out/
+
+# Assets generici (escludi se non servono al backend)
+assets/
+
+# Licenze e README (opzionale)
+LICENSE
+README.md
