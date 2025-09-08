@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { getFoods, getFoodById, getFoodByCategory, createFood, updateFood, deleteFood, getAvailableFoods, getAvailableFoodByCategory, patchFoodAvailable } from "@/controllers/food.controller";
 import { checkUniqueFoodName, checkFoodExists, checkFoodCategoryExists } from "@/middlewares/checkFood";
-import { validateRequest } from "@/middlewares/validateRequest";
-import { createFoodSchema, updateFoodSchema, idFoodSchema } from "@/validators/food";
+
+import { foodSchema, idParamSchema } from "@/validators";
+import { validateBody, validateParams } from "@/middlewares/validateRequest";
+
 import { authenticate } from "@/middlewares/authenticate";
 
 const router = Router();
@@ -139,7 +141,7 @@ router.get(
 router.post(
     "/",
     authenticate(["admin"]),
-    validateRequest(createFoodSchema),
+    validateBody(foodSchema),
     checkFoodCategoryExists,
     checkUniqueFoodName,
     createFood
@@ -185,7 +187,8 @@ router.post(
 router.put(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(updateFoodSchema),
+    validateParams(idParamSchema),
+    validateBody(foodSchema),
     checkFoodExists,
     checkUniqueFoodName,
     updateFood
@@ -223,7 +226,7 @@ router.put(
 router.patch(
     "/available/:id",
     authenticate(["admin"]),
-    validateRequest(idFoodSchema),
+    validateParams(idParamSchema),
     checkFoodExists,
     patchFoodAvailable
 )
@@ -257,7 +260,7 @@ router.patch(
  */
 router.get(
     "/available/categories/:id",
-    validateRequest(idFoodSchema),
+    validateParams(idParamSchema),
     getAvailableFoodByCategory
 );
 
@@ -290,7 +293,7 @@ router.get(
  */
 router.get(
     "/categories/:id",
-    validateRequest(idFoodSchema),
+    validateParams(idParamSchema),
     getFoodByCategory
 )
 
@@ -322,7 +325,7 @@ router.get(
 router.delete(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(idFoodSchema),
+    validateParams(idParamSchema),
     checkFoodExists,
     deleteFood
 );
@@ -356,7 +359,7 @@ router.delete(
  */
 router.get(
     "/:id",
-    validateRequest(idFoodSchema),
+    validateParams(idParamSchema),
     getFoodById
 );
 

@@ -4,8 +4,8 @@ import { checkUniqueCategoryName, checkCategoryExists } from "@/middlewares/chec
 import { authenticate } from "@/middlewares/authenticate";
 import { ImageService } from "@/services/image.service";
 
-import {createCategorySchema, updateCategorySchema, idCategorySchema} from "@/validators/category";
-import { validateRequest } from "@/middlewares/validateRequest";
+import { categorySchema, idParamSchema } from "@/validators";
+import { validateBody, validateParams } from "@/middlewares/validateRequest";
 
 const imageService = new ImageService("categories");
 const router = Router();
@@ -119,7 +119,8 @@ router.get(
 router.patch(
     "/available/:id",
     authenticate(["admin"]),
-    validateRequest(idCategorySchema),
+    validateParams(idParamSchema),
+    validateBody(categorySchema),
     checkCategoryExists,
     patchAvailableCategory
 )
@@ -149,7 +150,7 @@ router.patch(
 router.post(
     "/",
     authenticate(["admin"]),
-    validateRequest(createCategorySchema),
+    validateBody(categorySchema),
     checkUniqueCategoryName,
     createCategory
 );
@@ -195,7 +196,7 @@ router.post(
 router.patch(
     "/:id/image",
     authenticate(["admin"]),
-    validateRequest(idCategorySchema),
+    validateParams(idParamSchema),
     checkCategoryExists,
     imageService.upload(),
     uploadImage
@@ -237,7 +238,8 @@ router.patch(
 router.put(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(updateCategorySchema),
+    validateParams(idParamSchema),
+    validateBody(categorySchema),
     checkCategoryExists,
     checkUniqueCategoryName,
     updateCategory
@@ -270,7 +272,7 @@ router.put(
 router.delete(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(idCategorySchema),
+    validateParams(idParamSchema),
     deleteCategory
 );
 
@@ -297,7 +299,7 @@ router.delete(
  */
 router.get(
     "/:id",
-    validateRequest(idCategorySchema),
+    validateParams(idParamSchema),
     getCategoryById
 );
 

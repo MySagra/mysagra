@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { validateRequest } from "@/middlewares/validateRequest";
-import { createUserSchema, updateUserSchema, idUserSchema } from "@/validators/user";
 import { checkUniqueUsername } from "@/middlewares/checkUser";
 import { authenticate } from "@/middlewares/authenticate";
+
+import { validateBody, validateParams } from "@/middlewares/validateRequest";
+import { userSchema, idParamSchema } from "@/validators";
 
 import { UserService } from "@/services/UserService";
 import { UserController } from "@/controllers/UserController";
@@ -116,7 +117,7 @@ router.get(
 router.post(
     "/",
     authenticate(["admin"]),
-    validateRequest(createUserSchema),
+    validateBody(userSchema),
     checkUniqueUsername,
     userController.createUser
 );
@@ -163,7 +164,8 @@ router.post(
 router.put(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(updateUserSchema),
+    validateParams(idParamSchema),
+    validateBody(userSchema),
     checkUniqueUsername,
     userController.updateUser
 )
@@ -208,7 +210,7 @@ router.put(
 router.delete(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(idUserSchema),
+    validateParams(idParamSchema),
     userController.deleteUser
 );
 
@@ -248,7 +250,7 @@ router.delete(
 router.get(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(idUserSchema),
+    validateParams(idParamSchema),
     userController.getUserById
 );
 

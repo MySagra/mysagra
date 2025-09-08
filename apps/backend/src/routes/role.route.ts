@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { getRoles, getRoleById, createRole, updateRole, deleteRole } from "@/controllers/role.controller";
-import { validateRequest } from "@/middlewares/validateRequest";
-import { createRoleSchema, updateRoleSchema, idRoleSchema } from "@/validators/role";
 import { checkUniqueRoleName, checkRoleExists } from "@/middlewares/checkRole";
 import { authenticate } from "@/middlewares/authenticate";
+
+import { validateParams, validateBody } from "@/middlewares/validateRequest";
+import { roleSchema, idParamSchema } from "@/validators";
 
 const router = Router();
 
@@ -92,7 +93,7 @@ router.get(
 router.post(
     "/",
     authenticate(["admin"]),
-    validateRequest(createRoleSchema),
+    validateBody(roleSchema),
     checkUniqueRoleName,
     createRole
 );
@@ -141,7 +142,8 @@ router.post(
 router.put(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(updateRoleSchema),
+    validateParams(idParamSchema),
+    validateBody(roleSchema),
     checkRoleExists,
     checkUniqueRoleName,
     updateRole
@@ -187,7 +189,7 @@ router.put(
 router.delete(
     "/:id",
     authenticate(["admin"]),
-    validateRequest(idRoleSchema),
+    validateParams(idParamSchema),
     deleteRole
 );
 
@@ -227,7 +229,7 @@ router.delete(
 router.get(
     "/:id",
     authenticate(["admin", "operator"]),
-    validateRequest(idRoleSchema),
+    validateParams(idParamSchema),
     getRoleById
 );
 

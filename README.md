@@ -11,7 +11,7 @@ Deploy with [Docker Compose](https://docs.docker.com/compose/):
 1. Setup the `env` file following the `.env.example` file
 2. Build and start the containers
 ```bash
-    docker-compose up --build
+    docker-compose up -d
 ```
 
 ## Development

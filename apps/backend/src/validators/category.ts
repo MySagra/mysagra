@@ -1,20 +1,11 @@
-import Joi from "joi";
+import z from "zod"
 
-export const createCategorySchema = Joi.object({
-    body: Joi.object({
-        name: Joi.string().min(1).required(),
-        available: Joi.bool().required(),
-        position: Joi.number().integer().required()
-    })
+export const categorySchema = z.object({
+    name: z.string().min(1),
+    available: z.boolean(),
+    position: z.number().int()
 })
 
-export const idCategorySchema = Joi.object({
-    params: Joi.object({
-        id: Joi.number().integer().positive()
-    })
-})
-
-export const updateCategorySchema = Joi.object({
-    createCategorySchema,
-    idCategorySchema
+export const idCategorySchema = z.object({
+    id: z.number().int().positive()
 })
