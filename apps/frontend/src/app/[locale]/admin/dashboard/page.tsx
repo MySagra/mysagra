@@ -17,7 +17,8 @@ export default async function Analytics() {
     const ordersStats = await getOrderStats();
     const foodsStats = await getFoodsOrderedStats();
     const revenueStats = await getRevenueStats();
-    const totalFoods = foodsStats.foodOrdered.reduce((acc: number, curr: { quantity: string }) => acc + parseInt(curr.quantity), 0)
+
+    const totalFoods = foodsStats.reduce((acc: number, curr: { quantity: string }) => acc + parseInt(curr.quantity), 0)
 
     return (
         <>

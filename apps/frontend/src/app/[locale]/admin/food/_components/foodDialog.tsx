@@ -91,10 +91,11 @@ export function FoodDialog({ food, setFoods, setShow, categories }: FoodDialogPr
     }, [food, categories, form]);
 
     function createFood(values: FoodFormValues) {
+        const foodData = { ...values, price: parseFloat(values.price) };
         fetch("/api/foods", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(values),
+            body: JSON.stringify(foodData),
         }).then(async res => {
             const data = await res.json();
             if (!res.ok) return;
@@ -113,10 +114,11 @@ export function FoodDialog({ food, setFoods, setShow, categories }: FoodDialogPr
     }
 
     function updateFood(values: FoodFormValues) {
+        const foodData = { ...values, price: parseFloat(values.price) };
         fetch(`/api/foods/${food?.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(values),
+            body: JSON.stringify(foodData),
         }).then(async res => {
             const data = await res.json();
             if (!res.ok) return

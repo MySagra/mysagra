@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "start": "node --expose-gc --trace-gc --trace-gc-ignore-scavenger --require=perf_hooks dist/index.js",
-    "dev": "npx nodemon",
+    "dev": "ts-node-dev --respawn --transpile-only --project tsconfig.json -r tsconfig-paths/register src/index.ts",
     "dev:clean": "rimraf dist && tsx watch src/index.ts",
     "build": "tsc -p . && tsc-alias",
     "db:migrate": "npx prisma migrate dev",
@@ -51,7 +51,6 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
-    "joi": "^18.0.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "swagger-jsdoc": "^6.2.8",
@@ -60,7 +59,8 @@
     "typescript": "^5.6.3",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "zod": "^3.25.76"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

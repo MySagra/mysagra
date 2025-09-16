@@ -51,14 +51,14 @@ export default function CategoryDialog({ category, setCategories, setShow, image
         resolver: zodResolver(getCategoryFormSchema(t)),
         defaultValues: {
             name: category?.name || "",
-            position: category?.position !== undefined ? String(category.position) : "1",
+            position: category?.position?.toString() || "1",
             available: category?.available || true
         }
     })
 
     function createCategory(values: CategoryFormValues) {
         const file = uploadRef.current?.getFile();
-        const categoryData = { ...values };
+        const categoryData = { ...values, position: Number(values.position) };
 
         if (file) {
             categoryData.image = file;
@@ -87,7 +87,7 @@ export default function CategoryDialog({ category, setCategories, setShow, image
 
     function updateCategory(values: CategoryFormValues) {
         const file = uploadRef.current?.getFile();
-        const categoryData = { ...values };
+        const categoryData = { ...values, position: Number(values.position) };
 
         if (file) {
             categoryData.image = file;

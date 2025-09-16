@@ -27,6 +27,5 @@ export async function DELETE(
         revalidateTag('users');
     }
 
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json({ status: res.status });
 }

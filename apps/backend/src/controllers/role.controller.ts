@@ -1,73 +1,48 @@
-import { NextFunction, Request, Response } from "express";
+import { RoleService } from "@/services/role.service";
 
-import prisma from "@/utils/prisma";
+import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 
-export const getRoles = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const roles = await prisma.role.findMany();
-    res.status(200).json(roles);
-});
+export class RoleController {
+    constructor(private roleService: RoleService) { }
 
-export const getRoleById = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
+    getRoles = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const roles = await this.roleService.getRoles();
 
-    const role = await prisma.role.findUnique({
-        where: {
-            id
+        if (!Array.isArray(roles)) {
+            res.status(404).json({ message: "Roles not found" })
+            return;
         }
+
+        res.status(200).json(roles);
     });
 
-    if (!role) {
-        res.status(404).json({ message: "Role not found" });
-        return;
-    }
-
-    res.status(200).json(role);
-});
-
-export const createRole = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { name } = req.body;
-
-    const newRole = await prisma.role.create({
-        data: {
-            name
+    getRoleById = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const id = parseInt(req.params.id);
+        const role = await this.roleService.getRoleById(id);
+        if (!role) {
+            res.status(404).json({ message: "Role not found" });
+            return;
         }
+        res.status(200).json(role);
+    })
+
+    createRole = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { name } = req.body;
+        const role = await this.roleService.createRole(name)
+        res.status(201).json(role);
     });
 
-    res.status(201).json(newRole);
-});
-
-export const updateRole = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
-    const { name } = req.body;
-
-    const updatedRole = await prisma.role.update({
-        where: {
-            id
-        },
-        data: {
-            name
-        }
+    updateRole = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const id = parseInt(req.params.id);
+        const { name } = req.body;
+        const role = await this.roleService.updateRole(id, name)
+        res.status(200).json(role);
     });
 
-    if (!updatedRole) {
-        res.status(404).json({ message: "Role not found" });
-        return;
-    }
-
-    res.status(201).json(updatedRole);
-});
-
-export const deleteRole = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
-
-    await prisma.role.delete({
-        where: {
-            id
-        }
+    deleteRole = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const id = parseInt(req.params.id);
+        await this.roleService.deleteRole(id);
+        res.status(204).send();
     });
-
-    res.status(200).json({
-        message: "Role deleted"
-    });
-});
+}

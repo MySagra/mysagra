@@ -1,162 +1,70 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 
-import prisma from "@/utils/prisma";
-
-import { Food } from "@generated/prisma_client/client";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { FoodService } from "@/services/food.service";
 
-export const getFoods = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const foods = await prisma.food.findMany({
-        include: {
-            category: true
+
+export class FoodController {
+    constructor(private foodService: FoodService) {}
+    
+    getFoods = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const foods = await this.foodService.getFoods();
+
+        if (!Array.isArray(foods)) {
+            res.status(404).json({ message: "Foods not found" })
         }
+        res.status(200).json(foods);
     });
-    res.status(200).json(foods);
-})
 
-export const getAvailableFoods = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const foods = await prisma.food.findMany({
-        where: {
-            available: true
-        },
-        include: {
-            category: true
+    getFoodById = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { id } = req.params;
+        const food = await this.foodService.getFoodById(parseInt(id))
+        if (!food) {
+            res.status(404).json({ message: "Food not found" });
+            return;
         }
-    });
-    res.status(200).json(foods);
-})
-
-export const getFoodById = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
-
-    const food = await prisma.food.findUnique({
-        where: {
-            id
-        },
-        include: {
-            category: true
-        }
+        res.status(200).json(food);
     });
 
-    if (!food) {
-        res.status(404).json({ message: "Food not found" });
-        return;
-    }
+    getAvailableFoods = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const foods = await this.foodService.getAvailableFoods();
+        res.status(200).json(foods);
+    })
 
-    res.status(200).json(food);
-})
+    getFoodsByCategoryId = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { id } = req.params;
+        const foods = await this.foodService.getFoodsByCategoryId(parseInt(id));
+        res.status(200).json(foods);
+    })
 
-export const getFoodByCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
+    getAvailableFoodsByCategoryId = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { id } = req.params;
+        const foods = await this.foodService.getAvailableFoodsByCategoryId(parseInt(id));
+        res.status(200).json(foods);
+    })
 
-    const food = await prisma.food.findMany({
-        where: {
-            categoryId: id
-        },
-        include: {
-            category: true
-        }
+    createFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { name, description, price, categoryId, available } = req.body;
+        const food = await this.foodService.createFood(name, description, price, categoryId, available);
+        res.status(201).json(food);
     });
 
-    if (!food) {
-        res.status(404).json({ message: "Food not found" });
-        return;
-    }
-
-    res.status(200).json(food);
-})
-
-export const getAvailableFoodByCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
-
-    const food = await prisma.food.findMany({
-        where: {
-            categoryId: id,
-            available: true
-        },
-        orderBy: {
-            name: "asc"
-        },
-        include: {
-            category: true
-        }
+    updateFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { id } = req.params;
+        const { name, description, price, categoryId, available } = req.body;
+        const food = await this.foodService.updateFood(parseInt(id), name, description, price, categoryId, available);
+        res.status(200).json(food);
     });
 
-    if (!food) {
-        res.status(404).json({ message: "Food not found" });
-        return;
-    }
-
-    res.status(200).json(food);
-})
-
-export const createFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const food: Food = req.body;
-
-    const newFood = await prisma.food.create({
-        data: food
+    patchFoodAvailable = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { id } = req.params;
+        const food = await this.foodService.patchAvailableFood(parseInt(id));
+        res.status(200).json(food);
     });
 
-    res.status(201).json(newFood);
-})
-
-export const updateFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
-    const food: Food = req.body;
-
-    const updatedFood = await prisma.food.update({
-        where: {
-            id
-        },
-        data: food,
-        include: {
-            category: true
-        }
+    deleteFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { id } = req.params;
+        await this.foodService.deleteFood(parseInt(id));
+        res.status(204).send();
     });
-
-    if (!updatedFood) {
-        res.status(404).json({ message: "Food not found" });
-        return;
-    }
-
-    res.status(200).json(updatedFood);
-})
-
-export const patchFoodAvailable = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
-
-    const food = await prisma.food.findUnique({ where: { id } })
-
-    if (!food) {
-        res.status(404).json({ message: "Food not found" });
-        return;
-    }
-
-    const patchFood = await prisma.food.update({
-        where: {
-            id
-        },
-        data: {
-            available: !food.available
-        },
-        include: {
-            category: true
-        }
-    });
-
-    res.status(200).json(patchFood);
-})
-
-export const deleteFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const id = parseInt(req.params.id);
-
-    await prisma.food.delete({
-        where: {
-            id
-        }
-    });
-
-    res.status(200).json({
-        message: "Category deleted"
-    });
-});
+}

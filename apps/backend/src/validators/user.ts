@@ -1,21 +1,7 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import Joi from "joi";
+import z from "zod"
 
-export const createUserSchema = Joi.object({
-    body: Joi.object({
-        username: Joi.string().min(4).required(),
-        password: Joi.string().min(8).required(),
-        roleId: Joi.number().integer().min(0).required()
-    })
-})
-
-export const idUserSchema = Joi.object({
-    params: Joi.object({
-        id: Joi.number().integer().positive()
-    })
-})
-
-export const updateUserSchema = Joi.object({
-    createUserSchema,
-    idUserSchema
+export const userSchema = z.object({
+    username: z.string().min(4),
+    password: z.string().min(8),
+    roleId: z.number().int().min(1)
 })

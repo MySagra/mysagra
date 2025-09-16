@@ -1,29 +1,33 @@
 import dotenv from 'dotenv'
-import Joi from 'joi'
+import z from 'zod';
 
 dotenv.config();
 
-const envSchema = Joi.object({
-    NODE_ENV: Joi.string().valid('development', 'production', 'test'),
-    PORT: Joi.number().min(0).max(65535),
-    DATABASE_URL: Joi.string().required(),
-    PEPPER: Joi.string().required(),
-    JWT_SECRET: Joi.string().required(),
-    FRONTEND_URL: Joi.string().required()
-}).unknown();
 
-const { error, value: envVars } = envSchema.validate(process.env);
+const envSchema = z.object({
+    NODE_ENV: z.enum(['development', 'production', 'test']).optional(),
+    PORT: z.preprocess(
+        (val) => val === undefined ? undefined : Number(val),
+        z.number().int().min(0).max(65535).optional()
+    ),
+    DATABASE_URL: z.string(),
+    PEPPER: z.string(),
+    JWT_SECRET: z.string(),
+    FRONTEND_URL: z.string()
+}).strip()
+
+const { success, error, data } = envSchema.safeParse(process.env)
 
 if(error) {
-    console.error(`Error during validation of .env variables: `, error.details);
+    console.error(`Error during validation of .env variables: `, error.errors);
     process.exit(1);
 }
 
 export const env = {
-    NODE_ENV: envVars.NODE_ENV || "development",
-    PORT: envVars.PORT || 4300,
-    DATABASE_URL: envVars.DATABASE_URL,
-    PEPPER: envVars.PEPPER,
-    JWT_SECRET: envVars.JWT_SECRET,
-    FRONTEND_URL: envVars.FRONTEND_URL
+    NODE_ENV: data.NODE_ENV || "development",
+    PORT: data.PORT || 4300,
+    DATABASE_URL: data.DATABASE_URL,
+    PEPPER: data.PEPPER,
+    JWT_SECRET: data.JWT_SECRET,
+    FRONTEND_URL: data.FRONTEND_URL
 }

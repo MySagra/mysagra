@@ -1,22 +1,9 @@
-import Joi from "joi";
+import z from "zod"
 
-export const createFoodSchema = Joi.object({
-    body: Joi.object({
-        name: Joi.string().min(1).required(),
-        description: Joi.string().min(0),
-        price: Joi.number().min(0.01).required(),
-        available: Joi.boolean().required(),
-        categoryId: Joi.number().integer().positive().required()
-    })
-})
-
-export const idFoodSchema = Joi.object({
-    params: Joi.object({
-        id: Joi.number().integer().positive()
-    })
-})
-
-export const updateFoodSchema = Joi.object({
-    createFoodSchema,
-    idFoodSchema
+export const foodSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().min(0).optional(),
+    price: z.number().min(0.01),
+    available: z.boolean(),
+    categoryId: z.number().int().min(1),
 })

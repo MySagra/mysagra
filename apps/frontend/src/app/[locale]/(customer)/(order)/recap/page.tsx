@@ -33,7 +33,7 @@ export default function Recap() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                table: order.table,
+                table: parseInt(order.table),
                 customer: order.customer,
                 foodsOrdered: order.foodsOrdered
             })
