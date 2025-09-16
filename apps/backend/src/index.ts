@@ -6,9 +6,8 @@ import path from "path";
 
 import { env } from './config/env';
 
-import compression = require('compression');
+import compression from 'compression';
 import { errorHandler } from './middlewares/errorHandler';
-import { limiter } from './middlewares/limiter';
 import { corsOptions } from './config/corsOptions';
 
 //docs
@@ -16,13 +15,8 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from './docs/swagger';
 
 //routes
-import loginRouter from "@/routes/auth/login.route"
-import categoryRouter from "@/routes/category.route"
-import foodRouter from "@/routes/food.routes"
-import orderRouter from "@/routes/order.route"
-import roleRouter from "@/routes/role.route"
-import userRouter from "@/routes/user.route"
-import statsRouter from "@/routes/stats.route"
+import routes from "@/routes"
+
 import { requestId } from './middlewares/requestId';
 import { loggingMiddleware } from './middlewares/logging';
 
@@ -47,7 +41,6 @@ app.use(helmet.contentSecurityPolicy({
     styleSrc: ["'self'", env.FRONTEND_URL || "", "'unsafe-inline'"],
   }
 }));
-//TODO: setup limiter for webapp app.use(limiter);
 
 //global middlewares
 app.use(requestId);
@@ -76,13 +69,7 @@ app.get("/health", (req, res) => {
 });
 
 //routes
-app.use("/auth/login", loginRouter)
-app.use("/v1/categories", categoryRouter);
-app.use("/v1/foods", foodRouter);
-app.use("/v1/orders", orderRouter);
-app.use("/v1/roles", roleRouter);
-app.use("/v1/users", userRouter);
-app.use("/v1/stats", statsRouter);
+app.use(routes);
 
 //error handling for 404
 app.use((req, res, next) => {
@@ -99,3 +86,8 @@ app.listen(env.PORT, () => {
   console.log(`Server is listening on http://localhost:${env.PORT}`);
   console.log(`Documentation: http://localhost:${env.PORT}/api-docs`);
 });
+
+process.on('SIGINT', () => {
+  console.log(`Server interrupt`)
+  process.exit(0);
+})

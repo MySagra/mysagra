@@ -6,13 +6,11 @@ export type OrderStats = {
     }>
 }
 
-export type FoodStats = {
-    foodOrdered: Array<{
-        food: string,
-        quantity: string,
-        price: string
-    }>
-}
+export type FoodStats = Array<{
+    food: string,
+    quantity: string,
+    price: string
+}>
 
 export type RevenueStats = {
     revenuePerDay: Array<{

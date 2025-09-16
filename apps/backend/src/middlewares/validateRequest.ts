@@ -11,21 +11,21 @@ export const validateParams = (schema: ZodSchema) => {
             return next();
         }
 
-        logger.error({ type: "Params", errors: error.errors })
+        logger.error(JSON.stringify({ type: "Params", errors: error.errors }))
         res.status(400).json({ errors: error.errors })
     };
 };
 
 export const validateBody = (schema: ZodSchema) => {
     return (req: Request, res: Response, next: NextFunction): void => {
-        const { success, error, data } = schema.safeParse(req.params);
+        const { success, error, data } = schema.safeParse(req.body);
 
         if (success) {
             req.body = data
             return next();
         }
 
-        logger.error({ type: "Body", errors: error.errors })
+        logger.error(JSON.stringify({ type: "Body", errors: error.errors }))
         res.status(400).json({ errors: error.errors })
     };
 };

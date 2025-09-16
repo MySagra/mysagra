@@ -2,6 +2,7 @@ import path from "path"
 import fs from "fs"
 import multer from "multer";
 import { Request, RequestHandler } from "express";
+import { logger } from "@/config/logger";
 
 const fileFilter = (
     req: Request,
@@ -23,9 +24,11 @@ const fileFilter = (
 export class ImageService {
     private folderPath: string
     private uploader: multer.Multer
+    private resource: string
 
-    constructor(folderName: string) {
+    constructor(folderName: string, resource: string) {
         this.folderPath = path.join(__dirname, `../../public/uploads/${folderName}`);
+        this.resource = resource;
 
         const uploadsPath = path.join(__dirname, "../../public/uploads");
         if (!fs.existsSync(uploadsPath)) {
@@ -46,18 +49,29 @@ export class ImageService {
     private createStorage(): multer.StorageEngine {
         const folderPath = this.folderPath;
         return multer.diskStorage({
-            destination: function (req: Request, file: Express.Multer.File, cb) {
+            destination: (req: Request, file: Express.Multer.File, cb) => {
                 return cb(null, folderPath);
             },
-            filename: function (req: Request, file: Express.Multer.File, cb) {
+            filename: (req: Request, file: Express.Multer.File, cb) => {
                 const id = req.params?.id
                 const ext = path.extname(file.originalname);
-                cb(null, `category-${id}-${Date.now()}${ext}`);
+                cb(null, `${this.resource}-${id}-${Date.now()}${ext}`);
             }
         })
     }
 
     public upload() : RequestHandler {
         return this.uploader.single('image');
+    }
+
+    public delete(fileName: string) {
+        const filePath = path.join(this.folderPath, fileName);
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                logger.error(`Error deleting file ${filePath}:`, err);
+            } else {
+                logger.info(`File ${filePath} deleted successfully.`);
+            }
+        });
     }
 }

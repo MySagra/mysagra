@@ -5,9 +5,7 @@ export function getCategoryFormSchema(t: (key: string) => string) {
         name: z.string({ required_error: t('validation.name')}).min(2, {message: t('validation.nameLength')}).max(50),
         position: z.string({ required_error: t('validation.position')} )
             .min(1)
-            .refine(val => !isNaN(Number(val)), {
-                message: "Required a number"
-            }),
+            .refine(val => !isNaN(Number(val)) && Number(val) >= 1),
         available: z.boolean( { required_error: t('validation.available')}),
         image: z
             .instanceof(File)

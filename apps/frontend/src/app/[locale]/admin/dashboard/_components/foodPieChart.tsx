@@ -37,7 +37,7 @@ export function FoodPieChart({ totalFoods, stats, className }: FoodPieChartProps
     return "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
   }
 
-  const pieData = stats.foodOrdered.map((item) => ({
+  const pieData = stats.map((item) => ({
     ...item,
     quantity: Number(item.quantity),
     fill: getRandomColor(),

@@ -1,8 +1,7 @@
 import z from "zod"
-import { idSchema } from "./params"
 
 const foodsOrderedSchema = z.object({
-    foodId: idSchema,
+    foodId: z.number().int().min(1),
     quantity: z.number().int().min(1)
 })
 
