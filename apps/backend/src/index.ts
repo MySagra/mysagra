@@ -82,12 +82,18 @@ app.use((req, res, next) => {
 //error middleware
 app.use(errorHandler);
 
-app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, () => {
   console.log(`Server is listening on http://localhost:${env.PORT}`);
   console.log(`Documentation: http://localhost:${env.PORT}/api-docs`);
 });
 
-process.on('SIGINT', () => {
-  console.log(`Server interrupt`)
-  process.exit(0);
-})
+function shutdown() {
+  console.log('Shutting down server...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

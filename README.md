@@ -2,8 +2,11 @@
   <img src="assets/banner.png" alt="Banner" width="100%" />
 </p>
 
-# MySagra - Smart ordering for your festival
-MySagra is a platform that streamlines the ordering process for festivals, allowing users to easily browse and purchase food and drinks from their favorite vendors.
+# MySagra – Smart Ordering for Festivals, Fairs, and Local Events
+
+**MySagra** is an open-source platform that digitizes and simplifies the ordering process for festivals, fairs, and local events. Designed to reduce queues and streamline operations, MySagra allows users to easily order food and drinks from their tables or at the counter, while staff manages orders in real-time through dashboards, printers, and dedicated workstations (kitchen, bar, runner, cashier). With offline support, customizable roles, and menu management including allergens and options, MySagra is the perfect solution for events even in low-connectivity areas. Fully controllable and ready to use or customize.
+
+👉 Learn more at [mysagra.com](https://mysagra.com)
 
 ## Quick Start
 
