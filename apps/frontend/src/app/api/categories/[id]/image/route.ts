@@ -1,6 +1,6 @@
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { getAccessToken } from "@/lib/auth/getTokens";
 
 interface Params {
     id: string;
@@ -38,8 +38,7 @@ export async function PATCH(
     { params }: { params: Promise<Params> }
 ) {
     const { id } = await params;
-    const cookieStore = cookies();
-    const token = (await cookieStore).get("token")?.value || "redondi";
+    const token = await getAccessToken();
 
     // Get the form from request
     const formData = await request.formData();

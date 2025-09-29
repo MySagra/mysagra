@@ -1,4 +1,4 @@
-import { getJwtFromCookie } from "@/lib/auth/verifyjwt";
+import { getAccessToken } from "@/lib/auth/getTokens";
 import { User } from "@/types/user";
 
 export async function getUsers(): Promise<Array<User>> {
@@ -6,7 +6,7 @@ export async function getUsers(): Promise<Array<User>> {
         next: { tags: ['users']},
         method: "GET",
         headers: {
-            "Authorization": `Bearer ${await getJwtFromCookie()}`
+            "Authorization": `Bearer ${await getAccessToken()}`
         }
     }).then(res => res.json());
 }

@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { cookies } from "next/headers";
+import { getAccessToken } from "@/lib/auth/getTokens";
 
 interface Params {
     page: string;
@@ -12,8 +12,7 @@ export async function GET(
     { params }: { params: Promise<Params> }
 ) {
 
-    const cookieStore = cookies();
-    const token = (await cookieStore).get("token")?.value || "redondi";
+    const token = await getAccessToken();
     const { page } = await params;
 
     const res = await fetch(`${API_URL}/v1/orders/pages/${page}`, {

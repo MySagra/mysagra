@@ -1,10 +1,12 @@
 import { checkHashPassword } from "@/lib/hashPassword";
-import { generateJwt } from "@/lib/JWT";
 import prisma from "@/utils/prisma";
 import { User } from "@generated/prisma_client";
+import { TokenService } from "./token.service";
 
 
 export class AuthService {
+    private tokenService = new TokenService();
+
     async getUser(username: string) {
         const user = await prisma.user.findUnique({
             where: {
@@ -18,15 +20,44 @@ export class AuthService {
         return user;
     }
 
-    async generateToken(user: User & { role: { id: number; name: string } }, password: string) {
+    async login(user: User & { role: { id: number; name: string } }, password: string, ip? : string, userAgent?: string) {
         if (!await checkHashPassword(password, user.password)) return null;
 
+        const refreshToken = await this.tokenService.generateRefreshToken(user.id, ip, userAgent)
+        const accessToken = await this.tokenService.generateAccessToken(user)
+
         return {
-            user: {
-                username: user.username,
-                role: user.role.name
-            },
-            token: generateJwt(user)
+            accessToken,
+            refreshToken
         }
+    }
+
+    async logout(refreshToken: string) : Promise<Boolean>{
+        return await this.tokenService.revokeToken(refreshToken);
+    }
+
+    async revokeToken(refreshToken: string){
+        return await this.tokenService.revokeToken(refreshToken);
+    }
+
+    async refresh(refreshToken: string) : Promise<string | null>{
+        if(!await this.tokenService.isRefreshTokenValid(refreshToken)) return null;
+        const payload = this.tokenService.getPayload(refreshToken);
+        if(!payload?.sub || isNaN(parseInt(payload.sub))) return null;
+
+        const user = await prisma.user.findUnique({
+            where: {
+                id: parseInt(payload.sub)
+            },
+            select: {
+                id: true,
+                username: true,
+                password: true,
+                roleId: true,
+                role: true
+            }
+        })
+        if(!user) return null;
+        return this.tokenService.generateAccessToken(user)
     }
 }

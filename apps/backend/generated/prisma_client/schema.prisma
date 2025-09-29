@@ -73,6 +73,23 @@ model User {
   username String @unique
   password String
 
-  role   Role @relation(fields: [roleId], references: [id])
-  roleId Int
+  role          Role           @relation(fields: [roleId], references: [id])
+  roleId        Int
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar(500)
+  userId    Int
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  ip        String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }

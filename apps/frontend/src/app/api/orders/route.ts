@@ -1,7 +1,7 @@
 import { FoodsOrderd } from '@/types/foodOrdered';
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { revalidateTag } from 'next/cache';
+import { getAccessToken } from "@/lib/auth/getTokens";
 
 const API_URL = process.env.API_URL;
 
@@ -37,9 +37,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-
-    const cookieStore = cookies();
-    const token = (await cookieStore).get("token")?.value || "redondi";
+    const token = await getAccessToken();
 
     const res = await fetch(`${API_URL}/v1/orders`, {
         method: "GET",

@@ -1,4 +1,4 @@
-import { getJwtFromCookie } from "@/lib/auth/verifyjwt";
+import { getAccessToken } from "@/lib/auth/getTokens";
 import { PageOrder } from "@/types/order";
 
 export async function getOrders(page: number): Promise<PageOrder> {
@@ -6,7 +6,7 @@ export async function getOrders(page: number): Promise<PageOrder> {
         next: { tags: ['orders']},
         method: "GET",
         headers: {
-            "Authorization": `Bearer ${await getJwtFromCookie()}`
+            "Authorization": `Bearer ${await getAccessToken()}`
         }
     }).then(res => res.json());
 }
@@ -16,7 +16,7 @@ export async function getDailyOrders(): Promise<PageOrder> {
         next: { tags: ['orders']},
         method: "GET",
         headers: {
-            "Authorization": `Bearer ${await getJwtFromCookie()}`
+            "Authorization": `Bearer ${await getAccessToken()}`
         }
     }).then(res => res.json());
 }

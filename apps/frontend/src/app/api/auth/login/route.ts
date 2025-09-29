@@ -6,14 +6,17 @@ export async function POST(request: Request) {
 
     const { username, password } = await request.json();
 
-    if(!(username && password)){
-        return NextResponse.json({ message: "Bad request"}, { status: 400 });
+    if (!(username && password)) {
+        return NextResponse.json({ message: "Bad request" }, { status: 400 });
     }
 
     try {
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ username, password })
         });
 
@@ -31,8 +34,8 @@ export async function POST(request: Request) {
         )
 
         nextResponse.cookies.set({
-            name: "token",
-            value: data.token,
+            name: "accessToken",
+            value: data.accessToken,
             httpOnly: true,
             secure: inProd,
             path: "/",

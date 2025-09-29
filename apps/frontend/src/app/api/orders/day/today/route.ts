@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import {getAccessToken} from "@/lib/auth/getTokens";
 
 const API_URL = process.env.API_URL;
 
 export async function GET() {
-
-    const cookieStore = cookies();
-    const token = (await cookieStore).get("token")?.value || "redondi";
+    const token = await getAccessToken();
 
     const res = await fetch(`${API_URL}/v1/orders/day/today`, {
-        next: { tags: ['oredrs']},
+        next: { tags: ['orders']},
         method: "GET",
         headers: {
             "authorization": `Bearer ${token}`

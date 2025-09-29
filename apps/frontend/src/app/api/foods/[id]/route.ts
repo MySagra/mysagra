@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { revalidateTag } from 'next/cache';
+import { getAccessToken } from "@/lib/auth/getTokens";
 
 interface Params {
     id: string;
@@ -24,9 +25,7 @@ export async function PUT(
 ) {
     const { id } = await params;
     const body = await request.json();
-
-    const cookieStore = cookies();
-    const token = (await cookieStore).get("token")?.value || "redondi";
+    const token = await getAccessToken();
 
     const res = await fetch(`${API_URL}/v1/foods/${id}`, {
         method: "PUT",
@@ -50,8 +49,7 @@ export async function DELETE(
     { params }: { params: Promise<Params> }
 ) {
     const { id } = await params;
-    const cookieStore = cookies();
-    const token = (await cookieStore).get("token")?.value || "redondi";
+    const token = await getAccessToken();
 
     const res = await fetch(`${API_URL}/v1/foods/${id}`, {
         method: "DELETE",
