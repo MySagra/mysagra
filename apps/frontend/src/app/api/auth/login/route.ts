@@ -11,11 +11,18 @@ export async function POST(request: Request) {
     }
 
     try {
+        const userAgent = request.headers.get('User-Agent');
+        const forwardedFor = request.headers.get('X-Forwarded-For');
+        const realIp = request.headers.get('X-Real-IP');
+        
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...(userAgent && { 'User-Agent': userAgent }),
+                ...(forwardedFor && { 'X-Forwarded-For': forwardedFor }),
+                ...(realIp && { 'X-Real-IP': realIp })
             },
             body: JSON.stringify({ username, password })
         });
