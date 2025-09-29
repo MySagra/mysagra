@@ -3,12 +3,15 @@ import { getRefreshToken } from "@/lib/auth/getTokens";
 
 const API_URL = process.env.API_URL;
 
-export async function POST() {
+export async function POST(request: Request) {
     try {
+        const cookieHeader = request.headers.get('Cookie');
+
         const response = await fetch(`${API_URL}/auth/logout`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                ...(cookieHeader && { 'Cookie': cookieHeader }),
+                'Content-Type': 'application/json'
             },
             credentials: "include"
         });
@@ -31,9 +34,10 @@ export async function POST() {
         { success: true },
         {
             status: 200,
-            headers: {
-                "Set-Cookie": "accessToken=; Path=/; Max-Age=0; HttpOnly; SameSite=lax; Secure"
-            }
+            headers: [
+                ["Set-Cookie", "accessToken=; Path=/; Max-Age=0; HttpOnly; SameSite=lax; Secure"],
+                ["Set-Cookie", "refreshToken=; Path=/; Max-Age=0; HttpOnly; SameSite=lax; Secure"]
+            ]
         }
     );
 }
