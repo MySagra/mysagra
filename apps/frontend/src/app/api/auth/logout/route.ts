@@ -4,6 +4,7 @@ import { getRefreshToken } from "@/lib/auth/getTokens";
 const API_URL = process.env.API_URL;
 
 export async function POST(request: Request) {
+    const inProd = process.env.NODE_ENV === 'production';
     try {
         const cookieHeader = request.headers.get('Cookie');
 
@@ -35,8 +36,8 @@ export async function POST(request: Request) {
         {
             status: 200,
             headers: [
-                ["Set-Cookie", "accessToken=; Path=/; Max-Age=0; HttpOnly; SameSite=lax; Secure"],
-                ["Set-Cookie", "refreshToken=; Path=/; Max-Age=0; HttpOnly; SameSite=lax; Secure"]
+                ["Set-Cookie", `accessToken=; Path=/; Max-Age=0; HttpOnly; SameSite=${inProd ? "none" : "lax"}; ${inProd ? "Secure" : ""}`],
+                ["Set-Cookie", `refreshToken=; Path=/; Max-Age=0; HttpOnly; SameSite=${inProd ? "none" : "lax"}; ${inProd ? "Secure" : ""}`]
             ]
         }
     );
