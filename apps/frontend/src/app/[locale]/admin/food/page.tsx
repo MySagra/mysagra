@@ -2,14 +2,14 @@ export const dynamic = "force-dynamic";
 
 import { FoodList } from "./_components/foodlist";
 import { AdminHeader } from "../_components/layout/header"
-import { getCategories } from "@/services/categories.service";
+import { getAvailableCategories } from "@/services/categories.service";
 import { getFoods } from "@/services/foods.service";
 import { getTranslations } from "next-intl/server";
 
 export default async function Food() {
     const t = await getTranslations('Food');
     const foods = await getFoods();
-    const categories = await getCategories();
+    const categories = await getAvailableCategories();
 
     return (
         <>

@@ -1,11 +1,12 @@
+'use server'
+
 import { Food } from "@/types/food";
+import { apiClient } from "@/lib/apiClient";
 
 export async function getFoods(): Promise<Array<Food>> {
-    return await fetch(`${process.env.API_URL}/v1/foods`, { next: { tags: ['foods'] }})
-        .then(res => res.json())
+    return (await apiClient.get<Food[]>(`v1/foods`)).data;
 }
 
 export async function getFoodsAvailable(categoryId: string): Promise<Array<Food>> {
-    return await fetch(`${process.env.API_URL}/v1/foods/available/categories/${categoryId}`, { next: { tags: ['foods'] }})
-        .then(res => res.json())
+    return (await apiClient.get<Food[]>(`v1/foods/available/categories/${categoryId}`)).data;
 }

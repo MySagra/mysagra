@@ -16,41 +16,40 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useCreateOrder } from "@/hooks/api/order";
+import { toast } from "sonner";
 
 export default function Recap() {
     const { order, setOrder } = useOrder();
-    const [loading, setLoading] = useState(false);
     const router = useRouter();
     const t = useTranslations('OrderRecap')
 
-    function createOrder() {
-        setLoading(true);
-        fetch("/api/orders", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
+    const { mutate: createOrder, isPending } = useCreateOrder();
+
+    function handleCreateOrder() {
+        const orderForBackend = {
+            dateTime: order.dateTime,
+            table: order.table,
+            customer: order.customer,
+            foodsOrdered: order.foodsOrdered.map(item => ({
+                foodId: item.food.id, // use foodId as required by OrderRequest
+                quantity: item.quantity
+            }))
+        };
+
+        createOrder(orderForBackend, {
+            onSuccess: (data) => {
+                setTimeout(() => {
+                    sessionStorage.setItem("createdOrder", JSON.stringify(data));
+                    router.replace(`/checkout`);
+                    clearOrder();
+                }, 500);
             },
-            body: JSON.stringify({
-                table: parseInt(order.table),
-                customer: order.customer,
-                foodsOrdered: order.foodsOrdered
-            })
-        }).then(async res => {
-            const data = await res.json();
-
-            setTimeout(() => {
-                sessionStorage.setItem("createdOrder", JSON.stringify(data));
-                setLoading(false)
-                router.replace(`/checkout`);
-                clearOrder();
-            }, 500)
-
-
-        }).catch(err => {
-            console.log(err);
-        })
+            onError: () => {
+                toast.error("Failed to create order");
+            }
+        });
     }
 
     function clearOrder() {
@@ -93,12 +92,12 @@ export default function Recap() {
                         </DialogHeader>
                         <DialogFooter>
                             {
-                                loading ?
+                                isPending ?
                                     <Button className="text-white" disabled>
                                         <Loader2Icon className="animate-spin" /> {t('dialog.loading')}
                                     </Button>
                                     :
-                                    <Button onClick={() => createOrder()}>
+                                    <Button onClick={() => handleCreateOrder()}>
                                         {t('dialog.confirm')}
                                     </Button>
                             }

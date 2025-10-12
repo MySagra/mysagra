@@ -1,7 +1,8 @@
-import { Category } from "@/types/category";
+'use server'
 
-export async function getCategories() : Promise<Array<Category>> {
-    return await fetch(`${process.env.API_URL}/v1/categories/available`, { next: { tags: ['category'] }})
-        .then(res => res.json())
-        .catch(err => console.log(err));
+import { Category } from "@/types/category";
+import { apiClient } from "@/lib/apiClient";
+
+export async function getAvailableCategories() : Promise<Array<Category>> {
+    return (await apiClient.get<Category[]>('v1/categories/available')).data;
 }

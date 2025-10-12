@@ -3,11 +3,11 @@ export const dynamic = "force-dynamic";
 import CategoriesList from "./_components/categoriesList"
 import { AdminHeader } from "../_components/layout/header"
 import { Category } from "@/types/category";
-import { getCategories } from "@/services/categories.service";
+import { getAvailableCategories } from "@/services/categories.service";
 import { getTranslations } from "next-intl/server";
 
 export default async function Categories() {
-    const categories: Array<Category> = await getCategories();
+    const categories: Array<Category> = await getAvailableCategories();
     const imageURL = `${process.env.API_URL}/uploads/categories`
 
     const t = await getTranslations('Category');

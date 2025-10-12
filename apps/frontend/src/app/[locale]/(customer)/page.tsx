@@ -64,7 +64,7 @@ export default function Home() {
     setOrder(o => ({
       ...o,
       customer: values.customer,
-      table: values.table.toString()
+      table: Number(values.table)
     }));
     router.push("/menu");
   }
@@ -73,7 +73,7 @@ export default function Home() {
   useEffect(() => {
     sessionStorage.removeItem("order");
     sessionStorage.removeItem("createdOrder");
-  })
+  }, [])
 
   return (
     <div className="h-screen w-full flex place-content-center items-center">

@@ -14,9 +14,10 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
-import { RevenueStats } from "@/types/stats"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
+import { useRevenueStats } from "@/hooks/api/stats"
+import { Spinner } from "@/components/ui/spinner"
 
 export const description = "A simple area chart"
 
@@ -28,13 +29,20 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface RevenueAreaChartProps {
-    stats: RevenueStats
     className?: string
 }
 
-export function RevenueAreaChart({ stats, className }: RevenueAreaChartProps) {
-
+export function RevenueAreaChart({ className }: RevenueAreaChartProps) {
+    const { data, isPending, isError } = useRevenueStats();
     const t = useTranslations('Analytics');
+
+    if(isPending) {
+        return <Spinner />
+    }
+
+    if(isError) {
+        return <></>
+    }
 
     return (
         <Card className={cn("flex flex-col", className)}>
@@ -45,7 +53,7 @@ export function RevenueAreaChart({ stats, className }: RevenueAreaChartProps) {
                 <ChartContainer config={chartConfig} className="w-full h-full">
                     <AreaChart
                         accessibilityLayer
-                        data={stats.revenuePerDay}
+                        data={data}
                         margin={{
                             left: 12,
                             right: 12,

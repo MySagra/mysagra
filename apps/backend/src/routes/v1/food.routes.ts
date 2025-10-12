@@ -44,6 +44,23 @@ const router = Router();
  *         image:
  *           type: string
  *           example: "pizza.jpg"
+ *         category:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *               format: int64
+ *               example: 1
+ *             name:
+ *               type: string
+ *               example: "Pizzeria"
+ *             available:
+ *               type: boolean
+ *               example: true
+ *             position:
+ *               type: integer
+ *               format: int64
+ *               example: 1
  *     FoodRequest:
  *       type: object
  *       required:

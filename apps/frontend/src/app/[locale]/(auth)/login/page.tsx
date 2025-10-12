@@ -31,10 +31,12 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { useTranslations } from "next-intl";
+import { useLogin } from "@/hooks/api/auth";
 
 export default function Login() {
     const router = useRouter();
     const t = useTranslations('Admin.Login')
+    const { mutate: login, isPending } = useLogin();
 
     const formSchema = z.object({
         username: z.string({ required_error: t('validation.required') }),
@@ -50,30 +52,25 @@ export default function Login() {
     });
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        fetch('/api/auth/login', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
+        login({ username: values.username, password: values.password }, {
+            onSuccess: (data) => {
+                const user = data.user;
+                localStorage.setItem("user", JSON.stringify(user));
+                if (user.role === "admin") {
+                    router.push("/admin/dashboard");
+                }
+                else {
+                    router.push("/operator/dashboard");
+                }
             },
-            body: JSON.stringify({ username: values.username, password: values.password })
-        }).then(async res => {
-            const data = await res.json();
-            if (!res.ok) {
+            onError: (data) => {
+                console.log(data);
                 form.reset();
                 toast.error(t('error'))
-                return;
             }
-            localStorage.setItem("user", JSON.stringify(data));
-            if (data.role === "admin") {
-                router.push("/admin/dashboard");
-            }
-            else {
-                router.push("/operator/dashboard");
-            }
-        }).catch(async res => {
-            console.log(await res.json());
         })
     }
+
     return (
         <div className="h-screen w-full flex place-content-center items-center bg-secondary-foreground">
             <h1 className="text-primary absolute top-0 p-3 md:left-0 font-bold text-lg">{process.env.NEXT_PUBLIC_APP_NAME}</h1>

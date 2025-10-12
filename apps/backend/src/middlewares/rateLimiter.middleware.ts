@@ -1,5 +1,6 @@
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { Request } from "express";
+import { env } from "@/config/env";
 
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -17,7 +18,10 @@ export const authLimiter = rateLimit({
             'unknown';
         return ipKeyGenerator(ip);
     },
-    skipSuccessfulRequests: true // count only failed attempts
+    skipSuccessfulRequests: true, // count only failed attempts
+    skip: () => {
+        return env.NODE_ENV !== 'production'
+    }
 });
 
 export const apiLimiter = rateLimit({
@@ -30,7 +34,7 @@ export const apiLimiter = rateLimit({
     legacyHeaders: false,
     skip: (req) => {
         return Boolean(
-            req.path.startsWith('/health') // skip health request
+            env.NODE_ENV !== 'production' || req.path.startsWith('/health') // skip health request
         );
     }
 })

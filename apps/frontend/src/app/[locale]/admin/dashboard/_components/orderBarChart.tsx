@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/card"
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { useOrderStats } from "@/hooks/api/stats";
+import { Spinner } from "@/components/ui/spinner";
 
 const chartConfig = {
     count: {
@@ -22,12 +24,11 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface OrderBarChartProps {
-    stats: OrderStats,
     className?: string
 }
 
-export default function OrderBarChart({ stats, className }: OrderBarChartProps) {
-
+export default function OrderBarChart({ className }: OrderBarChartProps) {
+    const { data, isPending, isError, error } = useOrderStats();
     const t = useTranslations('Analytics');
 
     function dateFormatter(value: string) {
@@ -39,6 +40,15 @@ export default function OrderBarChart({ stats, className }: OrderBarChartProps) 
         })
     }
 
+    if(isPending){
+        return <Spinner />
+    }
+
+    if(isError){
+        console.log(error);
+        return <></>
+    }
+
     return (
         <Card className={cn("flex flex-col", className)}>
             <CardHeader className="items-center pb-0">
@@ -46,15 +56,15 @@ export default function OrderBarChart({ stats, className }: OrderBarChartProps) 
                 <CardDescription>
                     {
                         `
-                        ${dateFormatter(stats?.ordersPerDay[0]?.day.toString() || "")} 
+                        ${dateFormatter(data.ordersPerDay[0]?.day.toString() || "")} 
                         ${" - "}
-                        ${dateFormatter(stats?.ordersPerDay[stats.ordersPerDay.length - 1]?.day.toString() || "")}`
+                        ${dateFormatter(data.ordersPerDay[data.ordersPerDay.length - 1]?.day.toString() || "")}`
                     }
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 pb-0 h-full min-h-0">
                 <ChartContainer config={chartConfig} className="w-full h-full">
-                    <BarChart accessibilityLayer data={stats.ordersPerDay}>
+                    <BarChart accessibilityLayer data={data.ordersPerDay}>
                         <CartesianGrid vertical={false} />
                         <YAxis
                             dataKey="count"

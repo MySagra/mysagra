@@ -1,5 +1,4 @@
 import { Router } from "express";
-import authRoutes from "../auth/auth.route";
 import categoryRoutes from "./category.route";
 import foodRoutes from "./food.routes";
 import orderRoutes from "./order.route";
@@ -10,7 +9,6 @@ import userRoutes from "./user.route";
 const router = Router();
 
 // Mount all routes
-router.use("/auth", authRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/foods", foodRoutes);
 router.use("/orders", orderRoutes);
