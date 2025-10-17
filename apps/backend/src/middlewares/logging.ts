@@ -18,7 +18,6 @@ export const loggingMiddleware = (
       userAgent: req.get("user-agent"),
       ip: req.ip,
       context: "HttpRequest",
-      userId: req.user?.userId,
       query: Object.keys(req.query).length ? req.query : undefined,
       bodySize: req.body ? Object.keys(req.body).length : 0
     };

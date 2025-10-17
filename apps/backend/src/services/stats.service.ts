@@ -35,8 +35,8 @@ export class StatsService {
             f.name AS food,
             SUM(fo.quantity) AS quantity,
             SUM(fo.quantity * f.price) AS price
-            FROM FoodsOrdered fo
-            JOIN Food f ON fo.foodId = f.id
+            FROM foods_ordered fo
+            JOIN foods f ON fo.foodId = f.id
             GROUP BY f.name
             ORDER BY quantity DESC;
         `;
@@ -54,10 +54,10 @@ export class StatsService {
         >`
             SELECT 
             DATE(o.dateTime) AS day,
-            SUM(fo.quantity * f.price) AS revenue
+            ROUND(SUM(fo.quantity * f.price), 2) AS revenue
             FROM orders o
-            JOIN FoodsOrdered fo ON fo.orderId = o.id
-            JOIN Food f ON fo.foodId = f.id
+            JOIN foods_ordered fo ON fo.orderId = o.id
+            JOIN foods f ON fo.foodId = f.id
             GROUP BY day
             ORDER BY day ASC;
         `;

@@ -15,35 +15,42 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { FoodStats } from "@/types/stats"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
+import { useFoodsStats } from "@/hooks/api/stats"
+import { Spinner } from "@/components/ui/spinner"
 
 const chartConfig = {
 
 } satisfies ChartConfig
 
 interface FoodPieChartProps {
-  stats: FoodStats
   className?: string
-  totalFoods: number
 }
 
-export function FoodPieChart({ totalFoods, stats, className }: FoodPieChartProps) {
-
+export function FoodPieChart({ className }: FoodPieChartProps) {
+  const { data, isPending, isError } = useFoodsStats();
   const t = useTranslations('Analytics');
+
+  if (isPending) {
+    return <Spinner />
+  }
+
+  if (isError) {
+    return <></>
+  }
 
   function getRandomColor() {
     return "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
   }
 
-  const pieData = stats.map((item) => ({
+  const pieData = data.map((item) => ({
     ...item,
     quantity: Number(item.quantity),
     fill: getRandomColor(),
   }));
 
-
+  const totalFoods = data.reduce((acc: number, curr: { quantity: string }) => acc + parseInt(curr.quantity), 0)
 
   return (
     <Card className={cn("flex flex-col", className)}>

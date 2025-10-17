@@ -19,9 +19,9 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = finalPathname.match(/^\/[a-z]{2}\/(admin|operator)/);
 
   if (isProtectedRoute) {
-    const token = request.cookies.get('token');
+    const refreshToken = request.cookies.get('refreshToken');
 
-    if (!token) {
+    if (!refreshToken) {
       // Extract locale from the processed pathname
       const localeMatch = finalPathname.match(/^\/([a-z]{2})\//);
       const locale = localeMatch ? localeMatch[1] : routing.defaultLocale;

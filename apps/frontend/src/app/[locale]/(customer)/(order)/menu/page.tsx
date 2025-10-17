@@ -1,16 +1,19 @@
-export const dynamic = "force-dynamic";
-
 import MenuButton from "@/components/menu/menuButton";
 import { Button } from "@/components/ui/button";
-import { Category } from "@/types/category";
 import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import { getCategories } from "@/services/categories.service";
 import { getTranslations } from "next-intl/server";
+import { getQueryClient } from "@/lib/react-query";
+import { getAvailableCategories } from "@/services/categories.service";
 
 export default async function Menu() {
-    const categories: Array<Category> = await getCategories();
+    const queryClient = getQueryClient();
     const t = await getTranslations("Menu")
+
+    const categories = await queryClient.fetchQuery({
+        queryKey: ["availableCategory"],
+        queryFn: getAvailableCategories
+    })
 
     return (
         <div className="flex place-content-center items-center min-h-screen py-20 ">

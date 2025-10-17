@@ -3,14 +3,17 @@ import { Page } from "./page"
 
 export type OrderRequest = {
     dateTime: Date,
-    table: string,
+    table: number,
     customer: string,
-    foodsOrdered: Array<FoodsOrderd>
+    foodsOrdered: Array<{
+        foodId: number,
+        quantity: number
+    }>
 }
 export type Order = {
     id: string,
     dateTime: Date,
-    table: string,
+    table: number,
     customer: string,
     price?: number
     foodsOrdered: Array<FoodsOrderd>

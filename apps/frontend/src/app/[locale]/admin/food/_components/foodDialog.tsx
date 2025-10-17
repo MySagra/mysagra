@@ -33,26 +33,28 @@ import { useEffect, useState } from "react"
 import {FoodFormValues, getFoodFormSchema } from "@/schemas/foodForm"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
+import { useCreateFood, useUpdateFood } from "@/hooks/api/food"
+
 interface FoodDialogProp {
     food?: Food
-    setFoods: React.Dispatch<React.SetStateAction<Food[]>>
-    setShow?: React.Dispatch<React.SetStateAction<boolean>>
     categories: Array<Category>
 }
 
-export function FoodDialog({ food, setFoods, setShow, categories }: FoodDialogProp) {
-
+export function FoodDialog({ food, categories }: FoodDialogProp) {
     const t = useTranslations('Food');
-
+    const [open, setOpen] = useState(false);
     const [ lastCategoryId, setLastCategoryId ] = useState<number | undefined>(food?.categoryId || categories[0]?.id);
+
+    const createFoodMutation = useCreateFood();
+    const updateFoodMutation = useUpdateFood();
 
     const form = useForm<FoodFormValues>({
         resolver: zodResolver(getFoodFormSchema(t)),
         defaultValues: {
             name: food?.name || "",
             description: food?.description || "",
-            price: food?.price.toString() || "",
-            categoryId: lastCategoryId,
+            price: food?.price || 0,
+            categoryId: lastCategoryId || (categories.length > 0 ? categories[0].id : 0),
             available: food?.available ?? true
         }
     })
@@ -75,67 +77,61 @@ export function FoodDialog({ food, setFoods, setShow, categories }: FoodDialogPr
             form.reset({
                 name: food.name || "",
                 description: food.description || "",
-                price: food.price?.toString() || "",
+                price: food.price || 0,
                 categoryId: food.categoryId,
                 available: food.available ?? true
             });
         } else {
+            const defaultCategoryId = categories.length > 0 ? categories[0].id : 0;
             form.reset({
                 name: "",
                 description: "",
-                price: "",
-                categoryId: categories.length > 0 ? categories[0].id : undefined,
+                price: 0,
+                categoryId: lastCategoryId || defaultCategoryId,
                 available: true
             });
         }
-    }, [food, categories, form]);
+    }, [food, categories, lastCategoryId, form]);
 
-    function createFood(values: FoodFormValues) {
-        const foodData = { ...values, price: parseFloat(values.price) };
-        fetch("/api/foods", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(foodData),
-        }).then(async res => {
-            const data = await res.json();
-            if (!res.ok) return;
-            form.reset();
-            setFoods(prev =>
-                [...prev, data]
-            );
-            setLastCategoryId(values.categoryId);
-        }).then(() => {
+    // Handler to create a new food
+    async function handleCreateFood(values: FoodFormValues) {
+        try {
+            await createFoodMutation.mutateAsync(values);
             toast.success(t('toast.createSuccess'));
-        }).catch(err => {
-            console.log(err);
+            form.reset({
+                name: "",
+                description: "",
+                price: 0,
+                categoryId: values.categoryId,
+                available: true
+            });
+            setLastCategoryId(values.categoryId);
+            setOpen(false);
+        } catch (error) {
             toast.error(t('toast.createError'));
-            console.error(err);
-        })
+            console.error(error);
+        }
     }
 
-    function updateFood(values: FoodFormValues) {
-        const foodData = { ...values, price: parseFloat(values.price) };
-        fetch(`/api/foods/${food?.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(foodData),
-        }).then(async res => {
-            const data = await res.json();
-            if (!res.ok) return
-            if (setShow) setShow(data.available);
-            setFoods(prev =>
-                prev.map(f => f.id === data.id ? { ...f, ...data } : f)
-            );
-        }).then(() => {
+    // Handler to update an existing food
+    async function handleUpdateFood(values: FoodFormValues) {
+        if (!food?.id) return;
+        
+        try {
+            await updateFoodMutation.mutateAsync({ 
+                foodId: food.id, 
+                foodData: values 
+            });
             toast.info(t('toast.updateSuccess'));
-        }).catch(err => {
+            setOpen(false);
+        } catch (error) {
             toast.error(t('toast.updateError'));
-            console.error(err);
-        })
+            console.error(error);
+        }
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {
                     food ?
@@ -160,7 +156,7 @@ export function FoodDialog({ food, setFoods, setShow, categories }: FoodDialogPr
                 </DialogHeader>
                 <FoodForm
                     form={form}
-                    onSubmit={food ? updateFood : createFood}
+                    onSubmit={food ? handleUpdateFood : handleCreateFood}
                     food={food}
                     categories={categories}
                 />

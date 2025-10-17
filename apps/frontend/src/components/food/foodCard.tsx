@@ -11,16 +11,43 @@ import {
 import { Button } from "../ui/button"
 import { Plus, Minus } from "lucide-react"
 
-interface Prop {
-    food: Food
-}
+
 
 import { useOrder } from "@/contexts/OrderContext";
 import { useEffect, useState } from "react"
 import { Food } from "@/types/food"
 import { useTranslations } from "next-intl"
+import { Spinner } from "../ui/spinner";
+import { useFoodsByCategory } from "@/hooks/api/food";
 
-export default function FoodCard({ food }: Prop) {
+interface FoodsProps {
+    category: string
+}
+
+export function Foods({ category }: FoodsProps) {
+    const { data, isPending, isError } = useFoodsByCategory(category);
+    if (isPending) {
+        return <Spinner />
+    }
+
+    if (isError) {
+        return <></>
+    }
+
+    return (
+        <>
+            {data.map((food: Food) => (
+                <FoodCard key={food.id} food={food} />
+            ))}
+        </>
+    )
+}
+
+interface FoodCardProps {
+    food: Food
+}
+
+export function FoodCard({ food }: FoodCardProps) {
     const t = useTranslations('Utils');
     const { order, setOrder } = useOrder();
     const [count, setCount] = useState<number>(0);
@@ -41,6 +68,7 @@ export default function FoodCard({ food }: Prop) {
 
     function addFood() {
         setOrder(o => {
+            
             // Cerca se il cibo è già stato ordinato
             const existing = o.foodsOrdered.find(foodOrder => foodOrder.food.id === food.id);
             let newFoodsOrdered;

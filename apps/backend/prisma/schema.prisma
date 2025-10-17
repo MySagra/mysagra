@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../generated/prisma_client"
+  output   = "../generated/prisma_client"
 }
 
 datasource db {
@@ -21,6 +21,8 @@ model Category {
   position  Int     @default(0)
   image     String?
   foods     Food[]
+
+  @@map("categories")
 }
 
 model Food {
@@ -34,6 +36,8 @@ model Food {
   categoryId Int
 
   FoodsOrdered FoodsOrdered[]
+
+  @@map("foods")
 }
 
 model Order {
@@ -58,6 +62,7 @@ model FoodsOrdered {
   foodId Int
 
   @@id([orderId, foodId])
+  @@map("foods_ordered")
 }
 
 //users sections
@@ -66,13 +71,34 @@ model Role {
   name String @unique
 
   users User[]
+
+  @@map("roles")
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
+  id       Int     @id @default(autoincrement())
+  username String  @unique
   password String
 
-  role   Role @relation(fields: [roleId], references: [id])
-  roleId Int
+  role          Role           @relation(fields: [roleId], references: [id])
+  roleId        Int
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar(500)
+  userId    Int
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  ip        String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }

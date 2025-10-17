@@ -1,22 +1,50 @@
-import { getJwtFromCookie } from "@/lib/auth/verifyjwt";
-import { PageOrder } from "@/types/order";
+'use server'
 
-export async function getOrders(page: number): Promise<PageOrder> {
-    return await fetch(`${process.env.API_URL}/v1/orders/pages/${page}`, {
-        next: { tags: ['orders']},
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${await getJwtFromCookie()}`
-        }
-    }).then(res => res.json());
+import { getAccessToken } from "@/lib/auth/getTokens";
+import { OrderRequest, PageOrder } from "@/types/order";
+import { Order } from "@/types/order";
+import { apiClient } from "@/lib/apiClient";
+
+export async function createOrder(order: OrderRequest): Promise<Order> {
+    return (await apiClient.post<Order>("v1/orders", order)).data
 }
 
-export async function getDailyOrders(): Promise<PageOrder> {
-    return await fetch(`${process.env.API_URL}/v1/orders/day/today`, {
-        next: { tags: ['orders']},
-        method: "GET",
+export async function getOrders(page: number): Promise<PageOrder> {
+    return (await apiClient.get<PageOrder>(`v1/orders/pages/${page}`, {
         headers: {
-            "Authorization": `Bearer ${await getJwtFromCookie()}`
+            "Authorization": `Bearer ${await getAccessToken()}`
         }
-    }).then(res => res.json());
+    })).data;
+}
+
+export async function searchOrder(value: string) {
+    return (await apiClient.get<Order[]>(`v1/orders/search/${value}`, {
+        headers: {
+            "Authorization": `Bearer ${await getAccessToken()}`
+        }
+    })).data;
+}
+
+export async function deleteOrder(orderId: string) {
+    return (await apiClient.delete(`v1/orders/${orderId}`, {
+        headers: {
+            "Authorization": `Bearer ${await getAccessToken()}`
+        }
+    })).data;
+}
+
+export async function getDailyOrders(): Promise<Order[]> {
+    return (await apiClient.get<Order[]>(`v1/orders/day/today`, {
+        headers: {
+            "Authorization": `Bearer ${await getAccessToken()}`
+        }
+    })).data;
+}
+
+export async function getDailySearchOrders(value: string): Promise<Order[]> {
+    return (await apiClient.get<Order[]>(`v1/orders/search/daily/${value}`, {
+        headers: {
+            "Authorization": `Bearer ${await getAccessToken()}`
+        }
+    })).data;
 }

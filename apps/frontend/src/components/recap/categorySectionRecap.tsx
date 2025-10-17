@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils"
 
 export default function CategorySectionRecap({ category, foodsOrderd, className, smallView = false }: Props) {
     const [foods, setFoods] = useState<Array<FoodsOrderd>>([]);
-
     useEffect(() => {
         foodsOrderd.map(foodOrder => {
             if (foodOrder.food.categoryId === category.id || foodOrder.food.category?.id === category.id) {

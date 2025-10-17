@@ -17,35 +17,30 @@ import { Trash2 } from "lucide-react"
 import { DialogAction } from "../ui/dialogAction"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
+import { useDeleteOrder } from "@/hooks/api/order"
 
 interface OrderCardProps {
     order: Order
     value?: string
-    adminView?: boolean,
-    setOrders?: React.Dispatch<React.SetStateAction<Order[]>>
+    adminView?: boolean
 }
 
-export default function OrderCard({ order, value = "", adminView = false, setOrders }: OrderCardProps) {
+export default function OrderCard({ order, value = "", adminView = false }: OrderCardProps) {
     const t = useTranslations('Order');
+    const { mutate: deleteOrderMutation } = useDeleteOrder();
 
-    function deleteOrder() {
-        if (!setOrders) return;
-
-        fetch(`/api/orders/${order.id}`, {
-            method: "DELETE",
-            credentials: "include"
-        }).then(async res => {
-            await res.json();
-            if (res.ok) {
-                setOrders(prev => prev.filter(o => o.id !== order.id));
+    // Handler to delete an order
+    const handleDeleteOrder = () => {
+        deleteOrderMutation(order.id, {
+            onSuccess: () => {
+                toast.success(t('toast.deleteSuccess'));
+            },
+            onError: (error) => {
+                toast.error(t('toast.deleteError'));
+                console.error(error);
             }
-        }).then(() => {
-            toast.success(t('toast.deleteSuccess'));
-        }).catch(err => {
-            toast.error(t('toast.deleteError'));
-            console.error(err);
-        })
-    }
+        });
+    };
 
     return (
         <Card>
@@ -64,7 +59,7 @@ export default function OrderCard({ order, value = "", adminView = false, setOrd
                             <DialogAction
                                 title={t('delete.title')}
                                 variant={'destructive'}
-                                action={() => deleteOrder()}
+                                action={handleDeleteOrder}
                                 buttonText={t('delete.buttonText')}
                                 trigger={
                                     <Button variant={'destructive'} size={"icon"} className="size-7">
@@ -107,7 +102,7 @@ export default function OrderCard({ order, value = "", adminView = false, setOrd
                 <p className="flex flex-row gap-1 items-center">
                     {t('table')}
                     {
-                        value && order.table.includes(value)
+                        value === order.table.toString()
                             ?
                             <span className="bg-yellow-300 p-1 rounded-sm font-semibold">{order.table}</span>
                             :

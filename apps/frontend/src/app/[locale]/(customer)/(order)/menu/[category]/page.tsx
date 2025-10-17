@@ -1,22 +1,28 @@
-import FoodCard from "@/components/food/foodCard";
+import { Foods } from "@/components/food/foodCard";
 import { getFoodsAvailable } from "@/services/foods.service";
-import { Food } from "@/types/food";
+import { getQueryClient } from "@/lib/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
-export default async function Category({
+export default async function MenuCategoryPage({
     params
 }: {
     params: Promise<{ category: string }>
 }) {
     const { category } = await params;
-    const foods = await getFoodsAvailable(category);
+    const queryClient = getQueryClient();
+
+    await queryClient.prefetchQuery({
+        queryKey: ["categoryFoods", category],
+        queryFn: () => getFoodsAvailable(category)
+    })
 
     return (
-        <div className="pt-[60px] min-h-screen">
-            <div className="flex flex-col gap-6 p-3 ">
-                {foods.map((food: Food) => (
-                    <FoodCard key={food.id} food={food} />
-                ))}
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <div className="pt-[60px] min-h-screen">
+                <div className="flex flex-col gap-6 p-3 ">
+                    <Foods category={category} />
+                </div>
             </div>
-        </div>
+        </HydrationBoundary>
     );
 }

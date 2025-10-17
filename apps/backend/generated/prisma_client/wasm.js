@@ -163,6 +163,17 @@ exports.Prisma.UserScalarFieldEnum = {
   roleId: 'roleId'
 };
 
+exports.Prisma.RefreshTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  ip: 'ip',
+  userAgent: 'userAgent'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -203,6 +214,13 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   password: 'password'
 };
 
+exports.Prisma.RefreshTokenOrderByRelevanceFieldEnum = {
+  id: 'id',
+  token: 'token',
+  ip: 'ip',
+  userAgent: 'userAgent'
+};
+
 
 exports.Prisma.ModelName = {
   Category: 'Category',
@@ -210,7 +228,8 @@ exports.Prisma.ModelName = {
   Order: 'Order',
   FoodsOrdered: 'FoodsOrdered',
   Role: 'Role',
-  User: 'User'
+  User: 'User',
+  RefreshToken: 'RefreshToken'
 };
 
 /**

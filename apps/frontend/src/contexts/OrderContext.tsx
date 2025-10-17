@@ -10,7 +10,7 @@ type OrderContextType = {
 
 const initialOrder: Order = {
     id: "",
-    table: "",
+    table: 0,
     customer: '',
     price: 0,
     foodsOrdered: [],

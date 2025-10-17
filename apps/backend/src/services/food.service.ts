@@ -2,13 +2,20 @@ import prisma from "@/utils/prisma";
 
 export class FoodService {
     async getFoods() {
-        return await prisma.food.findMany();
+        return await prisma.food.findMany({
+            include: {
+                category: true
+            }
+        });
     }
 
     async getFoodById(id: number) {
         return await prisma.food.findUnique({
             where: {
                 id
+            },
+            include: {
+                category: true
             }
         })
     }
@@ -17,6 +24,9 @@ export class FoodService {
         return await prisma.food.findMany({
             where: {
                 available: true
+            },
+            include: {
+                category: true
             }
         })
     }
@@ -25,6 +35,9 @@ export class FoodService {
         return await prisma.food.findMany({
             where: {
                 categoryId
+            },
+            select: {
+                category: true
             }
         })
     }
@@ -34,6 +47,9 @@ export class FoodService {
             where: {
                 categoryId,
                 available: true
+            },
+            include: {
+                category: true
             }
         })
     }

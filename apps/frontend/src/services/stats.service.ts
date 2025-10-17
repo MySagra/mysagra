@@ -1,32 +1,15 @@
-import { getJwtFromCookie } from "@/lib/auth/verifyjwt";
+'use server'
 import { FoodStats, OrderStats, RevenueStats } from "@/types/stats";
+import { apiClient } from "@/lib/apiClient";
 
 export async function getOrderStats(): Promise<OrderStats> {
-    return await fetch(`${process.env.API_URL}/v1/stats/total-orders`, {
-        next: { tags: ['stats']},
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${await getJwtFromCookie()}`
-        }
-    }).then(res => res.json()).catch(err => console.log(err))
+    return (await apiClient.get('v1/stats/total-orders')).data;
 }
 
 export async function getFoodsOrderedStats(): Promise<FoodStats> {
-    return await fetch(`${process.env.API_URL}/v1/stats/foods-ordered`, {
-        next: { tags: ['stats']},
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${await getJwtFromCookie()}`
-        }
-    }).then(res => res.json());
+    return (await apiClient.get('v1/stats/foods-ordered')).data;
 }
 
 export async function getRevenueStats(): Promise<RevenueStats> {
-    return await fetch(`${process.env.API_URL}/v1/stats/revenue`, {
-        next: { tags: ['stats']},
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${await getJwtFromCookie()}`
-        }
-    }).then(res => res.json());
+    return (await apiClient.get('v1/stats/revenue')).data;
 }

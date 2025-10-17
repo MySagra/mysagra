@@ -30,108 +30,93 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Category } from "@/types/category";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import { CategoryFormValues, getCategoryFormSchema } from "@/schemas/categoryForm";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useCreateCategory, useUpdateCategory, useUploadCategoryImage } from "@/hooks/api/categories";
 
 interface CategoryDialog {
     category?: Category
-    setCategories: React.Dispatch<React.SetStateAction<Category[]>>
     setShow?: React.Dispatch<React.SetStateAction<boolean>>
     imageURL?: string
 }
 
-export default function CategoryDialog({ category, setCategories, setShow, imageURL }: CategoryDialog) {
+export default function CategoryDialog({ category, setShow, imageURL }: CategoryDialog) {
     const uploadRef = useRef<UploadImageRef>(null);
     const t = useTranslations('Category');
+    const [open, setOpen] = useState(false);
+    
+    const createCategoryMutation = useCreateCategory();
+    const updateCategoryMutation = useUpdateCategory();
+    const uploadImageMutation = useUploadCategoryImage();
 
     const form = useForm<CategoryFormValues>({
         resolver: zodResolver(getCategoryFormSchema(t)),
         defaultValues: {
             name: category?.name || "",
-            position: category?.position?.toString() || "1",
+            position: category?.position || 1,
             available: category?.available || true
         }
     })
 
-    function createCategory(values: CategoryFormValues) {
-        const file = uploadRef.current?.getFile();
-        const categoryData = { ...values, position: Number(values.position) };
+    // Handle category creation
+    async function handleCreateCategory(values: CategoryFormValues) {
+        const { image, ...categoryDataWithoutImage } = values;
 
-        if (file) {
-            categoryData.image = file;
-        }
-
-        const { image, ...categoryDataWithoutImage } = categoryData;
-        fetch("/api/categories", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(categoryDataWithoutImage),
-        }).then(async res => {
-            let data = await res.json();
-            if (!res.ok) return;
+        try {
+            // First create the category
+            const newCategory = await createCategoryMutation.mutateAsync(categoryDataWithoutImage);
+            
+            // Then upload the image if present
             if (image) {
-                data = await (await uploadImage(image, data.id)).json();
+                await uploadImageMutation.mutateAsync({
+                    categoryId: newCategory.id,
+                    imageFile: image
+                });
             }
+
+            toast.success(t('toast.createSuccess'));
             form.reset();
             uploadRef.current?.reset();
-            setCategories(prev =>
-                [...prev, data].sort((a, b) => Number(a.position) - Number(b.position))
-            );
-        }).then(() => {
-            toast.success("Category created succesfully");
-        })
-    }
-
-    function updateCategory(values: CategoryFormValues) {
-        const file = uploadRef.current?.getFile();
-        const categoryData = { ...values, position: Number(values.position) };
-
-        if (file) {
-            categoryData.image = file;
+            setOpen(false);
+        } catch {
+            toast.error(t('toast.createError'));
         }
-
-        const { image, ...categoryDataWithoutImage } = categoryData;
-        fetch(`/api/categories/${category?.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(categoryDataWithoutImage),
-        }).then(async res => {
-            let data = await res.json();
-
-            if (!res.ok) return
-            if (image) {
-                data = await (await uploadImage(image, data.id)).json();
-            }
-            if (setShow) setShow(data.available);
-            setCategories(prev =>
-                prev
-                    .map(c => c.id === data.id ? { ...c, ...data } : c)
-                    .sort((a, b) => Number(a.position) - Number(b.position))
-            );
-        }).then(() => {
-            toast.info(t('toast.updateSuccess'));
-        }).catch(err => {
-            toast.error(t('toast.updateError'));
-            console.error(err);
-        })
     }
 
-    async function uploadImage(image: File, id: string) {
-        const imageFormData = new FormData();
-        imageFormData.append('image', image);
+    // Handle category update
+    async function handleUpdateCategory(values: CategoryFormValues) {
+        if (!category?.id) return;
+        
+        const { image, ...categoryDataWithoutImage } = values;
 
-        return await fetch(`/api/categories/${id}/image`, {
-            method: "PATCH",
-            credentials: "include",
-            body: imageFormData,
-        });
+        try {
+            // First update the category
+            const updatedCategory = await updateCategoryMutation.mutateAsync({
+                categoryId: category.id,
+                categoryData: categoryDataWithoutImage
+            });
+
+            // Then upload the image if present
+            if (image) {
+                await uploadImageMutation.mutateAsync({
+                    categoryId: category.id,
+                    imageFile: image
+                });
+            }
+
+            toast.success(t('toast.updateSuccess'));
+            if (setShow) setShow(updatedCategory.available);
+            setOpen(false);
+        } catch {
+            toast.error(t('toast.updateError'));
+        }
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {
                     category ?
@@ -157,11 +142,10 @@ export default function CategoryDialog({ category, setCategories, setShow, image
                 <CategoryForm
                     form={form}
                     uploadRef={uploadRef}
-                    onSubmit={
-                        category ? updateCategory : createCategory
-                    }
+                    onSubmit={category ? handleUpdateCategory : handleCreateCategory}
                     category={category}
                     imageURL={imageURL}
+                    isLoading={createCategoryMutation.isPending || updateCategoryMutation.isPending || uploadImageMutation.isPending}
                 />
             </DialogContent>
         </Dialog>
@@ -172,15 +156,17 @@ interface CategoryFormProps {
     form: ReturnType<typeof useForm<CategoryFormValues>>;
     uploadRef: React.RefObject<UploadImageRef | null>;
     onSubmit: (values: CategoryFormValues) => void;
-    category?: Category,
-    imageURL?: string
+    category?: Category;
+    imageURL?: string;
+    isLoading?: boolean;
 }
 
-function CategoryForm({ form, onSubmit, category, imageURL, uploadRef }: CategoryFormProps) {
+function CategoryForm({ form, onSubmit, category, imageURL, uploadRef, isLoading }: CategoryFormProps) {
     const t = useTranslations('Category');
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                {/* Category name field */}
                 <FormField
                     control={form.control}
                     name="name"
@@ -197,6 +183,7 @@ function CategoryForm({ form, onSubmit, category, imageURL, uploadRef }: Categor
                         </FormItem>
                     )}
                 />
+                {/* Category position field */}
                 <FormField
                     control={form.control}
                     name="position"
@@ -204,7 +191,13 @@ function CategoryForm({ form, onSubmit, category, imageURL, uploadRef }: Categor
                         <FormItem>
                             <FormLabel>{t('formFields.position.title')}</FormLabel>
                             <FormControl>
-                                <Input placeholder="1" {...field} />
+                                <Input 
+                                    type="number" 
+                                    placeholder="1" 
+                                    min="1"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                />
                             </FormControl>
                             <FormDescription>
                                 {t('formFields.position.description')}
@@ -213,6 +206,7 @@ function CategoryForm({ form, onSubmit, category, imageURL, uploadRef }: Categor
                         </FormItem>
                     )}
                 />
+                {/* Category image upload field */}
                 <FormField
                     control={form.control}
                     name="image"
@@ -225,7 +219,6 @@ function CategoryForm({ form, onSubmit, category, imageURL, uploadRef }: Categor
                                     initialPreview={imageURL}
                                     category={category}
                                     onChange={(file: File | undefined) => {
-                                        console.log("File changed:", file);
                                         field.onChange(file);
                                     }}
                                 />
@@ -237,6 +230,7 @@ function CategoryForm({ form, onSubmit, category, imageURL, uploadRef }: Categor
                         </FormItem>
                     )}
                 />
+                {/* Category availability checkbox */}
                 <FormField
                     control={form.control}
                     name="available"
@@ -260,13 +254,21 @@ function CategoryForm({ form, onSubmit, category, imageURL, uploadRef }: Categor
                 />
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="outline">{t('dialog.cancel')}</Button>
+                        <Button variant="outline" disabled={isLoading}>{t('dialog.cancel')}</Button>
                     </DialogClose>
                     {
                         category ?
-                            <Button type="submit" className="bg-blue-500 hover:bg-blue-500/80 text-white">{t('dialog.edit')}</Button>
+                            <Button 
+                                type="submit" 
+                                className="bg-blue-500 hover:bg-blue-500/80 text-white"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? t('dialog.loading') : t('dialog.edit')}
+                            </Button>
                             :
-                            <Button type="submit">{t('dialog.create')}</Button>
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading ? t('dialog.loading') : t('dialog.create')}
+                            </Button>
                     }
                 </DialogFooter>
             </form>

@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronsUpDown, LogOut } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
 
 import {
     Avatar,
@@ -14,9 +14,8 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar"
-import { useRouter } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useTranslations } from "next-intl"
+import { LogoutButton } from "@/components/ui/logoutButton"
 
 export function NavUser({
     user,
@@ -26,20 +25,7 @@ export function NavUser({
         role: string
     }
 }) {
-    const router = useRouter();
     const { isMobile } = useSidebar();
-    const t = useTranslations('Utils');
-
-    function logOut() {
-        fetch("/api/auth/logout", {
-            method: "POST",
-            credentials: "include"
-        }).then(() => {
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            router.replace("/login");
-        });
-    }
 
     return (
         <SidebarMenu>
@@ -80,9 +66,8 @@ export function NavUser({
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => logOut()}>
-                            <LogOut />
-                            {t('logout')}
+                        <DropdownMenuItem asChild>
+                            <LogoutButton variant={"ghost"} className="w-full" />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

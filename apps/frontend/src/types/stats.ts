@@ -12,9 +12,7 @@ export type FoodStats = Array<{
     price: string
 }>
 
-export type RevenueStats = {
-    revenuePerDay: Array<{
-        day: Date,
-        revenue: number
-    }>
-}
+export type RevenueStats = Array<{
+    day: Date,
+    revenue: number
+}>

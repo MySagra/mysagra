@@ -7,6 +7,7 @@ import path from "path";
 import { env } from './config/env';
 
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/errorHandler';
 import { corsOptions } from './config/corsOptions';
 
@@ -31,6 +32,7 @@ if (env.NODE_ENV === "production") {
 
 //security middlewares
 app.use(express.json({ limit: "10kb" }));
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({

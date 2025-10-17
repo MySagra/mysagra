@@ -67,7 +67,7 @@ export class CategoryController {
     uploadImage = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const { id } = req.params;
         const file = req.file
-
+        
         if(!file){
             res.status(400).json({ message: "Failed to upload image" });
             return;

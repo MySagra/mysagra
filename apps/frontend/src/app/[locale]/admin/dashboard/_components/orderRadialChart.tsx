@@ -17,6 +17,8 @@ import {
 import { ChartConfig, ChartContainer } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
+import { useOrderStats } from "@/hooks/api/stats"
+import { Spinner } from "@/components/ui/spinner"
 
 export const description = "A radial chart with text"
 
@@ -25,13 +27,22 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface OrderRadialChartProps {
-  totalOrders: number
   className?: string
 }
 
-export function OrderRadialChart({ totalOrders, className }: OrderRadialChartProps) {
-
+export function OrderRadialChart({ className }: OrderRadialChartProps) {
+  const { data, isPending, isError } = useOrderStats();
   const t = useTranslations('Analytics');
+
+  if(isPending){
+    return <Spinner />
+  }
+
+  if(isError){
+    return <></>
+  }
+
+  const totalOrders = data.totalOrders;
 
   return (
     <Card className={cn("flex flex-col", className)}>
