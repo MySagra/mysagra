@@ -9,30 +9,39 @@ import { UserDialog } from "./userDialog";
 import { DialogAction } from "@/components/ui/dialogAction";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useUsers, useDeleteUser } from "@/hooks/api/users";
 
 interface UserListProp {
-    initialUsers: Array<User>
     roles: Array<Role>
 }
 
-export function UserList({ roles, initialUsers }: UserListProp) {
-    const [users, setUsers] = useState(initialUsers);
+export function UserList({ roles }: UserListProp) {
+    const t = useTranslations('User');
+    const { data: users, isLoading, isError } = useUsers();
     const [thisUser, setThisUser] = useState({ username: "", role: "" });
 
     useEffect(() => {
         const userStr = localStorage.getItem("user");
         if (!userStr) return;
         setThisUser(JSON.parse(userStr));
-    }, [])
+    }, []);
+
+    if (isLoading) {
+        return <div className="text-center py-8">{t('loading')}</div>;
+    }
+
+    if (isError) {
+        return <div className="text-center py-8 text-red-500">{t('loadingError')}</div>;
+    }
 
     return (
         <div className="flex flex-col gap-3 px-4 lg:px-6">
-            <UserDialog setUsers={setUsers} roles={roles} />
+            <UserDialog roles={roles} />
 
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 {
-                    users.map(user => (
-                        <UserCard key={user.id} user={user} thisUser={thisUser.username} setUsers={setUsers} />
+                    users?.map(user => (
+                        <UserCard key={user.id} user={user} thisUser={thisUser.username} />
                     ))
                 }
             </div>
@@ -43,28 +52,24 @@ export function UserList({ roles, initialUsers }: UserListProp) {
 interface UserCardProp {
     user: User
     thisUser: string
-    setUsers: React.Dispatch<React.SetStateAction<User[]>>
 }
 
-function UserCard({ user, thisUser, setUsers }: UserCardProp) {
+function UserCard({ user, thisUser }: UserCardProp) {
     const t = useTranslations('User');
+    const { mutate: deleteUserMutation } = useDeleteUser();
 
-    function deleteUser() {
-        fetch(`/api/users/${user.id}`, {
-            method: "DELETE",
-            credentials: "include"
-        }).then(async res => {
-            await res.json();
-            if (res.ok) {
-                setUsers(prev => prev.filter(u => u.id !== user.id));
+    // Handler to delete a user
+    const handleDeleteUser = () => {
+        deleteUserMutation(user.id, {
+            onSuccess: () => {
+                toast.success(t('toast.deleteSuccess'));
+            },
+            onError: (error) => {
+                toast.error(t('toast.deleteError'));
+                console.error(error);
             }
-        }).then(() => {
-            toast.success(t('toast.deleteSuccess'));
-        }).catch(err => {
-            toast.error(t('toast.deleteError'));
-            console.error(err);
-        })
-    }
+        });
+    };
 
     return (
         <div className="bg-secondary p-3 rounded-md flex place-content-between items-center">
@@ -81,7 +86,7 @@ function UserCard({ user, thisUser, setUsers }: UserCardProp) {
             <DialogAction
                 title={t('delete.title')}
                 variant={'destructive'}
-                action={() => deleteUser()}
+                action={handleDeleteUser}
                 buttonText={t('delete.buttonText')}
                 trigger={
                     <Button disabled={thisUser == user.username} variant={'destructive'} size={"icon"} className="size-7">

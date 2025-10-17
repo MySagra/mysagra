@@ -5,12 +5,28 @@ import { OrderRequest, PageOrder } from "@/types/order";
 import { Order } from "@/types/order";
 import { apiClient } from "@/lib/apiClient";
 
-export async function createOrder(order: OrderRequest) : Promise<Order> {
+export async function createOrder(order: OrderRequest): Promise<Order> {
     return (await apiClient.post<Order>("v1/orders", order)).data
 }
 
 export async function getOrders(page: number): Promise<PageOrder> {
     return (await apiClient.get<PageOrder>(`v1/orders/pages/${page}`, {
+        headers: {
+            "Authorization": `Bearer ${await getAccessToken()}`
+        }
+    })).data;
+}
+
+export async function searchOrder(value: string) {
+    return (await apiClient.get<Order[]>(`v1/orders/search/${value}`, {
+        headers: {
+            "Authorization": `Bearer ${await getAccessToken()}`
+        }
+    })).data;
+}
+
+export async function deleteOrder(orderId: string) {
+    return (await apiClient.delete(`v1/orders/${orderId}`, {
         headers: {
             "Authorization": `Bearer ${await getAccessToken()}`
         }

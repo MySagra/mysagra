@@ -57,6 +57,8 @@
     "table": "Tavolo",
     "time": "it-IT",
     "orderFor": "Ordine di",
+    "loading": "Caricamento ordini...",
+    "loadingError": "Errore nel caricamento degli ordini",
     "delete": {
       "title": "Sei sicuro di voler eliminare questo ordine?",
       "description": "Questa azione <strong>non può essere annullata</strong>, se elimini l'ordine le statistiche cambieranno.",
@@ -101,6 +103,8 @@
     "user": "Utente",
     "users": "Utenti",
     "userManagement": "Gestione Utenti",
+    "loading": "Caricamento utenti...",
+    "loadingError": "Errore nel caricamento degli utenti",
     "dialog": {
       "trigger": "Crea Utente",
       "title": "Crea un nuovo utente",
@@ -216,6 +220,10 @@
     "food": "Alimento",
     "foods": "Alimenti",
     "foodManagement": "Gestione Alimenti",
+    "loading": "Caricamento alimenti...",
+    "loadingError": "Errore nel caricamento degli alimenti",
+    "availabilitySuccess": "Disponibilità dell'alimento aggiornata con successo",
+    "availabilityError": "Errore nell'aggiornamento della disponibilità dell'alimento",
     "dialog": {
       "trigger": "Crea Alimento",
       "createTitle": "Crea un nuovo alimento",

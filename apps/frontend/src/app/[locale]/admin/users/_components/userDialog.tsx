@@ -23,19 +23,23 @@ import { useForm } from "react-hook-form"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Role, User } from "@/types/user"
+import { Role } from "@/types/user"
 import { useTranslations } from "next-intl"
+import { useState } from "react"
 
 import { UserFormValues, getUserFormSchema } from "@/schemas/userForm"
 import { toast } from "sonner"
+import { useCreateUser } from "@/hooks/api/users"
 
 interface UserDialogProp {
-    setUsers: React.Dispatch<React.SetStateAction<User[]>>
     roles: Array<Role>
 }
 
-export function UserDialog({ setUsers, roles }: UserDialogProp) {
-    const t = useTranslations('User')
+export function UserDialog({ roles }: UserDialogProp) {
+    const t = useTranslations('User');
+    const [open, setOpen] = useState(false);
+    
+    const createUserMutation = useCreateUser();
 
     const form = useForm<UserFormValues>({
         resolver: zodResolver(getUserFormSchema(t)),
@@ -44,30 +48,23 @@ export function UserDialog({ setUsers, roles }: UserDialogProp) {
             password: "",
             roleId: 1
         }
-    })
+    });
 
-    function createUser(values: UserFormValues) {
-        fetch("/api/users", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(values),
-        }).then(async res => {
-            const data = await res.json();
-            if (!res.ok) return;
-            form.reset();
-            setUsers(prev =>
-                [...prev, data]
-            );
-        }).then(() => {
+    // Handler to create a new user
+    async function handleCreateUser(values: UserFormValues) {
+        try {
+            await createUserMutation.mutateAsync(values);
             toast.success(t('toast.createSuccess'));
-        }).catch(err => {
+            form.reset();
+            setOpen(false);
+        } catch (error) {
             toast.error(t('toast.createError'));
-            console.error(err);
-        })
+            console.error(error);
+        }
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {
                     <Button className="w-min">
@@ -85,7 +82,7 @@ export function UserDialog({ setUsers, roles }: UserDialogProp) {
                 </DialogHeader>
                 <UserForm
                     form={form}
-                    onSubmit={createUser}
+                    onSubmit={handleCreateUser}
                     roles={roles}
                 />
             </DialogContent>

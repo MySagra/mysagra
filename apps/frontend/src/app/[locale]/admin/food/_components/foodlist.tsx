@@ -3,28 +3,36 @@
 import { Button } from "@/components/ui/button";
 import { Food } from "@/types/food";
 import { Eye, EyeOff, Trash2 } from "lucide-react";
-import { useState } from "react";
 import { FoodDialog } from "./foodDialog";
 import { Category } from "@/types/category";
 import { DialogAction } from "@/components/ui/dialogAction";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useFoods, useToggleFoodAvailability, useDeleteFood } from "@/hooks/api/food";
 
 interface FoodListProps {
-    initialFoods: Array<Food>
     categories: Array<Category>
 }
 
-export function FoodList({ initialFoods, categories }: FoodListProps) {
-    const [foods, setFoods] = useState(initialFoods);
+export function FoodList({ categories }: FoodListProps) {
+    const t = useTranslations('Food');
+    const { data: foods, isLoading, isError } = useFoods();
+
+    if (isLoading) {
+        return <div className="text-center py-8">{t('loading')}</div>;
+    }
+
+    if (isError) {
+        return <div className="text-center py-8 text-red-500">{t('loadingError')}</div>;
+    }
 
     return (
         <div className="flex flex-col gap-3 px-4 lg:px-6">
-            <FoodDialog setFoods={setFoods} categories={categories} />
+            <FoodDialog categories={categories} />
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {
-                    foods.map(food => (
-                        <FoodCard key={food.id} food={food} setFoods={setFoods} categories={categories} />
+                    foods?.map(food => (
+                        <FoodCard key={food.id} food={food} categories={categories} />
                     ))
                 }
             </div>
@@ -34,42 +42,39 @@ export function FoodList({ initialFoods, categories }: FoodListProps) {
 
 interface FoodCardProps {
     food: Food
-    setFoods: React.Dispatch<React.SetStateAction<Food[]>>
     categories: Array<Category>
 }
 
-function FoodCard({ food, setFoods, categories }: FoodCardProps) {
-    const t = useTranslations('Food')
-    const [show, setShow] = useState<boolean>(food.available || false)
+function FoodCard({ food, categories }: FoodCardProps) {
+    const t = useTranslations('Food');
+    const { mutate: toggleAvailability } = useToggleFoodAvailability();
+    const { mutate: deleteFoodMutation } = useDeleteFood();
 
-    function deleteFood() {
-        fetch(`/api/foods/${food.id}`, {
-            method: "DELETE",
-            credentials: "include"
-        }).then(async res => {
-            await res.json();
-            if (res.ok) {
-                setFoods(prev => prev.filter(f => f.id !== food.id));
-            }
-        }).then(() => {
-            toast.success(t('toast.deleteSuccess'));
-        }).catch(err => {
-            toast.error(t('toast.deleteError'));
-            console.error(err);
-        })
-    }
-
-    function handleAvailable() {
-        fetch(`/api/foods/available/${food.id}`, {
-            method: "PATCH",
-            credentials: "include"
-        }).then(async res => {
-            await res.json();
-            if (res.ok) {
-                setShow(!show);
+    // Handler to delete a food
+    const handleDeleteFood = () => {
+        deleteFoodMutation(food.id, {
+            onSuccess: () => {
+                toast.success(t('toast.deleteSuccess'));
+            },
+            onError: (error) => {
+                toast.error(t('toast.deleteError'));
+                console.error(error);
             }
         });
-    }
+    };
+
+    // Handler to toggle food availability
+    const handleToggleAvailability = () => {
+        toggleAvailability(food.id, {
+            onSuccess: () => {
+                toast.success(t('availabilitySuccess'));
+            },
+            onError: (error) => {
+                toast.error(t('availabilityError'));
+                console.error(error);
+            }
+        });
+    };
 
     return (
         <div className="bg-secondary p-3 rounded-md flex place-content-between">
@@ -77,7 +82,7 @@ function FoodCard({ food, setFoods, categories }: FoodCardProps) {
                 <DialogAction
                     title={t('delete.title')}
                     variant={'destructive'}
-                    action={() => deleteFood()}
+                    action={handleDeleteFood}
                     buttonText={t('delete.buttonText')}
                     trigger={
                         <Button variant={'destructive'} size={"icon"} className="size-7">
@@ -95,15 +100,15 @@ function FoodCard({ food, setFoods, categories }: FoodCardProps) {
             </div>
 
             <div className="flex flex-row gap-1.5 items-center">
-                <Button size={"icon"} variant={"ghost"} onClick={() => handleAvailable()}>
+                <Button size={"icon"} variant={"ghost"} onClick={handleToggleAvailability}>
                     {
-                        show ?
+                        food.available ?
                             <Eye />
                             :
                             <EyeOff />
                     }
                 </Button>
-                <FoodDialog food={food} setFoods={setFoods} setShow={setShow} categories={categories} />
+                <FoodDialog food={food} categories={categories} />
             </div>
         </div>
     )
