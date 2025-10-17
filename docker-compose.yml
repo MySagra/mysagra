@@ -26,6 +26,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - PEPPER=${PEPPER}
       - FRONTEND_URL=${FRONTEND_URL}
+      - MIGRATE_ON_START=true
     depends_on:
       db:
         condition: service_healthy

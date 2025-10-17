@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (order.customer !== "" && order.table !== "") {
+        if (order.customer !== "" && order.table) {
             sessionStorage.setItem("order", JSON.stringify(order));
         }
     }, [order]);

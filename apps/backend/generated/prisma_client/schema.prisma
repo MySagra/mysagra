@@ -21,6 +21,8 @@ model Category {
   position  Int     @default(0)
   image     String?
   foods     Food[]
+
+  @@map("categories")
 }
 
 model Food {
@@ -34,6 +36,8 @@ model Food {
   categoryId Int
 
   FoodsOrdered FoodsOrdered[]
+
+  @@map("foods")
 }
 
 model Order {
@@ -58,6 +62,7 @@ model FoodsOrdered {
   foodId Int
 
   @@id([orderId, foodId])
+  @@map("foods_ordered")
 }
 
 //users sections
@@ -66,6 +71,8 @@ model Role {
   name String @unique
 
   users User[]
+
+  @@map("roles")
 }
 
 model User {
@@ -76,6 +83,8 @@ model User {
   role          Role           @relation(fields: [roleId], references: [id])
   roleId        Int
   refreshTokens RefreshToken[]
+
+  @@map("users")
 }
 
 model RefreshToken {

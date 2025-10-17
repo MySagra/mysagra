@@ -44,9 +44,6 @@ importers:
       '@types/multer':
         specifier: ^2.0.0
         version: 2.0.0
-      '@types/node':
-        specifier: ^22.15.18
-        version: 22.18.1
       '@types/swagger-jsdoc':
         specifier: ^6.0.4
         version: 6.0.4
@@ -92,9 +89,6 @@ importers:
       tsc-alias:
         specifier: ^1.8.16
         version: 1.8.16
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.2
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -108,6 +102,9 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
+      '@types/node':
+        specifier: ^22.18.1
+        version: 22.18.1
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -129,6 +126,9 @@ importers:
       tsx:
         specifier: ^4.20.5
         version: 4.20.5
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
   apps/frontend:
     dependencies:

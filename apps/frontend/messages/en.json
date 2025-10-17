@@ -160,7 +160,8 @@
       "updateTitle": "Update category",
       "create": "Create",
       "edit": "Edit",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "loading": "Loading..."
     },
     "formFields": {
       "name": {
@@ -189,6 +190,8 @@
       "name": "Category Name is required",
       "nameLength": "Category Name must be at least 2 characters long",
       "position": "Category Position is required",
+      "positionValid": "Category Position must be a valid number",
+      "positionMin": "Category Position must be at least 1",
       "available": "Category Availability is required",
       "imageSize": "Category Image must be less than 5MB",
       "imageFormat": "Category Image must be a JPEG, JPG or PNG file"
@@ -203,6 +206,8 @@
       "createError": "Error creating category",
       "updateSuccess": "Category updated successfully",
       "updateError": "Error updating category",
+      "availabilitySuccess": "Category availability updated successfully",
+      "availabilityError": "Error updating category availability",
       "deleteSuccess": "Category deleted successfully",
       "deleteError": "Error deleting category"
     }

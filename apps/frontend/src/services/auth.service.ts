@@ -145,6 +145,7 @@ export async function refreshAccessToken(): Promise<string | null> {
         const cookieStore = await cookies();
         cookieStore.delete('accessToken');
         cookieStore.delete('refreshToken');
+        console.error(error)
         return null;
     }
 }

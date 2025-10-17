@@ -160,7 +160,8 @@
       "updateTitle": "Aggiorna categoria",
       "create": "Crea",
       "edit": "Modifica",
-      "cancel": "Annulla"
+      "cancel": "Annulla",
+      "loading": "Caricamento..."
     },
     "formFields": {
       "name": {
@@ -189,6 +190,8 @@
       "name": "Il nome della categoria è obbligatorio",
       "nameLength": "Il nome della categoria deve essere lungo almeno 2 caratteri",
       "position": "La posizione della categoria è obbligatoria",
+      "positionValid": "La posizione della categoria deve essere un numero valido",
+      "positionMin": "La posizione della categoria deve essere almeno 1",
       "available": "La disponibilità della categoria è obbligatoria",
       "imageSize": "L'immagine della categoria deve essere inferiore a 5MB",
       "imageFormat": "L'immagine della categoria deve essere un file JPEG, JPG o PNG"
@@ -203,6 +206,8 @@
       "createError": "Errore nella creazione della categoria",
       "updateSuccess": "Categoria aggiornata con successo",
       "updateError": "Errore nell'aggiornamento della categoria",
+      "availabilitySuccess": "Disponibilità categoria aggiornata con successo",
+      "availabilityError": "Errore nell'aggiornamento della disponibilità della categoria",
       "deleteSuccess": "Categoria eliminata con successo",
       "deleteError": "Errore nell'eliminazione della categoria"
     }

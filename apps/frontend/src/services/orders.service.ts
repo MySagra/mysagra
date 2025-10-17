@@ -17,8 +17,16 @@ export async function getOrders(page: number): Promise<PageOrder> {
     })).data;
 }
 
-export async function getDailyOrders(): Promise<PageOrder> {
-    return (await apiClient.get<PageOrder>(`v1/orders/day/today`, {
+export async function getDailyOrders(): Promise<Order[]> {
+    return (await apiClient.get<Order[]>(`v1/orders/day/today`, {
+        headers: {
+            "Authorization": `Bearer ${await getAccessToken()}`
+        }
+    })).data;
+}
+
+export async function getDailySearchOrders(value: string): Promise<Order[]> {
+    return (await apiClient.get<Order[]>(`v1/orders/search/daily/${value}`, {
         headers: {
             "Authorization": `Bearer ${await getAccessToken()}`
         }

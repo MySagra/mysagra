@@ -36,8 +36,8 @@ RUN pnpm turbo run build --filter=mysagra-backend
 FROM base AS runner
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
+# Install wget for healthcheck
+RUN apk add --no-cache wget
 
 # User
 RUN addgroup --system --gid 1001 nodejs

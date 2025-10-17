@@ -107,7 +107,7 @@ export default function OrderCard({ order, value = "", adminView = false, setOrd
                 <p className="flex flex-row gap-1 items-center">
                     {t('table')}
                     {
-                        value && order.table.includes(value)
+                        value === order.table.toString()
                             ?
                             <span className="bg-yellow-300 p-1 rounded-sm font-semibold">{order.table}</span>
                             :

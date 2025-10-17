@@ -1,12 +1,11 @@
 import { getAccessToken } from "@/lib/auth/getTokens";
 import { Role } from "@/types/user";
+import { apiClient } from "@/lib/apiClient";
 
 export async function getRoles(): Promise<Array<Role>> {
-    return await fetch(`${process.env.API_URL}/v1/roles`, {
-        next: { tags: ['roles']},
-        method: "GET",
+    return (await apiClient.get(`v1/roles`, {
         headers: {
             "Authorization": `Bearer ${await getAccessToken()}`
         }
-    }).then(res => res.json());
+    })).data
 }

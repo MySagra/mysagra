@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { getRefreshToken } from "@/lib/auth/getTokens";
 
 const API_URL = process.env.API_URL;
 
@@ -46,7 +45,7 @@ export async function POST(request: Request) {
     }
     catch (err) {
         return NextResponse.json(
-            { error: "Network error" },
+            { error: err },
             { status: 500 }
         );
     }

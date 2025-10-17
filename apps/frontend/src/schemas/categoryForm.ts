@@ -1,12 +1,19 @@
 import { z } from "zod"
 
+// Validation schema for category form
 export function getCategoryFormSchema(t: (key: string) => string) {
     return z.object({
-        name: z.string({ required_error: t('validation.name')}).min(2, {message: t('validation.nameLength')}).max(50),
-        position: z.string({ required_error: t('validation.position')} )
-            .min(1)
-            .refine(val => !isNaN(Number(val)) && Number(val) >= 1),
-        available: z.boolean( { required_error: t('validation.available')}),
+        name: z.string({ required_error: t('validation.name')})
+            .min(2, {message: t('validation.nameLength')})
+            .max(50),
+        // Use z.coerce.number to automatically convert string input to number
+        position: z.coerce.number({ 
+            required_error: t('validation.position'),
+            invalid_type_error: t('validation.positionValid')
+        })
+            .int()
+            .min(1, { message: t('validation.positionMin') }),
+        available: z.boolean({ required_error: t('validation.available')}),
         image: z
             .instanceof(File)
             .optional()
@@ -21,4 +28,5 @@ export function getCategoryFormSchema(t: (key: string) => string) {
     })
 }
 
-export type CategoryFormValues = z.infer<Awaited<ReturnType<typeof getCategoryFormSchema>>>
+// Type inferred from the schema for form values
+export type CategoryFormValues = z.infer<ReturnType<typeof getCategoryFormSchema>>

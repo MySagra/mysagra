@@ -9,21 +9,32 @@ import CategoryDialog from "./categoryDialog";
 import { DialogAction } from "@/components/ui/dialogAction";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useCategories, useToggleCategoryAvailability, useDeleteCategory } from "@/hooks/api/categories";
 
 interface CategoriesPositionProps {
-    initialCategories: Array<Category>
     imageURL: string
 }
 
-export default function CategoriesList({ initialCategories, imageURL }: CategoriesPositionProps) {
-    const [categories, setCategories] = useState(initialCategories);
+export default function CategoriesList({ imageURL }: CategoriesPositionProps) {
+    const { data: categories, isFetching, isError } = useCategories();
+
+    // Loading state
+    if (isFetching) {
+        return <div className="px-4 lg:px-6 flex place-content-center">Caricamento...</div>;
+    }
+
+    // Error state
+    if (isError) {
+        return <div className="px-4 lg:px-6 flex place-content-center text-destructive">Errore nel caricamento delle categorie</div>;
+    }
+
     return (
         <div className="px-4 lg:px-6 flex flex-col gap-3">
-            <CategoryDialog setCategories={setCategories} />
+            <CategoryDialog />
             <div className="flex flex-col gap-1">
                 {
-                    categories.map((category) => (
-                        <CategoryCard key={category.id} setCategories={setCategories} category={category} imageURL={category.image ? `${imageURL}/${category.image}` : undefined} />
+                    categories?.map((category) => (
+                        <CategoryCard key={category.id} category={category} imageURL={category.image ? `${imageURL}/${category.image}` : undefined} />
                     ))
                 }
             </div>
@@ -33,40 +44,37 @@ export default function CategoriesList({ initialCategories, imageURL }: Categori
 
 interface CategoryCardProps {
     category: Category
-    setCategories: React.Dispatch<React.SetStateAction<Category[]>>
     imageURL?: string
 }
 
-function CategoryCard({ category, setCategories, imageURL }: CategoryCardProps) {
+function CategoryCard({ category, imageURL }: CategoryCardProps) {
     const [show, setShow] = useState<boolean>(category.available);
-    const t = useTranslations('Category')
+    const t = useTranslations('Category');
+    const toggleAvailability = useToggleCategoryAvailability();
+    const deleteCategory = useDeleteCategory();
 
+    // Handle category availability toggle
     function handleAvailable() {
-        fetch(`/api/categories/available/${category.id}`, {
-            method: "PATCH",
-            credentials: "include"
-        }).then(async res => {
-            await res.json();
-            if (res.ok) {
+        toggleAvailability.mutate(category.id, {
+            onSuccess: () => {
                 setShow(!show);
+                toast.success(t('toast.availabilitySuccess'));
+            },
+            onError: () => {
+                toast.error(t('toast.availabilityError'));
             }
         });
     }
 
-    function deleteCategory() {
-        fetch(`/api/categories/${category.id}`, {
-            method: "DELETE",
-            credentials: "include"
-        }).then(async res => {
-            await res.json();
-            if (res.ok) {
-                setCategories(prev => prev.filter(c => c.id !== category.id));
+    // Handle category deletion
+    function handleDelete() {
+        deleteCategory.mutate(category.id, {
+            onSuccess: () => {
+                toast.success(t('toast.deleteSuccess'));
+            },
+            onError: () => {
+                toast.error(t('toast.deleteError'));
             }
-        }).then(() => {
-            toast.success(t('toast.deleteSuccess'));
-        }).catch(err => {
-            toast.error(t('toast.deleteError'));
-            console.error(err);
         });
     }
 
@@ -79,7 +87,7 @@ function CategoryCard({ category, setCategories, imageURL }: CategoryCardProps) 
                     <DialogAction
                         title={t('delete.title')}
                         variant={'destructive'}
-                        action={() => deleteCategory()}
+                        action={handleDelete}
                         buttonText={t('delete.buttonText')}
                         trigger={
                             <Button variant={'destructive'} size={"icon"} className="size-7">
@@ -113,7 +121,7 @@ function CategoryCard({ category, setCategories, imageURL }: CategoryCardProps) 
                         orientation="vertical"
                         className="mx-2 data-[orientation=vertical]:h-4"
                     />
-                    <CategoryDialog category={category} setCategories={setCategories} setShow={setShow} imageURL={imageURL} />
+                    <CategoryDialog category={category} setShow={setShow} imageURL={imageURL} />
                 </div>
             </div>
         </div>

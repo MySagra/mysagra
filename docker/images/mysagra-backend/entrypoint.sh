@@ -12,7 +12,8 @@ cd /app/apps/backend
 # Run Prisma migrations if MIGRATE_ON_START is set
 if [ "$MIGRATE_ON_START" = "true" ]; then
   echo "Running Prisma migrations..."
-  pnpm exec prisma migrate deploy
+  npx prisma migrate deploy
+  npx prisma db seed
 fi
 
 # Start the application

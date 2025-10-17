@@ -36,7 +36,7 @@ import { useLogin } from "@/hooks/api/auth";
 export default function Login() {
     const router = useRouter();
     const t = useTranslations('Admin.Login')
-    const { mutate: login, isPending } = useLogin();
+    const { mutate: login } = useLogin();
 
     const formSchema = z.object({
         username: z.string({ required_error: t('validation.required') }),
