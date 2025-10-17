@@ -3,7 +3,6 @@
 import OrderCard from "@/components/order/orderCard";
 import OrderPagination from "@/components/order/orderPagination";
 import OrderSearch from "@/components/order/orderSearch";
-import { Order } from "@/types/order";
 import { useState } from "react";
 import { useOrderByPage, useSearchOrder } from "@/hooks/api/order";
 import { useTranslations } from "next-intl";

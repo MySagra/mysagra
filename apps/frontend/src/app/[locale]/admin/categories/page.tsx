@@ -1,7 +1,6 @@
 import CategoriesList from "./_components/categoriesList"
 import { AdminHeader } from "../_components/layout/header"
-import { Category } from "@/types/category";
-import { getAvailableCategories, getCategories } from "@/services/categories.service";
+import { getCategories } from "@/services/categories.service";
 import { getTranslations } from "next-intl/server";
 import { getQueryClient } from "@/lib/react-query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";

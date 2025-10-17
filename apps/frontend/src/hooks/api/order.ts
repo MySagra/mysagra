@@ -5,7 +5,6 @@ import { createOrder, getDailySearchOrders, getOrders, searchOrder, deleteOrder 
 import { OrderRequest } from "@/types/order";
 import { useQueryClient } from "@tanstack/react-query";
 import { getDailyOrders } from "@/services/orders.service";
-import { Order } from "@/types/order";
 
 export function useOrderByPage(page: number) {
     return useQuery({
@@ -60,7 +59,7 @@ export function useDeleteOrder() {
     
     return useMutation({
         mutationFn: (orderId: string) => deleteOrder(orderId),
-        onSuccess: (_, orderId) => {
+        onSuccess: () => {
             // Invalidate all order-related queries to refetch data
             queryClient.invalidateQueries({ queryKey: ["orders"] });
             queryClient.invalidateQueries({ queryKey: ["dailyOrders"] });

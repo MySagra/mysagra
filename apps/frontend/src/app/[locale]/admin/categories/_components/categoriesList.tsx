@@ -10,24 +10,25 @@ import { DialogAction } from "@/components/ui/dialogAction";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useCategories, useToggleCategoryAvailability, useDeleteCategory } from "@/hooks/api/categories";
+import { Spinner } from "@/components/ui/spinner";
 
 interface CategoriesPositionProps {
     imageURL: string
 }
 
 export default function CategoriesList({ imageURL }: CategoriesPositionProps) {
-    const { data: categories, isFetching, isError, error } = useCategories();
+    const { data: categories, isFetching, isError } = useCategories();
 
     // Loading state
     if (isFetching) {
-        return <div className="px-4 lg:px-6 flex place-content-center">Caricamento...</div>;
+        return <Spinner />
     }
 
     // Error state
     if (isError) {
-        return <div className="px-4 lg:px-6 flex place-content-center text-destructive">Errore nel caricamento delle categorie</div>;
+        return <></>
     }
-
+    
     return (
         <div className="px-4 lg:px-6 flex flex-col gap-3">
             <CategoryDialog />

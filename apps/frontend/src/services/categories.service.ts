@@ -24,11 +24,11 @@ export async function createCategory(categoryData: Omit<CategoryFormValues, 'ima
     // Validate data with Zod schema (without image)
     const schema = getCategoryFormSchema((key: string) => key); // Placeholder function for messages
     const validatedData = schema.parse({ ...categoryData, image: undefined });
-
+    
     // Remove image field before sending to API
-    const { image, ...dataWithoutImage } = validatedData;
+    delete validatedData.image;
 
-    return (await apiClient.post<Category>('v1/categories', dataWithoutImage, {
+    return (await apiClient.post<Category>('v1/categories', validatedData, {
         headers: {
             "Authorization": `Bearer ${await getAccessToken()}`
         }
@@ -40,11 +40,11 @@ export async function updateCategory(categoryId: number, categoryData: Omit<Cate
     // Validate data with Zod schema (without image)
     const schema = getCategoryFormSchema((key: string) => key); // Placeholder function for messages
     const validatedData = schema.parse({ ...categoryData, image: undefined });
-
+    
     // Remove image field before sending to API
-    const { image, ...dataWithoutImage } = validatedData;
+    delete validatedData.image;
 
-    return (await apiClient.put<Category>(`v1/categories/${categoryId}`, dataWithoutImage, {
+    return (await apiClient.put<Category>(`v1/categories/${categoryId}`, validatedData, {
         headers: {
             "Authorization": `Bearer ${await getAccessToken()}`
         }

@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronsUpDown, LogOut } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
 
 import {
     Avatar,
@@ -14,9 +14,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar"
-import { useRouter } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useTranslations } from "next-intl"
 import { LogoutButton } from "@/components/ui/logoutButton"
 
 export function NavUser({
@@ -27,9 +25,7 @@ export function NavUser({
         role: string
     }
 }) {
-    const router = useRouter();
     const { isMobile } = useSidebar();
-    const t = useTranslations('Utils');
 
     return (
         <SidebarMenu>

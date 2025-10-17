@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useOrderStats } from "@/hooks/api/stats";
 import { Spinner } from "@/components/ui/spinner";
-import { ErrorHandler } from "@/components/ui/errorHandler";
 
 const chartConfig = {
     count: {

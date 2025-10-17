@@ -81,7 +81,7 @@ export default function CategoryDialog({ category, setShow, imageURL }: Category
             form.reset();
             uploadRef.current?.reset();
             setOpen(false);
-        } catch (error) {
+        } catch {
             toast.error(t('toast.createError'));
         }
     }
@@ -110,7 +110,7 @@ export default function CategoryDialog({ category, setShow, imageURL }: Category
             toast.success(t('toast.updateSuccess'));
             if (setShow) setShow(updatedCategory.available);
             setOpen(false);
-        } catch (error) {
+        } catch {
             toast.error(t('toast.updateError'));
         }
     }
