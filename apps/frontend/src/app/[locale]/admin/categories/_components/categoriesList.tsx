@@ -16,7 +16,7 @@ interface CategoriesPositionProps {
 }
 
 export default function CategoriesList({ imageURL }: CategoriesPositionProps) {
-    const { data: categories, isFetching, isError } = useCategories();
+    const { data: categories, isFetching, isError, error } = useCategories();
 
     // Loading state
     if (isFetching) {
@@ -78,7 +78,7 @@ function CategoryCard({ category, imageURL }: CategoryCardProps) {
         });
     }
 
-        
+
 
     return (
         <div className="w-full flex place-content-center">

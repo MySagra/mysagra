@@ -64,25 +64,17 @@ export default function CategoryDialog({ category, setShow, imageURL }: Category
     // Handle category creation
     async function handleCreateCategory(values: CategoryFormValues) {
         const { image, ...categoryDataWithoutImage } = values;
-        
-        console.log('📝 Creating category with values:', values);
-        console.log('🖼️ Image file:', image);
 
         try {
             // First create the category
             const newCategory = await createCategoryMutation.mutateAsync(categoryDataWithoutImage);
-            console.log('✅ Category created:', newCategory);
             
             // Then upload the image if present
             if (image) {
-                console.log('📤 Uploading image for category:', newCategory.id);
                 await uploadImageMutation.mutateAsync({
                     categoryId: newCategory.id,
                     imageFile: image
                 });
-                console.log('✅ Image uploaded successfully');
-            } else {
-                console.log('⚠️ No image to upload');
             }
 
             toast.success(t('toast.createSuccess'));
@@ -91,7 +83,6 @@ export default function CategoryDialog({ category, setShow, imageURL }: Category
             setOpen(false);
         } catch (error) {
             toast.error(t('toast.createError'));
-            console.error('❌ Error creating category:', error);
         }
     }
 
@@ -100,9 +91,6 @@ export default function CategoryDialog({ category, setShow, imageURL }: Category
         if (!category?.id) return;
         
         const { image, ...categoryDataWithoutImage } = values;
-        
-        console.log('📝 Updating category with values:', values);
-        console.log('🖼️ Image file:', image);
 
         try {
             // First update the category
@@ -110,18 +98,13 @@ export default function CategoryDialog({ category, setShow, imageURL }: Category
                 categoryId: category.id,
                 categoryData: categoryDataWithoutImage
             });
-            console.log('✅ Category updated:', updatedCategory);
 
             // Then upload the image if present
             if (image) {
-                console.log('📤 Uploading image for category:', category.id);
                 await uploadImageMutation.mutateAsync({
                     categoryId: category.id,
                     imageFile: image
                 });
-                console.log('✅ Image uploaded successfully');
-            } else {
-                console.log('⚠️ No image to upload');
             }
 
             toast.success(t('toast.updateSuccess'));
@@ -129,7 +112,6 @@ export default function CategoryDialog({ category, setShow, imageURL }: Category
             setOpen(false);
         } catch (error) {
             toast.error(t('toast.updateError'));
-            console.error('❌ Error updating category:', error);
         }
     }
 
@@ -237,7 +219,6 @@ function CategoryForm({ form, onSubmit, category, imageURL, uploadRef, isLoading
                                     initialPreview={imageURL}
                                     category={category}
                                     onChange={(file: File | undefined) => {
-                                        console.log("File changed:", file);
                                         field.onChange(file);
                                     }}
                                 />
