@@ -69,4 +69,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=30s \
   CMD curl -f http://localhost:4300/health || exit 1
 
 # Start command
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "./entrypoint.sh"]
