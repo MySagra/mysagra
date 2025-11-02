@@ -23,7 +23,7 @@ export const checkFoodExists = async (req: Request, res: Response, next: NextFun
 
     const food = await prisma.food.findUnique({
         where: {
-            id: parseInt(id)
+            id
         }
     })
 

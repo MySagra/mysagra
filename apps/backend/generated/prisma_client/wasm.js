@@ -128,6 +128,11 @@ exports.Prisma.CategoryScalarFieldEnum = {
   image: 'image'
 };
 
+exports.Prisma.IngredientScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+};
+
 exports.Prisma.FoodScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -135,6 +140,11 @@ exports.Prisma.FoodScalarFieldEnum = {
   price: 'price',
   available: 'available',
   categoryId: 'categoryId'
+};
+
+exports.Prisma.FoodIngredientScalarFieldEnum = {
+  foodId: 'foodId',
+  ingredientId: 'ingredientId'
 };
 
 exports.Prisma.OrderScalarFieldEnum = {
@@ -189,9 +199,20 @@ exports.Prisma.CategoryOrderByRelevanceFieldEnum = {
   image: 'image'
 };
 
+exports.Prisma.IngredientOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+};
+
 exports.Prisma.FoodOrderByRelevanceFieldEnum = {
+  id: 'id',
   name: 'name',
   description: 'description'
+};
+
+exports.Prisma.FoodIngredientOrderByRelevanceFieldEnum = {
+  foodId: 'foodId',
+  ingredientId: 'ingredientId'
 };
 
 exports.Prisma.OrderOrderByRelevanceFieldEnum = {
@@ -202,7 +223,8 @@ exports.Prisma.OrderOrderByRelevanceFieldEnum = {
 };
 
 exports.Prisma.FoodsOrderedOrderByRelevanceFieldEnum = {
-  orderId: 'orderId'
+  orderId: 'orderId',
+  foodId: 'foodId'
 };
 
 exports.Prisma.RoleOrderByRelevanceFieldEnum = {
@@ -224,7 +246,9 @@ exports.Prisma.RefreshTokenOrderByRelevanceFieldEnum = {
 
 exports.Prisma.ModelName = {
   Category: 'Category',
+  Ingredient: 'Ingredient',
   Food: 'Food',
+  FoodIngredient: 'FoodIngredient',
   Order: 'Order',
   FoodsOrdered: 'FoodsOrdered',
   Role: 'Role',

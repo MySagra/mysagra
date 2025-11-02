@@ -1,21 +1,33 @@
 import prisma from "@/utils/prisma";
 
+import { FoodIngredient } from "@/validators";
+
 export class FoodService {
     async getFoods() {
         return await prisma.food.findMany({
             include: {
-                category: true
+                category: true,
+                foodIngredients: {
+                    select: {
+                        ingredient: true
+                    }
+                }
             }
         });
     }
 
-    async getFoodById(id: number) {
+    async getFoodById(id: string) {
         return await prisma.food.findUnique({
             where: {
                 id
             },
             include: {
-                category: true
+                category: true,
+                foodIngredients: {
+                    select: {
+                        ingredient: true
+                    }
+                }
             }
         })
     }
@@ -26,7 +38,12 @@ export class FoodService {
                 available: true
             },
             include: {
-                category: true
+                category: true,
+                foodIngredients: {
+                    select: {
+                        ingredient: true
+                    }
+                }
             }
         })
     }
@@ -36,8 +53,13 @@ export class FoodService {
             where: {
                 categoryId
             },
-            select: {
-                category: true
+            include: {
+                category: true,
+                foodIngredients: {
+                    select: {
+                        ingredient: true
+                    }
+                }
             }
         })
     }
@@ -49,24 +71,54 @@ export class FoodService {
                 available: true
             },
             include: {
-                category: true
+                category: true,
+                foodIngredients: {
+                    select: {
+                        ingredient: true
+                    }
+                }
             }
         })
     }
 
-    async createFood(name: string, description: string, price: number, categoryId: number, available = true) {
-        return await prisma.food.create({
+    async createFood(name: string, description: string, price: number, categoryId: number, available = true, ingredients?: FoodIngredient[]) {
+        const food = await prisma.food.create({
             data: {
                 name,
                 description,
                 price,
                 categoryId,
-                available
+                available,
+                ...(ingredients && ingredients.length > 0 && {
+                    foodIngredients: {
+                        create: ingredients.map(ingredient => ({
+                            ingredientId: ingredient.id
+                        }))
+                    }
+                })
+            },
+            include: {
+                category: true,
+                foodIngredients: {
+                    select: {
+                        ingredient: true
+                    }
+                }
             }
         })
+
+        return food;
     }
 
-    async updateFood(id: number, name: string, description: string, price: number, categoryId: number, available = true) {
+    async updateFood(id: string, name: string, description: string, price: number, categoryId: number, available = true, ingredients?: FoodIngredient[]) {
+        // First delete existing ingredient relations
+        await prisma.foodIngredient.deleteMany({
+            where: {
+                foodId: id
+            }
+        });
+
+        // Then update the food and create new relations
         return await prisma.food.update({
             where: {
                 id
@@ -76,12 +128,27 @@ export class FoodService {
                 description,
                 price,
                 categoryId,
-                available
+                available,
+                ...(ingredients && ingredients.length > 0 && {
+                    foodIngredients: {
+                        create: ingredients.map(ingredient => ({
+                            ingredientId: ingredient.id
+                        }))
+                    }
+                })
+            },
+            include: {
+                category: true,
+                foodIngredients: {
+                    select: {
+                        ingredient: true
+                    }
+                }
             }
         })
     }
 
-    async patchAvailableFood(id: number) {
+    async patchAvailableFood(id: string) {
         const food = await this.getFoodById(id);
         if (!food) return null;
 
@@ -95,7 +162,7 @@ export class FoodService {
         })
     }
 
-    async deleteFood(id: number) {
+    async deleteFood(id: string) {
         return await prisma.food.delete({
             where: {
                 id
@@ -103,4 +170,3 @@ export class FoodService {
         })
     }
 }
-    
