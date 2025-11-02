@@ -14,17 +14,56 @@ const router = Router();
  * @swagger
  * components:
  *   schemas:
+ *     FoodInOrder:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *         name:
+ *           type: string
+ *           example: "Pizza Margherita"
+ *         description:
+ *           type: string
+ *           example: "Classic pizza with tomato and mozzarella"
+ *         price:
+ *           type: string
+ *           example: "8.50"
+ *         available:
+ *           type: boolean
+ *           example: true
+ *         category:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *               example: 1
+ *             name:
+ *               type: string
+ *               example: "Pizza"
+ *         foodIngredients:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               ingredient:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: "clm1234567890"
+ *                   name:
+ *                     type: string
+ *                     example: "Mozzarella"
  *     FoodOrdered:
  *       type: object
  *       properties:
- *         foodId:
- *           type: integer
- *           format: int64
- *           example: 1
  *         quantity:
  *           type: integer
  *           minimum: 1
  *           example: 2
+ *         food:
+ *           $ref: '#/components/schemas/FoodInOrder'
  *     OrderResponse:
  *       type: object
  *       properties:
@@ -81,9 +120,8 @@ const router = Router();
  *               - quantity
  *             properties:
  *               foodId:
- *                 type: integer
- *                 format: int64
- *                 example: 1
+ *                 type: string
+ *                 example: "clx1a2b3c4d5e6f7g8h9i0j1"
  *               quantity:
  *                 type: integer
  *                 minimum: 1
