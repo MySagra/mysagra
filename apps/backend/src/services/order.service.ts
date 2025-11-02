@@ -110,7 +110,12 @@ export class OrderService {
                                 categoryId: true
                             },
                             include: {
-                                category: true
+                                category: true,
+                                foodIngredients: {
+                                    select: {
+                                        ingredient: true
+                                    }
+                                }
                             }
                         }
                     }

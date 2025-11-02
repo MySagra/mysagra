@@ -1,7 +1,7 @@
 import z from "zod"
 
 const foodsOrderedSchema = z.object({
-    foodId: z.number().int().min(1),
+    foodId: z.string().cuid(),
     quantity: z.number().int().min(1)
 })
 
