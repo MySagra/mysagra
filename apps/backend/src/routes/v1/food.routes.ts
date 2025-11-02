@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { foodSchema, idParamSchema } from "@/validators";
+import { foodSchema } from "@/validators";
 import { validateBody, validateParams } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
@@ -17,13 +17,35 @@ const router = Router();
  * @openapi
  * components:
  *   schemas:
+ *     FoodIngredient:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: cuid
+ *           example: "clm1234567890"
+ *     IngredientInFood:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: cuid
+ *           example: "clm1234567890"
+ *         name:
+ *           type: string
+ *           example: "Mozzarella"
+ *     FoodIngredientResponse:
+ *       type: object
+ *       properties:
+ *         ingredient:
+ *           $ref: '#/components/schemas/IngredientInFood'
  *     FoodResponse:
  *       type: object
  *       properties:
  *         id:
- *           type: integer
- *           format: int64
- *           example: 1
+ *           type: string
+ *           format: cuid
+ *           example: "clm9876543210"
  *         name:
  *           type: string
  *           example: "Pizza"
@@ -41,9 +63,6 @@ const router = Router();
  *         available:
  *           type: boolean
  *           example: true
- *         image:
- *           type: string
- *           example: "pizza.jpg"
  *         category:
  *           type: object
  *           properties:
@@ -61,6 +80,10 @@ const router = Router();
  *               type: integer
  *               format: int64
  *               example: 1
+ *         foodIngredients:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/FoodIngredientResponse'
  *     FoodRequest:
  *       type: object
  *       required:
@@ -86,6 +109,11 @@ const router = Router();
  *         available:
  *           type: boolean
  *           example: true
+ *         ingredients:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/FoodIngredient'
+ *           example: [{"id": "clm1234567890"}, {"id": "clm0987654321"}]
  */
 
 /**
@@ -183,8 +211,8 @@ router.post(
  *         required: true
  *         description: ID of the food item to update
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
+ *           format: cuid
  *     requestBody:
  *       required: true
  *       content:
@@ -208,7 +236,6 @@ router.post(
 router.put(
     "/:id",
     authenticate(["admin"]),
-    validateParams(idParamSchema),
     validateBody(foodSchema),
     checkFoodExists,
     checkUniqueFoodName,
@@ -230,8 +257,8 @@ router.put(
  *         required: true
  *         description: ID of the food item to update
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
+ *           format: cuid
  *     responses:
  *       200:
  *         description: Food availability updated successfully
@@ -247,7 +274,6 @@ router.put(
 router.patch(
     "/available/:id",
     authenticate(["admin"]),
-    validateParams(idParamSchema),
     checkFoodExists,
     foodController.patchFoodAvailable
 )
@@ -281,7 +307,6 @@ router.patch(
  */
 router.get(
     "/available/categories/:id",
-    validateParams(idParamSchema),
     foodController.getAvailableFoodsByCategoryId
 );
 
@@ -314,7 +339,6 @@ router.get(
  */
 router.get(
     "/categories/:id",
-    validateParams(idParamSchema),
     foodController.getFoodsByCategoryId
 )
 
@@ -333,8 +357,8 @@ router.get(
  *         required: true
  *         description: ID of the food item to delete
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
+ *           format: cuid
  *     responses:
  *       204:
  *         description: Food item deleted successfully
@@ -346,7 +370,6 @@ router.get(
 router.delete(
     "/:id",
     authenticate(["admin"]),
-    validateParams(idParamSchema),
     checkFoodExists,
     foodController.deleteFood
 );
@@ -364,8 +387,8 @@ router.delete(
  *         required: true
  *         description: ID of the food item to retrieve
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
+ *           format: cuid
  *     responses:
  *       200:
  *         description: Food item retrieved successfully
@@ -380,7 +403,6 @@ router.delete(
  */
 router.get(
     "/:id",
-    validateParams(idParamSchema),
     foodController.getFoodById
 );
 

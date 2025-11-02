@@ -25,8 +25,17 @@ model Category {
   @@map("categories")
 }
 
+model Ingredient {
+  id   String @id @default(cuid())
+  name String
+
+  foodIngredients FoodIngredient[]
+
+  @@map("ingredients")
+}
+
 model Food {
-  id          Int     @id @default(autoincrement())
+  id          String  @id @default(cuid())
   name        String  @unique
   description String?
   price       Decimal
@@ -35,9 +44,21 @@ model Food {
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   categoryId Int
 
-  FoodsOrdered FoodsOrdered[]
+  FoodsOrdered    FoodsOrdered[]
+  foodIngredients FoodIngredient[]
 
   @@map("foods")
+}
+
+model FoodIngredient {
+  food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId String
+
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  ingredientId String
+
+  @@id([foodId, ingredientId])
+  @@map("food_ingredients")
 }
 
 model Order {
@@ -58,8 +79,8 @@ model FoodsOrdered {
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId String
 
-  food   Food @relation(fields: [foodId], references: [id], onDelete: Cascade)
-  foodId Int
+  food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId String
 
   @@id([orderId, foodId])
   @@map("foods_ordered")

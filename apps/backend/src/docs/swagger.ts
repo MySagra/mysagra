@@ -35,6 +35,10 @@ const options: SwaggerOptions = {
                 description: 'Food management'
             },
             {
+                name: "Ingredients",
+                description: 'Ingredient management'
+            },
+            {
                 name: 'Orders',
                 description: 'Order management'
             },

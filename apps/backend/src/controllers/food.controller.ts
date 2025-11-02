@@ -18,7 +18,7 @@ export class FoodController {
 
     getFoodById = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const { id } = req.params;
-        const food = await this.foodService.getFoodById(parseInt(id))
+        const food = await this.foodService.getFoodById(id)
         if (!food) {
             res.status(404).json({ message: "Food not found" });
             return;
@@ -44,27 +44,27 @@ export class FoodController {
     })
 
     createFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { name, description, price, categoryId, available } = req.body;
-        const food = await this.foodService.createFood(name, description, price, categoryId, available);
+        const { name, description, price, categoryId, available, ingredients } = req.body;
+        const food = await this.foodService.createFood(name, description, price, categoryId, available, ingredients);
         res.status(201).json(food);
     });
 
     updateFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const { id } = req.params;
-        const { name, description, price, categoryId, available } = req.body;
-        const food = await this.foodService.updateFood(parseInt(id), name, description, price, categoryId, available);
+        const { name, description, price, categoryId, available, ingredients } = req.body;
+        const food = await this.foodService.updateFood(id, name, description, price, categoryId, available, ingredients);
         res.status(200).json(food);
     });
 
     patchFoodAvailable = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const { id } = req.params;
-        const food = await this.foodService.patchAvailableFood(parseInt(id));
+        const food = await this.foodService.patchAvailableFood(id);
         res.status(200).json(food);
     });
 
     deleteFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const { id } = req.params;
-        await this.foodService.deleteFood(parseInt(id));
+        await this.foodService.deleteFood(id);
         res.status(204).send();
     });
 }
