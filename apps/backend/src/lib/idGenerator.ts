@@ -1,17 +1,11 @@
-import prisma from "@/utils/prisma";
+import Squids from 'sqids'
 
-export default async function generateOrderId(): Promise<string> {
+export function generateDisplayId(id: number) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let id = "";
-    do {
-        for (let i = 0; i < 3; i++) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-    }while(await prisma.order.findUnique({
-        where: {
-            id
-        }
-    }));
-    
-    return id;
+    const squids = new Squids({
+        alphabet: chars,
+        minLength: 3
+    })
+
+    return squids.encode([id])
 }

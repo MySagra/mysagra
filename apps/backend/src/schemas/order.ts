@@ -1,12 +1,31 @@
+import { PaymentMethod } from "@generated/prisma_client"
 import z from "zod"
 
-const foodsOrderedSchema = z.object({
+const orderItemSchema = z.object({
     foodId: z.string().cuid(),
-    quantity: z.number().int().min(1)
+    quantity: z.number().int().min(1),
+    notes: z.string().min(1).optional()
 })
 
 export const orderSchema = z.object({
     table: z.number().min(0),
     customer: z.string().min(1),
-    foodsOrdered: z.array(foodsOrderedSchema)
+    orderItems: z.array(orderItemSchema)
 })
+
+export const confirmOrderSchema = z.object({
+    orderId: z.number().int().min(0),
+    status: z.enum(["CONFIRMED", "COMPLETED", "PICKED_UP"]),
+    paymentMethod: z.enum(["CASH", "CARD"]),
+    discount: z.number().min(0).optional(),
+    surcharge: z.number().min(0).optional(),
+    total: z.number().min(0).optional()
+})
+
+export const orderCodeParamSchema = z.object({
+    code: z.string().regex(/^[A-Z0-9]+$/, "Order ID must contain only uppercase letters and numbers").min(3)
+})
+
+export type ConfrimOrder = z.infer<typeof confirmOrderSchema>
+export type Order = z.infer<typeof orderSchema>
+export type OrderItem = z.infer<typeof orderItemSchema>

@@ -29,8 +29,8 @@ export class OrderController {
     });
 
     getOrderById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const id = req.params.id;
-        const order = await this.orderService.getOrderById(id);
+        const code = req.params.code;
+        const order = await this.orderService.getOrderByCode(code);
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
@@ -70,8 +70,8 @@ export class OrderController {
     });
 
     deleteOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const id = req.params.id;
-        await this.orderService.deleteOrder(id);
+        const code = req.params.code;
+        await this.orderService.deleteOrder(code);
 
         res.status(204).send();
     });

@@ -5843,7 +5843,7 @@ export namespace Prisma {
 
   export type OrderGroupByOutputType = {
     id: number
-    displayCode: string
+    displayCode: string | null
     table: string
     customer: string
     createdAt: Date | null
@@ -5907,7 +5907,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
-      displayCode: string
+      displayCode: string | null
       table: string
       customer: string
       createdAt: Date | null
@@ -12111,7 +12111,7 @@ export namespace Prisma {
     OR?: OrderWhereInput[]
     NOT?: OrderWhereInput | OrderWhereInput[]
     id?: IntFilter<"Order"> | number
-    displayCode?: StringFilter<"Order"> | string
+    displayCode?: StringNullableFilter<"Order"> | string | null
     table?: StringFilter<"Order"> | string
     customer?: StringFilter<"Order"> | string
     createdAt?: DateTimeNullableFilter<"Order"> | Date | string | null
@@ -12122,7 +12122,7 @@ export namespace Prisma {
 
   export type OrderOrderByWithRelationInput = {
     id?: SortOrder
-    displayCode?: SortOrder
+    displayCode?: SortOrderInput | SortOrder
     table?: SortOrder
     customer?: SortOrder
     createdAt?: SortOrderInput | SortOrder
@@ -12148,7 +12148,7 @@ export namespace Prisma {
 
   export type OrderOrderByWithAggregationInput = {
     id?: SortOrder
-    displayCode?: SortOrder
+    displayCode?: SortOrderInput | SortOrder
     table?: SortOrder
     customer?: SortOrder
     createdAt?: SortOrderInput | SortOrder
@@ -12165,7 +12165,7 @@ export namespace Prisma {
     OR?: OrderScalarWhereWithAggregatesInput[]
     NOT?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"Order"> | number
-    displayCode?: StringWithAggregatesFilter<"Order"> | string
+    displayCode?: StringNullableWithAggregatesFilter<"Order"> | string | null
     table?: StringWithAggregatesFilter<"Order"> | string
     customer?: StringWithAggregatesFilter<"Order"> | string
     createdAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
@@ -12679,7 +12679,7 @@ export namespace Prisma {
   }
 
   export type OrderCreateInput = {
-    displayCode: string
+    displayCode?: string | null
     table: string
     customer: string
     createdAt?: Date | string | null
@@ -12690,7 +12690,7 @@ export namespace Prisma {
 
   export type OrderUncheckedCreateInput = {
     id?: number
-    displayCode: string
+    displayCode?: string | null
     table: string
     customer: string
     createdAt?: Date | string | null
@@ -12700,7 +12700,7 @@ export namespace Prisma {
   }
 
   export type OrderUpdateInput = {
-    displayCode?: StringFieldUpdateOperationsInput | string
+    displayCode?: NullableStringFieldUpdateOperationsInput | string | null
     table?: StringFieldUpdateOperationsInput | string
     customer?: StringFieldUpdateOperationsInput | string
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12711,7 +12711,7 @@ export namespace Prisma {
 
   export type OrderUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
-    displayCode?: StringFieldUpdateOperationsInput | string
+    displayCode?: NullableStringFieldUpdateOperationsInput | string | null
     table?: StringFieldUpdateOperationsInput | string
     customer?: StringFieldUpdateOperationsInput | string
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12722,7 +12722,7 @@ export namespace Prisma {
 
   export type OrderCreateManyInput = {
     id?: number
-    displayCode: string
+    displayCode?: string | null
     table: string
     customer: string
     createdAt?: Date | string | null
@@ -12730,7 +12730,7 @@ export namespace Prisma {
   }
 
   export type OrderUpdateManyMutationInput = {
-    displayCode?: StringFieldUpdateOperationsInput | string
+    displayCode?: NullableStringFieldUpdateOperationsInput | string | null
     table?: StringFieldUpdateOperationsInput | string
     customer?: StringFieldUpdateOperationsInput | string
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12739,7 +12739,7 @@ export namespace Prisma {
 
   export type OrderUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
-    displayCode?: StringFieldUpdateOperationsInput | string
+    displayCode?: NullableStringFieldUpdateOperationsInput | string | null
     table?: StringFieldUpdateOperationsInput | string
     customer?: StringFieldUpdateOperationsInput | string
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -14858,7 +14858,7 @@ export namespace Prisma {
   }
 
   export type OrderCreateWithoutOrderItemsInput = {
-    displayCode: string
+    displayCode?: string | null
     table: string
     customer: string
     createdAt?: Date | string | null
@@ -14868,7 +14868,7 @@ export namespace Prisma {
 
   export type OrderUncheckedCreateWithoutOrderItemsInput = {
     id?: number
-    displayCode: string
+    displayCode?: string | null
     table: string
     customer: string
     createdAt?: Date | string | null
@@ -14918,7 +14918,7 @@ export namespace Prisma {
   }
 
   export type OrderUpdateWithoutOrderItemsInput = {
-    displayCode?: StringFieldUpdateOperationsInput | string
+    displayCode?: NullableStringFieldUpdateOperationsInput | string | null
     table?: StringFieldUpdateOperationsInput | string
     customer?: StringFieldUpdateOperationsInput | string
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -14928,7 +14928,7 @@ export namespace Prisma {
 
   export type OrderUncheckedUpdateWithoutOrderItemsInput = {
     id?: IntFieldUpdateOperationsInput | number
-    displayCode?: StringFieldUpdateOperationsInput | string
+    displayCode?: NullableStringFieldUpdateOperationsInput | string | null
     table?: StringFieldUpdateOperationsInput | string
     customer?: StringFieldUpdateOperationsInput | string
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -14968,7 +14968,7 @@ export namespace Prisma {
   }
 
   export type OrderCreateWithoutConfirmedOrdedInput = {
-    displayCode: string
+    displayCode?: string | null
     table: string
     customer: string
     createdAt?: Date | string | null
@@ -14978,7 +14978,7 @@ export namespace Prisma {
 
   export type OrderUncheckedCreateWithoutConfirmedOrdedInput = {
     id?: number
-    displayCode: string
+    displayCode?: string | null
     table: string
     customer: string
     createdAt?: Date | string | null
@@ -15003,7 +15003,7 @@ export namespace Prisma {
   }
 
   export type OrderUpdateWithoutConfirmedOrdedInput = {
-    displayCode?: StringFieldUpdateOperationsInput | string
+    displayCode?: NullableStringFieldUpdateOperationsInput | string | null
     table?: StringFieldUpdateOperationsInput | string
     customer?: StringFieldUpdateOperationsInput | string
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15013,7 +15013,7 @@ export namespace Prisma {
 
   export type OrderUncheckedUpdateWithoutConfirmedOrdedInput = {
     id?: IntFieldUpdateOperationsInput | number
-    displayCode?: StringFieldUpdateOperationsInput | string
+    displayCode?: NullableStringFieldUpdateOperationsInput | string | null
     table?: StringFieldUpdateOperationsInput | string
     customer?: StringFieldUpdateOperationsInput | string
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

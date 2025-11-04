@@ -1,9 +1,13 @@
 import prisma from "@/utils/prisma";
 import z from 'zod'
 import { orderSchema } from "@/schemas";
-import generateOrderId from "@/lib/idGenerator";
+import { generateDisplayId } from "@/lib/idGenerator";
+
+import { OrderItemService } from "./orderItem.service";
 
 export class OrderService {
+    private orderItemService = new OrderItemService();
+
     async getOrders(page: number) {
         const take = 21;
         const skip = (page - 1) * take;
@@ -13,26 +17,8 @@ export class OrderService {
             await prisma.order.findMany({
                 take,
                 skip,
-                include: {
-                    foodsOrdered: {
-                        omit: {
-                            orderId: true,
-                            foodId: true
-                        },
-                        include: {
-                            food: {
-                                omit: {
-                                    categoryId: true
-                                },
-                                include: {
-                                    category: true
-                                }
-                            }
-                        }
-                    }
-                },
                 orderBy: {
-                    dateTime: "desc"
+                    createdAt: "desc"
                 }
             })
         ]);
@@ -64,42 +50,24 @@ export class OrderService {
 
         return await prisma.order.findMany({
             where: {
-                dateTime: {
+                createdAt: {
                     gte: today,
                     lt: tomorrow
                 }
             },
-            include: {
-                foodsOrdered: {
-                    omit: {
-                        orderId: true,
-                        foodId: true
-                    },
-                    include: {
-                        food: {
-                            omit: {
-                                categoryId: true
-                            },
-                            include: {
-                                category: true
-                            }
-                        }
-                    }
-                }
-            },
             orderBy: {
-                dateTime: "desc"
+                createdAt: "desc"
             }
         });
     }
 
-    async getOrderById(id: string) {
-        return await prisma.order.findUnique({
+    async getOrderByCode(code: string) {
+        const order = await prisma.order.findUnique({
             where: {
-                id
+                displayCode: code
             },
             include: {
-                foodsOrdered: {
+                orderItems: {
                     omit: {
                         orderId: true,
                         foodId: true
@@ -110,7 +78,12 @@ export class OrderService {
                                 categoryId: true
                             },
                             include: {
-                                category: true,
+                                category: {
+                                    select: {
+                                        id: true,
+                                        name: true
+                                    }
+                                },
                                 foodIngredients: {
                                     select: {
                                         ingredient: true
@@ -122,34 +95,50 @@ export class OrderService {
                 }
             }
         });
+
+        if (!order) return null;
+
+        const itemsByCategory = order.orderItems.reduce((acc, item) => {
+            const categoryName = item.food.category.name;
+            
+            if (!acc[categoryName]) {
+                acc[categoryName] = {
+                    category: item.food.category,
+                    items: []
+                };
+            }
+
+            const { foodIngredients, ...foodData } = item.food;
+            const ingredients = foodIngredients.map(fi => fi.ingredient);
+
+            acc[categoryName].items.push({
+                ...item,
+                food: {
+                    ...foodData,
+                    ingredients
+                }
+            });
+
+            return acc;
+        }, {} as Record<string, { category: any, items: any[] }>);
+
+        const categorizedItems = Object.values(itemsByCategory);
+
+        return {
+            ...order,
+            orderItems: undefined,
+            categorizedItems
+        };
     }
 
     async searchOrder(value: string) {
         return await prisma.order.findMany({
             where: {
                 OR: [
-                    { id: value },
+                    { displayCode: value },
                     { table: { contains: value } },
                     { customer: { contains: value } }
                 ]
-            },
-            include: {
-                foodsOrdered: {
-                    omit: {
-                        orderId: true,
-                        foodId: true
-                    },
-                    include: {
-                        food: {
-                            omit: {
-                                categoryId: true
-                            },
-                            include: {
-                                category: true
-                            }
-                        }
-                    }
-                }
             }
         });
     }
@@ -162,83 +151,72 @@ export class OrderService {
 
         return await prisma.order.findMany({
             where: {
-                dateTime: {
+                createdAt: {
                     gte: today,
                     lt: tomorrow
                 },
                 OR: [
-                    { id: value },
+                    { displayCode: value },
                     { table: { contains: value } },
                     { customer: { contains: value } }
                 ]
-            },
-            include: {
-                foodsOrdered: {
-                    omit: {
-                        orderId: true,
-                        foodId: true
-                    },
-                    include: {
-                        food: {
-                            omit: {
-                                categoryId: true
-                            },
-                            include: {
-                                category: true
-                            }
-                        }
-                    }
-                }
             }
         });
     }
 
     async createOrder(order: z.infer<typeof orderSchema>) {
+        const { orderItems } = order;
 
-        const { foodsOrdered } = order;
-
-        let price = 0;
-        for (const foodOrder of foodsOrdered) {
-            const food = await prisma.food.findUnique({ where: { id: foodOrder.foodId } })
-            if (!food) continue;
-
-            price += Number(food?.price ?? 0) * Number(foodOrder.quantity);
-        }
-
-        const newOrder = await prisma.order.create({
-            data: {
-                id: await generateOrderId(),
-                table: order.table.toString(),
-                customer: order.customer,
-                price: price.toFixed(2).toString()
-            }
+        const foodIds = orderItems.map(item => item.foodId);
+        const foods = await prisma.food.findMany({
+            where: { id: { in: foodIds } },
+            select: { id: true, price: true }
         });
 
-        await prisma.foodsOrdered.createMany({
-            data: foodsOrdered.map(foodOrdered => ({ quantity: foodOrdered.quantity, foodId: foodOrdered.foodId, orderId: newOrder.id }))
-        });
+        const foodPriceMap = new Map(foods.map(f => [f.id, f.price]));
+        const price = orderItems.reduce((total, item) => {
+            const foodPrice = foodPriceMap.get(item.foodId);
+            return total + (foodPrice ? Number(foodPrice) * item.quantity : 0);
+        }, 0);
 
-        return await prisma.order.findUnique({
-            where: {
-                id: newOrder.id
-            },
-            include: {
-                foodsOrdered: {
-                    include: {
-                        food: true
-                    }
+        return await prisma.$transaction(async (tx) => {
+            const createdOrder = await tx.order.create({
+                data: {
+                    table: order.table.toString(),
+                    customer: order.customer,
+                    subTotal: price.toFixed(2).toString()
                 }
-            }
-        })
+            });
+
+            const displayCode = generateDisplayId(createdOrder.id);
+            await tx.order.update({
+                where: { id: createdOrder.id },
+                data: { displayCode }
+            });
+
+            await tx.orderItem.createMany({
+                data: orderItems.map(item => ({
+                    quantity: item.quantity,
+                    foodId: item.foodId,
+                    orderId: createdOrder.id
+                }))
+            });
+
+            return await tx.order.findUnique({
+                where: { id: createdOrder.id },
+                include: {
+                    orderItems: true
+                }
+            });
+        });
     }
 
-    async deleteOrder(id: string) {
+    async deleteOrder(code: string) {
         await prisma.order.delete({
             where: {
-                id
+                displayCode: code
             }
         });
-
         return null;
     }
 }
