@@ -149,16 +149,30 @@ exports.Prisma.FoodIngredientScalarFieldEnum = {
 
 exports.Prisma.OrderScalarFieldEnum = {
   id: 'id',
-  dateTime: 'dateTime',
+  displayCode: 'displayCode',
   table: 'table',
   customer: 'customer',
-  price: 'price'
+  createdAt: 'createdAt',
+  subTotal: 'subTotal'
 };
 
-exports.Prisma.FoodsOrderedScalarFieldEnum = {
+exports.Prisma.OrderItemScalarFieldEnum = {
+  id: 'id',
   quantity: 'quantity',
   orderId: 'orderId',
-  foodId: 'foodId'
+  foodId: 'foodId',
+  notes: 'notes'
+};
+
+exports.Prisma.ConfirmedOrderScalarFieldEnum = {
+  ticketNumber: 'ticketNumber',
+  orderId: 'orderId',
+  status: 'status',
+  paymentMethod: 'paymentMethod',
+  discount: 'discount',
+  surcharge: 'surcharge',
+  total: 'total',
+  confirmedAt: 'confirmedAt'
 };
 
 exports.Prisma.RoleScalarFieldEnum = {
@@ -216,15 +230,16 @@ exports.Prisma.FoodIngredientOrderByRelevanceFieldEnum = {
 };
 
 exports.Prisma.OrderOrderByRelevanceFieldEnum = {
-  id: 'id',
+  displayCode: 'displayCode',
   table: 'table',
   customer: 'customer',
-  price: 'price'
+  subTotal: 'subTotal'
 };
 
-exports.Prisma.FoodsOrderedOrderByRelevanceFieldEnum = {
-  orderId: 'orderId',
-  foodId: 'foodId'
+exports.Prisma.OrderItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  foodId: 'foodId',
+  notes: 'notes'
 };
 
 exports.Prisma.RoleOrderByRelevanceFieldEnum = {
@@ -242,7 +257,16 @@ exports.Prisma.RefreshTokenOrderByRelevanceFieldEnum = {
   ip: 'ip',
   userAgent: 'userAgent'
 };
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  CONFIRMED: 'CONFIRMED',
+  COMPLETED: 'COMPLETED',
+  PICKED_UP: 'PICKED_UP'
+};
 
+exports.PaymentMethod = exports.$Enums.PaymentMethod = {
+  CASH: 'CASH',
+  CARD: 'CARD'
+};
 
 exports.Prisma.ModelName = {
   Category: 'Category',
@@ -250,7 +274,8 @@ exports.Prisma.ModelName = {
   Food: 'Food',
   FoodIngredient: 'FoodIngredient',
   Order: 'Order',
-  FoodsOrdered: 'FoodsOrdered',
+  OrderItem: 'OrderItem',
+  ConfirmedOrder: 'ConfirmedOrder',
   Role: 'Role',
   User: 'User',
   RefreshToken: 'RefreshToken'

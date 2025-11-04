@@ -44,7 +44,7 @@ model Food {
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   categoryId Int
 
-  FoodsOrdered    FoodsOrdered[]
+  orderItems      OrderItem[]
   foodIngredients FoodIngredient[]
 
   @@map("foods")
@@ -61,29 +61,63 @@ model FoodIngredient {
   @@map("food_ingredients")
 }
 
+enum OrderStatus {
+  CONFIRMED
+  COMPLETED
+  PICKED_UP
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+}
+
 model Order {
-  id       String    @id
-  dateTime DateTime? @default(now())
+  id          Int    @id @default(autoincrement())
+  displayCode String @unique
+
   table    String
   customer String
-  price    String
 
-  foodsOrdered FoodsOrdered[]
+  createdAt DateTime? @default(now())
+  subTotal  String
+
+  orderItems     OrderItem[]
+  confirmedOrded ConfirmedOrder?
 
   @@map("orders")
 }
 
-model FoodsOrdered {
+model OrderItem {
+  id       String @id @default(cuid())
   quantity Int
 
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId String
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId Int
 
   food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
   foodId String
 
-  @@id([orderId, foodId])
-  @@map("foods_ordered")
+  notes String?
+
+  @@unique([orderId, foodId])
+  @@map("order_items")
+}
+
+model ConfirmedOrder {
+  ticketNumber Int @id @default(autoincrement())
+
+  orderId       Int           @unique
+  status        OrderStatus   @default(CONFIRMED)
+  paymentMethod PaymentMethod
+  discount      Decimal       @default(0)
+  surcharge     Decimal       @default(0)
+  total         Decimal
+  confirmedAt   DateTime      @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("confirmed_orders")
 }
 
 //users sections
