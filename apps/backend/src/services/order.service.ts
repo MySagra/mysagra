@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import z from 'zod'
-import { orderSchema } from "@/validators";
+import { orderSchema } from "@/schemas";
 import generateOrderId from "@/lib/idGenerator";
 
 export class OrderService {

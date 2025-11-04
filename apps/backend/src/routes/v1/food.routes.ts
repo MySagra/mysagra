@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import { foodSchema } from "@/validators";
-import { validateBody, validateParams } from "@/middlewares/validateRequest";
+import { foodSchema, getFoodQuerySchema, cuidParamSchema, idParamSchema } from "@/schemas";
+import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { FoodController } from "@/controllers/food.controller";
@@ -24,7 +24,7 @@ const router = Router();
  *           type: string
  *           format: cuid
  *           example: "clm1234567890"
- *     IngredientInFood:
+ *     Ingredient:
  *       type: object
  *       properties:
  *         id:
@@ -34,11 +34,6 @@ const router = Router();
  *         name:
  *           type: string
  *           example: "Mozzarella"
- *     FoodIngredientResponse:
- *       type: object
- *       properties:
- *         ingredient:
- *           $ref: '#/components/schemas/IngredientInFood'
  *     FoodResponse:
  *       type: object
  *       properties:
@@ -80,10 +75,11 @@ const router = Router();
  *               type: integer
  *               format: int64
  *               example: 1
- *         foodIngredients:
+ *         ingredients:
  *           type: array
+ *           description: Array of ingredients (only included when 'include=ingredients' query parameter is used)
  *           items:
- *             $ref: '#/components/schemas/FoodIngredientResponse'
+ *             $ref: '#/components/schemas/Ingredient'
  *     FoodRequest:
  *       type: object
  *       required:
@@ -123,6 +119,14 @@ const router = Router();
  *     summary: Get all foods
  *     tags:
  *       - Foods
+ *     parameters:
+ *       - in: query
+ *         name: include
+ *         required: false
+ *         description: Include additional data (use 'ingredients' to include ingredient details)
+ *         schema:
+ *           type: string
+ *           enum: [ingredients]
  *     responses:
  *       200:
  *         description: A list of foods
@@ -135,6 +139,9 @@ const router = Router();
  */
 router.get(
     "/",
+    validateRequest({
+        query: getFoodQuerySchema
+    }),
     foodController.getFoods
 );
 
@@ -145,6 +152,14 @@ router.get(
  *     summary: Get all available foods
  *     tags:
  *       - Foods
+ *     parameters:
+ *       - in: query
+ *         name: include
+ *         required: false
+ *         description: Include additional data (use 'ingredients' to include ingredient details)
+ *         schema:
+ *           type: string
+ *           enum: [ingredients]
  *     responses:
  *       200:
  *         description: A list of available foods
@@ -157,6 +172,9 @@ router.get(
  */
 router.get(
     "/available/",
+    validateRequest({
+        query: getFoodQuerySchema
+    }),
     foodController.getAvailableFoods
 );
 
@@ -190,7 +208,9 @@ router.get(
 router.post(
     "/",
     authenticate(["admin"]),
-    validateBody(foodSchema),
+    validateRequest({
+        body: foodSchema
+    }),
     checkFoodCategoryExists,
     checkUniqueFoodName,
     foodController.createFood
@@ -236,7 +256,10 @@ router.post(
 router.put(
     "/:id",
     authenticate(["admin"]),
-    validateBody(foodSchema),
+    validateRequest({
+        params: cuidParamSchema,
+        body: foodSchema
+    }),
     checkFoodExists,
     checkUniqueFoodName,
     foodController.updateFood
@@ -274,6 +297,9 @@ router.put(
 router.patch(
     "/available/:id",
     authenticate(["admin"]),
+    validateRequest({
+        params: cuidParamSchema
+    }),
     checkFoodExists,
     foodController.patchFoodAvailable
 )
@@ -293,6 +319,13 @@ router.patch(
  *         schema:
  *           type: integer
  *           format: int64
+ *       - in: query
+ *         name: include
+ *         required: false
+ *         description: Include additional data (use 'ingredients' to include ingredient details)
+ *         schema:
+ *           type: string
+ *           enum: [ingredients]
  *     responses:
  *       200:
  *         description: List of available foods in the specified category
@@ -307,6 +340,10 @@ router.patch(
  */
 router.get(
     "/available/categories/:id",
+    validateRequest({
+        params: idParamSchema,
+        query: getFoodQuerySchema
+    }),
     foodController.getAvailableFoodsByCategoryId
 );
 
@@ -325,6 +362,13 @@ router.get(
  *         schema:
  *           type: integer
  *           format: int64
+ *       - in: query
+ *         name: include
+ *         required: false
+ *         description: Include additional data (use 'ingredients' to include ingredient details)
+ *         schema:
+ *           type: string
+ *           enum: [ingredients]
  *     responses:
  *       200:
  *         description: List of foods in the specified category
@@ -339,6 +383,10 @@ router.get(
  */
 router.get(
     "/categories/:id",
+    validateRequest({
+        params: idParamSchema,
+        query: getFoodQuerySchema
+    }),
     foodController.getFoodsByCategoryId
 )
 
@@ -370,6 +418,9 @@ router.get(
 router.delete(
     "/:id",
     authenticate(["admin"]),
+    validateRequest({
+        params: cuidParamSchema
+    }),
     checkFoodExists,
     foodController.deleteFood
 );
@@ -389,6 +440,13 @@ router.delete(
  *         schema:
  *           type: string
  *           format: cuid
+ *       - in: query
+ *         name: include
+ *         required: false
+ *         description: Include additional data (use 'ingredients' to include ingredient details)
+ *         schema:
+ *           type: string
+ *           enum: [ingredients]
  *     responses:
  *       200:
  *         description: Food item retrieved successfully
@@ -403,6 +461,10 @@ router.delete(
  */
 router.get(
     "/:id",
+    validateRequest({
+        params: cuidParamSchema,
+        query: getFoodQuerySchema
+    }),
     foodController.getFoodById
 );
 

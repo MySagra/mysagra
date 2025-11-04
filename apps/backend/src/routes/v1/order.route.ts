@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
-import { validateBody, validateParams } from "@/middlewares/validateRequest";
-import { orderSchema, orderIdParamSchema, pageParamSchema } from "@/validators";
+import { validateRequest } from "@/middlewares/validateRequest";
+import { orderSchema, orderIdParamSchema, pageParamSchema, searchValueParamSchema } from "@/schemas";
 import { OrderController } from "@/controllers/order.controller";
 import { OrderService } from "@/services/order.service";
 
@@ -164,7 +164,9 @@ const router = Router();
 router.get(
     "/pages/:page",
     authenticate(["admin", "operator"]),
-    validateParams(pageParamSchema),
+    validateRequest({
+        params: pageParamSchema
+    }),
     orderController.getOrders
 );
 
@@ -193,7 +195,9 @@ router.get(
  */
 router.post(
     "/",
-    validateBody(orderSchema),
+    validateRequest({
+        body: orderSchema
+    }),
     orderController.createOrder
 );
 
@@ -231,7 +235,9 @@ router.post(
 router.delete(
     "/:id",
     authenticate(["admin", "operator"]),
-    validateParams(orderIdParamSchema),
+    validateRequest({
+        params: orderIdParamSchema
+    }),
     orderController.deleteOrder
 );
 
@@ -273,7 +279,9 @@ router.delete(
 router.get(
     "/:id",
     authenticate(["admin", "operator"]),
-    validateParams(orderIdParamSchema),
+    validateRequest({
+        params: orderIdParamSchema
+    }),
     orderController.getOrderById
 );
 
@@ -311,6 +319,9 @@ router.get(
 router.get(
     "/search/daily/:value",
     authenticate(["admin", "operator"]),
+    validateRequest({
+        params: searchValueParamSchema
+    }),
     orderController.searchDailyOrder
 );
 
@@ -348,6 +359,9 @@ router.get(
 router.get(
     "/search/:value",
     authenticate(["admin"]),
+    validateRequest({
+        params: searchValueParamSchema
+    }),
     orderController.searchOrder
 );
 

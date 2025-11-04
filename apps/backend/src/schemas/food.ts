@@ -1,4 +1,5 @@
 import z from "zod"
+import { cuidParamSchema, idParamSchema } from "./params";
 
 const foodIngredient = z.object({
     id: z.string().cuid()
@@ -22,5 +23,11 @@ export const foodSchema = z.object({
     )
 })
 
+export const getFoodQuerySchema = z.object({
+    include: z.enum(['ingredients']).optional()
+})
+
 export type FoodIngredient = z.infer<typeof foodIngredient>
 export type Food = z.infer<typeof foodSchema>
+export type GetFoodQuery = z.infer<typeof getFoodQuerySchema>;
+export type GetFoodParams = z.infer<typeof cuidParamSchema>;
