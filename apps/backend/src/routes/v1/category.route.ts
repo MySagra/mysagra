@@ -2,8 +2,8 @@ import { Router } from "express";
 
 //middlewares
 import { authenticate } from "@/middlewares/authenticate";
-import { categorySchema, idParamSchema } from "@/validators";
-import { validateBody, validateParams } from "@/middlewares/validateRequest";
+import { categorySchema, idParamSchema } from "@/schemas";
+import { validateRequest } from "@/middlewares/validateRequest";
 import { checkCategoryExists, checkUniqueCategoryName } from "@/middlewares/checkCategory";
 import { upload } from "@/middlewares/upload.middleware";
 
@@ -123,7 +123,9 @@ router.get(
 router.patch(
     "/available/:id",
     authenticate(["admin"]),
-    validateParams(idParamSchema),
+    validateRequest({
+        params: idParamSchema
+    }),
     checkCategoryExists,
     categoryController.patchCategoryAvailable
 )
@@ -153,7 +155,9 @@ router.patch(
 router.post(
     "/",
     authenticate(["admin"]),
-    validateBody(categorySchema),
+    validateRequest({
+        body: categorySchema
+    }),
     checkUniqueCategoryName,
     categoryController.createCategory
 );
@@ -199,7 +203,9 @@ router.post(
 router.patch(
     "/:id/image",
     authenticate(["admin"]),
-    validateParams(idParamSchema),
+    validateRequest({
+        params: idParamSchema
+    }),
     checkCategoryExists,
     upload(CategoryService.getImagePath(), "category").single('image'),
     categoryController.uploadImage
@@ -241,8 +247,10 @@ router.patch(
 router.put(
     "/:id",
     authenticate(["admin"]),
-    validateParams(idParamSchema),
-    validateBody(categorySchema),
+    validateRequest({
+        params: idParamSchema,
+        body: categorySchema
+    }),
     checkCategoryExists,
     checkUniqueCategoryName,
     categoryController.updateCategory
@@ -275,7 +283,9 @@ router.put(
 router.delete(
     "/:id",
     authenticate(["admin"]),
-    validateParams(idParamSchema),
+    validateRequest({
+        params: idParamSchema
+    }),
     categoryController.deleteCategory
 );
 
@@ -302,7 +312,9 @@ router.delete(
  */
 router.get(
     "/:id",
-    validateParams(idParamSchema),
+    validateRequest({
+        params: idParamSchema
+    }),
     categoryController.getCategoryById
 );
 

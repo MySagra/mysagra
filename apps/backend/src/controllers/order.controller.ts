@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "@/utils/prisma";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { OrderService } from "@/services/order.service";
-import { orderSchema } from "@/validators/order";
+import { orderSchema } from "@/schemas/order";
 
 export class OrderController {
     constructor(private orderService: OrderService) { }

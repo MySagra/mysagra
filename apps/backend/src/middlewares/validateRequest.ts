@@ -1,31 +1,33 @@
 import { Request, Response, NextFunction } from "express";
-import { ZodSchema } from "zod";
+import { ZodSchema, AnyZodObject, ZodError } from "zod";
 import { logger } from "@/config/logger";
 
-export const validateParams = (schema: ZodSchema) => {
-    return (req: Request, res: Response, next: NextFunction): void => {
-        const { success, error, data } = schema.safeParse(req.params);
 
-        if (success) {
-            req.params = data
-            return next();
+export const validateRequest = (schemas: {
+    params?: AnyZodObject,
+    query?: AnyZodObject,
+    body?: AnyZodObject
+}) => (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (schemas.params) {
+            req.params = schemas.params.parse(req.params);
         }
 
-        logger.error(JSON.stringify({ type: "Params", errors: error.errors }))
-        res.status(400).json({ errors: error.errors })
-    };
-};
-
-export const validateBody = (schema: ZodSchema) => {
-    return (req: Request, res: Response, next: NextFunction): void => {
-        const { success, error, data } = schema.safeParse(req.body);
-
-        if (success) {
-            req.body = data
-            return next();
+        if (schemas.query) {
+            const parsedQuery = schemas.query.parse(req.query);
+            Object.assign(req.query, parsedQuery);
         }
 
-        logger.error(JSON.stringify({ type: "Body", errors: error.errors }))
-        res.status(400).json({ errors: error.errors })
-    };
-};
+        if (schemas.body) {
+            req.body = schemas.body.parse(req.body);
+        }
+        next();
+    } catch(error) {
+        if(error instanceof ZodError){
+            logger.error(JSON.stringify({ type: "validation_error", errors: error.message}))
+            return res.status(400).json({ errors: error.flatten().fieldErrors })
+        }
+        logger.error(JSON.stringify({ type: "validation_error", errors: error}))
+        return res.status(500).json({error: 'Server Error'})
+    }
+}
