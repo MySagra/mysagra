@@ -1,5 +1,6 @@
 import prisma from "@/utils/prisma";
 import { OrderItem } from "@/schemas";
+import { Prisma } from "@generated/prisma_client";
 
 export class OrderItemService {
     async getOrderItemById(id: string) {
@@ -33,15 +34,30 @@ export class OrderItemService {
         })
     }
 
-    async createManyOrderItem(items: OrderItem[], orderId: number) {
-        return await prisma.orderItem.createMany({
+    async createManyOrderItem(
+        items: OrderItem[], 
+        orderId: number,
+        tx?: Prisma.TransactionClient
+    ) {
+        const client = tx || prisma;
+
+        await client.orderItem.createMany({
             data: items.map(item => ({
                 orderId,
                 foodId: item.foodId,
                 quantity: item.quantity,
                 notes: item.notes
-            }))
-        })
+            })),
+        });
+
+        return await client.orderItem.findMany({
+            where: {
+                orderId
+            },
+            include: {
+                food: true
+            }
+        });
     }
 
     async updateNotes(id: string, notes: string) {
@@ -51,6 +67,15 @@ export class OrderItemService {
             },
             data: {
                 notes
+            }
+        })
+    }
+
+    async deleteItemsFromOrder(orderId: number, tx?: Prisma.TransactionClient) {
+        const client = tx || prisma;
+        return await client.orderItem.deleteMany({
+            where: {
+                orderId
             }
         })
     }

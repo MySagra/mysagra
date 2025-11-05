@@ -44,6 +44,11 @@ export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
  */
 export type OrderItem = $Result.DefaultSelection<Prisma.$OrderItemPayload>
 /**
+ * Model DailyTicketCounter
+ * 
+ */
+export type DailyTicketCounter = $Result.DefaultSelection<Prisma.$DailyTicketCounterPayload>
+/**
  * Model ConfirmedOrder
  * 
  */
@@ -271,6 +276,16 @@ export class PrismaClient<
     * ```
     */
   get orderItem(): Prisma.OrderItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dailyTicketCounter`: Exposes CRUD operations for the **DailyTicketCounter** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DailyTicketCounters
+    * const dailyTicketCounters = await prisma.dailyTicketCounter.findMany()
+    * ```
+    */
+  get dailyTicketCounter(): Prisma.DailyTicketCounterDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.confirmedOrder`: Exposes CRUD operations for the **ConfirmedOrder** model.
@@ -757,6 +772,7 @@ export namespace Prisma {
     FoodIngredient: 'FoodIngredient',
     Order: 'Order',
     OrderItem: 'OrderItem',
+    DailyTicketCounter: 'DailyTicketCounter',
     ConfirmedOrder: 'ConfirmedOrder',
     Role: 'Role',
     User: 'User',
@@ -779,7 +795,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "confirmedOrder" | "role" | "user" | "refreshToken"
+      modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "dailyTicketCounter" | "confirmedOrder" | "role" | "user" | "refreshToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1179,6 +1195,72 @@ export namespace Prisma {
           }
         }
       }
+      DailyTicketCounter: {
+        payload: Prisma.$DailyTicketCounterPayload<ExtArgs>
+        fields: Prisma.DailyTicketCounterFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DailyTicketCounterFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DailyTicketCounterFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
+          }
+          findFirst: {
+            args: Prisma.DailyTicketCounterFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DailyTicketCounterFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
+          }
+          findMany: {
+            args: Prisma.DailyTicketCounterFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>[]
+          }
+          create: {
+            args: Prisma.DailyTicketCounterCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
+          }
+          createMany: {
+            args: Prisma.DailyTicketCounterCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DailyTicketCounterDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
+          }
+          update: {
+            args: Prisma.DailyTicketCounterUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
+          }
+          deleteMany: {
+            args: Prisma.DailyTicketCounterDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DailyTicketCounterUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DailyTicketCounterUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
+          }
+          aggregate: {
+            args: Prisma.DailyTicketCounterAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDailyTicketCounter>
+          }
+          groupBy: {
+            args: Prisma.DailyTicketCounterGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DailyTicketCounterGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DailyTicketCounterCountArgs<ExtArgs>
+            result: $Utils.Optional<DailyTicketCounterCountAggregateOutputType> | number
+          }
+        }
+      }
       ConfirmedOrder: {
         payload: Prisma.$ConfirmedOrderPayload<ExtArgs>
         fields: Prisma.ConfirmedOrderFieldRefs
@@ -1541,6 +1623,7 @@ export namespace Prisma {
     foodIngredient?: FoodIngredientOmit
     order?: OrderOmit
     orderItem?: OrderItemOmit
+    dailyTicketCounter?: DailyTicketCounterOmit
     confirmedOrder?: ConfirmedOrderOmit
     role?: RoleOmit
     user?: UserOmit
@@ -7665,6 +7748,900 @@ export namespace Prisma {
 
 
   /**
+   * Model DailyTicketCounter
+   */
+
+  export type AggregateDailyTicketCounter = {
+    _count: DailyTicketCounterCountAggregateOutputType | null
+    _avg: DailyTicketCounterAvgAggregateOutputType | null
+    _sum: DailyTicketCounterSumAggregateOutputType | null
+    _min: DailyTicketCounterMinAggregateOutputType | null
+    _max: DailyTicketCounterMaxAggregateOutputType | null
+  }
+
+  export type DailyTicketCounterAvgAggregateOutputType = {
+    counter: number | null
+  }
+
+  export type DailyTicketCounterSumAggregateOutputType = {
+    counter: number | null
+  }
+
+  export type DailyTicketCounterMinAggregateOutputType = {
+    id: string | null
+    date: Date | null
+    counter: number | null
+  }
+
+  export type DailyTicketCounterMaxAggregateOutputType = {
+    id: string | null
+    date: Date | null
+    counter: number | null
+  }
+
+  export type DailyTicketCounterCountAggregateOutputType = {
+    id: number
+    date: number
+    counter: number
+    _all: number
+  }
+
+
+  export type DailyTicketCounterAvgAggregateInputType = {
+    counter?: true
+  }
+
+  export type DailyTicketCounterSumAggregateInputType = {
+    counter?: true
+  }
+
+  export type DailyTicketCounterMinAggregateInputType = {
+    id?: true
+    date?: true
+    counter?: true
+  }
+
+  export type DailyTicketCounterMaxAggregateInputType = {
+    id?: true
+    date?: true
+    counter?: true
+  }
+
+  export type DailyTicketCounterCountAggregateInputType = {
+    id?: true
+    date?: true
+    counter?: true
+    _all?: true
+  }
+
+  export type DailyTicketCounterAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DailyTicketCounter to aggregate.
+     */
+    where?: DailyTicketCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyTicketCounters to fetch.
+     */
+    orderBy?: DailyTicketCounterOrderByWithRelationInput | DailyTicketCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DailyTicketCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyTicketCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyTicketCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DailyTicketCounters
+    **/
+    _count?: true | DailyTicketCounterCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DailyTicketCounterAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DailyTicketCounterSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DailyTicketCounterMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DailyTicketCounterMaxAggregateInputType
+  }
+
+  export type GetDailyTicketCounterAggregateType<T extends DailyTicketCounterAggregateArgs> = {
+        [P in keyof T & keyof AggregateDailyTicketCounter]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDailyTicketCounter[P]>
+      : GetScalarType<T[P], AggregateDailyTicketCounter[P]>
+  }
+
+
+
+
+  export type DailyTicketCounterGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DailyTicketCounterWhereInput
+    orderBy?: DailyTicketCounterOrderByWithAggregationInput | DailyTicketCounterOrderByWithAggregationInput[]
+    by: DailyTicketCounterScalarFieldEnum[] | DailyTicketCounterScalarFieldEnum
+    having?: DailyTicketCounterScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DailyTicketCounterCountAggregateInputType | true
+    _avg?: DailyTicketCounterAvgAggregateInputType
+    _sum?: DailyTicketCounterSumAggregateInputType
+    _min?: DailyTicketCounterMinAggregateInputType
+    _max?: DailyTicketCounterMaxAggregateInputType
+  }
+
+  export type DailyTicketCounterGroupByOutputType = {
+    id: string
+    date: Date
+    counter: number
+    _count: DailyTicketCounterCountAggregateOutputType | null
+    _avg: DailyTicketCounterAvgAggregateOutputType | null
+    _sum: DailyTicketCounterSumAggregateOutputType | null
+    _min: DailyTicketCounterMinAggregateOutputType | null
+    _max: DailyTicketCounterMaxAggregateOutputType | null
+  }
+
+  type GetDailyTicketCounterGroupByPayload<T extends DailyTicketCounterGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DailyTicketCounterGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DailyTicketCounterGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DailyTicketCounterGroupByOutputType[P]>
+            : GetScalarType<T[P], DailyTicketCounterGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DailyTicketCounterSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    counter?: boolean
+  }, ExtArgs["result"]["dailyTicketCounter"]>
+
+
+
+  export type DailyTicketCounterSelectScalar = {
+    id?: boolean
+    date?: boolean
+    counter?: boolean
+  }
+
+  export type DailyTicketCounterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "counter", ExtArgs["result"]["dailyTicketCounter"]>
+
+  export type $DailyTicketCounterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DailyTicketCounter"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      date: Date
+      counter: number
+    }, ExtArgs["result"]["dailyTicketCounter"]>
+    composites: {}
+  }
+
+  type DailyTicketCounterGetPayload<S extends boolean | null | undefined | DailyTicketCounterDefaultArgs> = $Result.GetResult<Prisma.$DailyTicketCounterPayload, S>
+
+  type DailyTicketCounterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DailyTicketCounterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DailyTicketCounterCountAggregateInputType | true
+    }
+
+  export interface DailyTicketCounterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DailyTicketCounter'], meta: { name: 'DailyTicketCounter' } }
+    /**
+     * Find zero or one DailyTicketCounter that matches the filter.
+     * @param {DailyTicketCounterFindUniqueArgs} args - Arguments to find a DailyTicketCounter
+     * @example
+     * // Get one DailyTicketCounter
+     * const dailyTicketCounter = await prisma.dailyTicketCounter.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DailyTicketCounterFindUniqueArgs>(args: SelectSubset<T, DailyTicketCounterFindUniqueArgs<ExtArgs>>): Prisma__DailyTicketCounterClient<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DailyTicketCounter that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DailyTicketCounterFindUniqueOrThrowArgs} args - Arguments to find a DailyTicketCounter
+     * @example
+     * // Get one DailyTicketCounter
+     * const dailyTicketCounter = await prisma.dailyTicketCounter.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DailyTicketCounterFindUniqueOrThrowArgs>(args: SelectSubset<T, DailyTicketCounterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DailyTicketCounterClient<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DailyTicketCounter that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyTicketCounterFindFirstArgs} args - Arguments to find a DailyTicketCounter
+     * @example
+     * // Get one DailyTicketCounter
+     * const dailyTicketCounter = await prisma.dailyTicketCounter.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DailyTicketCounterFindFirstArgs>(args?: SelectSubset<T, DailyTicketCounterFindFirstArgs<ExtArgs>>): Prisma__DailyTicketCounterClient<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DailyTicketCounter that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyTicketCounterFindFirstOrThrowArgs} args - Arguments to find a DailyTicketCounter
+     * @example
+     * // Get one DailyTicketCounter
+     * const dailyTicketCounter = await prisma.dailyTicketCounter.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DailyTicketCounterFindFirstOrThrowArgs>(args?: SelectSubset<T, DailyTicketCounterFindFirstOrThrowArgs<ExtArgs>>): Prisma__DailyTicketCounterClient<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DailyTicketCounters that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyTicketCounterFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DailyTicketCounters
+     * const dailyTicketCounters = await prisma.dailyTicketCounter.findMany()
+     * 
+     * // Get first 10 DailyTicketCounters
+     * const dailyTicketCounters = await prisma.dailyTicketCounter.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dailyTicketCounterWithIdOnly = await prisma.dailyTicketCounter.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DailyTicketCounterFindManyArgs>(args?: SelectSubset<T, DailyTicketCounterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DailyTicketCounter.
+     * @param {DailyTicketCounterCreateArgs} args - Arguments to create a DailyTicketCounter.
+     * @example
+     * // Create one DailyTicketCounter
+     * const DailyTicketCounter = await prisma.dailyTicketCounter.create({
+     *   data: {
+     *     // ... data to create a DailyTicketCounter
+     *   }
+     * })
+     * 
+     */
+    create<T extends DailyTicketCounterCreateArgs>(args: SelectSubset<T, DailyTicketCounterCreateArgs<ExtArgs>>): Prisma__DailyTicketCounterClient<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DailyTicketCounters.
+     * @param {DailyTicketCounterCreateManyArgs} args - Arguments to create many DailyTicketCounters.
+     * @example
+     * // Create many DailyTicketCounters
+     * const dailyTicketCounter = await prisma.dailyTicketCounter.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DailyTicketCounterCreateManyArgs>(args?: SelectSubset<T, DailyTicketCounterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a DailyTicketCounter.
+     * @param {DailyTicketCounterDeleteArgs} args - Arguments to delete one DailyTicketCounter.
+     * @example
+     * // Delete one DailyTicketCounter
+     * const DailyTicketCounter = await prisma.dailyTicketCounter.delete({
+     *   where: {
+     *     // ... filter to delete one DailyTicketCounter
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DailyTicketCounterDeleteArgs>(args: SelectSubset<T, DailyTicketCounterDeleteArgs<ExtArgs>>): Prisma__DailyTicketCounterClient<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DailyTicketCounter.
+     * @param {DailyTicketCounterUpdateArgs} args - Arguments to update one DailyTicketCounter.
+     * @example
+     * // Update one DailyTicketCounter
+     * const dailyTicketCounter = await prisma.dailyTicketCounter.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DailyTicketCounterUpdateArgs>(args: SelectSubset<T, DailyTicketCounterUpdateArgs<ExtArgs>>): Prisma__DailyTicketCounterClient<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DailyTicketCounters.
+     * @param {DailyTicketCounterDeleteManyArgs} args - Arguments to filter DailyTicketCounters to delete.
+     * @example
+     * // Delete a few DailyTicketCounters
+     * const { count } = await prisma.dailyTicketCounter.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DailyTicketCounterDeleteManyArgs>(args?: SelectSubset<T, DailyTicketCounterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DailyTicketCounters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyTicketCounterUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DailyTicketCounters
+     * const dailyTicketCounter = await prisma.dailyTicketCounter.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DailyTicketCounterUpdateManyArgs>(args: SelectSubset<T, DailyTicketCounterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DailyTicketCounter.
+     * @param {DailyTicketCounterUpsertArgs} args - Arguments to update or create a DailyTicketCounter.
+     * @example
+     * // Update or create a DailyTicketCounter
+     * const dailyTicketCounter = await prisma.dailyTicketCounter.upsert({
+     *   create: {
+     *     // ... data to create a DailyTicketCounter
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DailyTicketCounter we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DailyTicketCounterUpsertArgs>(args: SelectSubset<T, DailyTicketCounterUpsertArgs<ExtArgs>>): Prisma__DailyTicketCounterClient<$Result.GetResult<Prisma.$DailyTicketCounterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DailyTicketCounters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyTicketCounterCountArgs} args - Arguments to filter DailyTicketCounters to count.
+     * @example
+     * // Count the number of DailyTicketCounters
+     * const count = await prisma.dailyTicketCounter.count({
+     *   where: {
+     *     // ... the filter for the DailyTicketCounters we want to count
+     *   }
+     * })
+    **/
+    count<T extends DailyTicketCounterCountArgs>(
+      args?: Subset<T, DailyTicketCounterCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DailyTicketCounterCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DailyTicketCounter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyTicketCounterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DailyTicketCounterAggregateArgs>(args: Subset<T, DailyTicketCounterAggregateArgs>): Prisma.PrismaPromise<GetDailyTicketCounterAggregateType<T>>
+
+    /**
+     * Group by DailyTicketCounter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyTicketCounterGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DailyTicketCounterGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DailyTicketCounterGroupByArgs['orderBy'] }
+        : { orderBy?: DailyTicketCounterGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DailyTicketCounterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDailyTicketCounterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DailyTicketCounter model
+   */
+  readonly fields: DailyTicketCounterFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DailyTicketCounter.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DailyTicketCounterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DailyTicketCounter model
+   */
+  interface DailyTicketCounterFieldRefs {
+    readonly id: FieldRef<"DailyTicketCounter", 'String'>
+    readonly date: FieldRef<"DailyTicketCounter", 'DateTime'>
+    readonly counter: FieldRef<"DailyTicketCounter", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DailyTicketCounter findUnique
+   */
+  export type DailyTicketCounterFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyTicketCounter to fetch.
+     */
+    where: DailyTicketCounterWhereUniqueInput
+  }
+
+  /**
+   * DailyTicketCounter findUniqueOrThrow
+   */
+  export type DailyTicketCounterFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyTicketCounter to fetch.
+     */
+    where: DailyTicketCounterWhereUniqueInput
+  }
+
+  /**
+   * DailyTicketCounter findFirst
+   */
+  export type DailyTicketCounterFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyTicketCounter to fetch.
+     */
+    where?: DailyTicketCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyTicketCounters to fetch.
+     */
+    orderBy?: DailyTicketCounterOrderByWithRelationInput | DailyTicketCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DailyTicketCounters.
+     */
+    cursor?: DailyTicketCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyTicketCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyTicketCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DailyTicketCounters.
+     */
+    distinct?: DailyTicketCounterScalarFieldEnum | DailyTicketCounterScalarFieldEnum[]
+  }
+
+  /**
+   * DailyTicketCounter findFirstOrThrow
+   */
+  export type DailyTicketCounterFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyTicketCounter to fetch.
+     */
+    where?: DailyTicketCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyTicketCounters to fetch.
+     */
+    orderBy?: DailyTicketCounterOrderByWithRelationInput | DailyTicketCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DailyTicketCounters.
+     */
+    cursor?: DailyTicketCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyTicketCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyTicketCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DailyTicketCounters.
+     */
+    distinct?: DailyTicketCounterScalarFieldEnum | DailyTicketCounterScalarFieldEnum[]
+  }
+
+  /**
+   * DailyTicketCounter findMany
+   */
+  export type DailyTicketCounterFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyTicketCounters to fetch.
+     */
+    where?: DailyTicketCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyTicketCounters to fetch.
+     */
+    orderBy?: DailyTicketCounterOrderByWithRelationInput | DailyTicketCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DailyTicketCounters.
+     */
+    cursor?: DailyTicketCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyTicketCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyTicketCounters.
+     */
+    skip?: number
+    distinct?: DailyTicketCounterScalarFieldEnum | DailyTicketCounterScalarFieldEnum[]
+  }
+
+  /**
+   * DailyTicketCounter create
+   */
+  export type DailyTicketCounterCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DailyTicketCounter.
+     */
+    data: XOR<DailyTicketCounterCreateInput, DailyTicketCounterUncheckedCreateInput>
+  }
+
+  /**
+   * DailyTicketCounter createMany
+   */
+  export type DailyTicketCounterCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DailyTicketCounters.
+     */
+    data: DailyTicketCounterCreateManyInput | DailyTicketCounterCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DailyTicketCounter update
+   */
+  export type DailyTicketCounterUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DailyTicketCounter.
+     */
+    data: XOR<DailyTicketCounterUpdateInput, DailyTicketCounterUncheckedUpdateInput>
+    /**
+     * Choose, which DailyTicketCounter to update.
+     */
+    where: DailyTicketCounterWhereUniqueInput
+  }
+
+  /**
+   * DailyTicketCounter updateMany
+   */
+  export type DailyTicketCounterUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DailyTicketCounters.
+     */
+    data: XOR<DailyTicketCounterUpdateManyMutationInput, DailyTicketCounterUncheckedUpdateManyInput>
+    /**
+     * Filter which DailyTicketCounters to update
+     */
+    where?: DailyTicketCounterWhereInput
+    /**
+     * Limit how many DailyTicketCounters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DailyTicketCounter upsert
+   */
+  export type DailyTicketCounterUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DailyTicketCounter to update in case it exists.
+     */
+    where: DailyTicketCounterWhereUniqueInput
+    /**
+     * In case the DailyTicketCounter found by the `where` argument doesn't exist, create a new DailyTicketCounter with this data.
+     */
+    create: XOR<DailyTicketCounterCreateInput, DailyTicketCounterUncheckedCreateInput>
+    /**
+     * In case the DailyTicketCounter was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DailyTicketCounterUpdateInput, DailyTicketCounterUncheckedUpdateInput>
+  }
+
+  /**
+   * DailyTicketCounter delete
+   */
+  export type DailyTicketCounterDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter which DailyTicketCounter to delete.
+     */
+    where: DailyTicketCounterWhereUniqueInput
+  }
+
+  /**
+   * DailyTicketCounter deleteMany
+   */
+  export type DailyTicketCounterDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DailyTicketCounters to delete
+     */
+    where?: DailyTicketCounterWhereInput
+    /**
+     * Limit how many DailyTicketCounters to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DailyTicketCounter without action
+   */
+  export type DailyTicketCounterDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyTicketCounter
+     */
+    select?: DailyTicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyTicketCounter
+     */
+    omit?: DailyTicketCounterOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model ConfirmedOrder
    */
 
@@ -7693,6 +8670,7 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderMinAggregateOutputType = {
+    id: string | null
     ticketNumber: number | null
     orderId: number | null
     status: $Enums.OrderStatus | null
@@ -7704,6 +8682,7 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderMaxAggregateOutputType = {
+    id: string | null
     ticketNumber: number | null
     orderId: number | null
     status: $Enums.OrderStatus | null
@@ -7715,6 +8694,7 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderCountAggregateOutputType = {
+    id: number
     ticketNumber: number
     orderId: number
     status: number
@@ -7744,6 +8724,7 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderMinAggregateInputType = {
+    id?: true
     ticketNumber?: true
     orderId?: true
     status?: true
@@ -7755,6 +8736,7 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderMaxAggregateInputType = {
+    id?: true
     ticketNumber?: true
     orderId?: true
     status?: true
@@ -7766,6 +8748,7 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderCountAggregateInputType = {
+    id?: true
     ticketNumber?: true
     orderId?: true
     status?: true
@@ -7864,7 +8847,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderGroupByOutputType = {
-    ticketNumber: number
+    id: string
+    ticketNumber: number | null
     orderId: number
     status: $Enums.OrderStatus
     paymentMethod: $Enums.PaymentMethod
@@ -7894,6 +8878,7 @@ export namespace Prisma {
 
 
   export type ConfirmedOrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
     ticketNumber?: boolean
     orderId?: boolean
     status?: boolean
@@ -7908,6 +8893,7 @@ export namespace Prisma {
 
 
   export type ConfirmedOrderSelectScalar = {
+    id?: boolean
     ticketNumber?: boolean
     orderId?: boolean
     status?: boolean
@@ -7918,7 +8904,7 @@ export namespace Prisma {
     confirmedAt?: boolean
   }
 
-  export type ConfirmedOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ticketNumber" | "orderId" | "status" | "paymentMethod" | "discount" | "surcharge" | "total" | "confirmedAt", ExtArgs["result"]["confirmedOrder"]>
+  export type ConfirmedOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ticketNumber" | "orderId" | "status" | "paymentMethod" | "discount" | "surcharge" | "total" | "confirmedAt", ExtArgs["result"]["confirmedOrder"]>
   export type ConfirmedOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     order?: boolean | OrderDefaultArgs<ExtArgs>
   }
@@ -7929,7 +8915,8 @@ export namespace Prisma {
       order: Prisma.$OrderPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      ticketNumber: number
+      id: string
+      ticketNumber: number | null
       orderId: number
       status: $Enums.OrderStatus
       paymentMethod: $Enums.PaymentMethod
@@ -8020,8 +9007,8 @@ export namespace Prisma {
      * // Get first 10 ConfirmedOrders
      * const confirmedOrders = await prisma.confirmedOrder.findMany({ take: 10 })
      * 
-     * // Only select the `ticketNumber`
-     * const confirmedOrderWithTicketNumberOnly = await prisma.confirmedOrder.findMany({ select: { ticketNumber: true } })
+     * // Only select the `id`
+     * const confirmedOrderWithIdOnly = await prisma.confirmedOrder.findMany({ select: { id: true } })
      * 
      */
     findMany<T extends ConfirmedOrderFindManyArgs>(args?: SelectSubset<T, ConfirmedOrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfirmedOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -8307,6 +9294,7 @@ export namespace Prisma {
    * Fields of the ConfirmedOrder model
    */
   interface ConfirmedOrderFieldRefs {
+    readonly id: FieldRef<"ConfirmedOrder", 'String'>
     readonly ticketNumber: FieldRef<"ConfirmedOrder", 'Int'>
     readonly orderId: FieldRef<"ConfirmedOrder", 'Int'>
     readonly status: FieldRef<"ConfirmedOrder", 'OrderStatus'>
@@ -11690,7 +12678,17 @@ export namespace Prisma {
   export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
 
 
+  export const DailyTicketCounterScalarFieldEnum: {
+    id: 'id',
+    date: 'date',
+    counter: 'counter'
+  };
+
+  export type DailyTicketCounterScalarFieldEnum = (typeof DailyTicketCounterScalarFieldEnum)[keyof typeof DailyTicketCounterScalarFieldEnum]
+
+
   export const ConfirmedOrderScalarFieldEnum: {
+    id: 'id',
     ticketNumber: 'ticketNumber',
     orderId: 'orderId',
     status: 'status',
@@ -11802,6 +12800,20 @@ export namespace Prisma {
   };
 
   export type OrderItemOrderByRelevanceFieldEnum = (typeof OrderItemOrderByRelevanceFieldEnum)[keyof typeof OrderItemOrderByRelevanceFieldEnum]
+
+
+  export const DailyTicketCounterOrderByRelevanceFieldEnum: {
+    id: 'id'
+  };
+
+  export type DailyTicketCounterOrderByRelevanceFieldEnum = (typeof DailyTicketCounterOrderByRelevanceFieldEnum)[keyof typeof DailyTicketCounterOrderByRelevanceFieldEnum]
+
+
+  export const ConfirmedOrderOrderByRelevanceFieldEnum: {
+    id: 'id'
+  };
+
+  export type ConfirmedOrderOrderByRelevanceFieldEnum = (typeof ConfirmedOrderOrderByRelevanceFieldEnum)[keyof typeof ConfirmedOrderOrderByRelevanceFieldEnum]
 
 
   export const RoleOrderByRelevanceFieldEnum: {
@@ -12234,11 +13246,57 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"OrderItem"> | string | null
   }
 
+  export type DailyTicketCounterWhereInput = {
+    AND?: DailyTicketCounterWhereInput | DailyTicketCounterWhereInput[]
+    OR?: DailyTicketCounterWhereInput[]
+    NOT?: DailyTicketCounterWhereInput | DailyTicketCounterWhereInput[]
+    id?: StringFilter<"DailyTicketCounter"> | string
+    date?: DateTimeFilter<"DailyTicketCounter"> | Date | string
+    counter?: IntFilter<"DailyTicketCounter"> | number
+  }
+
+  export type DailyTicketCounterOrderByWithRelationInput = {
+    id?: SortOrder
+    date?: SortOrder
+    counter?: SortOrder
+    _relevance?: DailyTicketCounterOrderByRelevanceInput
+  }
+
+  export type DailyTicketCounterWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    date?: Date | string
+    AND?: DailyTicketCounterWhereInput | DailyTicketCounterWhereInput[]
+    OR?: DailyTicketCounterWhereInput[]
+    NOT?: DailyTicketCounterWhereInput | DailyTicketCounterWhereInput[]
+    counter?: IntFilter<"DailyTicketCounter"> | number
+  }, "id" | "date">
+
+  export type DailyTicketCounterOrderByWithAggregationInput = {
+    id?: SortOrder
+    date?: SortOrder
+    counter?: SortOrder
+    _count?: DailyTicketCounterCountOrderByAggregateInput
+    _avg?: DailyTicketCounterAvgOrderByAggregateInput
+    _max?: DailyTicketCounterMaxOrderByAggregateInput
+    _min?: DailyTicketCounterMinOrderByAggregateInput
+    _sum?: DailyTicketCounterSumOrderByAggregateInput
+  }
+
+  export type DailyTicketCounterScalarWhereWithAggregatesInput = {
+    AND?: DailyTicketCounterScalarWhereWithAggregatesInput | DailyTicketCounterScalarWhereWithAggregatesInput[]
+    OR?: DailyTicketCounterScalarWhereWithAggregatesInput[]
+    NOT?: DailyTicketCounterScalarWhereWithAggregatesInput | DailyTicketCounterScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DailyTicketCounter"> | string
+    date?: DateTimeWithAggregatesFilter<"DailyTicketCounter"> | Date | string
+    counter?: IntWithAggregatesFilter<"DailyTicketCounter"> | number
+  }
+
   export type ConfirmedOrderWhereInput = {
     AND?: ConfirmedOrderWhereInput | ConfirmedOrderWhereInput[]
     OR?: ConfirmedOrderWhereInput[]
     NOT?: ConfirmedOrderWhereInput | ConfirmedOrderWhereInput[]
-    ticketNumber?: IntFilter<"ConfirmedOrder"> | number
+    id?: StringFilter<"ConfirmedOrder"> | string
+    ticketNumber?: IntNullableFilter<"ConfirmedOrder"> | number | null
     orderId?: IntFilter<"ConfirmedOrder"> | number
     status?: EnumOrderStatusFilter<"ConfirmedOrder"> | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodFilter<"ConfirmedOrder"> | $Enums.PaymentMethod
@@ -12250,7 +13308,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderOrderByWithRelationInput = {
-    ticketNumber?: SortOrder
+    id?: SortOrder
+    ticketNumber?: SortOrderInput | SortOrder
     orderId?: SortOrder
     status?: SortOrder
     paymentMethod?: SortOrder
@@ -12259,14 +13318,16 @@ export namespace Prisma {
     total?: SortOrder
     confirmedAt?: SortOrder
     order?: OrderOrderByWithRelationInput
+    _relevance?: ConfirmedOrderOrderByRelevanceInput
   }
 
   export type ConfirmedOrderWhereUniqueInput = Prisma.AtLeast<{
-    ticketNumber?: number
+    id?: string
     orderId?: number
     AND?: ConfirmedOrderWhereInput | ConfirmedOrderWhereInput[]
     OR?: ConfirmedOrderWhereInput[]
     NOT?: ConfirmedOrderWhereInput | ConfirmedOrderWhereInput[]
+    ticketNumber?: IntNullableFilter<"ConfirmedOrder"> | number | null
     status?: EnumOrderStatusFilter<"ConfirmedOrder"> | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodFilter<"ConfirmedOrder"> | $Enums.PaymentMethod
     discount?: DecimalFilter<"ConfirmedOrder"> | Decimal | DecimalJsLike | number | string
@@ -12274,10 +13335,11 @@ export namespace Prisma {
     total?: DecimalFilter<"ConfirmedOrder"> | Decimal | DecimalJsLike | number | string
     confirmedAt?: DateTimeFilter<"ConfirmedOrder"> | Date | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
-  }, "ticketNumber" | "orderId">
+  }, "id" | "orderId">
 
   export type ConfirmedOrderOrderByWithAggregationInput = {
-    ticketNumber?: SortOrder
+    id?: SortOrder
+    ticketNumber?: SortOrderInput | SortOrder
     orderId?: SortOrder
     status?: SortOrder
     paymentMethod?: SortOrder
@@ -12296,7 +13358,8 @@ export namespace Prisma {
     AND?: ConfirmedOrderScalarWhereWithAggregatesInput | ConfirmedOrderScalarWhereWithAggregatesInput[]
     OR?: ConfirmedOrderScalarWhereWithAggregatesInput[]
     NOT?: ConfirmedOrderScalarWhereWithAggregatesInput | ConfirmedOrderScalarWhereWithAggregatesInput[]
-    ticketNumber?: IntWithAggregatesFilter<"ConfirmedOrder"> | number
+    id?: StringWithAggregatesFilter<"ConfirmedOrder"> | string
+    ticketNumber?: IntNullableWithAggregatesFilter<"ConfirmedOrder"> | number | null
     orderId?: IntWithAggregatesFilter<"ConfirmedOrder"> | number
     status?: EnumOrderStatusWithAggregatesFilter<"ConfirmedOrder"> | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodWithAggregatesFilter<"ConfirmedOrder"> | $Enums.PaymentMethod
@@ -12800,7 +13863,51 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type DailyTicketCounterCreateInput = {
+    id?: string
+    date: Date | string
+    counter?: number
+  }
+
+  export type DailyTicketCounterUncheckedCreateInput = {
+    id?: string
+    date: Date | string
+    counter?: number
+  }
+
+  export type DailyTicketCounterUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DailyTicketCounterUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DailyTicketCounterCreateManyInput = {
+    id?: string
+    date: Date | string
+    counter?: number
+  }
+
+  export type DailyTicketCounterUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DailyTicketCounterUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
   export type ConfirmedOrderCreateInput = {
+    id?: string
+    ticketNumber?: number | null
     status?: $Enums.OrderStatus
     paymentMethod: $Enums.PaymentMethod
     discount?: Decimal | DecimalJsLike | number | string
@@ -12811,7 +13918,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderUncheckedCreateInput = {
-    ticketNumber?: number
+    id?: string
+    ticketNumber?: number | null
     orderId: number
     status?: $Enums.OrderStatus
     paymentMethod: $Enums.PaymentMethod
@@ -12822,6 +13930,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     discount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -12832,7 +13942,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderUncheckedUpdateInput = {
-    ticketNumber?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: NullableIntFieldUpdateOperationsInput | number | null
     orderId?: IntFieldUpdateOperationsInput | number
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
@@ -12843,7 +13954,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderCreateManyInput = {
-    ticketNumber?: number
+    id?: string
+    ticketNumber?: number | null
     orderId: number
     status?: $Enums.OrderStatus
     paymentMethod: $Enums.PaymentMethod
@@ -12854,6 +13966,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     discount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -12863,7 +13977,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderUncheckedUpdateManyInput = {
-    ticketNumber?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: NullableIntFieldUpdateOperationsInput | number | null
     orderId?: IntFieldUpdateOperationsInput | number
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
@@ -13468,6 +14583,74 @@ export namespace Prisma {
     orderId?: SortOrder
   }
 
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type DailyTicketCounterOrderByRelevanceInput = {
+    fields: DailyTicketCounterOrderByRelevanceFieldEnum | DailyTicketCounterOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type DailyTicketCounterCountOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type DailyTicketCounterAvgOrderByAggregateInput = {
+    counter?: SortOrder
+  }
+
+  export type DailyTicketCounterMaxOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type DailyTicketCounterMinOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type DailyTicketCounterSumOrderByAggregateInput = {
+    counter?: SortOrder
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type EnumOrderStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
     in?: $Enums.OrderStatus[]
@@ -13482,18 +14665,14 @@ export namespace Prisma {
     not?: NestedEnumPaymentMethodFilter<$PrismaModel> | $Enums.PaymentMethod
   }
 
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  export type ConfirmedOrderOrderByRelevanceInput = {
+    fields: ConfirmedOrderOrderByRelevanceFieldEnum | ConfirmedOrderOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
   }
 
   export type ConfirmedOrderCountOrderByAggregateInput = {
+    id?: SortOrder
     ticketNumber?: SortOrder
     orderId?: SortOrder
     status?: SortOrder
@@ -13513,6 +14692,7 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderMaxOrderByAggregateInput = {
+    id?: SortOrder
     ticketNumber?: SortOrder
     orderId?: SortOrder
     status?: SortOrder
@@ -13524,6 +14704,7 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderMinOrderByAggregateInput = {
+    id?: SortOrder
     ticketNumber?: SortOrder
     orderId?: SortOrder
     status?: SortOrder
@@ -13540,6 +14721,22 @@ export namespace Prisma {
     discount?: SortOrder
     surcharge?: SortOrder
     total?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type EnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -13560,20 +14757,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPaymentMethodFilter<$PrismaModel>
     _max?: NestedEnumPaymentMethodFilter<$PrismaModel>
-  }
-
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type UserListRelationFilter = {
@@ -14063,10 +15246,22 @@ export namespace Prisma {
     update?: XOR<XOR<FoodUpdateToOneWithWhereWithoutOrderItemsInput, FoodUpdateWithoutOrderItemsInput>, FoodUncheckedUpdateWithoutOrderItemsInput>
   }
 
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
   export type OrderCreateNestedOneWithoutConfirmedOrdedInput = {
     create?: XOR<OrderCreateWithoutConfirmedOrdedInput, OrderUncheckedCreateWithoutConfirmedOrdedInput>
     connectOrCreate?: OrderCreateOrConnectWithoutConfirmedOrdedInput
     connect?: OrderWhereUniqueInput
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type EnumOrderStatusFieldUpdateOperationsInput = {
@@ -14075,10 +15270,6 @@ export namespace Prisma {
 
   export type EnumPaymentMethodFieldUpdateOperationsInput = {
     set?: $Enums.PaymentMethod
-  }
-
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
   }
 
   export type OrderUpdateOneRequiredWithoutConfirmedOrdedNestedInput = {
@@ -14381,6 +15572,31 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
   export type NestedEnumOrderStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
     in?: $Enums.OrderStatus[]
@@ -14395,15 +15611,31 @@ export namespace Prisma {
     not?: NestedEnumPaymentMethodFilter<$PrismaModel> | $Enums.PaymentMethod
   }
 
-  export type NestedDateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -14424,20 +15656,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPaymentMethodFilter<$PrismaModel>
     _max?: NestedEnumPaymentMethodFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type FoodCreateWithoutCategoryInput = {
@@ -14788,6 +16006,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderCreateWithoutOrderInput = {
+    id?: string
+    ticketNumber?: number | null
     status?: $Enums.OrderStatus
     paymentMethod: $Enums.PaymentMethod
     discount?: Decimal | DecimalJsLike | number | string
@@ -14797,7 +16017,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderUncheckedCreateWithoutOrderInput = {
-    ticketNumber?: number
+    id?: string
+    ticketNumber?: number | null
     status?: $Enums.OrderStatus
     paymentMethod: $Enums.PaymentMethod
     discount?: Decimal | DecimalJsLike | number | string
@@ -14839,6 +16060,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     discount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14848,7 +16071,8 @@ export namespace Prisma {
   }
 
   export type ConfirmedOrderUncheckedUpdateWithoutOrderInput = {
-    ticketNumber?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
+    ticketNumber?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     paymentMethod?: EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
     discount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string

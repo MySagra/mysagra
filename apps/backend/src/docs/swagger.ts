@@ -43,6 +43,10 @@ const options: SwaggerOptions = {
                 description: 'Order management'
             },
             {
+                name: 'Confirmed Orders',
+                description: 'Order confirmation and payment processing'
+            },
+            {
                 name: 'Stats',
                 description: 'Order stats'
             }

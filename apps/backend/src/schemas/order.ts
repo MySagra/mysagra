@@ -13,19 +13,19 @@ export const orderSchema = z.object({
     orderItems: z.array(orderItemSchema)
 })
 
-export const confirmOrderSchema = z.object({
+export const confirmedOrderSchema = z.object({
     orderId: z.number().int().min(0),
-    status: z.enum(["CONFIRMED", "COMPLETED", "PICKED_UP"]),
     paymentMethod: z.enum(["CASH", "CARD"]),
     discount: z.number().min(0).optional(),
     surcharge: z.number().min(0).optional(),
-    total: z.number().min(0).optional()
+    total: z.number().min(0).optional(),
+    orderItems: z.array(orderItemSchema)
 })
 
 export const orderCodeParamSchema = z.object({
     code: z.string().regex(/^[A-Z0-9]+$/, "Order ID must contain only uppercase letters and numbers").min(3)
 })
 
-export type ConfrimOrder = z.infer<typeof confirmOrderSchema>
+export type ConfirmedOrder = z.infer<typeof confirmedOrderSchema>
 export type Order = z.infer<typeof orderSchema>
 export type OrderItem = z.infer<typeof orderItemSchema>

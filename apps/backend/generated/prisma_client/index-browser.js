@@ -164,7 +164,14 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   notes: 'notes'
 };
 
+exports.Prisma.DailyTicketCounterScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  counter: 'counter'
+};
+
 exports.Prisma.ConfirmedOrderScalarFieldEnum = {
+  id: 'id',
   ticketNumber: 'ticketNumber',
   orderId: 'orderId',
   status: 'status',
@@ -242,6 +249,14 @@ exports.Prisma.OrderItemOrderByRelevanceFieldEnum = {
   notes: 'notes'
 };
 
+exports.Prisma.DailyTicketCounterOrderByRelevanceFieldEnum = {
+  id: 'id'
+};
+
+exports.Prisma.ConfirmedOrderOrderByRelevanceFieldEnum = {
+  id: 'id'
+};
+
 exports.Prisma.RoleOrderByRelevanceFieldEnum = {
   name: 'name'
 };
@@ -275,6 +290,7 @@ exports.Prisma.ModelName = {
   FoodIngredient: 'FoodIngredient',
   Order: 'Order',
   OrderItem: 'OrderItem',
+  DailyTicketCounter: 'DailyTicketCounter',
   ConfirmedOrder: 'ConfirmedOrder',
   Role: 'Role',
   User: 'User',

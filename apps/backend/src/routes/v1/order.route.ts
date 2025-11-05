@@ -212,6 +212,10 @@ const router = Router();
  *         subTotal:
  *           type: string
  *           example: "25.50"
+ *         notes:
+ *           type: string
+ *           nullable: true
+ *           example: "Consegna al tavolo esterno"
  *         status:
  *           type: string
  *           enum: [pending, confirmed, completed, cancelled]

@@ -73,8 +73,8 @@ enum PaymentMethod {
 }
 
 model Order {
-  id          Int    @id @default(autoincrement())
-  displayCode String @unique
+  id          Int     @id @default(autoincrement())
+  displayCode String? @unique
 
   table    String
   customer String
@@ -104,9 +104,16 @@ model OrderItem {
   @@map("order_items")
 }
 
-model ConfirmedOrder {
-  ticketNumber Int @id @default(autoincrement())
+model DailyTicketCounter {
+  id      String   @id @default(cuid())
+  date    DateTime @unique @db.Date
+  counter Int      @default(0)
+}
 
+model ConfirmedOrder {
+  id String @id @default(cuid())
+
+  ticketNumber  Int?
   orderId       Int           @unique
   status        OrderStatus   @default(CONFIRMED)
   paymentMethod PaymentMethod
