@@ -251,9 +251,23 @@ const confirmedOrderController = new ConfirmedOrderController(new ConfirmedOrder
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 error:
  *                   type: string
  *                   example: "Order not found"
+ *             example:
+ *               error: "Order not found"
+ *       409:
+ *         description: Conflict - Order already confirmed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Order already confirmed"
+ *             example:
+ *               error: "Order already confirmed"
  *       500:
  *         description: Internal server error
  *         content:
@@ -261,9 +275,11 @@ const confirmedOrderController = new ConfirmedOrderController(new ConfirmedOrder
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 error:
  *                   type: string
- *                   example: "Internal server error"
+ *                   example: "Server error"
+ *             example:
+ *               error: "Server error"
  */
 router.post(
     '/',
