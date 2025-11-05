@@ -20,7 +20,8 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "_moduleAliases": {
-    "@": "dist/src"
+    "@": "dist/src",
+    "@generated": "generated"
   },
   "keywords": [],
   "author": "MySagra",
@@ -56,6 +57,7 @@
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
     "multer": "^2.0.2",
     "sqids": "^0.3.0",
     "swagger-jsdoc": "^6.2.8",
