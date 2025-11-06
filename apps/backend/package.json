@@ -67,6 +67,6 @@
     "zod": "^3.25.76"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx -r tsconfig-paths/register prisma/seed.ts"
   }
 }
