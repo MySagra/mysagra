@@ -13,7 +13,10 @@ const envSchema = z.object({
     DATABASE_URL: z.string(),
     PEPPER: z.string(),
     JWT_SECRET: z.string(),
-    FRONTEND_URL: z.string()
+    FRONTEND_URL: z.preprocess(
+        (val) => typeof val === 'string' ? val.split(',').map(url => url.trim()) : [],
+        z.array(z.string().url())
+    )
 }).strip()
 
 const { success, error, data } = envSchema.safeParse(process.env)

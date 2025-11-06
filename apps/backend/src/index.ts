@@ -37,10 +37,10 @@ app.use(cors(corsOptions));
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
-    defaultSrc: ["'self'", env.FRONTEND_URL || ""],
-    imgSrc: ["'self'", "data:", env.FRONTEND_URL || ""],
-    scriptSrc: ["'self'", env.FRONTEND_URL || ""],
-    styleSrc: ["'self'", env.FRONTEND_URL || "", "'unsafe-inline'"],
+    defaultSrc: ["'self'", ...env.FRONTEND_URL || ""],
+    imgSrc: ["'self'", "data:", ...env.FRONTEND_URL || ""],
+    scriptSrc: ["'self'", ...env.FRONTEND_URL || ""],
+    styleSrc: ["'self'", ...env.FRONTEND_URL || "", "'unsafe-inline'"],
   }
 }));
 
