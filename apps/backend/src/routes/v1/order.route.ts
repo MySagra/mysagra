@@ -90,6 +90,10 @@ const router = Router();
  *           type: integer
  *           minimum: 1
  *           example: 2
+ *         notes:
+ *           type: string
+ *           description: Optional notes for this specific item
+ *           example: "No onions, extra cheese"
  *         food:
  *           $ref: '#/components/schemas/FoodBasic'
  *     OrderItemDetailed:
@@ -100,6 +104,10 @@ const router = Router();
  *           type: integer
  *           minimum: 1
  *           example: 2
+ *         notes:
+ *           type: string
+ *           description: Optional notes for this specific item
+ *           example: "No onions, extra cheese"
  *         food:
  *           $ref: '#/components/schemas/FoodDetailed'
  *     OrderListResponse:
@@ -179,6 +187,11 @@ const router = Router();
  *         quantity:
  *           type: integer
  *           example: 2
+ *         notes:
+ *           type: string
+ *           nullable: true
+ *           description: Optional notes for this specific item
+ *           example: "No onions, extra cheese"
  *         food:
  *           $ref: '#/components/schemas/FoodWithIngredients'
  *     CategorizedItems:
@@ -300,6 +313,10 @@ const router = Router();
  *                 type: integer
  *                 minimum: 1
  *                 example: 2
+ *               notes:
+ *                 type: string
+ *                 description: Optional notes for this specific item (e.g., dietary restrictions, preferences)
+ *                 example: "No onions, extra cheese"
  */
 
 /**

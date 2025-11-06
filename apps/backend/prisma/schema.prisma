@@ -100,7 +100,7 @@ model OrderItem {
 
   notes String?
 
-  @@unique([orderId, foodId, notes])
+  @@unique([orderId, foodId, notes], name: "unique_order_food_notes")
   @@map("order_items")
 }
 
