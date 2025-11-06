@@ -1,6 +1,3 @@
-// Module alias registration (must be first)
-import 'module-alias/register';
-
 //server
 import express from 'express';
 import cors from "cors"
