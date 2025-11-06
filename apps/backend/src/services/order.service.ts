@@ -165,6 +165,7 @@ export class OrderService {
     }
 
     async createOrder(order: z.infer<typeof orderSchema>) {
+        console.log(order);
         const { orderItems } = order;
 
         const foodIds = orderItems.map(item => item.foodId);
@@ -184,7 +185,7 @@ export class OrderService {
                 data: {
                     table: order.table.toString(),
                     customer: order.customer,
-                    subTotal: price.toFixed(2).toString()
+                    subTotal: price.toFixed(2)
                 }
             });
 
@@ -198,7 +199,8 @@ export class OrderService {
                 data: orderItems.map(item => ({
                     quantity: item.quantity,
                     foodId: item.foodId,
-                    orderId: createdOrder.id
+                    orderId: createdOrder.id,
+                    notes: item.notes || null
                 }))
             });
 

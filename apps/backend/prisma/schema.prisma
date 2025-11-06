@@ -80,7 +80,7 @@ model Order {
   customer String
 
   createdAt DateTime? @default(now())
-  subTotal  String
+  subTotal  Decimal
 
   orderItems     OrderItem[]
   confirmedOrded ConfirmedOrder?
@@ -100,7 +100,7 @@ model OrderItem {
 
   notes String?
 
-  @@unique([orderId, foodId])
+  @@unique([orderId, foodId, notes])
   @@map("order_items")
 }
 
