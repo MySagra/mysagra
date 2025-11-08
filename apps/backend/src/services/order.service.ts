@@ -4,9 +4,11 @@ import { orderSchema } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 
 import { OrderItemService } from "./orderItem.service";
+import { EventService } from "./event.service";
 
 export class OrderService {
     private orderItemService = new OrderItemService();
+    private event = EventService.getIstance("order");
 
     async getOrders(page: number) {
         const take = 21;
@@ -180,7 +182,7 @@ export class OrderService {
             return total + (foodPrice ? Number(foodPrice) * item.quantity : 0);
         }, 0);
 
-        return await prisma.$transaction(async (tx) => {
+        const newOrder = await prisma.$transaction(async (tx) => {
             const createdOrder = await tx.order.create({
                 data: {
                     table: order.table.toString(),
@@ -211,6 +213,9 @@ export class OrderService {
                 }
             });
         });
+
+        this.event.broadcastEvent(newOrder)
+        return newOrder;
     }
 
     async deleteOrder(code: string) {

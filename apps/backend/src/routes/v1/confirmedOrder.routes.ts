@@ -117,7 +117,7 @@ const confirmedOrderController = new ConfirmedOrderController(new ConfirmedOrder
 
 /**
  * @openapi
- * /v1/confirm-order:
+ * /v1/confirmed-orders:
  *   post:
  *     tags:
  *       - Confirmed Orders
