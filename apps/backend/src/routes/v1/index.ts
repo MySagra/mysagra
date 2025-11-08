@@ -7,7 +7,6 @@ import roleRoutes from "./role.route";
 import statsRoutes from "./stats.route";
 import userRoutes from "./user.route";
 import ingredientRoutes from "./ingredient.route"
-import eventRoutes from "./event.route"
 
 const router = Router();
 
@@ -20,6 +19,5 @@ router.use("/confirmed-orders", confirmOrderRoutes)
 router.use("/roles", roleRoutes);
 router.use("/stats", statsRoutes);
 router.use("/users", userRoutes);
-router.use("/events", eventRoutes);
 
 export default router;

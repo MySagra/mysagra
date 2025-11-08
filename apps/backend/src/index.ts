@@ -47,7 +47,14 @@ app.use(helmet.contentSecurityPolicy({
 //global middlewares
 app.use(requestId);
 app.use(loggingMiddleware);
-app.use(compression());
+
+// Compression middleware (skip per SSE)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/events')) {
+    return next(); // Salta compression per SSE
+  }
+  compression()(req, res, next);
+});
 
 //static routes
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

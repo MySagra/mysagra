@@ -25,7 +25,7 @@ const router = Router();
 
 /**
  * @openapi
- * /v1/events/{channel}:
+ * /events/{channel}:
  *   get:
  *     tags:
  *       - Events (SSE)
