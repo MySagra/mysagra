@@ -8,7 +8,7 @@ import { EventService } from "./event.service";
 
 export class OrderService {
     private orderItemService = new OrderItemService();
-    private event = EventService.getIstance("order");
+    private cashierEvent = EventService.getIstance("cashier");
 
     async getOrders(page: number) {
         const take = 21;
@@ -167,7 +167,6 @@ export class OrderService {
     }
 
     async createOrder(order: z.infer<typeof orderSchema>) {
-        console.log(order);
         const { orderItems } = order;
 
         const foodIds = orderItems.map(item => item.foodId);
@@ -214,7 +213,7 @@ export class OrderService {
             });
         });
 
-        this.event.broadcastEvent(newOrder)
+        this.cashierEvent.broadcastEvent(newOrder, "new-order")
         return newOrder;
     }
 

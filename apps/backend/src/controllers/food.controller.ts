@@ -11,8 +11,8 @@ export class FoodController {
     constructor(private foodService: FoodService) {}
     
     getFoods = asyncHandler(async (req: GetFoodsRequest, res: Response, next: NextFunction): Promise<void> => {
-        const { include } = req.query;
-        const foods = await this.foodService.getFoods(include);
+        const { include, group_by } = req.query;
+        const foods = await this.foodService.getFoods(include, group_by);
         res.status(200).json(foods);
     });
 
@@ -28,8 +28,8 @@ export class FoodController {
     });
 
     getAvailableFoods = asyncHandler(async (req: GetFoodsRequest, res: Response, next: NextFunction): Promise<void> => {
-        const { include } = req.query;
-        const foods = await this.foodService.getAvailableFoods(include);
+        const { include, group_by } = req.query;
+        const foods = await this.foodService.getAvailableFoods(include, group_by);
         res.status(200).json(foods);
     })
 

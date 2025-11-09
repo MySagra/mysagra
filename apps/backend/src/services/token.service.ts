@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken"
 import prisma from "@/utils/prisma";
 import { User, Role } from "@generated/prisma_client";
+import { tokenPaylaodSchema } from "@/schemas/auth";
 
 export class TokenService {
     private secret = env.JWT_SECRET;
@@ -32,7 +33,7 @@ export class TokenService {
             { 
                 sub: user.id,
                 username: user.username,
-                role: user.role,
+                role: user.role.name,
                 iat: Date.now()
             },
             this.secret,
@@ -71,8 +72,10 @@ export class TokenService {
     getPayload(token: string) {
         try {
             const payload = jwt.verify(token, this.secret);
-            if (typeof payload === "string") return null;
-            return payload;
+            const parsed = tokenPaylaodSchema.safeParse(payload);
+            if(!parsed.success) return null;
+
+            return parsed.data;
         } catch (err) {
             return null;
         }

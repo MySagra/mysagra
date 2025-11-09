@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { confirmedOrderSchema, getConfirmedOrdersFilterSchema, patchStatusSchema } from "@/schemas";
+import { confirmedOrderSchema, cuidParamSchema, getConfirmedOrdersFilterSchema, patchStatusSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
@@ -254,7 +254,7 @@ router.get(
     '/',
     authenticate(['operator', 'admin']),
     validateRequest({
-        params: getConfirmedOrdersFilterSchema
+        query: getConfirmedOrdersFilterSchema
     }),
     confirmedOrderController.getConfirmedOrders
 )
@@ -437,7 +437,7 @@ router.post(
 
 /**
  * @openapi
- * /v1/confirmed-orders:
+ * /v1/confirmed-orders/{id}:
  *   patch:
  *     tags:
  *       - Confirmed Orders
@@ -455,6 +455,15 @@ router.post(
  *       - Customer picks up order: COMPLETED → PICKED_UP
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *         description: Confirmed order ID
+ *         example: "clm1234567890"
  *     requestBody:
  *       required: true
  *       content:
@@ -563,9 +572,10 @@ router.post(
  *                   example: "Server error"
  */
 router.patch(
-    '/',
+    '/:id',
     authenticate(['operator', 'admin']),
     validateRequest({
+        params: cuidParamSchema,
         body: patchStatusSchema
     }),
     confirmedOrderController.patchStatus

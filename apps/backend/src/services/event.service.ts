@@ -1,6 +1,6 @@
 import { logger } from "@/config/logger";
 import { Response } from "express";
-import { Channel } from "@/schemas/event";
+import { Channel, EventName } from "@/schemas/event";
 
 export class EventService {
     private static events = new Map<Channel, EventService>
@@ -35,16 +35,26 @@ export class EventService {
         this.clients.delete(res);
     }
 
-    broadcastEvent<T>(data: T): void {
-        logger.info(`[SSE] Broadcasting to ${this.clients.size} clients`, {
+    broadcastEvent<T>(data: T, eventName?: EventName): void {
+        logger.info(`[SSE] Broadcasting to ${this.clients.size} clients`, JSON.stringify({
             size: this.clients.size,
+            event: eventName,
             data
-        });
+        }));
 
-        const message = `data: ${JSON.stringify(data)}\n\n`;
+        const eventLine = eventName ?  `event: ${eventName}\n` : ""
+        const dataLine = `data: ${JSON.stringify(data)}\n\n`;
+
+        const message = eventLine + dataLine;
 
         for(const client of this.clients){
             client.write(message);
+        }
+    }
+
+    static broadcastEvents<T>(events: Array<EventService>, data: T, eventName: EventName){
+        for(const event of events){
+            event.broadcastEvent(data, eventName);
         }
     }
 }

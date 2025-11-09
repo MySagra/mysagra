@@ -8,7 +8,7 @@ const orderItemSchema = z.object({
 })
 
 export const orderSchema = z.object({
-    table: z.number().min(0),
+    table: z.string().min(0),
     customer: z.string().min(1),
     orderItems: z.array(orderItemSchema)
 })
@@ -29,6 +29,10 @@ export const confirmedOrderSchema = z.object({
     discount: z.number().min(0).optional(),
     surcharge: z.number().min(0).optional(),
     total: z.number().min(0).optional(),
+    newOrder: z.object({
+        table: z.string().min(1),
+        customer: z.string().min(1),
+    }).optional(),
     orderItems: z.array(orderItemSchema)
 })
 

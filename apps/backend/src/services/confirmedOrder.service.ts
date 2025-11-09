@@ -1,10 +1,13 @@
 import prisma from "@/utils/prisma";
-import { ConfirmedOrder } from "@/schemas";
+import { ConfirmedOrder, Order } from "@/schemas";
 import { OrderItemService } from "./orderItem.service";
 import { Prisma, OrderStatus } from "@generated/prisma_client";
+import { EventService } from "./event.service";
+import { EventName } from "@/schemas/event";
 
 export class ConfirmedOrderService {
     private orderItemService = new OrderItemService();
+    private events = [EventService.getIstance('cashier'), EventService.getIstance('display')]
 
     private async _getNextTicketNumber(tx: Prisma.TransactionClient): Promise<number> {
         const today = new Date();
@@ -34,7 +37,8 @@ export class ConfirmedOrderService {
     async createConfirmedOrder(order: ConfirmedOrder) {
         const { orderItems, orderId } = order;
 
-        return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        
+        const confirmedOrder = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             const ticketNumber = await this._getNextTicketNumber(tx);
 
             await this.orderItemService.deleteItemsFromOrder(orderId, tx);
@@ -61,6 +65,18 @@ export class ConfirmedOrderService {
                 isolationLevel: Prisma.TransactionIsolationLevel.Serializable
             }
         )
+
+
+        EventService.broadcastEvents(
+            this.events,
+            {
+                orderId: confirmedOrder.orderId,
+                ticketNumber: confirmedOrder.ticketNumber,
+            },
+            "confirmed-order"
+        )
+
+        return confirmedOrder;
     }
 
     async updateStatus(id: string, status: OrderStatus){
