@@ -437,7 +437,7 @@ router.post(
 
 /**
  * @openapi
- * /v1/confirmed-orders/{id}:
+ * /v1/confirmed-orders/status/{id}:
  *   patch:
  *     tags:
  *       - Confirmed Orders
@@ -572,7 +572,7 @@ router.post(
  *                   example: "Server error"
  */
 router.patch(
-    '/:id',
+    '/status/:id',
     authenticate(['operator', 'admin']),
     validateRequest({
         params: cuidParamSchema,

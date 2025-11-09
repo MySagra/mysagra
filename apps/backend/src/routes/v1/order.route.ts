@@ -23,9 +23,6 @@ const router = Router();
  *         name:
  *           type: string
  *           example: "Pizza"
- *         description:
- *           type: string
- *           example: "Traditional Italian pizzas"
  *     Ingredient:
  *       type: object
  *       properties:
@@ -209,8 +206,8 @@ const router = Router();
  *       description: Complete order object with items grouped by category and flat ingredients array
  *       properties:
  *         id:
- *           type: string
- *           example: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *           type: number
+ *           example: 23
  *         displayCode:
  *           type: string
  *           minLength: 3
@@ -225,19 +222,7 @@ const router = Router();
  *         subTotal:
  *           type: string
  *           example: "25.50"
- *         notes:
- *           type: string
- *           nullable: true
- *           example: "Consegna al tavolo esterno"
- *         status:
- *           type: string
- *           enum: [pending, confirmed, completed, cancelled]
- *           example: "pending"
  *         createdAt:
- *           type: string
- *           format: date-time
- *           example: "2025-11-04T10:30:00Z"
- *         updatedAt:
  *           type: string
  *           format: date-time
  *           example: "2025-11-04T10:30:00Z"
