@@ -13,6 +13,16 @@ export const orderSchema = z.object({
     orderItems: z.array(orderItemSchema)
 })
 
+export const status = z.enum(["CONFIRMED", "COMPLETED", "PICKED_UP"]);
+
+export const patchStatusSchema = z.object({
+    status
+})
+
+export const getConfirmedOrdersFilterSchema = z.object({
+    filter: z.union([status, z.array(status)]).optional()
+})
+
 export const confirmedOrderSchema = z.object({
     orderId: z.number().int().min(0),
     paymentMethod: z.enum(["CASH", "CARD"]),
@@ -29,3 +39,6 @@ export const orderCodeParamSchema = z.object({
 export type ConfirmedOrder = z.infer<typeof confirmedOrderSchema>
 export type Order = z.infer<typeof orderSchema>
 export type OrderItem = z.infer<typeof orderItemSchema>
+export type Status = z.infer<typeof status>
+export type PatchStatus = z.infer<typeof patchStatusSchema>
+export type ConfirmedOrdersFilter = z.infer<typeof getConfirmedOrdersFilterSchema>

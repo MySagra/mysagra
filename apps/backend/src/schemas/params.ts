@@ -15,3 +15,5 @@ export const pageParamSchema = z.object({
 export const searchValueParamSchema = z.object({
     value: z.string().min(1)
 });
+
+export type CUIDParam = z.infer<typeof cuidParamSchema>

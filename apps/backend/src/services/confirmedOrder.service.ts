@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { ConfirmedOrder } from "@/schemas";
 import { OrderItemService } from "./orderItem.service";
-import { Prisma } from "@generated/prisma_client";
+import { Prisma, OrderStatus } from "@generated/prisma_client";
 
 export class ConfirmedOrderService {
     private orderItemService = new OrderItemService();
@@ -18,6 +18,16 @@ export class ConfirmedOrderService {
         })
 
         return ticketCount.counter;
+    }
+
+    async getConfirmedOrders(filter?: OrderStatus | OrderStatus[]){
+        return await prisma.confirmedOrder.findMany({
+            where: {
+                ...(filter && { 
+                    status: Array.isArray(filter) ? { in: filter } : filter 
+                })
+            }
+        })
     }
 
 
@@ -51,5 +61,16 @@ export class ConfirmedOrderService {
                 isolationLevel: Prisma.TransactionIsolationLevel.Serializable
             }
         )
+    }
+
+    async updateStatus(id: string, status: OrderStatus){
+        return await prisma.confirmedOrder.update({
+            where: {
+                id
+            },
+            data: {
+                status
+            }
+        })
     }
 }

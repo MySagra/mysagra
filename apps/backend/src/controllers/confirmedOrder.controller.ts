@@ -1,15 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { ConfirmedOrderService } from "@/services/confirmedOrder.service";
-import { ConfirmedOrder } from "@/schemas";
+import { ConfirmedOrder, ConfirmedOrdersFilter, CUIDParam, Status } from "@/schemas";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { Prisma } from "@generated/prisma_client";
-
-type DtoConfirmedOrderRequest = Request<any, any, ConfirmedOrder, any>
+import { PatchStatus } from "@/schemas";
 
 export class ConfirmedOrderController {
     constructor(private confirmedOrderService: ConfirmedOrderService) { }
 
-    createConfirmOrder = asyncHandler(async (req: DtoConfirmedOrderRequest, res: Response, next: NextFunction): Promise<void> => {
+    getConfirmedOrders = asyncHandler(async (req: Request<any, any, any, ConfirmedOrdersFilter>, res: Response, next: NextFunction): Promise<void> => {
+        const { filter } = req.query;
+
+        const orders = await this.confirmedOrderService.getConfirmedOrders(filter);
+        res.status(200).json(orders);
+    })
+
+    createConfirmOrder = asyncHandler(async (req: Request<any, any, ConfirmedOrder, any>, res: Response, next: NextFunction): Promise<void> => {
         const order = req.body
         try {
             const confirmedOrder = await this.confirmedOrderService.createConfirmedOrder(order);
@@ -28,6 +34,15 @@ export class ConfirmedOrderController {
             }
             res.status(500).json({ error: "Server error" })
         }
+    })
+
+    patchStatus = asyncHandler(async (req: Request<CUIDParam, any, PatchStatus>, res: Response, next: NextFunction): Promise<void> => {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const order = await this.confirmedOrderService.updateStatus(id, status);
+
+        res.status(200).json(order);
     })
 
 }

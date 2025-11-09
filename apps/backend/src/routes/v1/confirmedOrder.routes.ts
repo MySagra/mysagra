@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { confirmedOrderSchema } from "@/schemas";
+import { confirmedOrderSchema, getConfirmedOrdersFilterSchema, patchStatusSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
@@ -113,7 +113,152 @@ const confirmedOrderController = new ConfirmedOrderController(new ConfirmedOrder
  *           format: date-time
  *           description: Order confirmation date and time
  *           example: "2025-11-05T14:30:00.000Z"
+ *     UpdateStatusRequest:
+ *       type: object
+ *       required:
+ *         - status
+ *       properties:
+ *         status:
+ *           type: string
+ *           enum: [CONFIRMED, COMPLETED, PICKED_UP]
+ *           description: New order status
+ *           example: "COMPLETED"
  */
+
+/**
+ * @openapi
+ * /v1/confirmed-orders:
+ *   get:
+ *     tags:
+ *       - Confirmed Orders
+ *     summary: Get confirmed orders
+ *     description: |
+ *       Retrieves a list of confirmed orders, optionally filtered by status.
+ *       
+ *       **Filtering:**
+ *       - No filter: returns all confirmed orders
+ *       - Single status: returns orders with that specific status
+ *       - Multiple statuses: returns orders matching any of the specified statuses
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *             enum: [CONFIRMED, COMPLETED, PICKED_UP]
+ *         collectionFormat: multi
+ *         required: false
+ *         description: Filter orders by status (single value or array)
+ *     responses:
+ *       200:
+ *         description: List of confirmed orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ConfirmedOrderResponse'
+ *             examples:
+ *               allOrders:
+ *                 summary: All orders
+ *                 value:
+ *                   - id: 123
+ *                     orderId: 42
+ *                     ticketNumber: 15
+ *                     status: "CONFIRMED"
+ *                     paymentMethod: "CASH"
+ *                     discount: 5.00
+ *                     surcharge: 0
+ *                     total: 45.00
+ *                     confirmedAt: "2025-11-05T14:30:00.000Z"
+ *                   - id: 124
+ *                     orderId: 43
+ *                     ticketNumber: 16
+ *                     status: "COMPLETED"
+ *                     paymentMethod: "CARD"
+ *                     discount: 0
+ *                     surcharge: 2.00
+ *                     total: 32.00
+ *                     confirmedAt: "2025-11-05T14:45:00.000Z"
+ *               filteredOrders:
+ *                 summary: Filtered by status
+ *                 value:
+ *                   - id: 123
+ *                     orderId: 42
+ *                     ticketNumber: 15
+ *                     status: "CONFIRMED"
+ *                     paymentMethod: "CASH"
+ *                     discount: 5.00
+ *                     surcharge: 0
+ *                     total: 45.00
+ *                     confirmedAt: "2025-11-05T14:30:00.000Z"
+ *       400:
+ *         description: Invalid filter parameter
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation error"
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       message:
+ *                         type: string
+ *             example:
+ *               message: "Validation error"
+ *               errors:
+ *                 - field: "filter"
+ *                   message: "Invalid status value"
+ *       401:
+ *         description: Not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       403:
+ *         description: Access denied - operators and administrators only
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Forbidden - Insufficient permissions"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Server error"
+ */
+router.get(
+    '/',
+    authenticate(['operator', 'admin']),
+    validateRequest({
+        params: getConfirmedOrdersFilterSchema
+    }),
+    confirmedOrderController.getConfirmedOrders
+)
+
 
 /**
  * @openapi
@@ -288,6 +433,142 @@ router.post(
         body: confirmedOrderSchema
     }),
     confirmedOrderController.createConfirmOrder
+)
+
+/**
+ * @openapi
+ * /v1/confirmed-orders:
+ *   patch:
+ *     tags:
+ *       - Confirmed Orders
+ *     summary: Update order status
+ *     description: |
+ *       Updates the status of a confirmed order.
+ *       
+ *       **Status flow:**
+ *       - CONFIRMED: Order has been confirmed and is being prepared
+ *       - COMPLETED: Order preparation is complete and ready for pickup
+ *       - PICKED_UP: Order has been picked up by the customer
+ *       
+ *       **Use cases:**
+ *       - Kitchen completes order: CONFIRMED → COMPLETED
+ *       - Customer picks up order: COMPLETED → PICKED_UP
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateStatusRequest'
+ *           examples:
+ *             markAsCompleted:
+ *               summary: Mark order as completed
+ *               value:
+ *                 status: "COMPLETED"
+ *             markAsPickedUp:
+ *               summary: Mark order as picked up
+ *               value:
+ *                 status: "PICKED_UP"
+ *     responses:
+ *       200:
+ *         description: Order status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ConfirmedOrderResponse'
+ *             example:
+ *               id: 123
+ *               orderId: 42
+ *               ticketNumber: 15
+ *               status: "COMPLETED"
+ *               paymentMethod: "CASH"
+ *               discount: 5.00
+ *               surcharge: 0
+ *               total: 45.00
+ *               confirmedAt: "2025-11-05T14:30:00.000Z"
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation error"
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       message:
+ *                         type: string
+ *             examples:
+ *               missingStatus:
+ *                 summary: Missing status field
+ *                 value:
+ *                   message: "Validation error"
+ *                   errors:
+ *                     - field: "status"
+ *                       message: "Status is required"
+ *               invalidStatus:
+ *                 summary: Invalid status value
+ *                 value:
+ *                   message: "Validation error"
+ *                   errors:
+ *                     - field: "status"
+ *                       message: "Status must be one of: CONFIRMED, COMPLETED, PICKED_UP"
+ *       401:
+ *         description: Not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       403:
+ *         description: Access denied - operators and administrators only
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Forbidden - Insufficient permissions"
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Order not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Server error"
+ */
+router.patch(
+    '/',
+    authenticate(['operator', 'admin']),
+    validateRequest({
+        body: patchStatusSchema
+    }),
+    confirmedOrderController.patchStatus
 )
 
 export default router;
