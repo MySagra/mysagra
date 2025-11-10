@@ -40,9 +40,16 @@ export const orderCodeParamSchema = z.object({
     code: z.string().regex(/^[A-Z0-9]+$/, "Order ID must contain only uppercase letters and numbers").min(3)
 })
 
+const excludeSchema = z.enum(["confirmed"])
+export const orderQuerySchema = z.object({
+    exclude: excludeSchema.optional()
+})
+
 export type ConfirmedOrder = z.infer<typeof confirmedOrderSchema>
 export type Order = z.infer<typeof orderSchema>
 export type OrderItem = z.infer<typeof orderItemSchema>
 export type Status = z.infer<typeof status>
 export type PatchStatus = z.infer<typeof patchStatusSchema>
 export type ConfirmedOrdersFilter = z.infer<typeof getConfirmedOrdersFilterSchema>
+export type OrderQuery = z.infer<typeof orderQuerySchema>
+export type OrderExclude = z.infer<typeof excludeSchema>

@@ -83,7 +83,7 @@ model Order {
   subTotal  Decimal
 
   orderItems     OrderItem[]
-  confirmedOrded ConfirmedOrder?
+  confirmedOrder ConfirmedOrder?
 
   @@map("orders")
 }

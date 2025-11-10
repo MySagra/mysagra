@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "@/utils/prisma";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { OrderService } from "@/services/order.service";
-import { orderSchema } from "@/schemas/order";
+import { OrderQuery, orderSchema } from "@/schemas/order";
 
 export class OrderController {
     constructor(private orderService: OrderService) { }
@@ -18,8 +18,9 @@ export class OrderController {
         res.status(200).json(orders);
     });
 
-    getDailyOrders = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const orders = await this.orderService.getDailyOrders();
+    getDailyOrders = asyncHandler(async (req: Request<any, any, any, OrderQuery>, res: Response, next: NextFunction) => {
+        const { exclude } = req.query;
+        const orders = await this.orderService.getDailyOrders(exclude);
 
         if (!orders) {
             return res.status(404).json({ message: "No daily orders found" });

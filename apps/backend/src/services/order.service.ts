@@ -1,10 +1,12 @@
 import prisma from "@/utils/prisma";
 import z from 'zod'
-import { orderSchema } from "@/schemas";
+import { OrderExclude, orderSchema } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 
 import { OrderItemService } from "./orderItem.service";
 import { EventService } from "./event.service";
+
+import { Prisma } from "@/generated/prisma_client";
 
 export class OrderService {
     private orderItemService = new OrderItemService();
@@ -44,19 +46,27 @@ export class OrderService {
         }
     }
 
-    async getDailyOrders() {
+    async getDailyOrders(exclude?: OrderExclude) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
 
+        const whereClause: Prisma.OrderWhereInput = {
+            createdAt: {
+                gte: today,
+                lt: tomorrow
+            }
+        }
+
+        if(exclude === 'confirmed'){
+            whereClause.confirmedOrder = null;
+        }
+
+        console.log("Using where clause:", JSON.stringify(whereClause, null, 2));
+
         return await prisma.order.findMany({
-            where: {
-                createdAt: {
-                    gte: today,
-                    lt: tomorrow
-                }
-            },
+            where: whereClause,
             orderBy: {
                 createdAt: "desc"
             }
@@ -102,7 +112,7 @@ export class OrderService {
 
         const itemsByCategory = order.orderItems.reduce((acc, item) => {
             const categoryName = item.food.category.name;
-            
+
             if (!acc[categoryName]) {
                 acc[categoryName] = {
                     category: item.food.category,

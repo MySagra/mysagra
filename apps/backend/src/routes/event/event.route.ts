@@ -75,11 +75,11 @@ const router = Router();
  *         required: true
  *         description: |
  *           Event channel to subscribe to.
- *           Currently available: `order`
+ *           Currently available: `cashier, display`
  *         schema:
  *           type: string
- *           enum: [order]
- *           example: "order"
+ *           enum: [cashier, display]
+ *           example: "cashier"
  *     responses:
  *       200:
  *         description: SSE connection established successfully. Stream remains open for real-time updates.

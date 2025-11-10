@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { orderSchema, orderCodeParamSchema, pageParamSchema, searchValueParamSchema } from "@/schemas";
+import { orderSchema, orderCodeParamSchema, pageParamSchema, searchValueParamSchema, orderQuerySchema } from "@/schemas";
 import { OrderController } from "@/controllers/order.controller";
 import { OrderService } from "@/services/order.service";
 
@@ -275,9 +275,9 @@ const router = Router();
  *         - orderItems
  *       properties:
  *         table:
- *           type: integer
- *           minimum: 0
- *           example: 5
+ *           type: string
+ *           minLength: 1
+ *           example: "5"
  *         customer:
  *           type: string
  *           minLength: 1
@@ -586,9 +586,23 @@ router.get(
  *     security:
  *       - bearerAuth: []
  *     summary: Get all today's orders (lightweight - no items details)
- *     description: Returns all orders created today with basic information only. Orders are sorted by creation date (newest first).
+ *     description: |
+ *       Returns all orders created today with basic information only. Orders are sorted by creation date (newest first).
+ *       
+ *       **Optional filtering:**
+ *       - Use `exclude=confirmed` to exclude confirmed orders from the results
+ *       - Without `exclude` parameter: returns all today's orders (including confirmed ones)
  *     tags:
  *       - Orders
+ *     parameters:
+ *       - in: query
+ *         name: exclude
+ *         required: false
+ *         description: Exclude orders by status (use 'confirmed' to exclude confirmed orders)
+ *         schema:
+ *           type: string
+ *           enum: [confirmed]
+ *         example: confirmed
  *     responses:
  *       200:
  *         description: List of today's orders (basic info only)
@@ -606,6 +620,9 @@ router.get(
 router.get(
     "/day/today",
     authenticate(["admin", "operator"]),
+    validateRequest({
+        query: orderQuerySchema
+    }),
     orderController.getDailyOrders
 );
 
