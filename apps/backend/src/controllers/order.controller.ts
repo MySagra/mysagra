@@ -1,31 +1,25 @@
 import { NextFunction, Request, Response } from "express";
-import prisma from "@/utils/prisma";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { OrderService } from "@/services/order.service";
-import { ConfirmedOrder, OrderQuery, orderSchema } from "@/schemas/order";
-import { CUIDParam, NumberIdParam } from "@/schemas";
+import { ConfirmedOrder, OrderQuery, orderQuerySchema, orderSchema } from "@/schemas/order";
+import { NumberIdParam } from "@/schemas";
 import { ConfirmedOrderService } from "@/services/confirmedOrder.service";
 
 export class OrderController {
     constructor(private orderService: OrderService, private confirmedOrderService: ConfirmedOrderService) { }
 
-    getOrders = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const page = req.query.page ? Number(req.query.page) : 1;
-        const orders = await this.orderService.getOrders(page);
+    getOrders = asyncHandler(async (req: Request<any, any, any, OrderQuery>, res: Response, next: NextFunction) => {
+        const parsed = orderQuerySchema.safeParse(req.query)
+        
+        if(parsed.error){
+            res.status(400).json({ message: "Bad request" });
+            return;
+        }
+
+        const orders = await this.orderService.getOrders(parsed.data);
 
         if (!orders) {
             return res.status(404).json({ message: "No orders found" });
-        }
-
-        res.status(200).json(orders);
-    });
-
-    getDailyOrders = asyncHandler(async (req: Request<any, any, any, OrderQuery>, res: Response, next: NextFunction) => {
-        const { exclude } = req.query;
-        const orders = await this.orderService.getDailyOrders(exclude);
-
-        if (!orders) {
-            return res.status(404).json({ message: "No daily orders found" });
         }
 
         res.status(200).json(orders);
@@ -40,26 +34,6 @@ export class OrderController {
         }
 
         res.status(200).json(order);
-    });
-
-    searchOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const { value } = req.params
-        const orders = await this.orderService.searchOrder(value);
-
-        if (!orders) {
-            return res.status(404).json({ message: "No orders found" });
-        }
-
-        res.status(200).json(orders);
-    });
-
-    searchDailyOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const { value } = req.params
-        const orders = await this.orderService.searchDailyOrder(value);
-        if (!orders) {
-            return res.status(404).json({ message: "No daily orders found" });
-        }
-        res.status(200).json(orders);
     });
 
     createOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {

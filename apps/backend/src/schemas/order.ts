@@ -1,5 +1,5 @@
 import { PaymentMethod } from "@generated/prisma_client"
-import z from "zod"
+import z, { boolean } from "zod"
 
 const orderItemSchema = z.object({
     foodId: z.string().cuid(),
@@ -13,14 +13,14 @@ export const orderSchema = z.object({
     orderItems: z.array(orderItemSchema)
 })
 
-export const status = z.enum(["CONFIRMED", "COMPLETED", "PICKED_UP"]);
+export const statusSchema = z.enum(["CONFIRMED", "COMPLETED", "PICKED_UP"]);
 
 export const patchStatusSchema = z.object({
-    status
+    status: statusSchema
 })
 
 export const getConfirmedOrdersFilterSchema = z.object({
-    filter: z.union([status, z.array(status)]).optional()
+    filter: z.union([statusSchema, z.array(statusSchema)]).optional()
 })
 
 export const confirmedOrderSchema = z.object({
@@ -41,14 +41,39 @@ export const orderCodeParamSchema = z.object({
 })
 
 const excludeSchema = z.enum(["confirmed"])
+
 export const orderQuerySchema = z.object({
-    exclude: excludeSchema.optional()
-})
+    search: z.string().optional(),
+    confirmed: z.coerce.boolean().optional(),
+    page: z.coerce.number().int().positive().default(1),
+
+    limit: z.coerce.number().int().positive().max(100).default(20),
+    sortBy: z.enum(['createdAt']).optional().default('createdAt'),
+
+    status: z.preprocess(
+        (val) => {
+            if (!val) return undefined;
+            return Array.isArray(val) ? val : [val];
+        },
+        z.array(statusSchema).optional()
+    ),
+
+    dateFrom: z.coerce.date().optional(),
+    dateTo: z.coerce.date().optional()
+}).refine(data => {
+    if (data.confirmed === false && data.status) {
+        return false;
+    }
+    return true;
+}, {
+    message: "You cannot filter by 'status' when 'confirmed' is 'false'",
+    path: ["status"]
+});
 
 export type ConfirmedOrder = z.infer<typeof confirmedOrderSchema>
 export type Order = z.infer<typeof orderSchema>
 export type OrderItem = z.infer<typeof orderItemSchema>
-export type Status = z.infer<typeof status>
+export type Status = z.infer<typeof statusSchema>
 export type PatchStatus = z.infer<typeof patchStatusSchema>
 export type ConfirmedOrdersFilter = z.infer<typeof getConfirmedOrdersFilterSchema>
 export type OrderQuery = z.infer<typeof orderQuerySchema>

@@ -624,7 +624,7 @@ router.post(
  *                   example: "Server error"
  */
 router.patch(
-    '/status/:id',
+    '/:id',
     authenticate(['operator', 'admin']),
     validateRequest({
         params: cuidParamSchema,

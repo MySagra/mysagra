@@ -307,26 +307,102 @@ const router = Router();
 
 /**
  * @openapi
- * /v1/orders/pages/{page}:
+ * /v1/orders:
  *   get:
  *     security:
  *       - bearerAuth: []
- *     summary: Get orders with pagination (lightweight - no items details)
- *     description: Returns a paginated list of orders with basic information only. Use GET /{code} to retrieve full order details including items, categories and ingredients.
+ *     summary: Get orders with advanced filtering and pagination
+ *     description: |
+ *       Returns a paginated and filtered list of orders with basic information only. 
+ *       Use GET /{code} to retrieve full order details including items, categories and ingredients.
+ *       
+ *       **Filtering options:**
+ *       - Search by customer name, table or order code
+ *       - Filter by confirmation status (confirmed/unconfirmed)
+ *       - Filter by order status (CONFIRMED, COMPLETED, PICKED_UP)
+ *       - Filter by date range
+ *       
+ *       **Important notes:**
+ *       - Cannot filter by 'status' when 'confirmed' is false (unconfirmed orders don't have status)
+ *       - Multiple statuses can be provided (e.g., status=CONFIRMED&status=COMPLETED)
+ *       - Date filters use inclusive ranges
  *     tags:
  *       - Orders
  *     parameters:
- *       - in: path
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         description: Search by customer name, table number, or order code
+ *         schema:
+ *           type: string
+ *           example: "Mario"
+ *       - in: query
+ *         name: confirmed
+ *         required: false
+ *         description: Filter by confirmation status (true = confirmed orders, false = unconfirmed orders)
+ *         schema:
+ *           type: boolean
+ *           example: true
+ *       - in: query
  *         name: page
- *         required: true
- *         description: Page number for pagination (1-based, 21 items per page)
+ *         required: false
+ *         description: Page number for pagination (1-based)
  *         schema:
  *           type: integer
  *           minimum: 1
+ *           default: 1
  *           example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Number of items per page (max 100)
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *           example: 20
+ *       - in: query
+ *         name: sortBy
+ *         required: false
+ *         description: Field to sort by
+ *         schema:
+ *           type: string
+ *           enum: [createdAt]
+ *           default: createdAt
+ *           example: createdAt
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         description: Filter by order status (can be used multiple times for multiple statuses). Cannot be used when confirmed=false. Leave empty to show all statuses.
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *             enum: [CONFIRMED, COMPLETED, PICKED_UP]
+ *         style: form
+ *         explode: true
+ *         example: 
+ *          -   CONFIRMED
+ *       - in: query
+ *         name: dateFrom
+ *         required: false
+ *         description: Start date for date range filter (inclusive). Click to open date picker.
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         example: "2025-11-01T00:00:00Z"
+ *       - in: query
+ *         name: dateTo
+ *         required: false
+ *         description: End date for date range filter (inclusive). Click to open date picker.
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         example: "2025-11-30T23:59:59Z"
  *     responses:
  *       200:
- *         description: Paginated list of orders (basic info only)
+ *         description: Paginated and filtered list of orders
  *         content:
  *           application/json:
  *             schema:
@@ -350,7 +426,7 @@ const router = Router();
  *                       example: 100
  *                     itemsPerPage:
  *                       type: integer
- *                       example: 21
+ *                       example: 20
  *                     hasNextPage:
  *                       type: boolean
  *                       example: true
@@ -366,17 +442,30 @@ const router = Router();
  *                       nullable: true
  *                       example: null
  *       400:
- *         description: Invalid page parameter
+ *         description: Invalid query parameters or validation error (e.g., using status filter with confirmed=false)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["You cannot filter by 'status' when 'confirmed' is 'false'"]
  *       401:
  *         description: Unauthorized - Authentication required
  *       403:
  *         description: Forbidden - Insufficient permissions
  */
 router.get(
-    "/pages/:page",
+    "/",
     authenticate(["admin", "operator"]),
     validateRequest({
-        params: pageParamSchema
+        query: orderQuerySchema
     }),
     orderController.getOrders
 );
@@ -742,180 +831,6 @@ router.delete(
         params: orderCodeParamSchema
     }),
     orderController.deleteOrder
-);
-
-/**
- * @openapi
- * /v1/orders/{code}:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     summary: Get complete order details by code
- *     description: Returns full order information with items grouped by category. Each food item includes a flat ingredients array (not nested). Categories contain only id and name. Optimized for detailed order views.
- *     tags:
- *       - Orders
- *     parameters:
- *       - in: path
- *         name: code
- *         required: true
- *         description: Display code of the order (3-character string, e.g., "A01")
- *         schema:
- *           type: string
- *           minLength: 3
- *           maxLength: 3
- *           example: "A01"
- *     responses:
- *       200:
- *         description: Complete order details with items, categories and ingredients
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/OrderDetailResponse'
- *       400:
- *         description: Invalid order code parameter
- *       401:
- *         description: Unauthorized - Authentication required
- *       403:
- *         description: Forbidden - Insufficient permissions
- *       404:
- *         description: Order not found
- */
-router.get(
-    "/:code",
-    authenticate(["admin", "operator"]),
-    validateRequest({
-        params: orderCodeParamSchema
-    }),
-    orderController.getOrderById
-);
-
-/**
- * @openapi
- * /v1/orders/search/daily/{value}:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     summary: Search today's orders (lightweight - no items details)
- *     description: Search orders created today by display code, table number, or customer name. Returns basic order info only.
- *     tags:
- *       - Orders
- *     parameters:
- *       - in: path
- *         name: value
- *         required: true
- *         description: Search value (display code, table number, or customer name)
- *         schema:
- *           type: string
- *           example: "Mario"
- *     responses:
- *       200:
- *         description: List of today's orders matching the search criteria (basic info only)
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/OrderListResponse'
- *       401:
- *         description: Unauthorized - Authentication required
- *       403:
- *         description: Forbidden - Insufficient permissions
- */
-router.get(
-    "/search/daily/:value",
-    authenticate(["admin", "operator"]),
-    validateRequest({
-        params: searchValueParamSchema
-    }),
-    orderController.searchDailyOrder
-);
-
-/**
- * @openapi
- * /v1/orders/search/{value}:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     summary: Search all orders (lightweight - no items details)
- *     description: Search all orders in the database by display code, table number, or customer name. Returns basic order info only. Admin only.
- *     tags:
- *       - Orders
- *     parameters:
- *       - in: path
- *         name: value
- *         required: true
- *         description: Search value (display code, table number, or customer name)
- *         schema:
- *           type: string
- *           example: "Mario"
- *     responses:
- *       200:
- *         description: List of all orders matching the search criteria (basic info only)
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/OrderListResponse'
- *       401:
- *         description: Unauthorized - Authentication required
- *       403:
- *         description: Forbidden - Admin access required
- */
-router.get(
-    "/search/:value",
-    authenticate(["admin"]),
-    validateRequest({
-        params: searchValueParamSchema
-    }),
-    orderController.searchOrder
-);
-
-/**
- * @openapi
- * /v1/orders/day/today:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     summary: Get all today's orders (lightweight - no items details)
- *     description: |
- *       Returns all orders created today with basic information only. Orders are sorted by creation date (newest first).
- *       
- *       **Optional filtering:**
- *       - Use `exclude=confirmed` to exclude confirmed orders from the results
- *       - Without `exclude` parameter: returns all today's orders (including confirmed ones)
- *     tags:
- *       - Orders
- *     parameters:
- *       - in: query
- *         name: exclude
- *         required: false
- *         description: Exclude orders by status (use 'confirmed' to exclude confirmed orders)
- *         schema:
- *           type: string
- *           enum: [confirmed]
- *         example: confirmed
- *     responses:
- *       200:
- *         description: List of today's orders (basic info only)
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/OrderListResponse'
- *       401:
- *         description: Unauthorized - Authentication required
- *       403:
- *         description: Forbidden - Insufficient permissions
- */
-router.get(
-    "/day/today",
-    authenticate(["admin", "operator"]),
-    validateRequest({
-        query: orderQuerySchema
-    }),
-    orderController.getDailyOrders
 );
 
 export default router;

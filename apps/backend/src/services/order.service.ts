@@ -1,76 +1,80 @@
 import prisma from "@/utils/prisma";
 import z from 'zod'
-import { ConfirmedOrder, Order, OrderExclude, orderSchema } from "@/schemas";
+import { ConfirmedOrder, Order, OrderExclude, OrderQuery, orderSchema } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
-
-import { ConfirmedOrderService } from "./confirmedOrder.service";
 import { EventService } from "./event.service";
 
 import { Prisma } from "@/generated/prisma_client";
-import { PrismaClient } from "@prisma/client";
 
 export class OrderService {
     private cashierEvent = EventService.getIstance('cashier');
 
-    async getOrders(page: number) {
-        const take = 21;
-        const skip = (page - 1) * take;
+    async getOrders(queryParams: OrderQuery) {
+        const { limit, page } = queryParams;
+        const skip = (1 - page) * limit;    
 
-        const [totalOrders, orders] = await Promise.all([
-            await prisma.order.count(),
-            await prisma.order.findMany({
-                take,
-                skip,
+        const where: Prisma.OrderWhereInput = {};
+
+        if (queryParams.search) {
+            where.OR = [
+                { displayCode: { contains: queryParams.search } },
+                { table: { contains: queryParams.search } },
+                { customer: { contains: queryParams.search } }
+            ]
+        }
+
+        if (queryParams.dateFrom || queryParams.dateTo) {
+            where.createdAt = {}
+            if (queryParams.dateFrom) {
+                where.createdAt.gte = queryParams.dateFrom
+            }
+            if (queryParams.dateTo) {
+                where.createdAt.lte = queryParams.dateTo
+            }
+        }
+
+        if (queryParams.confirmed === false) {
+            where.confirmedOrder = null;
+        }
+        else if (queryParams.status) {
+            where.confirmedOrder = {
+                status: {
+                    in: queryParams.status
+                }
+            }
+        }
+        else if (queryParams.confirmed === true) {
+            where.confirmedOrder = {
+                isNot: null
+            };
+        }
+
+        const query = await prisma.$transaction(async (tx) => {
+            const count = await tx.order.count({
+                where: where
+            });
+            const orders = await tx.order.findMany({
+                where: where,
+                skip: skip,
+                take: limit,
                 orderBy: {
-                    createdAt: "desc"
+                    createdAt: 'desc'
                 }
             })
-        ]);
-
-        const totalOrdersPages = Math.ceil(totalOrders / take);
-        const hasNextPage = page < totalOrdersPages;
-        const hasPrevPage = page > 1;
+            return {
+                count,
+                orders
+            }
+        })
 
         return {
-            orders,
+            data: query.orders,
             pagination: {
+                totalItems: query.count,
                 currentPage: page,
-                totalOrdersPages,
-                totalOrdersItems: totalOrders,
-                itemsPerPage: take,
-                hasNextPage,
-                hasPrevPage,
-                nextPage: hasNextPage ? page + 1 : null,
-                prevPage: hasPrevPage ? page - 1 : null
+                totalPages: Math.ceil(query.count / limit)
             }
         }
-    }
-
-    async getDailyOrders(exclude?: OrderExclude) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-
-        const whereClause: Prisma.OrderWhereInput = {
-            createdAt: {
-                gte: today,
-                lt: tomorrow
-            }
-        }
-
-        if (exclude === 'confirmed') {
-            whereClause.confirmedOrder = null;
-        }
-
-        console.log("Using where clause:", JSON.stringify(whereClause, null, 2));
-
-        return await prisma.order.findMany({
-            where: whereClause,
-            orderBy: {
-                createdAt: "desc"
-            }
-        });
     }
 
     async getOrderByCode(code: string) {
@@ -78,27 +82,42 @@ export class OrderService {
             where: {
                 displayCode: code
             },
-            include: {
+            select: {
+                id: true,
+                displayCode: true,
+                table: true,
+                customer: true,
+                subTotal: true,
+                createdAt: true,
+
                 orderItems: {
-                    omit: {
-                        orderId: true,
-                        foodId: true
-                    },
-                    include: {
+                    select: {
+                        id: true,
+                        quantity: true,
+                        notes: true,
+
                         food: {
-                            omit: {
-                                categoryId: true
-                            },
-                            include: {
+                            select: {
+                                id: true,
+                                name: true,
+                                description: true,
+                                price: true,
+
                                 category: {
                                     select: {
                                         id: true,
                                         name: true
                                     }
                                 },
+
                                 foodIngredients: {
                                     select: {
-                                        ingredient: true
+                                        ingredient: {
+                                            select: {
+                                                id: true,
+                                                name: true
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -110,70 +129,38 @@ export class OrderService {
 
         if (!order) return null;
 
-        const itemsByCategory = order.orderItems.reduce((acc, item) => {
-            const categoryName = item.food.category.name;
+        const categoryMap = new Map<number, { category: { id: number, name: string }, items: any[] }>();
 
-            if (!acc[categoryName]) {
-                acc[categoryName] = {
-                    category: item.food.category,
+        for (const item of order.orderItems) {
+            const category = item.food.category;
+
+            if (!categoryMap.has(category.id)) {
+                categoryMap.set(category.id, {
+                    category: category,
                     items: []
-                };
+                });
             }
+            const group = categoryMap.get(category.id)!;
+            const ingredients = item.food.foodIngredients.map(fi => fi.ingredient);
+            const { category: _c, foodIngredients: _fi, ...foodData } = item.food;
 
-            const { foodIngredients, ...foodData } = item.food;
-            const ingredients = foodIngredients.map(fi => fi.ingredient);
-
-            acc[categoryName].items.push({
-                ...item,
+            group.items.push({
+                id: item.id,
+                quantity: item.quantity,
+                notes: item.notes,
                 food: {
                     ...foodData,
-                    ingredients
+                    ingredients: ingredients
                 }
             });
+        }
 
-            return acc;
-        }, {} as Record<string, { category: any, items: any[] }>);
-
-        const categorizedItems = Object.values(itemsByCategory);
+        const { orderItems, ...orderBaseData } = order;
 
         return {
-            ...order,
-            orderItems: undefined,
-            categorizedItems
+            ...orderBaseData,
+            categorizedItems: Array.from(categoryMap.values())
         };
-    }
-
-    async searchOrder(value: string) {
-        return await prisma.order.findMany({
-            where: {
-                OR: [
-                    { displayCode: value },
-                    { table: { contains: value } },
-                    { customer: { contains: value } }
-                ]
-            }
-        });
-    }
-
-    async searchDailyOrder(value: string) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-
-        return await prisma.order.findMany({
-            where: {
-                createdAt: {
-                    gte: today,
-                    lt: tomorrow
-                },
-                OR: [
-                    { displayCode: value },
-                    { table: { contains: value } },
-                    { customer: { contains: value } }
-                ]
-            }
-        });
     }
 
     async createOrder(order: Order, tx?: Prisma.TransactionClient) {
@@ -184,7 +171,7 @@ export class OrderService {
             })
             this.cashierEvent.broadcastEvent(newOrder, "new-order")
         }
-        else{
+        else {
             newOrder = await this._createOrderLogic(order, tx);
         }
         return newOrder;

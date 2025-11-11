@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { ZodSchema, AnyZodObject, ZodError } from "zod";
+import { ZodTypeAny, ZodError } from "zod";
 import { logger } from "@/config/logger";
 
 
 export const validateRequest = (schemas: {
-    params?: AnyZodObject,
-    query?: AnyZodObject,
-    body?: AnyZodObject
+    params?: ZodTypeAny,
+    query?: ZodTypeAny,
+    body?: ZodTypeAny
 }) => (req: Request, res: Response, next: NextFunction) => {
     try {
         if (schemas.params) {
@@ -22,12 +22,12 @@ export const validateRequest = (schemas: {
             req.body = schemas.body.parse(req.body);
         }
         next();
-    } catch(error) {
-        if(error instanceof ZodError){
-            logger.error(JSON.stringify({ type: "validation_error", errors: error.message}))
+    } catch (error) {
+        if (error instanceof ZodError) {
+            logger.error(JSON.stringify({ type: "validation_error", errors: error.message }))
             return res.status(400).json({ errors: error.flatten().fieldErrors })
         }
-        logger.error(JSON.stringify({ type: "validation_error", errors: error}))
-        return res.status(500).json({error: 'Server Error'})
+        logger.error(JSON.stringify({ type: "validation_error", errors: error }))
+        return res.status(500).json({ error: 'Server Error' })
     }
 }
