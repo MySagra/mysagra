@@ -24,16 +24,16 @@ export const getConfirmedOrdersFilterSchema = z.object({
 })
 
 export const confirmedOrderSchema = z.object({
-    orderId: z.number().int().min(0),
     paymentMethod: z.enum(["CASH", "CARD"]),
     discount: z.number().min(0).optional(),
     surcharge: z.number().min(0).optional(),
     total: z.number().min(0).optional(),
-    newOrder: z.object({
-        table: z.string().min(1),
-        customer: z.string().min(1),
-    }).optional(),
-    orderItems: z.array(orderItemSchema)
+    orderItems: z.array(orderItemSchema).optional()
+})
+
+export const createAndConfirmOrderSchema = z.object({
+    confirm: confirmedOrderSchema,
+    order: orderSchema
 })
 
 export const orderCodeParamSchema = z.object({
@@ -53,3 +53,4 @@ export type PatchStatus = z.infer<typeof patchStatusSchema>
 export type ConfirmedOrdersFilter = z.infer<typeof getConfirmedOrdersFilterSchema>
 export type OrderQuery = z.infer<typeof orderQuerySchema>
 export type OrderExclude = z.infer<typeof excludeSchema>
+export type CreateAndConfirmOrder = z.infer<typeof createAndConfirmOrderSchema>

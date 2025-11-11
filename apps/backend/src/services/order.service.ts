@@ -1,16 +1,16 @@
 import prisma from "@/utils/prisma";
 import z from 'zod'
-import { OrderExclude, orderSchema } from "@/schemas";
+import { ConfirmedOrder, Order, OrderExclude, orderSchema } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 
-import { OrderItemService } from "./orderItem.service";
+import { ConfirmedOrderService } from "./confirmedOrder.service";
 import { EventService } from "./event.service";
 
 import { Prisma } from "@/generated/prisma_client";
+import { PrismaClient } from "@prisma/client";
 
 export class OrderService {
-    private orderItemService = new OrderItemService();
-    private cashierEvent = EventService.getIstance("cashier");
+    private cashierEvent = EventService.getIstance('cashier');
 
     async getOrders(page: number) {
         const take = 21;
@@ -59,7 +59,7 @@ export class OrderService {
             }
         }
 
-        if(exclude === 'confirmed'){
+        if (exclude === 'confirmed') {
             whereClause.confirmedOrder = null;
         }
 
@@ -176,11 +176,26 @@ export class OrderService {
         });
     }
 
-    async createOrder(order: z.infer<typeof orderSchema>) {
+    async createOrder(order: Order, tx?: Prisma.TransactionClient) {
+        let newOrder;
+        if (!tx) {
+            newOrder = await prisma.$transaction(async (tx) => {
+                return await this._createOrderLogic(order, tx);
+            })
+            this.cashierEvent.broadcastEvent(newOrder, "new-order")
+        }
+        else{
+            newOrder = await this._createOrderLogic(order, tx);
+        }
+        return newOrder;
+    }
+
+    private async _createOrderLogic(order: Order, tx: Prisma.TransactionClient) {
         const { orderItems } = order;
 
         const foodIds = orderItems.map(item => item.foodId);
-        const foods = await prisma.food.findMany({
+
+        const foods = await tx.food.findMany({
             where: { id: { in: foodIds } },
             select: { id: true, price: true }
         });
@@ -191,40 +206,35 @@ export class OrderService {
             return total + (foodPrice ? Number(foodPrice) * item.quantity : 0);
         }, 0);
 
-        const newOrder = await prisma.$transaction(async (tx) => {
-            const createdOrder = await tx.order.create({
-                data: {
-                    table: order.table.toString(),
-                    customer: order.customer,
-                    subTotal: price.toFixed(2)
-                }
-            });
-
-            const displayCode = generateDisplayId(createdOrder.id);
-            await tx.order.update({
-                where: { id: createdOrder.id },
-                data: { displayCode }
-            });
-
-            await tx.orderItem.createMany({
-                data: orderItems.map(item => ({
-                    quantity: item.quantity,
-                    foodId: item.foodId,
-                    orderId: createdOrder.id,
-                    notes: item.notes || null
-                }))
-            });
-
-            return await tx.order.findUnique({
-                where: { id: createdOrder.id },
-                include: {
-                    orderItems: true
-                }
-            });
+        const createdOrder = await tx.order.create({
+            data: {
+                table: order.table.toString(),
+                customer: order.customer,
+                subTotal: price.toFixed(2)
+            }
         });
 
-        this.cashierEvent.broadcastEvent(newOrder, "new-order")
-        return newOrder;
+        const displayCode = generateDisplayId(createdOrder.id);
+        await tx.order.update({
+            where: { id: createdOrder.id },
+            data: { displayCode }
+        });
+
+        await tx.orderItem.createMany({
+            data: orderItems.map(item => ({
+                quantity: item.quantity,
+                foodId: item.foodId,
+                orderId: createdOrder.id,
+                notes: item.notes || null
+            }))
+        });
+
+        return await tx.order.findUnique({
+            where: { id: createdOrder.id },
+            include: {
+                orderItems: true
+            }
+        });
     }
 
     async deleteOrder(code: string) {

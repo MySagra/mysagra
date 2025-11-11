@@ -17,3 +17,4 @@ export const searchValueParamSchema = z.object({
 });
 
 export type CUIDParam = z.infer<typeof cuidParamSchema>
+export type NumberIdParam = z.infer<typeof idParamSchema>

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ConfirmedOrderService } from "@/services/confirmedOrder.service";
-import { ConfirmedOrder, ConfirmedOrdersFilter, CUIDParam, Status } from "@/schemas";
+import { ConfirmedOrder, ConfirmedOrdersFilter, CreateAndConfirmOrder, CUIDParam, Status } from "@/schemas";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { Prisma } from "@generated/prisma_client";
 import { PatchStatus } from "@/schemas";
@@ -15,10 +15,10 @@ export class ConfirmedOrderController {
         res.status(200).json(orders);
     })
 
-    createConfirmOrder = asyncHandler(async (req: Request<any, any, ConfirmedOrder, any>, res: Response, next: NextFunction): Promise<void> => {
+    createAndConfirmOrder = asyncHandler(async (req: Request<any, any, CreateAndConfirmOrder, any>, res: Response, next: NextFunction): Promise<void> => {
         const order = req.body
         try {
-            const confirmedOrder = await this.confirmedOrderService.createConfirmedOrder(order);
+            const confirmedOrder = await this.confirmedOrderService.createAndConfirmOrder(order);
             res.status(201).json(confirmedOrder);
             return;
         } catch (error) {

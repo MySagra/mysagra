@@ -14,8 +14,9 @@ export class OrderItemService {
         })
     }
 
-    async getOrderItemsByOrderId(orderId: number) {
-        return await prisma.orderItem.findMany({
+    async getOrderItemsByOrderId(orderId: number, tx?: Prisma.TransactionClient) {
+        const client = tx || prisma;
+        return await client.orderItem.findMany({
             where: {
                 orderId
             },

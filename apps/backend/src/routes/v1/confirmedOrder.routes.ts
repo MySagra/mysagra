@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { confirmedOrderSchema, cuidParamSchema, getConfirmedOrdersFilterSchema, patchStatusSchema } from "@/schemas";
+import { confirmedOrderSchema, createAndConfirmOrderSchema, cuidParamSchema, getConfirmedOrdersFilterSchema, patchStatusSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
@@ -33,18 +33,33 @@ const confirmedOrderController = new ConfirmedOrderController(new ConfirmedOrder
  *           type: string
  *           description: Special notes for the order item (optional)
  *           example: "No tomatoes"
- *     ConfirmOrderRequest:
+ *     OrderInput:
  *       type: object
  *       required:
- *         - orderId
- *         - paymentMethod
+ *         - table
+ *         - customer
  *         - orderItems
  *       properties:
- *         orderId:
- *           type: integer
- *           minimum: 0
- *           description: Order ID to confirm
- *           example: 42
+ *         table:
+ *           type: string
+ *           description: Table identifier
+ *           example: "A3"
+ *         customer:
+ *           type: string
+ *           minLength: 1
+ *           description: Customer name or identifier
+ *           example: "Mario Rossi"
+ *         orderItems:
+ *           type: array
+ *           description: List of order items
+ *           minItems: 1
+ *           items:
+ *             $ref: '#/components/schemas/OrderItemInput'
+ *     ConfirmInput:
+ *       type: object
+ *       required:
+ *         - paymentMethod
+ *       properties:
  *         paymentMethod:
  *           type: string
  *           enum: [CASH, CARD]
@@ -62,11 +77,16 @@ const confirmedOrderController = new ConfirmedOrderController(new ConfirmedOrder
  *           minimum: 0
  *           description: Applied surcharge (optional)
  *           example: 2.00
- *         orderItems:
- *           type: array
- *           description: List of order items
- *           items:
- *             $ref: '#/components/schemas/OrderItemInput'
+ *     CreateAndConfirmOrderRequest:
+ *       type: object
+ *       required:
+ *         - order
+ *         - confirm
+ *       properties:
+ *         order:
+ *           $ref: '#/components/schemas/OrderInput'
+ *         confirm:
+ *           $ref: '#/components/schemas/ConfirmInput'
  *     ConfirmedOrderResponse:
  *       type: object
  *       properties:
@@ -266,21 +286,25 @@ router.get(
  *   post:
  *     tags:
  *       - Confirmed Orders
- *     summary: Confirm an order
+ *     summary: Create and confirm an order
  *     description: |
- *       Confirms an existing order, assigns a daily progressive ticket number,
- *       recalculates the total and saves payment information.
+ *       Creates a new order and immediately confirms it with payment information.
+ *       This operation performs both order creation and confirmation in a single atomic transaction.
  *       
  *       **Operational flow:**
- *       1. Deletes previous order items
- *       2. Recreates items with updated data
- *       3. Generates a daily progressive ticket number
- *       4. Calculates the total (subtotal + surcharge - discount)
- *       5. Saves the confirmed order
+ *       1. Creates a new order with customer, table and items information
+ *       2. Assigns a daily progressive ticket number
+ *       3. Calculates the total (subtotal + surcharge - discount)
+ *       4. Creates the confirmed order with payment details
+ *       5. Broadcasts events to cashier and display clients
  *       
  *       **Total calculation:**
  *       - Subtotal = Σ(quantity × price)
  *       - Total = Subtotal + surcharge - discount
+ *       
+ *       **Request structure:**
+ *       - `order`: Contains order details (table, customer, items)
+ *       - `confirm`: Contains payment and adjustment details (payment method, discount, surcharge)
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -288,32 +312,58 @@ router.get(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ConfirmOrderRequest'
+ *             $ref: '#/components/schemas/CreateAndConfirmOrderRequest'
  *           examples:
  *             orderWithDiscount:
  *               summary: Order with discount
  *               value:
- *                 orderId: 42
- *                 paymentMethod: "CASH"
- *                 discount: 5.00
- *                 orderItems:
- *                   - foodId: "clm1234567890"
- *                     quantity: 2
- *                   - foodId: "clm9876543210"
- *                     quantity: 1
- *                     notes: "No onions"
+ *                 order:
+ *                   table: "A3"
+ *                   customer: "Mario Rossi"
+ *                   orderItems:
+ *                     - foodId: "clm1234567890"
+ *                       quantity: 2
+ *                     - foodId: "clm9876543210"
+ *                       quantity: 1
+ *                       notes: "No onions"
+ *                 confirm:
+ *                   paymentMethod: "CASH"
+ *                   discount: 5.00
+ *                   surcharge: 2.00
  *             orderWithSurcharge:
  *               summary: Order with surcharge
  *               value:
- *                 orderId: 43
- *                 paymentMethod: "CARD"
- *                 surcharge: 2.00
- *                 orderItems:
- *                   - foodId: "clm1234567890"
- *                     quantity: 3
+ *                 order:
+ *                   table: "B1"
+ *                   customer: "Luigi Verdi"
+ *                   orderItems:
+ *                     - foodId: "clm1234567890"
+ *                       quantity: 3
+ *                 confirm:
+ *                   paymentMethod: "CARD"
+ *                   surcharge: 2.00
+ *             completeOrder:
+ *               summary: Complete order with all fields
+ *               value:
+ *                 order:
+ *                   table: "C5"
+ *                   customer: "Anna Bianchi"
+ *                   orderItems:
+ *                     - foodId: "clm1234567890"
+ *                       quantity: 2
+ *                       notes: "Extra cheese"
+ *                     - foodId: "clm9876543210"
+ *                       quantity: 1
+ *                     - foodId: "clm5555555555"
+ *                       quantity: 3
+ *                       notes: "No salt"
+ *                 confirm:
+ *                   paymentMethod: "CASH"
+ *                   discount: 3.50
+ *                   surcharge: 1.50
  *     responses:
  *       201:
- *         description: Order confirmed successfully
+ *         description: Order created and confirmed successfully
  *         content:
  *           application/json:
  *             schema:
@@ -348,27 +398,41 @@ router.get(
  *                       message:
  *                         type: string
  *             examples:
- *               invalidOrderId:
- *                 summary: Invalid order ID
+ *               missingOrder:
+ *                 summary: Missing order object
  *                 value:
  *                   message: "Validation error"
  *                   errors:
- *                     - field: "orderId"
- *                       message: "Order ID must be a positive integer"
- *               missingPaymentMethod:
- *                 summary: Missing payment method
+ *                     - field: "order"
+ *                       message: "Order information is required"
+ *               missingCustomer:
+ *                 summary: Missing customer name
  *                 value:
  *                   message: "Validation error"
  *                   errors:
- *                     - field: "paymentMethod"
- *                       message: "Payment method is required"
+ *                     - field: "order.customer"
+ *                       message: "Customer name is required"
  *               emptyOrderItems:
  *                 summary: No items in order
  *                 value:
  *                   message: "Validation error"
  *                   errors:
- *                     - field: "orderItems"
+ *                     - field: "order.orderItems"
  *                       message: "Order must contain at least one item"
+ *               missingPaymentMethod:
+ *                 summary: Missing payment method
+ *                 value:
+ *                   message: "Validation error"
+ *                   errors:
+ *                     - field: "confirm.paymentMethod"
+ *                       message: "Payment method is required"
+ *               invalidFoodId:
+ *                 summary: Invalid food ID format
+ *                 value:
+ *                   message: "Validation error"
+ *                   errors:
+ *                     - field: "order.orderItems[0].foodId"
+ *                       message: "Food ID must be a valid CUID"
  *       401:
  *         description: Not authenticated
  *         content:
@@ -390,7 +454,7 @@ router.get(
  *                   type: string
  *                   example: "Forbidden - Insufficient permissions"
  *       404:
- *         description: Order not found
+ *         description: Food item not found
  *         content:
  *           application/json:
  *             schema:
@@ -398,21 +462,9 @@ router.get(
  *               properties:
  *                 error:
  *                   type: string
- *                   example: "Order not found"
+ *                   example: "Food item not found"
  *             example:
- *               error: "Order not found"
- *       409:
- *         description: Conflict - Order already confirmed
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Order already confirmed"
- *             example:
- *               error: "Order already confirmed"
+ *               error: "Food item not found"
  *       500:
  *         description: Internal server error
  *         content:
@@ -430,9 +482,9 @@ router.post(
     '/',
     authenticate(['operator', 'admin']),
     validateRequest({
-        body: confirmedOrderSchema
+        body: createAndConfirmOrderSchema
     }),
-    confirmedOrderController.createConfirmOrder
+    confirmedOrderController.createAndConfirmOrder
 )
 
 /**

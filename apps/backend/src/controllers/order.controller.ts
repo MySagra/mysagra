@@ -2,10 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "@/utils/prisma";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { OrderService } from "@/services/order.service";
-import { OrderQuery, orderSchema } from "@/schemas/order";
+import { ConfirmedOrder, OrderQuery, orderSchema } from "@/schemas/order";
+import { CUIDParam, NumberIdParam } from "@/schemas";
+import { ConfirmedOrderService } from "@/services/confirmedOrder.service";
 
 export class OrderController {
-    constructor(private orderService: OrderService) { }
+    constructor(private orderService: OrderService, private confirmedOrderService: ConfirmedOrderService) { }
 
     getOrders = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         const page = req.query.page ? Number(req.query.page) : 1;
@@ -68,6 +70,14 @@ export class OrderController {
         const orderData = parsed.data;
         const newOrder = await this.orderService.createOrder(orderData);
         res.status(201).json(newOrder);
+    });
+
+    confirmOrder = asyncHandler(async (req: Request<NumberIdParam, any, ConfirmedOrder, any>, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+
+        const confirmedOrder = await this.confirmedOrderService.confirmExistingOrder(id, req.body);
+        res.status(201).json(confirmedOrder);
+        return;
     });
 
     deleteOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {

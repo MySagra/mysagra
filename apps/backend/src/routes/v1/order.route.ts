@@ -2,11 +2,12 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { orderSchema, orderCodeParamSchema, pageParamSchema, searchValueParamSchema, orderQuerySchema } from "@/schemas";
+import { orderSchema, orderCodeParamSchema, pageParamSchema, searchValueParamSchema, orderQuerySchema, cuidParamSchema, confirmedOrderSchema, idParamSchema } from "@/schemas";
 import { OrderController } from "@/controllers/order.controller";
 import { OrderService } from "@/services/order.service";
+import { ConfirmedOrderService } from "@/services/confirmedOrder.service";
 
-const orderController = new OrderController(new OrderService());
+const orderController = new OrderController(new OrderService(), new ConfirmedOrderService());
 
 const router = Router();
 
@@ -411,6 +412,297 @@ router.post(
     }),
     orderController.createOrder
 );
+
+/**
+ * @openapi
+ * /v1/orders/{id}/confirm:
+ *   post:
+ *     tags:
+ *       - Orders
+ *     summary: Confirm an order
+ *     description: |
+ *       Confirms an existing order, assigns a daily progressive ticket number,
+ *       recalculates the total and saves payment information.
+ *       
+ *       **Operational flow:**
+ *       1. If orderItems are provided: deletes previous order items and recreates them with updated data
+ *       2. If orderItems are not provided: uses existing order items without modification
+ *       3. Generates a daily progressive ticket number
+ *       4. Calculates the total (subtotal + surcharge - discount)
+ *       5. Saves the confirmed order
+ *       
+ *       **Total calculation:**
+ *       - Subtotal = Σ(quantity × price)
+ *       - Total = Subtotal + surcharge - discount
+ *       
+ *       **orderItems parameter:**
+ *       - Optional: if not provided, existing order items will be used
+ *       - If provided: previous items will be deleted and replaced with the new ones
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Order ID to confirm
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         example: 42
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - paymentMethod
+ *               - table
+ *               - customer
+ *             properties:
+ *               paymentMethod:
+ *                 type: string
+ *                 enum: [CASH, CARD]
+ *                 description: Payment method
+ *                 example: "CASH"
+ *               discount:
+ *                 type: number
+ *                 format: float
+ *                 minimum: 0
+ *                 description: Applied discount (optional)
+ *                 example: 5.00
+ *               surcharge:
+ *                 type: number
+ *                 format: float
+ *                 minimum: 0
+ *                 description: Applied surcharge (optional)
+ *                 example: 2.00
+ *               table:
+ *                 type: string
+ *                 minLength: 1
+ *                 description: Table number or identifier
+ *                 example: "5"
+ *               customer:
+ *                 type: string
+ *                 minLength: 1
+ *                 description: Customer name
+ *                 example: "Mario Rossi"
+ *               orderItems:
+ *                 type: array
+ *                 description: List of order items (optional - if not provided, existing items will be used)
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - foodId
+ *                     - quantity
+ *                   properties:
+ *                     foodId:
+ *                       type: string
+ *                       format: cuid
+ *                       description: Food item ID
+ *                       example: "clm1234567890"
+ *                     quantity:
+ *                       type: integer
+ *                       minimum: 1
+ *                       description: Ordered quantity
+ *                       example: 2
+ *                     notes:
+ *                       type: string
+ *                       description: Special notes for the order item (optional)
+ *                       example: "No tomatoes"
+ *           examples:
+ *             orderWithDiscount:
+ *               summary: Order with discount
+ *               value:
+ *                 paymentMethod: "CASH"
+ *                 discount: 5.00
+ *                 surcharge: 2.00
+ *                 table: "5"
+ *                 customer: "Mario Rossi"
+ *                 orderItems:
+ *                   - foodId: "clm1234567890"
+ *                     quantity: 2
+ *                   - foodId: "clm9876543210"
+ *                     quantity: 1
+ *                     notes: "No onions"
+ *             orderWithSurcharge:
+ *               summary: Order with surcharge
+ *               value:
+ *                 paymentMethod: "CARD"
+ *                 surcharge: 2.00
+ *                 table: "12"
+ *                 customer: "Laura Bianchi"
+ *                 orderItems:
+ *                   - foodId: "clm1234567890"
+ *                     quantity: 3
+ *     responses:
+ *       201:
+ *         description: Order confirmed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: Confirmed order ID
+ *                   example: "clm9876543210"
+ *                 orderId:
+ *                   type: integer
+ *                   description: Original order ID
+ *                   example: 42
+ *                 ticketNumber:
+ *                   type: integer
+ *                   nullable: true
+ *                   description: Daily ticket number
+ *                   example: 15
+ *                 status:
+ *                   type: string
+ *                   enum: [CONFIRMED, COMPLETED, PICKED_UP]
+ *                   description: Confirmed order status
+ *                   example: "CONFIRMED"
+ *                 paymentMethod:
+ *                   type: string
+ *                   enum: [CASH, CARD]
+ *                   description: Payment method
+ *                   example: "CASH"
+ *                 discount:
+ *                   type: number
+ *                   format: decimal
+ *                   description: Applied discount
+ *                   example: 5.00
+ *                 surcharge:
+ *                   type: number
+ *                   format: decimal
+ *                   description: Applied surcharge
+ *                   example: 2.00
+ *                 total:
+ *                   type: number
+ *                   format: decimal
+ *                   description: Order total (subtotal + surcharge - discount)
+ *                   example: 47.00
+ *                 confirmedAt:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Order confirmation date and time
+ *                   example: "2025-11-05T14:30:00.000Z"
+ *             example:
+ *               id: "clm9876543210"
+ *               orderId: 42
+ *               ticketNumber: 15
+ *               status: "CONFIRMED"
+ *               paymentMethod: "CASH"
+ *               discount: 5.00
+ *               surcharge: 2.00
+ *               total: 47.00
+ *               confirmedAt: "2025-11-05T14:30:00.000Z"
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Validation error"
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       message:
+ *                         type: string
+ *             examples:
+ *               invalidOrderId:
+ *                 summary: Invalid order ID
+ *                 value:
+ *                   message: "Validation error"
+ *                   errors:
+ *                     - field: "id"
+ *                       message: "Order ID must be a positive integer"
+ *               missingPaymentMethod:
+ *                 summary: Missing payment method
+ *                 value:
+ *                   message: "Validation error"
+ *                   errors:
+ *                     - field: "paymentMethod"
+ *                       message: "Payment method is required"
+ *               emptyOrderItems:
+ *                 summary: No items in order
+ *                 value:
+ *                   message: "Validation error"
+ *                   errors:
+ *                     - field: "orderItems"
+ *                       message: "Order must contain at least one item"
+ *       401:
+ *         description: Not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       403:
+ *         description: Access denied - operators and administrators only
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Forbidden - Insufficient permissions"
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Order not found"
+ *             example:
+ *               error: "Order not found"
+ *       409:
+ *         description: Conflict - Order already confirmed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Order already confirmed"
+ *             example:
+ *               error: "Order already confirmed"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Server error"
+ *             example:
+ *               error: "Server error"
+ */
+router.post(
+    "/:id/confirm",
+    authenticate(["admin", "operator"]),
+    validateRequest({
+        params: idParamSchema,
+        body: confirmedOrderSchema
+    }),
+    orderController.confirmOrder
+)
 
 /**
  * @openapi
