@@ -1,17 +1,29 @@
 import prisma from "@/utils/prisma";
-import z from 'zod'
-import { ConfirmedOrder, Order, OrderExclude, OrderQuery, orderSchema } from "@/schemas";
+import { ConfirmedOrder, Order, OrderQuery, Status } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventService } from "./event.service";
-
 import { Prisma } from "@/generated/prisma_client";
 
 export class OrderService {
-    private cashierEvent = EventService.getIstance('cashier');
+    private events = [EventService.getIstance('cashier'), EventService.getIstance('display')]
+
+    private async _getNextTicketNumber(tx: Prisma.TransactionClient): Promise<number> {
+        const today = new Date();
+        today.setHours(12, 0, 0, 0);
+        const dateOnly = new Date(today.toISOString().split('T')[0]);
+
+        const ticketCount = await tx.dailyTicketCounter.upsert({
+            where: { date: dateOnly },
+            create: { date: dateOnly, counter: 1 },
+            update: { counter: { increment: 1 } }
+        })
+
+        return ticketCount.counter;
+    }
 
     async getOrders(queryParams: OrderQuery) {
         const { limit, page } = queryParams;
-        const skip = (1 - page) * limit;    
+        const skip = (1 - page) * limit;
 
         const where: Prisma.OrderWhereInput = {};
 
@@ -33,20 +45,10 @@ export class OrderService {
             }
         }
 
-        if (queryParams.confirmed === false) {
-            where.confirmedOrder = null;
-        }
-        else if (queryParams.status) {
-            where.confirmedOrder = {
-                status: {
-                    in: queryParams.status
-                }
+        if (queryParams.status) {
+            where.status = {
+                in: queryParams.status
             }
-        }
-        else if (queryParams.confirmed === true) {
-            where.confirmedOrder = {
-                isNot: null
-            };
         }
 
         const query = await prisma.$transaction(async (tx) => {
@@ -163,66 +165,193 @@ export class OrderService {
         };
     }
 
-    async createOrder(order: Order, tx?: Prisma.TransactionClient) {
-        let newOrder;
-        if (!tx) {
-            newOrder = await prisma.$transaction(async (tx) => {
-                return await this._createOrderLogic(order, tx);
-            })
-            this.cashierEvent.broadcastEvent(newOrder, "new-order")
+    async createOrder(order: Order) {
+        const { orderItems, confirm } = order;
+
+        const newOrder = await prisma.$transaction(async (tx) => {
+            const foodIds = orderItems.map(item => item.foodId);
+            const foods = await tx.food.findMany({
+                where: { id: { in: foodIds } },
+                select: { id: true, price: true }
+            });
+
+            if (foods.length !== new Set(foodIds).size) {
+                throw new Error("One or more requested products do not exist or are invalid");
+            }
+
+            const foodMap = new Map(foods.map(f => [f.id, f.price]));
+            let subTotal = new Prisma.Decimal(0);
+
+            orderItems.forEach(item => {
+                const price = foodMap.get(item.foodId);
+                if (!price) throw new Error("Internal price error");
+
+                const lineTotal = price.mul(item.quantity);
+                subTotal = subTotal.add(lineTotal);
+            });
+
+            let total = subTotal;
+            let finalStatus: Status = 'PENDING';
+            let ticketNumber = null;
+            let confirmedAt = null;
+
+            if (confirm) {
+                const discount = new Prisma.Decimal(confirm.discount || 0);
+                const surcharge = new Prisma.Decimal(confirm.surcharge || 0);
+                total = subTotal.add(surcharge).sub(discount);
+
+                if (total.isNegative()) total = new Prisma.Decimal(0);
+
+                finalStatus = 'CONFIRMED';
+                confirmedAt = new Date();
+
+                ticketNumber = await this._getNextTicketNumber(tx);
+            }
+
+            const createdOrder = await tx.order.create({
+                data: {
+                    table: order.table.toString(),
+                    customer: order.customer,
+                    subTotal: subTotal,
+
+                    status: finalStatus,
+                    confirmedAt: confirmedAt,
+                    ticketNumber: ticketNumber,
+
+                    paymentMethod: confirm?.paymentMethod || null,
+                    discount: confirm?.discount || 0,
+                    surcharge: confirm?.surcharge || 0,
+                    total: total
+                }
+            });
+
+            const displayCode = generateDisplayId(createdOrder.id);
+            await tx.order.update({
+                where: { id: createdOrder.id },
+                data: { displayCode }
+            });
+
+            await tx.orderItem.createMany({
+                data: orderItems.map(item => ({
+                    quantity: item.quantity,
+                    foodId: item.foodId,
+                    orderId: createdOrder.id,
+                    notes: item.notes || null
+                }))
+            });
+
+            return await tx.order.findUnique({
+                where: { id: createdOrder.id },
+                include: {
+                    orderItems: true
+                }
+            });
+        })
+
+        if (confirm) {
+            EventService.broadcastEvents(
+                this.events,
+                {
+                    displayCode: newOrder?.displayCode,
+                    ticketNumber: newOrder?.ticketNumber,
+                    id: newOrder?.id
+                },
+                "confirmed-order"
+            )
         }
-        else {
-            newOrder = await this._createOrderLogic(order, tx);
-        }
+
+        // cashier only event
+        this.events[0].broadcastEvent(newOrder, "new-order")
         return newOrder;
     }
 
-    private async _createOrderLogic(order: Order, tx: Prisma.TransactionClient) {
-        const { orderItems } = order;
+    async confirmOrder(orderId: number, confirm: ConfirmedOrder) {
+        const confirmedOrder = await prisma.$transaction(async (tx) => {
+            const existingOrder = await tx.order.findUnique({
+                where: { id: orderId },
+                include: { orderItems: { include: { food: true } } }
+            });
 
-        const foodIds = orderItems.map(item => item.foodId);
+            if (!existingOrder) throw new Error("Order not found");
+            if (existingOrder.status !== 'PENDING') throw new Error("Order is already confirmed");
 
-        const foods = await tx.food.findMany({
-            where: { id: { in: foodIds } },
-            select: { id: true, price: true }
-        });
+            let subTotal = new Prisma.Decimal(0);
 
-        const foodPriceMap = new Map(foods.map(f => [f.id, f.price]));
-        const price = orderItems.reduce((total, item) => {
-            const foodPrice = foodPriceMap.get(item.foodId);
-            return total + (foodPrice ? Number(foodPrice) * item.quantity : 0);
-        }, 0);
+            if (confirm.orderItems && confirm.orderItems.length > 0) {
+                await tx.orderItem.deleteMany({ where: { orderId } });
 
-        const createdOrder = await tx.order.create({
-            data: {
-                table: order.table.toString(),
-                customer: order.customer,
-                subTotal: price.toFixed(2)
+                const foodIds = confirm.orderItems.map(item => item.foodId);
+                const foods = await tx.food.findMany({
+                    where: { id: { in: foodIds }, available: true },
+                    select: { id: true, price: true }
+                });
+
+                if (foods.length !== new Set(foodIds).size) {
+                    throw new Error("One or more products do not exist or are not available");
+                }
+
+                const foodMap = new Map(foods.map(f => [f.id, f.price]));
+
+                confirm.orderItems.forEach(item => {
+                    const price = foodMap.get(item.foodId)!; // Safe thanks to the check above
+                    // Use Decimal for precision
+                    subTotal = subTotal.add(price.mul(item.quantity));
+                });
+
+                await tx.orderItem.createMany({
+                    data: confirm.orderItems.map(item => ({
+                        orderId: orderId,
+                        foodId: item.foodId,
+                        quantity: item.quantity,
+                        notes: item.notes || null
+                    }))
+                });
+
+            } else {
+                existingOrder.orderItems.forEach(item => {
+                    subTotal = subTotal.add(item.food.price.mul(item.quantity));
+                });
             }
+
+            const discount = new Prisma.Decimal(confirm.discount || 0);
+            const surcharge = new Prisma.Decimal(confirm.surcharge || 0);
+
+            let total = subTotal.add(surcharge).sub(discount);
+            if (total.isNegative()) total = new Prisma.Decimal(0);
+
+            const ticketNumber = await this._getNextTicketNumber(tx);
+
+            const updatedOrder = await tx.order.update({
+                where: { id: orderId },
+                data: {
+                    status: 'CONFIRMED',
+                    confirmedAt: new Date(),
+                    ticketNumber: ticketNumber,
+                    paymentMethod: confirm.paymentMethod,
+                    discount: confirm.discount || 0,
+                    surcharge: confirm.surcharge || 0,
+                    subTotal: subTotal,
+                    total: total
+                },
+                include: { orderItems: true } // Return updated items
+            });
+
+            return updatedOrder;
         });
 
-        const displayCode = generateDisplayId(createdOrder.id);
-        await tx.order.update({
-            where: { id: createdOrder.id },
-            data: { displayCode }
-        });
+        EventService.broadcastEvents(
+            this.events,
+            {
+                displayCode: confirmedOrder.displayCode,
+                ticketNumber: confirmedOrder.ticketNumber,
+                id: confirmedOrder.id
+            },
+            "confirmed-order"
+        );
 
-        await tx.orderItem.createMany({
-            data: orderItems.map(item => ({
-                quantity: item.quantity,
-                foodId: item.foodId,
-                orderId: createdOrder.id,
-                notes: item.notes || null
-            }))
-        });
-
-        return await tx.order.findUnique({
-            where: { id: createdOrder.id },
-            include: {
-                orderItems: true
-            }
-        });
+        return confirmedOrder;
     }
+
 
     async deleteOrder(code: string) {
         await prisma.order.delete({

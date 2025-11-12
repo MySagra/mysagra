@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { checkUniqueRoleName, checkRoleExists } from "@/middlewares/checkRole";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
@@ -100,7 +99,6 @@ router.post(
     validateRequest({
         body: roleSchema
     }),
-    checkUniqueRoleName,
     roleController.createRole
 );
 
@@ -152,8 +150,6 @@ router.put(
         params: idParamSchema,
         body: roleSchema
     }),
-    checkRoleExists,
-    checkUniqueRoleName,
     roleController.updateRole
 );
 

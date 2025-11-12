@@ -4,7 +4,6 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 import { categorySchema, idParamSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { checkCategoryExists, checkUniqueCategoryName } from "@/middlewares/checkCategory";
 import { upload } from "@/middlewares/upload.middleware";
 
 //service and controller
@@ -126,7 +125,6 @@ router.patch(
     validateRequest({
         params: idParamSchema
     }),
-    checkCategoryExists,
     categoryController.patchCategoryAvailable
 )
 
@@ -158,7 +156,6 @@ router.post(
     validateRequest({
         body: categorySchema
     }),
-    checkUniqueCategoryName,
     categoryController.createCategory
 );
 
@@ -206,7 +203,6 @@ router.patch(
     validateRequest({
         params: idParamSchema
     }),
-    checkCategoryExists,
     upload(CategoryService.getImagePath(), "category").single('image'),
     categoryController.uploadImage
 );
@@ -251,8 +247,6 @@ router.put(
         params: idParamSchema,
         body: categorySchema
     }),
-    checkCategoryExists,
-    checkUniqueCategoryName,
     categoryController.updateCategory
 );
 

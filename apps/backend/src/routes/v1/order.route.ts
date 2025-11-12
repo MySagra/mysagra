@@ -5,9 +5,8 @@ import { validateRequest } from "@/middlewares/validateRequest";
 import { orderSchema, orderCodeParamSchema, pageParamSchema, searchValueParamSchema, orderQuerySchema, cuidParamSchema, confirmedOrderSchema, idParamSchema } from "@/schemas";
 import { OrderController } from "@/controllers/order.controller";
 import { OrderService } from "@/services/order.service";
-import { ConfirmedOrderService } from "@/services/confirmedOrder.service";
 
-const orderController = new OrderController(new OrderService(), new ConfirmedOrderService());
+const orderController = new OrderController(new OrderService());
 
 const router = Router();
 
@@ -278,14 +277,17 @@ const router = Router();
  *         table:
  *           type: string
  *           minLength: 1
+ *           description: Table number or identifier
  *           example: "5"
  *         customer:
  *           type: string
  *           minLength: 1
+ *           description: Customer name
  *           example: "Mario Rossi"
  *         orderItems:
  *           type: array
  *           minItems: 1
+ *           description: List of items in the order
  *           items:
  *             type: object
  *             required:
@@ -303,6 +305,33 @@ const router = Router();
  *                 type: string
  *                 description: Optional notes for this specific item (e.g., dietary restrictions, preferences)
  *                 example: "No onions, extra cheese"
+ *         confirm:
+ *           type: object
+ *           description: |
+ *             Optional confirmation data. If provided, the order will be created in CONFIRMED status.
+ *             If omitted, the order will be created in PENDING status.
+ *           required:
+ *             - paymentMethod
+ *           properties:
+ *             paymentMethod:
+ *               type: string
+ *               enum: [CASH, CARD]
+ *               description: Payment method used by the customer
+ *               example: "CASH"
+ *             discount:
+ *               type: number
+ *               format: float
+ *               minimum: 0
+ *               default: 0
+ *               description: Discount amount to subtract from subtotal
+ *               example: 2.50
+ *             surcharge:
+ *               type: number
+ *               format: float
+ *               minimum: 0
+ *               default: 0
+ *               description: Surcharge amount to add to subtotal (e.g., service fee)
+ *               example: 1.00
  */
 
 /**
@@ -472,10 +501,151 @@ router.get(
 
 /**
  * @openapi
+ * /v1/orders/{code}:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Get order details by display code
+ *     description: |
+ *       Retrieves complete order details by its display code, including all items grouped by category
+ *       with full food information and ingredients.
+ *       
+ *       **Response structure:**
+ *       - Order items are grouped by food category for better organization
+ *       - Each food item includes its full details (name, description, price, availability)
+ *       - Ingredients are provided as a flat array (not nested in foodIngredients)
+ *       - Only basic order information is included (no payment details for PENDING orders)
+ *       
+ *       **Use cases:**
+ *       - Display order details in the cashier interface
+ *       - Show order items grouped by category for kitchen preparation
+ *       - Retrieve order for confirmation or modification
+ *       
+ *       **Authentication:** Requires bearer token (admin or operator role).
+ *     tags:
+ *       - Orders
+ *     parameters:
+ *       - in: path
+ *         name: code
+ *         required: true
+ *         description: 3-character alphanumeric order display code
+ *         schema:
+ *           type: string
+ *           pattern: '^[A-Z0-9]{3}$'
+ *           minLength: 3
+ *           maxLength: 3
+ *           example: "A01"
+ *     responses:
+ *       200:
+ *         description: Order details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderDetailResponse'
+ *             example:
+ *               id: 42
+ *               displayCode: "A01"
+ *               table: "5"
+ *               customer: "Mario Rossi"
+ *               subTotal: "25.50"
+ *               createdAt: "2025-11-12T10:30:00.000Z"
+ *               categorizedItems:
+ *                 - category:
+ *                     id: 1
+ *                     name: "Pizza"
+ *                   items:
+ *                     - id: "clm1234567890"
+ *                       quantity: 2
+ *                       notes: "No onions, extra cheese"
+ *                       food:
+ *                         id: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *                         name: "Pizza Margherita"
+ *                         description: "Classic pizza with tomato and mozzarella"
+ *                         price: "8.50"
+ *                         ingredients:
+ *                           - id: "clm111"
+ *                             name: "Mozzarella"
+ *                           - id: "clm222"
+ *                             name: "Tomato Sauce"
+ *                 - category:
+ *                     id: 2
+ *                     name: "Drinks"
+ *                   items:
+ *                     - id: "clm9876543210"
+ *                       quantity: 1
+ *                       notes: null
+ *                       food:
+ *                         id: "clx9z8y7x6w5v4u3t2s1r0q9"
+ *                         name: "Coca Cola"
+ *                         description: "330ml can"
+ *                         price: "2.50"
+ *                         ingredients: []
+ *       400:
+ *         description: Invalid order code format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Order ID must contain only uppercase letters and numbers"
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Order not found"
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Forbidden - Insufficient permissions
+ */
+router.get(
+    "/:code",
+    authenticate(["admin", "operator"]),
+    validateRequest({
+        params: orderCodeParamSchema
+    }),
+    orderController.getOrderByCode
+)
+
+/**
+ * @openapi
  * /v1/orders:
  *   post:
- *     summary: Create a new order
- *     description: Creates a new order with items. Returns the created order without food details (lightweight response). Price is automatically calculated from food items. Use GET /{code} to retrieve full order details.
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Create a new order (with or without immediate confirmation)
+ *     description: |
+ *       Creates a new order with items. This endpoint supports two operational modes:
+ *       
+ *       **1. Create PENDING order (without confirmation data):**
+ *       - Creates an order in PENDING status
+ *       - The order is NOT locked and can be accessed by any client
+ *       - No ticket number is assigned yet
+ *       - No payment information is stored
+ *       - Useful for orders that need to be reviewed before payment
+ *       
+ *       **2. Create and CONFIRM order (with confirmation data):**
+ *       - Creates an order and immediately confirms it
+ *       - Status is set to CONFIRMED
+ *       - A daily progressive ticket number is assigned
+ *       - Payment information is stored
+ *       - Total is calculated: subtotal + surcharge - discount
+ *       - Broadcasts confirmation event to displays
+ *       
+ *       **Price calculation:**
+ *       - Subtotal is automatically calculated from food items: Σ(quantity × price)
+ *       - If confirm data is provided: Total = Subtotal + surcharge - discount
+ *       
+ *       **Note:** Returns lightweight response without food details. Use GET /{code} to retrieve full order details.
+ *       
+ *       **Authentication:** Requires bearer token (admin or operator role).
  *     tags:
  *       - Orders
  *     requestBody:
@@ -484,6 +654,36 @@ router.get(
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/OrderRequest'
+ *           examples:
+ *             withConfirmation:
+ *               summary: Create and confirm order (recommended)
+ *               description: Creates an order and immediately confirms it with payment information
+ *               value:
+ *                 table: "5"
+ *                 customer: "Mario Rossi"
+ *                 orderItems:
+ *                   - foodId: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *                     quantity: 2
+ *                     notes: "No onions, extra cheese"
+ *                   - foodId: "clx9z8y7x6w5v4u3t2s1r0q9"
+ *                     quantity: 1
+ *                     notes: "Well done"
+ *                 confirm:
+ *                   paymentMethod: "CASH"
+ *                   discount: 2.50
+ *                   surcharge: 1.00
+ *             withoutConfirmation:
+ *               summary: Create pending order (no authentication required)
+ *               description: Creates a PENDING order without payment info - accessible by all clients
+ *               value:
+ *                 table: "5"
+ *                 customer: "Mario Rossi"
+ *                 orderItems:
+ *                   - foodId: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *                     quantity: 2
+ *                     notes: "No onions, extra cheese"
+ *                   - foodId: "clx9z8y7x6w5v4u3t2s1r0q9"
+ *                     quantity: 1
  *     responses:
  *       201:
  *         description: Order created successfully (lightweight, no food details)
@@ -491,11 +691,61 @@ router.get(
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/OrderCreateResponse'
+ *             examples:
+ *               confirmed:
+ *                 summary: Confirmed order response
+ *                 value:
+ *                   id: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *                   displayCode: "A01"
+ *                   table: "5"
+ *                   customer: "Mario Rossi"
+ *                   subTotal: "25.50"
+ *                   total: "24.00"
+ *                   discount: 2.50
+ *                   surcharge: 1.00
+ *                   paymentMethod: "CASH"
+ *                   status: "CONFIRMED"
+ *                   ticketNumber: 42
+ *                   confirmedAt: "2025-11-12T10:30:00Z"
+ *                   createdAt: "2025-11-12T10:30:00Z"
+ *                   updatedAt: "2025-11-12T10:30:00Z"
+ *                   orderItems: true
+ *               pending:
+ *                 summary: Pending order response
+ *                 value:
+ *                   id: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *                   displayCode: "A01"
+ *                   table: "5"
+ *                   customer: "Mario Rossi"
+ *                   subTotal: "25.50"
+ *                   total: "25.50"
+ *                   discount: 0
+ *                   surcharge: 0
+ *                   paymentMethod: null
+ *                   status: "PENDING"
+ *                   ticketNumber: null
+ *                   confirmedAt: null
+ *                   createdAt: "2025-11-12T10:30:00Z"
+*                   updatedAt: "2025-11-12T10:30:00.000Z"
+ *                   orderItems: true
  *       400:
  *         description: Invalid request body or food items not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "One or more requested products do not exist or are invalid"
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Forbidden - Insufficient permissions
  */
 router.post(
     "/",
+    authenticate(["admin", "operator"]),
     validateRequest({
         body: orderSchema
     }),
@@ -508,32 +758,44 @@ router.post(
  *   post:
  *     tags:
  *       - Orders
- *     summary: Confirm an order
+ *     summary: Confirm a PENDING order
  *     description: |
- *       Confirms an existing order, assigns a daily progressive ticket number,
- *       recalculates the total and saves payment information.
+ *       Confirms an existing PENDING order by assigning a daily progressive ticket number,
+ *       calculating the final total with discounts/surcharges, and storing payment information.
+ *       
+ *       **Use cases:**
+ *       - Confirm an order that was previously created in PENDING status
+ *       - Optionally modify order items before confirmation
+ *       - Apply discounts or surcharges to the final total
  *       
  *       **Operational flow:**
- *       1. If orderItems are provided: deletes previous order items and recreates them with updated data
- *       2. If orderItems are not provided: uses existing order items without modification
- *       3. Generates a daily progressive ticket number
- *       4. Calculates the total (subtotal + surcharge - discount)
- *       5. Saves the confirmed order
+ *       1. Validates that the order exists and is in PENDING status
+ *       2. **Order Items Management:**
+ *          - If `orderItems` is provided: replaces all existing items with the new ones
+ *          - If `orderItems` is omitted: keeps existing items unchanged
+ *       3. Recalculates subtotal based on current/new items
+ *       4. Applies discount and surcharge to calculate final total
+ *       5. Assigns a daily progressive ticket number (resets daily at noon)
+ *       6. Updates order status to CONFIRMED
+ *       7. Broadcasts confirmation event to display systems
  *       
  *       **Total calculation:**
- *       - Subtotal = Σ(quantity × price)
+ *       - Subtotal = Σ(item.quantity × item.food.price)
  *       - Total = Subtotal + surcharge - discount
+ *       - If total becomes negative, it's set to 0
  *       
- *       **orderItems parameter:**
- *       - Optional: if not provided, existing order items will be used
- *       - If provided: previous items will be deleted and replaced with the new ones
+ *       **Important notes:**
+ *       - Only PENDING orders can be confirmed
+ *       - Ticket numbers are progressive and reset daily at 12:00 PM
+ *       - If orderItems are provided, they must reference available food items
+ *       - The confirmation cannot be undone
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: Order ID to confirm
+ *         description: Order ID to confirm (must be in PENDING status)
  *         schema:
  *           type: integer
  *           minimum: 1
@@ -546,39 +808,32 @@ router.post(
  *             type: object
  *             required:
  *               - paymentMethod
- *               - table
- *               - customer
  *             properties:
  *               paymentMethod:
  *                 type: string
  *                 enum: [CASH, CARD]
- *                 description: Payment method
+ *                 description: Payment method used by the customer
  *                 example: "CASH"
  *               discount:
  *                 type: number
  *                 format: float
  *                 minimum: 0
- *                 description: Applied discount (optional)
+ *                 default: 0
+ *                 description: Discount amount to subtract from subtotal
  *                 example: 5.00
  *               surcharge:
  *                 type: number
  *                 format: float
  *                 minimum: 0
- *                 description: Applied surcharge (optional)
+ *                 default: 0
+ *                 description: Surcharge amount to add to subtotal (e.g., service fee, delivery fee)
  *                 example: 2.00
- *               table:
- *                 type: string
- *                 minLength: 1
- *                 description: Table number or identifier
- *                 example: "5"
- *               customer:
- *                 type: string
- *                 minLength: 1
- *                 description: Customer name
- *                 example: "Mario Rossi"
  *               orderItems:
  *                 type: array
- *                 description: List of order items (optional - if not provided, existing items will be used)
+ *                 description: |
+ *                   Optional: List of order items to replace existing ones.
+ *                   If omitted, existing order items will be kept unchanged.
+ *                   If provided, all previous items will be deleted and replaced.
  *                 items:
  *                   type: object
  *                   required:
@@ -588,67 +843,77 @@ router.post(
  *                     foodId:
  *                       type: string
  *                       format: cuid
- *                       description: Food item ID
+ *                       description: Food item ID (must be available)
  *                       example: "clm1234567890"
  *                     quantity:
  *                       type: integer
  *                       minimum: 1
- *                       description: Ordered quantity
+ *                       description: Quantity to order
  *                       example: 2
  *                     notes:
  *                       type: string
- *                       description: Special notes for the order item (optional)
- *                       example: "No tomatoes"
+ *                       description: Special notes or preferences for this item
+ *                       example: "No tomatoes, extra cheese"
  *           examples:
- *             orderWithDiscount:
- *               summary: Order with discount
+ *             withNewItems:
+ *               summary: Confirm with modified items
+ *               description: Replaces existing items and confirms the order
  *               value:
  *                 paymentMethod: "CASH"
  *                 discount: 5.00
  *                 surcharge: 2.00
- *                 table: "5"
- *                 customer: "Mario Rossi"
  *                 orderItems:
  *                   - foodId: "clm1234567890"
  *                     quantity: 2
+ *                     notes: "Extra spicy"
  *                   - foodId: "clm9876543210"
  *                     quantity: 1
  *                     notes: "No onions"
- *             orderWithSurcharge:
- *               summary: Order with surcharge
+ *             withoutNewItems:
+ *               summary: Confirm with existing items
+ *               description: Keeps existing items and only adds payment info
  *               value:
  *                 paymentMethod: "CARD"
- *                 surcharge: 2.00
- *                 table: "12"
- *                 customer: "Laura Bianchi"
- *                 orderItems:
- *                   - foodId: "clm1234567890"
- *                     quantity: 3
+ *                 discount: 0
+ *                 surcharge: 1.50
+ *             withDiscountOnly:
+ *               summary: Confirm with discount only
+ *               value:
+ *                 paymentMethod: "CASH"
+ *                 discount: 10.00
  *     responses:
- *       201:
+ *       200:
  *         description: Order confirmed successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
+ *               description: Confirmed order with all details
  *               properties:
  *                 id:
- *                   type: string
- *                   description: Confirmed order ID
- *                   example: "clm9876543210"
- *                 orderId:
  *                   type: integer
- *                   description: Original order ID
+ *                   description: Order ID
  *                   example: 42
+ *                 displayCode:
+ *                   type: string
+ *                   description: 3-character alphanumeric order code
+ *                   example: "A01"
+ *                 table:
+ *                   type: string
+ *                   description: Table number
+ *                   example: "5"
+ *                 customer:
+ *                   type: string
+ *                   description: Customer name
+ *                   example: "Mario Rossi"
  *                 ticketNumber:
  *                   type: integer
- *                   nullable: true
- *                   description: Daily ticket number
+ *                   description: Daily progressive ticket number
  *                   example: 15
  *                 status:
  *                   type: string
- *                   enum: [CONFIRMED, COMPLETED, PICKED_UP]
- *                   description: Confirmed order status
+ *                   enum: [CONFIRMED]
+ *                   description: Order status (always CONFIRMED after this operation)
  *                   example: "CONFIRMED"
  *                 paymentMethod:
  *                   type: string
@@ -665,87 +930,73 @@ router.post(
  *                   format: decimal
  *                   description: Applied surcharge
  *                   example: 2.00
+ *                 subTotal:
+ *                   type: number
+ *                   format: decimal
+ *                   description: Subtotal before discount/surcharge
+ *                   example: 50.00
  *                 total:
  *                   type: number
  *                   format: decimal
- *                   description: Order total (subtotal + surcharge - discount)
+ *                   description: Final total (subtotal + surcharge - discount)
  *                   example: 47.00
  *                 confirmedAt:
  *                   type: string
  *                   format: date-time
- *                   description: Order confirmation date and time
- *                   example: "2025-11-05T14:30:00.000Z"
- *             example:
- *               id: "clm9876543210"
- *               orderId: 42
- *               ticketNumber: 15
- *               status: "CONFIRMED"
- *               paymentMethod: "CASH"
- *               discount: 5.00
- *               surcharge: 2.00
- *               total: 47.00
- *               confirmedAt: "2025-11-05T14:30:00.000Z"
- *       400:
- *         description: Invalid input data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
+ *                   description: Order confirmation timestamp
+ *                   example: "2025-11-12T14:30:00.000Z"
+ *                 createdAt:
  *                   type: string
- *                   example: "Validation error"
- *                 errors:
+ *                   format: date-time
+ *                   description: Order creation timestamp
+ *                   example: "2025-11-12T14:00:00.000Z"
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Last update timestamp
+ *                   example: "2025-11-12T14:30:00.000Z"
+ *                 orderItems:
  *                   type: array
+ *                   description: Order items (basic info without food details)
  *                   items:
  *                     type: object
- *                     properties:
- *                       field:
- *                         type: string
- *                       message:
- *                         type: string
  *             examples:
- *               invalidOrderId:
- *                 summary: Invalid order ID
+ *               confirmed:
+ *                 summary: Successfully confirmed order
  *                 value:
- *                   message: "Validation error"
- *                   errors:
- *                     - field: "id"
- *                       message: "Order ID must be a positive integer"
- *               missingPaymentMethod:
- *                 summary: Missing payment method
- *                 value:
- *                   message: "Validation error"
- *                   errors:
- *                     - field: "paymentMethod"
- *                       message: "Payment method is required"
- *               emptyOrderItems:
- *                 summary: No items in order
- *                 value:
- *                   message: "Validation error"
- *                   errors:
- *                     - field: "orderItems"
- *                       message: "Order must contain at least one item"
- *       401:
- *         description: Not authenticated
+ *                   id: 42
+ *                   displayCode: "A01"
+ *                   table: "5"
+ *                   customer: "Mario Rossi"
+ *                   ticketNumber: 15
+ *                   status: "CONFIRMED"
+ *                   paymentMethod: "CASH"
+ *                   discount: 5.00
+ *                   surcharge: 2.00
+ *                   subTotal: 50.00
+ *                   total: 47.00
+ *                   confirmedAt: "2025-11-12T14:30:00.000Z"
+ *                   createdAt: "2025-11-12T14:00:00.000Z"
+ *                   updatedAt: "2025-11-12T14:30:00.000Z"
+ *                   orderItems: []
+ *       400:
+ *         description: Invalid request or validation error
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 error:
  *                   type: string
- *                   example: "Unauthorized"
- *       403:
- *         description: Access denied - operators and administrators only
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Forbidden - Insufficient permissions"
+ *             examples:
+ *               invalidItems:
+ *                 summary: Invalid food items
+ *                 value:
+ *                   error: "One or more products do not exist or are not available"
+ *               alreadyConfirmed:
+ *                 summary: Order already confirmed
+ *                 value:
+ *                   error: "Order is already confirmed"
  *       404:
  *         description: Order not found
  *         content:
@@ -756,20 +1007,10 @@ router.post(
  *                 error:
  *                   type: string
  *                   example: "Order not found"
- *             example:
- *               error: "Order not found"
- *       409:
- *         description: Conflict - Order already confirmed
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Order already confirmed"
- *             example:
- *               error: "Order already confirmed"
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Forbidden - Insufficient permissions
  *       500:
  *         description: Internal server error
  *         content:
@@ -780,8 +1021,6 @@ router.post(
  *                 error:
  *                   type: string
  *                   example: "Server error"
- *             example:
- *               error: "Server error"
  */
 router.post(
     "/:id/confirm",

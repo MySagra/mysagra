@@ -6,7 +6,6 @@ import { authenticate } from "@/middlewares/authenticate";
 
 import { FoodController } from "@/controllers/food.controller";
 import { FoodService } from "@/services/food.service";
-import { checkFoodCategoryExists, checkFoodExists, checkUniqueFoodName } from "@/middlewares/checkFood";
 
 const foodService = new FoodService();
 const foodController = new FoodController(foodService);
@@ -299,8 +298,6 @@ router.post(
     validateRequest({
         body: foodSchema
     }),
-    checkFoodCategoryExists,
-    checkUniqueFoodName,
     foodController.createFood
 );
 
@@ -348,8 +345,6 @@ router.put(
         params: cuidParamSchema,
         body: foodSchema
     }),
-    checkFoodExists,
-    checkUniqueFoodName,
     foodController.updateFood
 );
 
@@ -388,7 +383,6 @@ router.patch(
     validateRequest({
         params: cuidParamSchema
     }),
-    checkFoodExists,
     foodController.patchFoodAvailable
 )
 
@@ -509,7 +503,6 @@ router.delete(
     validateRequest({
         params: cuidParamSchema
     }),
-    checkFoodExists,
     foodController.deleteFood
 );
 

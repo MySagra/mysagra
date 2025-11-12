@@ -20,6 +20,7 @@ import routes from "@/routes"
 
 import { requestId } from './middlewares/requestId';
 import { loggingMiddleware } from './middlewares/logging';
+import { extractUser } from './middlewares/extractUser';
 
 //app config
 const app = express();
@@ -47,6 +48,7 @@ app.use(helmet.contentSecurityPolicy({
 //global middlewares
 app.use(requestId);
 app.use(loggingMiddleware);
+app.use(extractUser());
 
 // Compression middleware (skip per SSE)
 app.use((req, res, next) => {

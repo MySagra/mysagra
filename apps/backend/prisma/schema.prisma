@@ -62,6 +62,7 @@ model FoodIngredient {
 }
 
 enum OrderStatus {
+  PENDING
   CONFIRMED
   COMPLETED
   PICKED_UP
@@ -76,14 +77,24 @@ model Order {
   id          Int     @id @default(autoincrement())
   displayCode String? @unique
 
+  // user data
   table    String
   customer String
 
-  createdAt DateTime? @default(now())
-  subTotal  Decimal
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
 
-  orderItems     OrderItem[]
-  confirmedOrder ConfirmedOrder?
+  ticketNumber Int?
+  status       OrderStatus @default(PENDING)
+
+
+  paymentMethod PaymentMethod?
+  subTotal      Decimal
+  discount      Decimal        @default(0)
+  surcharge     Decimal        @default(0)
+  total         Decimal
+
+  orderItems OrderItem[]
 
   @@map("orders")
 }
@@ -108,23 +119,6 @@ model DailyTicketCounter {
   id      String   @id @default(cuid())
   date    DateTime @unique @db.Date
   counter Int      @default(0)
-}
-
-model ConfirmedOrder {
-  id String @id @default(cuid())
-
-  ticketNumber  Int?
-  orderId       Int           @unique
-  status        OrderStatus   @default(CONFIRMED)
-  paymentMethod PaymentMethod
-  discount      Decimal       @default(0)
-  surcharge     Decimal       @default(0)
-  total         Decimal
-  confirmedAt   DateTime      @default(now())
-
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  @@map("confirmed_orders")
 }
 
 //users sections

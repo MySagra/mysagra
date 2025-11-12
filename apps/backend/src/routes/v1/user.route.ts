@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { checkUniqueUsername } from "@/middlewares/checkUser";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
@@ -120,7 +119,6 @@ router.post(
     validateRequest({
         body: userSchema
     }),
-    checkUniqueUsername,
     userController.createUser
 );
 
@@ -170,7 +168,6 @@ router.put(
         params: idParamSchema,
         body: userSchema
     }),
-    checkUniqueUsername,
     userController.updateUser
 )
 

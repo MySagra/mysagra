@@ -1,12 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { OrderService } from "@/services/order.service";
-import { ConfirmedOrder, OrderQuery, orderQuerySchema, orderSchema } from "@/schemas/order";
+import { ConfirmedOrder, OrderQuery, orderQuerySchema, Order } from "@/schemas/order";
 import { NumberIdParam } from "@/schemas";
-import { ConfirmedOrderService } from "@/services/confirmedOrder.service";
 
 export class OrderController {
-    constructor(private orderService: OrderService, private confirmedOrderService: ConfirmedOrderService) { }
+    constructor(private orderService: OrderService) { }
 
     getOrders = asyncHandler(async (req: Request<any, any, any, OrderQuery>, res: Response, next: NextFunction) => {
         const parsed = orderQuerySchema.safeParse(req.query)
@@ -25,8 +24,8 @@ export class OrderController {
         res.status(200).json(orders);
     });
 
-    getOrderById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const code = req.params.code;
+    getOrderByCode = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        const { code } = req.params;
         const order = await this.orderService.getOrderByCode(code);
 
         if (!order) {
@@ -36,20 +35,22 @@ export class OrderController {
         res.status(200).json(order);
     });
 
-    createOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const parsed = orderSchema.safeParse(req.body);
-        if (!parsed.success) {
-            return res.status(400).json({ message: "Invalid request", errors: parsed.error.errors });
+    createOrder = asyncHandler(async (req: Request<any, any, Order, any>, res: Response, next: NextFunction) => {
+        const { confirm } = req.body;
+
+        if((confirm && (req.user?.role === "guest" || !req.user?.role))){
+            res.status(401).json({ message: "Unauthorized" });
+            return;
         }
-        const orderData = parsed.data;
-        const newOrder = await this.orderService.createOrder(orderData);
+
+        const newOrder = await this.orderService.createOrder(req.body);
         res.status(201).json(newOrder);
     });
 
     confirmOrder = asyncHandler(async (req: Request<NumberIdParam, any, ConfirmedOrder, any>, res: Response, next: NextFunction) => {
         const { id } = req.params;
 
-        const confirmedOrder = await this.confirmedOrderService.confirmExistingOrder(id, req.body);
+        const confirmedOrder = await this.orderService.confirmOrder(id, req.body);
         res.status(201).json(confirmedOrder);
         return;
     });
