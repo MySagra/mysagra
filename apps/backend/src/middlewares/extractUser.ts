@@ -17,13 +17,15 @@ export function extractUser() {
 
         if (authHeader) {
             const token = authHeader.split(" ")[1];
-            let payload = tokenService.getPayload(token);
+            if (token) {
+                let payload = tokenService.getPayload(token);
 
-            if (!payload) {
-                res.status(401).json({ message: "Invalid or expired token" });
-                return;
+                if (!payload) {
+                    res.status(401).json({ message: "Invalid or expired token" });
+                    return;
+                }
+                user = payload;
             }
-            user = payload;
         }
 
         req.user = user
