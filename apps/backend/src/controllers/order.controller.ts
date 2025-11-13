@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { OrderService } from "@/services/order.service";
-import { ConfirmedOrder, OrderQuery, orderQuerySchema, Order } from "@/schemas/order";
+import { ConfirmedOrder, OrderQuery, orderQuerySchema, Order, OrderIdParam, PatchOrder } from "@/schemas/order";
 import { NumberIdParam } from "@/schemas";
 
 export class OrderController {
@@ -24,9 +24,9 @@ export class OrderController {
         res.status(200).json(orders);
     });
 
-    getOrderByCode = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const { code } = req.params;
-        const order = await this.orderService.getOrderByCode(code);
+    getOrderByCode = asyncHandler(async (req: Request<OrderIdParam>, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const order = await this.orderService.getOrderById(id);
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
@@ -55,9 +55,18 @@ export class OrderController {
         return;
     });
 
-    deleteOrder = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-        const code = req.params.code;
-        await this.orderService.deleteOrder(code);
+    patchOrder = asyncHandler(async (req: Request<NumberIdParam, any, PatchOrder, any>, res: Response, next: NextFunction) => {
+        const { status } = req.body;
+        const { id } = req.params;
+
+        const order = await this.orderService.updateStatus(id, status);
+        res.status(200).json(order);
+        return;
+    })
+
+    deleteOrder = asyncHandler(async (req: Request<OrderIdParam>, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        await this.orderService.deleteOrder(id);
 
         res.status(204).send();
     });

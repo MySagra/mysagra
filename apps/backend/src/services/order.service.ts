@@ -79,10 +79,10 @@ export class OrderService {
         }
     }
 
-    async getOrderByCode(code: string) {
+    async getOrderById(id: number) {
         const order = await prisma.order.findUnique({
             where: {
-                displayCode: code
+                id
             },
             select: {
                 id: true,
@@ -352,11 +352,22 @@ export class OrderService {
         return confirmedOrder;
     }
 
+    async updateStatus(id: number, status: Status){
+        return await prisma.order.update({
+            where: {
+                id
+            },
+            data: {
+                status
+            }
+        })
+    }
 
-    async deleteOrder(code: string) {
+
+    async deleteOrder(id: number) {
         await prisma.order.delete({
             where: {
-                displayCode: code
+                id
             }
         });
         return null;

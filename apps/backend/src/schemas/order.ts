@@ -46,13 +46,18 @@ export const orderQuerySchema = z.object({
     dateTo: z.coerce.date().optional()
 });
 
-export const patchStatusSchema = z.object({
+export const patchOrderSchema = z.object({
     status: statusSchema
+})
+
+export const orderIdParamSchema = z.object({
+    id: z.number().int().min(0)
 })
 
 export type ConfirmedOrder = z.infer<typeof confirmedOrderSchema>
 export type Order = z.infer<typeof orderSchema>
 export type OrderItem = z.infer<typeof orderItemSchema>
 export type Status = z.infer<typeof statusSchema>
-export type PatchStatus = z.infer<typeof patchStatusSchema>
+export type PatchOrder = z.infer<typeof patchOrderSchema>
 export type OrderQuery = z.infer<typeof orderQuerySchema>
+export type OrderIdParam = z.infer<typeof orderIdParamSchema>

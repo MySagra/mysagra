@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { orderSchema, orderCodeParamSchema, pageParamSchema, searchValueParamSchema, orderQuerySchema, cuidParamSchema, confirmedOrderSchema, idParamSchema } from "@/schemas";
+import { orderSchema, orderQuerySchema, confirmedOrderSchema, idParamSchema, orderIdParamSchema, patchOrderSchema } from "@/schemas";
 import { OrderController } from "@/controllers/order.controller";
 import { OrderService } from "@/services/order.service";
 
@@ -14,6 +14,136 @@ const router = Router();
  * @swagger
  * components:
  *   schemas:
+ *     Error:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *       required:
+ *         - error
+ *     OrderItemInput:
+ *       type: object
+ *       required:
+ *         - foodId
+ *         - quantity
+ *       properties:
+ *         foodId:
+ *           type: string
+ *           format: cuid
+ *           description: Food item ID
+ *           example: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *         quantity:
+ *           type: integer
+ *           minimum: 1
+ *           description: Quantity to order
+ *           example: 2
+ *         notes:
+ *           type: string
+ *           description: Optional notes for this specific item
+ *           example: "No onions, extra cheese"
+ *     ConfirmationData:
+ *       type: object
+ *       required:
+ *         - paymentMethod
+ *       properties:
+ *         paymentMethod:
+ *           type: string
+ *           enum: [CASH, CARD]
+ *           description: Payment method used by the customer
+ *           example: "CASH"
+ *         discount:
+ *           type: number
+ *           format: float
+ *           minimum: 0
+ *           default: 0
+ *           description: Discount amount to subtract from subtotal
+ *           example: 2.50
+ *         surcharge:
+ *           type: number
+ *           format: float
+ *           minimum: 0
+ *           default: 0
+ *           description: Surcharge amount to add to subtotal (e.g., service fee)
+ *           example: 1.00
+ *         orderItems:
+ *           type: array
+ *           description: Optional list of order items to replace existing ones
+ *           items:
+ *             $ref: '#/components/schemas/OrderItemInput'
+ *     OrderStatus:
+ *       type: string
+ *       enum: [PENDING, CONFIRMED, COMPLETED, PICKED_UP]
+ *       description: Order status in the lifecycle
+ *     OrderBase:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Order ID
+ *           example: 42
+ *         displayCode:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 3
+ *           description: 3-character alphanumeric order code
+ *           example: "A01"
+ *         table:
+ *           type: string
+ *           description: Table number or identifier
+ *           example: "5"
+ *         customer:
+ *           type: string
+ *           description: Customer name
+ *           example: "Mario Rossi"
+ *         status:
+ *           $ref: '#/components/schemas/OrderStatus'
+ *         subTotal:
+ *           type: number
+ *           format: decimal
+ *           description: Subtotal before discount/surcharge
+ *           example: 50.00
+ *         total:
+ *           type: number
+ *           format: decimal
+ *           description: Final total amount
+ *           example: 47.00
+ *         discount:
+ *           type: number
+ *           format: decimal
+ *           description: Applied discount
+ *           example: 5.00
+ *         surcharge:
+ *           type: number
+ *           format: decimal
+ *           description: Applied surcharge
+ *           example: 2.00
+ *         paymentMethod:
+ *           type: string
+ *           enum: [CASH, CARD]
+ *           nullable: true
+ *           description: Payment method (null for PENDING orders)
+ *           example: "CASH"
+ *         ticketNumber:
+ *           type: integer
+ *           nullable: true
+ *           description: Daily progressive ticket number (null for PENDING orders)
+ *           example: 15
+ *         confirmedAt:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: Order confirmation timestamp
+ *           example: "2025-11-12T14:30:00.000Z"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: Order creation timestamp
+ *           example: "2025-11-12T14:00:00.000Z"
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: Last update timestamp
+ *           example: "2025-11-12T14:30:00.000Z"
  *     Category:
  *       type: object
  *       properties:
@@ -289,49 +419,14 @@ const router = Router();
  *           minItems: 1
  *           description: List of items in the order
  *           items:
- *             type: object
- *             required:
- *               - foodId
- *               - quantity
- *             properties:
- *               foodId:
- *                 type: string
- *                 example: "clx1a2b3c4d5e6f7g8h9i0j1"
- *               quantity:
- *                 type: integer
- *                 minimum: 1
- *                 example: 2
- *               notes:
- *                 type: string
- *                 description: Optional notes for this specific item (e.g., dietary restrictions, preferences)
- *                 example: "No onions, extra cheese"
+ *             $ref: '#/components/schemas/OrderItemInput'
  *         confirm:
- *           type: object
- *           description: |
- *             Optional confirmation data. If provided, the order will be created in CONFIRMED status.
- *             If omitted, the order will be created in PENDING status.
- *           required:
- *             - paymentMethod
- *           properties:
- *             paymentMethod:
- *               type: string
- *               enum: [CASH, CARD]
- *               description: Payment method used by the customer
- *               example: "CASH"
- *             discount:
- *               type: number
- *               format: float
- *               minimum: 0
- *               default: 0
- *               description: Discount amount to subtract from subtotal
- *               example: 2.50
- *             surcharge:
- *               type: number
- *               format: float
- *               minimum: 0
- *               default: 0
- *               description: Surcharge amount to add to subtotal (e.g., service fee)
- *               example: 1.00
+ *           allOf:
+ *             - $ref: '#/components/schemas/ConfirmationData'
+ *             - type: object
+ *               description: |
+ *                 Optional confirmation data. If provided, the order will be created in CONFIRMED status.
+ *                 If omitted, the order will be created in PENDING status.
  */
 
 /**
@@ -501,20 +596,20 @@ router.get(
 
 /**
  * @openapi
- * /v1/orders/{code}:
+ * /v1/orders/{id}:
  *   get:
  *     security:
  *       - bearerAuth: []
- *     summary: Get order details by display code
+ *     summary: Get order details by ID
  *     description: |
- *       Retrieves complete order details by its display code, including all items grouped by category
+ *       Retrieves complete order details by its numeric ID, including all items grouped by category
  *       with full food information and ingredients.
  *       
  *       **Response structure:**
  *       - Order items are grouped by food category for better organization
  *       - Each food item includes its full details (name, description, price, availability)
  *       - Ingredients are provided as a flat array (not nested in foodIngredients)
- *       - Only basic order information is included (no payment details for PENDING orders)
+ *       - Includes all order information (payment details, status, ticket number if confirmed)
  *       
  *       **Use cases:**
  *       - Display order details in the cashier interface
@@ -526,15 +621,13 @@ router.get(
  *       - Orders
  *     parameters:
  *       - in: path
- *         name: code
+ *         name: id
  *         required: true
- *         description: 3-character alphanumeric order display code
+ *         description: Numeric order ID
  *         schema:
- *           type: string
- *           pattern: '^[A-Z0-9]{3}$'
- *           minLength: 3
- *           maxLength: 3
- *           example: "A01"
+ *           type: integer
+ *           minimum: 1
+ *           example: 42
  *     responses:
  *       200:
  *         description: Order details retrieved successfully
@@ -581,35 +674,31 @@ router.get(
  *                         price: "2.50"
  *                         ingredients: []
  *       400:
- *         description: Invalid order code format
+ *         description: Invalid order ID format
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Order ID must contain only uppercase letters and numbers"
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Order ID must be a positive integer"
  *       404:
  *         description: Order not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Order not found"
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Order not found"
  *       401:
  *         description: Unauthorized - Authentication required
  *       403:
  *         description: Forbidden - Insufficient permissions
  */
 router.get(
-    "/:code",
+    "/:id",
     authenticate(["admin", "operator"]),
     validateRequest({
-        params: orderCodeParamSchema
+        params: orderIdParamSchema
     }),
     orderController.getOrderByCode
 )
@@ -733,11 +822,9 @@ router.get(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "One or more requested products do not exist or are invalid"
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "One or more requested products do not exist or are invalid"
  *       401:
  *         description: Unauthorized - Authentication required
  *       403:
@@ -805,55 +892,13 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - paymentMethod
- *             properties:
- *               paymentMethod:
- *                 type: string
- *                 enum: [CASH, CARD]
- *                 description: Payment method used by the customer
- *                 example: "CASH"
- *               discount:
- *                 type: number
- *                 format: float
- *                 minimum: 0
- *                 default: 0
- *                 description: Discount amount to subtract from subtotal
- *                 example: 5.00
- *               surcharge:
- *                 type: number
- *                 format: float
- *                 minimum: 0
- *                 default: 0
- *                 description: Surcharge amount to add to subtotal (e.g., service fee, delivery fee)
- *                 example: 2.00
- *               orderItems:
- *                 type: array
+ *             allOf:
+ *               - $ref: '#/components/schemas/ConfirmationData'
+ *               - type: object
  *                 description: |
- *                   Optional: List of order items to replace existing ones.
- *                   If omitted, existing order items will be kept unchanged.
+ *                   Confirmation data with optional orderItems.
+ *                   If orderItems is omitted, existing items will be kept unchanged.
  *                   If provided, all previous items will be deleted and replaced.
- *                 items:
- *                   type: object
- *                   required:
- *                     - foodId
- *                     - quantity
- *                   properties:
- *                     foodId:
- *                       type: string
- *                       format: cuid
- *                       description: Food item ID (must be available)
- *                       example: "clm1234567890"
- *                     quantity:
- *                       type: integer
- *                       minimum: 1
- *                       description: Quantity to order
- *                       example: 2
- *                     notes:
- *                       type: string
- *                       description: Special notes or preferences for this item
- *                       example: "No tomatoes, extra cheese"
  *           examples:
  *             withNewItems:
  *               summary: Confirm with modified items
@@ -887,79 +932,15 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               description: Confirmed order with all details
- *               properties:
- *                 id:
- *                   type: integer
- *                   description: Order ID
- *                   example: 42
- *                 displayCode:
- *                   type: string
- *                   description: 3-character alphanumeric order code
- *                   example: "A01"
- *                 table:
- *                   type: string
- *                   description: Table number
- *                   example: "5"
- *                 customer:
- *                   type: string
- *                   description: Customer name
- *                   example: "Mario Rossi"
- *                 ticketNumber:
- *                   type: integer
- *                   description: Daily progressive ticket number
- *                   example: 15
- *                 status:
- *                   type: string
- *                   enum: [CONFIRMED]
- *                   description: Order status (always CONFIRMED after this operation)
- *                   example: "CONFIRMED"
- *                 paymentMethod:
- *                   type: string
- *                   enum: [CASH, CARD]
- *                   description: Payment method
- *                   example: "CASH"
- *                 discount:
- *                   type: number
- *                   format: decimal
- *                   description: Applied discount
- *                   example: 5.00
- *                 surcharge:
- *                   type: number
- *                   format: decimal
- *                   description: Applied surcharge
- *                   example: 2.00
- *                 subTotal:
- *                   type: number
- *                   format: decimal
- *                   description: Subtotal before discount/surcharge
- *                   example: 50.00
- *                 total:
- *                   type: number
- *                   format: decimal
- *                   description: Final total (subtotal + surcharge - discount)
- *                   example: 47.00
- *                 confirmedAt:
- *                   type: string
- *                   format: date-time
- *                   description: Order confirmation timestamp
- *                   example: "2025-11-12T14:30:00.000Z"
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *                   description: Order creation timestamp
- *                   example: "2025-11-12T14:00:00.000Z"
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
- *                   description: Last update timestamp
- *                   example: "2025-11-12T14:30:00.000Z"
- *                 orderItems:
- *                   type: array
- *                   description: Order items (basic info without food details)
- *                   items:
- *                     type: object
+ *               allOf:
+ *                 - $ref: '#/components/schemas/OrderBase'
+ *                 - type: object
+ *                   properties:
+ *                     orderItems:
+ *                       type: array
+ *                       description: Order items (basic info without food details)
+ *                       items:
+ *                         type: object
  *             examples:
  *               confirmed:
  *                 summary: Successfully confirmed order
@@ -977,17 +958,13 @@ router.post(
  *                   total: 47.00
  *                   confirmedAt: "2025-11-12T14:30:00.000Z"
  *                   createdAt: "2025-11-12T14:00:00.000Z"
- *                   updatedAt: "2025-11-12T14:30:00.000Z"
  *                   orderItems: []
  *       400:
  *         description: Invalid request or validation error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
+ *               $ref: '#/components/schemas/Error'
  *             examples:
  *               invalidItems:
  *                 summary: Invalid food items
@@ -1002,11 +979,9 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Order not found"
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Order not found"
  *       401:
  *         description: Unauthorized - Authentication required
  *       403:
@@ -1016,11 +991,9 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Server error"
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Server error"
  */
 router.post(
     "/:id/confirm",
@@ -1034,40 +1007,188 @@ router.post(
 
 /**
  * @openapi
- * /v1/orders/{code}:
- *   delete:
+ * /v1/orders/{id}:
+ *   patch:
  *     security:
  *       - bearerAuth: []
- *     summary: Delete an order
+ *     summary: Update order status
+ *     description: |
+ *       Updates the status of an existing order. This endpoint allows transitioning orders
+ *       through different states in the order lifecycle.
+ *       
+ *       **Status transitions:**
+ *       - PENDING → CONFIRMED (use /confirm endpoint instead)
+ *       - CONFIRMED → COMPLETED (order has been delivered/served)
+ *       - CONFIRMED → PICKED_UP (order has been picked up by customer)
+ *       - COMPLETED → PICKED_UP (mark completed order as picked up)
+ *       
+ *       **Use cases:**
+ *       - Mark order as completed when delivered to customer
+ *       - Mark order as picked up when customer collects it
+ *       - Update order workflow status in kitchen/cashier systems
+ *       
+ *       **Important notes:**
+ *       - To confirm a PENDING order, use POST /orders/{id}/confirm instead
+ *       - Status changes are permanent and cannot be undone
+ *       - Only CONFIRMED orders can be marked as COMPLETED or PICKED_UP
+ *       
+ *       **Authentication:** Requires bearer token (admin or operator role).
  *     tags:
  *       - Orders
  *     parameters:
  *       - in: path
- *         name: code
+ *         name: id
  *         required: true
- *         description: Code of the order to delete (3-character string)
+ *         description: Numeric order ID to update
  *         schema:
- *           type: string
- *           minLength: 3
- *           maxLength: 3
- *           example: "A01"
+ *           type: integer
+ *           minimum: 1
+ *         example: 42
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/OrderStatus'
+ *                   - description: New status for the order
+ *                     example: "COMPLETED"
+ *           examples:
+ *             markCompleted:
+ *               summary: Mark order as completed
+ *               description: Used when order has been delivered/served to customer
+ *               value:
+ *                 status: "COMPLETED"
+ *             markPickedUp:
+ *               summary: Mark order as picked up
+ *               description: Used when customer has collected the order
+ *               value:
+ *                 status: "PICKED_UP"
+ *     responses:
+ *       200:
+ *         description: Order status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrderBase'
+ *             example:
+ *               id: 42
+ *               displayCode: "A01"
+ *               table: "5"
+ *               customer: "Mario Rossi"
+ *               status: "COMPLETED"
+ *               ticketNumber: 15
+ *               total: 47.00
+ *               subTotal: 50.00
+ *               discount: 5.00
+ *               surcharge: 2.00
+ *               paymentMethod: "CASH"
+ *               confirmedAt: "2025-11-12T14:30:00.000Z"
+ *               createdAt: "2025-11-12T14:00:00.000Z"
+ *       400:
+ *         description: Invalid request or validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               invalidStatus:
+ *                 summary: Invalid status value
+ *                 value:
+ *                   error: "Invalid status. Must be one of: PENDING, CONFIRMED, COMPLETED, PICKED_UP"
+ *               invalidTransition:
+ *                 summary: Invalid status transition
+ *                 value:
+ *                   error: "Cannot transition from PENDING to COMPLETED. Confirm the order first."
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Order not found"
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Forbidden - Insufficient permissions
+ */
+router.patch(
+    "/:id",
+    authenticate(["admin", "operator"]),
+    validateRequest({
+        params: idParamSchema,
+        body: patchOrderSchema
+    }),
+    orderController.patchOrder
+)
+
+/**
+ * @openapi
+ * /v1/orders/{id}:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Delete an order
+ *     description: |
+ *       Permanently deletes an order and all its associated items from the system.
+ *       
+ *       **Use cases:**
+ *       - Remove cancelled orders
+ *       - Clean up test or erroneous orders
+ *       - Maintain database hygiene
+ *       
+ *       **Important notes:**
+ *       - This action is permanent and cannot be undone
+ *       - All order items will be deleted as well
+ *       - Consider the impact on reporting and analytics before deletion
+ *       
+ *       **Authentication:** Requires bearer token (admin or operator role).
+ *     tags:
+ *       - Orders
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric order ID to delete
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           example: 42
  *     responses:
  *       204:
- *         description: Order deleted successfully
+ *         description: Order deleted successfully (no content returned)
  *       400:
- *         description: Invalid order code parameter
+ *         description: Invalid order ID parameter
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Order ID must be a positive integer"
  *       401:
  *         description: Unauthorized - Authentication required
  *       403:
  *         description: Forbidden - Insufficient permissions
  *       404:
  *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Order not found"
  */
 router.delete(
-    "/:code",
+    "/:id",
     authenticate(["admin", "operator"]),
     validateRequest({
-        params: orderCodeParamSchema
+        params: idParamSchema
     }),
     orderController.deleteOrder
 );
