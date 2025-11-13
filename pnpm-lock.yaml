@@ -80,6 +80,9 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.0.2
+      sqids:
+        specifier: ^0.3.0
+        version: 0.3.0
       swagger-jsdoc:
         specifier: ^6.2.8
         version: 6.2.8(openapi-types@12.1.3)
@@ -3639,6 +3642,9 @@ packages:
   source-map@0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
+
+  sqids@0.3.0:
+    resolution: {integrity: sha512-lOQK1ucVg+W6n3FhRwwSeUijxe93b51Bfz5PMRMihVf1iVkl82ePQG7V5vwrhzB11v0NtsR25PSZRGiSomJaJw==}
 
   stable-hash@0.0.5:
     resolution: {integrity: sha512-+L3ccpzibovGXFK+Ap/f8LOS0ahMrHTf3xu7mMLSpEGU0EO9ucaysSylKo9eRDFNhWve/y275iPmIZ4z39a9iA==}
@@ -7637,6 +7643,8 @@ snapshots:
       source-map: 0.6.1
 
   source-map@0.6.1: {}
+
+  sqids@0.3.0: {}
 
   stable-hash@0.0.5: {}
 

@@ -20,6 +20,7 @@ import routes from "@/routes"
 
 import { requestId } from './middlewares/requestId';
 import { loggingMiddleware } from './middlewares/logging';
+import { extractUser } from './middlewares/extractUser';
 
 //app config
 const app = express();
@@ -37,17 +38,25 @@ app.use(cors(corsOptions));
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
-    defaultSrc: ["'self'", env.FRONTEND_URL || ""],
-    imgSrc: ["'self'", "data:", env.FRONTEND_URL || ""],
-    scriptSrc: ["'self'", env.FRONTEND_URL || ""],
-    styleSrc: ["'self'", env.FRONTEND_URL || "", "'unsafe-inline'"],
+    defaultSrc: ["'self'", ...env.FRONTEND_URL || ""],
+    imgSrc: ["'self'", "data:", ...env.FRONTEND_URL || ""],
+    scriptSrc: ["'self'", ...env.FRONTEND_URL || ""],
+    styleSrc: ["'self'", ...env.FRONTEND_URL || "", "'unsafe-inline'"],
   }
 }));
 
 //global middlewares
 app.use(requestId);
 app.use(loggingMiddleware);
-app.use(compression());
+app.use(extractUser());
+
+// Compression middleware (skip per SSE)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/events')) {
+    return next(); // Salta compression per SSE
+  }
+  compression()(req, res, next);
+});
 
 //static routes
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

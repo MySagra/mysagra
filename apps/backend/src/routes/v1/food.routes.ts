@@ -6,7 +6,6 @@ import { authenticate } from "@/middlewares/authenticate";
 
 import { FoodController } from "@/controllers/food.controller";
 import { FoodService } from "@/services/food.service";
-import { checkFoodCategoryExists, checkFoodExists, checkUniqueFoodName } from "@/middlewares/checkFood";
 
 const foodService = new FoodService();
 const foodController = new FoodController(foodService);
@@ -117,6 +116,18 @@ const router = Router();
  * /v1/foods:
  *   get:
  *     summary: Get all foods
+ *     description: |
+ *       Retrieves all foods from the database. Supports optional grouping by category and ingredient inclusion.
+ *       
+ *       **Query Parameters:**
+ *       - `include`: Include additional data (use 'ingredients' to include ingredient details)
+ *       - `group_by`: Group results (use 'category' to group foods by category)
+ *       
+ *       **Response formats:**
+ *       - Without `group_by`: Returns flat array of food items
+ *       - With `group_by=category`: Returns array of categories, each containing its foods
+ *       
+ *       **Note:** Parameter uses snake_case format (`group_by`, not `groupBy`)
  *     tags:
  *       - Foods
  *     parameters:
@@ -127,15 +138,47 @@ const router = Router();
  *         schema:
  *           type: string
  *           enum: [ingredients]
+ *         example: ingredients
+ *       - in: query
+ *         name: group_by
+ *         required: false
+ *         description: Group results by category (snake_case format)
+ *         schema:
+ *           type: string
+ *           enum: [category]
+ *         example: category
  *     responses:
  *       200:
- *         description: A list of foods
+ *         description: A list of foods or grouped by category
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/FoodResponse'
+ *               oneOf:
+ *                 - type: array
+ *                   description: Flat array when group-by is not specified
+ *                   items:
+ *                     $ref: '#/components/schemas/FoodResponse'
+ *                 - type: array
+ *                   description: Array of categories when group-by=category
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Pizzeria"
+ *                       available:
+ *                         type: boolean
+ *                         example: true
+ *                       position:
+ *                         type: integer
+ *                         example: 1
+ *                       foods:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/FoodResponse'
  */
 router.get(
     "/",
@@ -150,6 +193,18 @@ router.get(
  * /v1/foods/available:
  *   get:
  *     summary: Get all available foods
+ *     description: |
+ *       Retrieves only available foods from the database. Supports optional grouping by category and ingredient inclusion.
+ *       
+ *       **Query Parameters:**
+ *       - `include`: Include additional data (use 'ingredients' to include ingredient details)
+ *       - `group_by`: Group results (use 'category' to group foods by category)
+ *       
+ *       **Response formats:**
+ *       - Without `group_by`: Returns flat array of available food items
+ *       - With `group_by=category`: Returns array of categories, each containing its available foods
+ *       
+ *       **Note:** Parameter uses snake_case format (`group_by`, not `groupBy`)
  *     tags:
  *       - Foods
  *     parameters:
@@ -160,15 +215,47 @@ router.get(
  *         schema:
  *           type: string
  *           enum: [ingredients]
+ *         example: ingredients
+ *       - in: query
+ *         name: group_by
+ *         required: false
+ *         description: Group results by category (snake_case format)
+ *         schema:
+ *           type: string
+ *           enum: [category]
+ *         example: category
  *     responses:
  *       200:
- *         description: A list of available foods
+ *         description: A list of available foods or grouped by category
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/FoodResponse'
+ *               oneOf:
+ *                 - type: array
+ *                   description: Flat array when group-by is not specified
+ *                   items:
+ *                     $ref: '#/components/schemas/FoodResponse'
+ *                 - type: array
+ *                   description: Array of categories when group-by=category
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Pizzeria"
+ *                       available:
+ *                         type: boolean
+ *                         example: true
+ *                       position:
+ *                         type: integer
+ *                         example: 1
+ *                       foods:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/FoodResponse'
  */
 router.get(
     "/available/",
@@ -211,8 +298,6 @@ router.post(
     validateRequest({
         body: foodSchema
     }),
-    checkFoodCategoryExists,
-    checkUniqueFoodName,
     foodController.createFood
 );
 
@@ -260,8 +345,6 @@ router.put(
         params: cuidParamSchema,
         body: foodSchema
     }),
-    checkFoodExists,
-    checkUniqueFoodName,
     foodController.updateFood
 );
 
@@ -300,7 +383,6 @@ router.patch(
     validateRequest({
         params: cuidParamSchema
     }),
-    checkFoodExists,
     foodController.patchFoodAvailable
 )
 
@@ -421,7 +503,6 @@ router.delete(
     validateRequest({
         params: cuidParamSchema
     }),
-    checkFoodExists,
     foodController.deleteFood
 );
 

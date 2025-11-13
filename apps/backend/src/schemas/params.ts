@@ -1,9 +1,5 @@
 import z from "zod";
 
-export const orderIdParamSchema = z.object({
-    id: z.string().regex(/^[A-Z0-9]+$/, "Order ID must contain only uppercase letters and numbers")
-})
-
 export const idParamSchema = z.object({
     id: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().int().min(1))
 });
@@ -19,3 +15,6 @@ export const pageParamSchema = z.object({
 export const searchValueParamSchema = z.object({
     value: z.string().min(1)
 });
+
+export type CUIDParam = z.infer<typeof cuidParamSchema>
+export type NumberIdParam = z.infer<typeof idParamSchema>

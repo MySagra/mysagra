@@ -1,39 +1,24 @@
-import { Token } from '@/types/token';
 import { Request, Response, NextFunction } from 'express';
 import { TokenService } from '@/services/token.service';
-declare global {
-  namespace Express {
-    interface Request {
-      user?: string;
-    }
-  }
-}
+import { TokenPayload } from '@/schemas/auth';
+import { Role } from '@/schemas/auth';
 
 const tokenService = new TokenService();
 
-export function authenticate(roles: string[]) {
+export function authenticate(allowedRoles: Role[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ error: "Access token required" });
+    const user = req.user;
+    
+    if(!user){
+      res.status(401).json({ message: "Authentication required" });
       return;
     }
 
-    const token = authHeader.split(" ")[1];
-
-    let payload = tokenService.getPayload(token);
-    if (!payload) {
-      res.status(401).json({ error: "Invalid or expired token" });
+    if (!allowedRoles.includes(user.role)) {
+      res.status(403).json({ message: "Insufficient permissions" });
       return;
     }
 
-    if (!roles.includes(payload?.role?.name)) {
-      res.status(403).json({ error: "Insufficient permissions" });
-      return;
-    }
-
-    req.user = payload.sub;
     next();
   };
 }

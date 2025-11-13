@@ -23,11 +23,17 @@ export const foodSchema = z.object({
     )
 })
 
+const include = z.enum(['ingredients']).optional();
+const group_by = z.enum(['category']).optional();
+
 export const getFoodQuerySchema = z.object({
-    include: z.enum(['ingredients']).optional()
+    include,
+    group_by
 })
 
 export type FoodIngredient = z.infer<typeof foodIngredient>
 export type Food = z.infer<typeof foodSchema>
 export type GetFoodQuery = z.infer<typeof getFoodQuerySchema>;
 export type GetFoodParams = z.infer<typeof cuidParamSchema>;
+export type FoodGroupQuery = z.infer<typeof group_by>
+export type FoodIncludeQuery = z.infer<typeof include>

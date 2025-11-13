@@ -28,7 +28,7 @@ export const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 50,
     message: {
-        message: "Too many login attemps, try again later"
+        message: "try again later"
     },
     standardHeaders: true,
     legacyHeaders: false,

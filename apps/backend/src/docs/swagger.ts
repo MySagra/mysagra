@@ -21,11 +21,11 @@ const options: SwaggerOptions = {
             {
                 name: 'Users',
                 description: 'User management'
-            },
+            }/*,
             {
                 name: 'Roles',
                 description: 'Role management'
-            },
+            }*/,
             {
                 name: 'Categories',
                 description: 'Category management'
@@ -41,11 +41,13 @@ const options: SwaggerOptions = {
             {
                 name: 'Orders',
                 description: 'Order management'
-            },
+            }/*,
+            
             {
                 name: 'Stats',
                 description: 'Order stats'
             }
+                */
         ],
 
         components: {

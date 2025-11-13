@@ -20,6 +20,8 @@ services:
       context: .
       dockerfile: ./docker/images/mysagra-backend/Dockerfile
     env_file: .env
+    ports:
+      - "4300:4300"
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - DATABASE_URL=mysql://${DB_USER:-mysagra}:${DB_USER_PASSWORD:-mysagra}@db:3306/${MYSQL_DATABASE:-mysagra}

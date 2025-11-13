@@ -1,7 +1,8 @@
 import prisma from "@/utils/prisma";
 
 import { Prisma } from "@generated/prisma_client";
-import { FoodIngredient } from "@/schemas";
+import { FoodGroupQuery, FoodIncludeQuery, FoodIngredient } from "@/schemas";
+import { EventService } from "./event.service";
 
 const foodWithIngredientsInclude = {
     category: true,
@@ -17,6 +18,8 @@ type FoodWithIngredients = Prisma.FoodGetPayload<{
 }>;
 
 export class FoodService {
+    private event = EventService.getIstance('cashier')
+
     private static _formatFoodResponse(food: FoodWithIngredients) {
         const { foodIngredients, ...restOfFood } = food;
         const ingredients = foodIngredients.map(fi => fi.ingredient);
@@ -26,7 +29,34 @@ export class FoodService {
         };
     }
 
-    async getFoods(include?: string) {
+    async getFoods(include?: FoodIncludeQuery, groupBy?: FoodGroupQuery) {
+        if(groupBy === 'category'){
+            const categories = await prisma.category.findMany({
+                include: {
+                    foods: {
+                        include: {
+                            ...(include === 'ingredients' && {
+                                foodIngredients: {
+                                    include: {
+                                        ingredient: true
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
+            });
+
+            if (include === 'ingredients') {
+                return categories.map(category => ({
+                    ...category,
+                    foods: category.foods.map(food => FoodService._formatFoodResponse(food as FoodWithIngredients))
+                }));
+            }
+
+            return categories;
+        }
+
         const foods = await prisma.food.findMany({
             include: {
                 category: true,
@@ -40,16 +70,16 @@ export class FoodService {
             }
         });
 
-        if(!foods) return null;
+        if (!foods) return null;
 
-        if(include === 'ingredients'){
+        if (include === 'ingredients') {
             return foods.map(food => FoodService._formatFoodResponse(food as FoodWithIngredients));
         }
 
         return foods;
     }
 
-    async getFoodById(id: string, include?: string) {
+    async getFoodById(id: string, include?: FoodIncludeQuery) {
         const food = await prisma.food.findUnique({
             where: {
                 id
@@ -66,16 +96,46 @@ export class FoodService {
             }
         });
 
-        if(!food) return null;
+        if (!food) return null;
 
-        if(include === 'ingredients'){
+        if (include === 'ingredients') {
             return FoodService._formatFoodResponse(food as FoodWithIngredients);
         }
 
         return food;
     }
 
-    async getAvailableFoods(include?: string) {
+    async getAvailableFoods(include?: FoodIncludeQuery, groupBy?: FoodGroupQuery) {
+        if(groupBy === 'category'){
+            const categories = await prisma.category.findMany({
+                include: {
+                    foods: {
+                        where: {
+                            available: true
+                        },
+                        include: {
+                            ...(include === 'ingredients' && {
+                                foodIngredients: {
+                                    include: {
+                                        ingredient: true
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
+            });
+
+            if (include === 'ingredients') {
+                return categories.map(category => ({
+                    ...category,
+                    foods: category.foods.map(food => FoodService._formatFoodResponse(food as FoodWithIngredients))
+                }));
+            }
+
+            return categories;
+        }
+
         const foods = await prisma.food.findMany({
             where: {
                 available: true
@@ -92,14 +152,14 @@ export class FoodService {
             }
         });
 
-        if(include === 'ingredients'){
+        if (include === 'ingredients') {
             return foods.map(food => FoodService._formatFoodResponse(food as FoodWithIngredients));
         }
 
         return foods;
     }
 
-    async getFoodsByCategoryId(categoryId: number, include?: string) {
+    async getFoodsByCategoryId(categoryId: number, include?: FoodIncludeQuery) {
         const foods = await prisma.food.findMany({
             where: {
                 categoryId
@@ -116,14 +176,14 @@ export class FoodService {
             }
         });
 
-        if(include === 'ingredients'){
+        if (include === 'ingredients') {
             return foods.map(food => FoodService._formatFoodResponse(food as FoodWithIngredients));
         }
 
         return foods;
     }
 
-    async getAvailableFoodsByCategoryId(categoryId: number, include?: string) {
+    async getAvailableFoodsByCategoryId(categoryId: number, include?: FoodIncludeQuery) {
         const foods = await prisma.food.findMany({
             where: {
                 categoryId,
@@ -141,7 +201,7 @@ export class FoodService {
             }
         });
 
-        if(include === 'ingredients'){
+        if (include === 'ingredients') {
             return foods.map(food => FoodService._formatFoodResponse(food as FoodWithIngredients));
         }
 
@@ -174,7 +234,7 @@ export class FoodService {
             }
         });
 
-        if(ingredients && ingredients.length > 0){
+        if (ingredients && ingredients.length > 0) {
             return FoodService._formatFoodResponse(food);
         }
 
@@ -218,7 +278,7 @@ export class FoodService {
             }
         });
 
-        if(ingredients && ingredients.length > 0){
+        if (ingredients && ingredients.length > 0) {
             return FoodService._formatFoodResponse(food);
         }
 
@@ -229,7 +289,8 @@ export class FoodService {
         const food = await this.getFoodById(id);
         if (!food) return null;
 
-        return await prisma.food.update({
+        
+        const updatedFood = await prisma.food.update({
             where: {
                 id
             },
@@ -237,6 +298,16 @@ export class FoodService {
                 available: !food.available
             }
         })
+
+        this.event.broadcastEvent(
+            {   
+                id: updatedFood.id,
+                available: updatedFood.available
+            },
+            "food-availability-changed"
+        )
+
+        return updatedFood;
     }
 
     async deleteFood(id: string) {

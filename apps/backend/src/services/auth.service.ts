@@ -43,11 +43,11 @@ export class AuthService {
     async refresh(refreshToken: string) : Promise<string | null>{
         if(!await this.tokenService.isRefreshTokenValid(refreshToken)) return null;
         const payload = this.tokenService.getPayload(refreshToken);
-        if(!payload?.sub || isNaN(parseInt(payload.sub))) return null;
+        if(!payload?.sub || isNaN(payload.sub)) return null;
 
         const user = await prisma.user.findUnique({
             where: {
-                id: parseInt(payload.sub)
+                id: payload.sub
             },
             select: {
                 id: true,

@@ -47,12 +47,12 @@ RUN adduser --system --uid 1001 express
 COPY --from=installer --chown=express:nodejs /app/apps/backend/dist ./apps/backend/dist
 COPY --from=installer --chown=express:nodejs /app/apps/backend/package.json ./apps/backend/package.json
 COPY --from=installer --chown=express:nodejs /app/apps/backend/prisma ./apps/backend/prisma
+
+# Copy the 'generated' folder needed by the seed script
+COPY --from=installer --chown=express:nodejs /app/apps/backend/src/generated ./apps/backend/src/generated
 COPY --from=installer --chown=express:nodejs /app/apps/backend/node_modules ./apps/backend/node_modules
 COPY --from=installer --chown=express:nodejs /app/node_modules ./node_modules
 COPY --from=installer --chown=express:nodejs /app/package.json ./package.json
-
-# Copy generated Prisma Client
-COPY --from=installer --chown=express:nodejs /app/apps/backend/generated ./apps/backend/generated
 
 # Copy entrypoint script
 COPY --chown=express:nodejs docker/images/mysagra-backend/entrypoint.sh ./entrypoint.sh
