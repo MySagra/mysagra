@@ -24,6 +24,7 @@ import { extractUser } from './middlewares/extractUser';
 
 //app config
 const app = express();
+app.set('query parser', 'extended');
 
 //trust nginx
 if (env.NODE_ENV === "production") {

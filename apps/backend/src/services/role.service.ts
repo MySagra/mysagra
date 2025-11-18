@@ -5,7 +5,7 @@ export class RoleService {
         return await prisma.role.findMany();
     }
 
-    async getRoleById(id: number) {
+    async getRoleById(id: string) {
         return await prisma.role.findUnique({
             where: {
                 id
@@ -29,7 +29,7 @@ export class RoleService {
         })
     }
 
-    async updateRole(id: number, name: string) {
+    async updateRole(id: string, name: string) {
         return await prisma.role.update({
             where: {
                 id 
@@ -40,7 +40,7 @@ export class RoleService {
         })
     }
 
-    async deleteRole(id: number) {
+    async deleteRole(id: string) {
         return await prisma.role.delete({
             where: {
                 id  

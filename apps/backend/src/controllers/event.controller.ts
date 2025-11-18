@@ -1,10 +1,14 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { EventService } from "@/services/event.service";
 import { EventParams } from "@/schemas/event";
+import { TypedRequest } from "@/types/request";
 
 export class EventController {
-    handleSseConnection(req: Request<EventParams>, res: Response) {
-        const { channel } = req.params;
+    handleSseConnection(
+        req: TypedRequest<{params: EventParams}>, 
+        res: Response, 
+    ): void {
+        const { channel } = req.validated.params;
 
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');

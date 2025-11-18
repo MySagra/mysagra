@@ -6,6 +6,4 @@ export const categorySchema = z.object({
     position: z.number().int()
 })
 
-export const idCategorySchema = z.object({
-    id: z.number().int().positive()
-})
+export type Category = z.infer<typeof categorySchema>

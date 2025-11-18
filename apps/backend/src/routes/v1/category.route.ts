@@ -16,38 +16,35 @@ const router = Router();
 /**
  * @swagger
  * components:
-  *   schemas:
-  *     CategoryResponse:
-  *       type: object
-  *       properties:
-  *         id:
-  *           type: integer
-  *           format: int64
-  *           example: 1
-  *         name:
-  *           type: string
-  *           example: "Pizzeria"
-  *         available:
-  *           type: boolean
-  *           example: true
-  *         position:
-  *           type: integer
-  *           format: int64
-  *           example: 1
-  *     CategoryRequest:
-  *       type: object
-  *       properties:
-  *         name:
-  *           type: string
-  *           example: "Pizzeria"
-  *         available:
-  *           type: boolean
-  *           example: true
-  *         position:
-  *           type: integer
-  *           format: int64
-  *           example: 1
-  */
+ *   schemas:
+ *     CategoryResponse:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: "clxyz123456789abcdef"
+ *         name:
+ *           type: string
+ *           example: "Pizzeria"
+ *         available:
+ *           type: boolean
+ *           example: true
+ *         position:
+ *           type: integer
+ *           example: 1
+ *     CategoryRequest:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: "Pizzeria"
+ *         available:
+ *           type: boolean
+ *           example: true
+ *         position:
+ *           type: integer
+ *           example: 1
+ */
 
 /**
  * @openapi
@@ -110,9 +107,8 @@ router.get(
  *         required: true
  *         description: ID of the category to update
  *         schema:
- *           type: integer
- *           format: int64
- *         example: 1
+ *           type: string
+ *         example: "clxyz123456789abcdef"
  *     responses:
  *       200:
  *         description: Category availability updated successfully
@@ -265,9 +261,8 @@ router.put(
  *         required: true
  *         description: ID of the category to delete
  *         schema:
- *           type: integer
- *           format: int64
- *         example: 1
+ *           type: string
+ *         example: "clxyz123456789abcdef"
  *     responses:
  *       204:
  *         description: Category deleted successfully
@@ -296,8 +291,7 @@ router.delete(
  *         required: true
  *         description: ID of the category to retrieve
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
  *     responses:
  *       200:
  *         description: Category retrieved successfully

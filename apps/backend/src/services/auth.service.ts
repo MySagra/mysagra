@@ -1,8 +1,7 @@
 import { checkHashPassword } from "@/lib/hashPassword";
 import prisma from "@/utils/prisma";
-import { User } from "@generated/prisma_client";
+import { Role, User } from "@generated/prisma_client";
 import { TokenService } from "./token.service";
-
 
 export class AuthService {
     private tokenService = new TokenService();
@@ -20,7 +19,7 @@ export class AuthService {
         return user;
     }
 
-    async login(user: User & { role: { id: number; name: string } }, password: string, ip? : string, userAgent?: string) {
+    async login(user: User & { role: Role }, password: string, ip? : string, userAgent?: string) {
         if (!await checkHashPassword(password, user.password)) return null;
 
         const refreshToken = await this.tokenService.generateRefreshToken(user.id, ip, userAgent)
@@ -43,7 +42,7 @@ export class AuthService {
     async refresh(refreshToken: string) : Promise<string | null>{
         if(!await this.tokenService.isRefreshTokenValid(refreshToken)) return null;
         const payload = this.tokenService.getPayload(refreshToken);
-        if(!payload?.sub || isNaN(payload.sub)) return null;
+        if(!payload?.sub) return null;
 
         const user = await prisma.user.findUnique({
             where: {

@@ -1,5 +1,6 @@
 import prisma from "@/utils/prisma";
 import { deleteFile, getUploadsPath } from "@/utils/fileManager";
+import { Category } from "@/schemas";
 
 export class CategoryService {
     private static folderName = 'categories'
@@ -9,7 +10,7 @@ export class CategoryService {
         return await prisma.category.findMany();
     }
 
-    async getCategoryById(id: number) {
+    async getCategoryById(id: string) {
         return await prisma.category.findUnique({
             where: {
                 id
@@ -33,30 +34,22 @@ export class CategoryService {
         })
     }
 
-    async createCategory(name: string, available = true, position: number) {
+    async createCategory(category: Category) {
         return await prisma.category.create({
-            data: {
-                name,
-                available,
-                position
-            }
+            data: category
         })
     }
 
-    async updateCategory(id: number, name: string, available = true, position: number) {
+    async updateCategory(id: string, category: Category) {
         return await prisma.category.update({
             where: {
                 id
             },
-            data: {
-                name,
-                available,
-                position
-            }
+            data: category
         })
     }
 
-    async patchAvailableCategory(id: number) {
+    async patchAvailableCategory(id: string) {
         const category = await this.getCategoryById(id);
         if (!category) return null;
 
@@ -70,7 +63,7 @@ export class CategoryService {
         })
     }
 
-    async deleteCategory(id: number) {
+    async deleteCategory(id: string) {
         const category =  await prisma.category.delete({
             where: {
                 id
@@ -84,7 +77,7 @@ export class CategoryService {
         return null;
     }
 
-    async uploadImage(id: number, file: Express.Multer.File) {
+    async uploadImage(id: string, file: Express.Multer.File) {
         const category = await this.getCategoryById(id);
 
         if(category?.image && (category.image !== file.filename)){

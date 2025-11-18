@@ -1,5 +1,6 @@
 import prisma from "@/utils/prisma";
 import { createHashPassword } from "@/lib/hashPassword";
+import { User } from "@/schemas";
 
 export class UserService {
     async getUsers() {
@@ -12,7 +13,7 @@ export class UserService {
         });
     }
 
-    async getUserById(id: number) {
+    async getUserById(id: string) {
         return await prisma.user.findUnique({
             where: {
                 id
@@ -38,12 +39,11 @@ export class UserService {
         })
     }
 
-    async createUser(username: string, password: string, roleId: number) {
+    async createUser(user: User) {
         return await prisma.user.create({
             data: {
-                username,
-                password: await createHashPassword(password),
-                roleId
+                ...user,
+                password: await createHashPassword(user.password),
             },
             select: {
                 id: true,
@@ -53,15 +53,14 @@ export class UserService {
         })
     }
 
-    async updateUser(id: number, username: string, password: string, roleId: number) {
+    async updateUser(id: string, user: User) {
         return await prisma.user.update({
             where: {
                 id
             },
             data: {
-                username,
-                password: await createHashPassword(password),
-                roleId
+                ...user,
+                password: await createHashPassword(user.password),
             },
             select: {
                 id: true,
@@ -71,7 +70,7 @@ export class UserService {
         })
     }
 
-    async deleteUser(id: number) {
+    async deleteUser(id: string) {
         return await prisma.user.delete({
             where: {
                 id

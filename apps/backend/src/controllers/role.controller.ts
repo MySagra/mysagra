@@ -18,7 +18,7 @@ export class RoleController {
     });
 
     getRoleById = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const role = await this.roleService.getRoleById(id);
         if (!role) {
             res.status(404).json({ message: "Role not found" });
@@ -34,14 +34,14 @@ export class RoleController {
     });
 
     updateRole = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const { name } = req.body;
         const role = await this.roleService.updateRole(id, name)
         res.status(200).json(role);
     });
 
     deleteRole = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         await this.roleService.deleteRole(id);
         res.status(204).send();
     });

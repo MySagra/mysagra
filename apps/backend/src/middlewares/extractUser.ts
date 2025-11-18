@@ -9,7 +9,7 @@ export function extractUser() {
         const authHeader = req.headers.authorization;
 
         let user: TokenPayload = {
-            sub: 0,
+            sub: "0",
             username: "guest",
             role: "guest",
             iat: 0
@@ -19,7 +19,7 @@ export function extractUser() {
             const token = authHeader.split(" ")[1];
             if (token) {
                 let payload = tokenService.getPayload(token);
-
+                
                 if (!payload) {
                     res.status(401).json({ message: "Invalid or expired token" });
                     return;

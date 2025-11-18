@@ -12,7 +12,7 @@ export const refreshSchema = z.object({
 const roleSchema = z.enum(["guest","admin", "operator"])
 
 export const tokenPaylaodSchema = z.object({
-    sub: z.number(),
+    sub: z.string(),
     username: z.string(),
     role: roleSchema,
     iat: z.number()
@@ -20,3 +20,4 @@ export const tokenPaylaodSchema = z.object({
 
 export type TokenPayload = z.infer<typeof tokenPaylaodSchema>
 export type Role = z.infer<typeof roleSchema>
+export type Login = z.infer<typeof loginSchema>

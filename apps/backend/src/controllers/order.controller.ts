@@ -1,71 +1,83 @@
-import { NextFunction, Request, Response } from "express";
+import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { TypedRequest } from "@/types/request";
 import { OrderService } from "@/services/order.service";
-import { ConfirmedOrder, OrderQuery, orderQuerySchema, Order, OrderIdParam, PatchOrder } from "@/schemas/order";
+import { ConfirmedOrder, OrderQuery, Order, OrderIdParam, PatchOrder } from "@/schemas/order";
 import { NumberIdParam } from "@/schemas";
 
 export class OrderController {
     constructor(private orderService: OrderService) { }
 
-    getOrders = asyncHandler(async (req: Request<any, any, any, OrderQuery>, res: Response, next: NextFunction) => {
-        const parsed = orderQuerySchema.safeParse(req.query)
-        
-        if(parsed.error){
-            res.status(400).json({ message: "Bad request" });
-            return;
-        }
-
-        const orders = await this.orderService.getOrders(parsed.data);
+    getOrders = asyncHandler(async (
+        req: TypedRequest<{query: OrderQuery}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const orders = await this.orderService.getOrders(req.validated.query);
 
         if (!orders) {
-            return res.status(404).json({ message: "No orders found" });
+            res.status(404).json({ message: "No orders found" });
+            return;
         }
 
         res.status(200).json(orders);
     });
 
-    getOrderByCode = asyncHandler(async (req: Request<OrderIdParam>, res: Response, next: NextFunction) => {
-        const { id } = req.params;
+    getOrderByCode = asyncHandler(async (
+        req: TypedRequest<{params: OrderIdParam}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { id } = req.validated.params;
         const order = await this.orderService.getOrderById(id);
 
         if (!order) {
-            return res.status(404).json({ message: "Order not found" });
+            res.status(404).json({ message: "Order not found" });
+            return;
         }
 
         res.status(200).json(order);
     });
 
-    createOrder = asyncHandler(async (req: Request<any, any, Order, any>, res: Response, next: NextFunction) => {
-        const { confirm } = req.body;
+    createOrder = asyncHandler(async (
+        req: TypedRequest<{body: Order}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { confirm } = req.validated.body;
 
         if((confirm && (req.user?.role === "guest" || !req.user?.role))){
             res.status(401).json({ message: "Unauthorized" });
             return;
         }
 
-        const newOrder = await this.orderService.createOrder(req.body);
+        const newOrder = await this.orderService.createOrder(req.validated.body);
         res.status(201).json(newOrder);
     });
 
-    confirmOrder = asyncHandler(async (req: Request<NumberIdParam, any, ConfirmedOrder, any>, res: Response, next: NextFunction) => {
-        const { id } = req.params;
+    confirmOrder = asyncHandler(async (
+        req: TypedRequest<{params: NumberIdParam, body: ConfirmedOrder}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { id } = req.validated.params;
 
-        const confirmedOrder = await this.orderService.confirmOrder(id, req.body);
+        const confirmedOrder = await this.orderService.confirmOrder(id, req.validated.body);
         res.status(201).json(confirmedOrder);
-        return;
     });
 
-    patchOrder = asyncHandler(async (req: Request<NumberIdParam, any, PatchOrder, any>, res: Response, next: NextFunction) => {
-        const { status } = req.body;
-        const { id } = req.params;
+    patchOrder = asyncHandler(async (
+        req: TypedRequest<{params: NumberIdParam, body: PatchOrder}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { status } = req.validated.body;
+        const { id } = req.validated.params;
 
         const order = await this.orderService.updateStatus(id, status);
         res.status(200).json(order);
-        return;
-    })
+    });
 
-    deleteOrder = asyncHandler(async (req: Request<OrderIdParam>, res: Response, next: NextFunction) => {
-        const { id } = req.params;
+    deleteOrder = asyncHandler(async (
+        req: TypedRequest<{params: OrderIdParam}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { id } = req.validated.params;
         await this.orderService.deleteOrder(id);
 
         res.status(204).send();

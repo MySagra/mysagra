@@ -1,25 +1,31 @@
-import { Request, Response, NextFunction } from "express";
+import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { FoodService } from "@/services/food.service";
-import { GetFoodParams, GetFoodQuery } from "@/schemas";
-
-type GetFoodsRequest = Request<any, any, any, GetFoodQuery>
-type GetFoodsByIdRequest = Request<GetFoodParams, any, any, GetFoodQuery>
+import { CUIDParam, Food, GetFoodParams, GetFoodQuery, GetFoodsQuery, PatchFood } from "@/schemas";
+import { TypedRequest } from "@/types/request";
 
 export class FoodController {
-    constructor(private foodService: FoodService) {}
-    
-    getFoods = asyncHandler(async (req: GetFoodsRequest, res: Response, next: NextFunction): Promise<void> => {
-        const { include, group_by } = req.query;
-        const foods = await this.foodService.getFoods(include, group_by);
+    constructor(private foodService: FoodService) { }
+
+    getFoods = asyncHandler(async (
+        req: TypedRequest<{query: GetFoodsQuery}>, 
+        res: Response, 
+    ): Promise<void> => {
+        if(req.user?.role !== "admin" && req.validated.query.available !== true){
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        const foods = await this.foodService.getFoods(req.validated.query);
         res.status(200).json(foods);
     });
 
-    getFoodById = asyncHandler(async (req: GetFoodsByIdRequest, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        const { include } = req.query;
-        const food = await this.foodService.getFoodById(id, include)
+    getFoodById = asyncHandler(async (
+        req: TypedRequest<{params: CUIDParam, query: GetFoodQuery}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const food = await this.foodService.getFoodById(id, req.validated.query)
         if (!food) {
             res.status(404).json({ message: "Food not found" });
             return;
@@ -27,47 +33,37 @@ export class FoodController {
         res.status(200).json(food);
     });
 
-    getAvailableFoods = asyncHandler(async (req: GetFoodsRequest, res: Response, next: NextFunction): Promise<void> => {
-        const { include, group_by } = req.query;
-        const foods = await this.foodService.getAvailableFoods(include, group_by);
-        res.status(200).json(foods);
-    })
-
-    getFoodsByCategoryId = asyncHandler(async (req: GetFoodsByIdRequest, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        const { include } = req.query;
-        const foods = await this.foodService.getFoodsByCategoryId(parseInt(id), include);
-        res.status(200).json(foods);
-    })
-
-    getAvailableFoodsByCategoryId = asyncHandler(async (req: GetFoodsByIdRequest, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        const { include } = req.query;
-        const foods = await this.foodService.getAvailableFoodsByCategoryId(parseInt(id), include);
-        res.status(200).json(foods);
-    })
-
-    createFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { name, description, price, categoryId, available, ingredients } = req.body;
-        const food = await this.foodService.createFood(name, description, price, categoryId, available, ingredients);
+    createFood = asyncHandler(async (
+        req: TypedRequest<{body: Food}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const food = await this.foodService.createFood(req.validated.body);
         res.status(201).json(food);
     });
 
-    updateFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        const { name, description, price, categoryId, available, ingredients } = req.body;
-        const food = await this.foodService.updateFood(id, name, description, price, categoryId, available, ingredients);
+    updateFood = asyncHandler(async (
+        req: TypedRequest<{params: CUIDParam, body: Food}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const food = await this.foodService.updateFood(id, req.validated.body);
         res.status(200).json(food);
     });
 
-    patchFoodAvailable = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        const food = await this.foodService.patchAvailableFood(id);
+    patchFood = asyncHandler(async (
+        req: TypedRequest<{params: CUIDParam, body: PatchFood}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const food = await this.foodService.patchFood(id, req.validated.body);
         res.status(200).json(food);
     });
 
-    deleteFood = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
+    deleteFood = asyncHandler(async (
+        req: TypedRequest<{params: CUIDParam}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { id } = req.validated.params;
         await this.foodService.deleteFood(id);
         res.status(204).send();
     });

@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { foodSchema, getFoodQuerySchema, cuidParamSchema, idParamSchema } from "@/schemas";
+import { foodSchema, getFoodsQuerySchema, cuidParamSchema, idParamSchema, getFoodQuerySchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
@@ -51,9 +51,8 @@ const router = Router();
  *           format: float
  *           example: 9.99
  *         categoryId:
- *           type: integer
- *           format: int64
- *           example: 1
+ *           type: string
+ *           example: "clxyz123456789abcdef"
  *         available:
  *           type: boolean
  *           example: true
@@ -61,9 +60,8 @@ const router = Router();
  *           type: object
  *           properties:
  *             id:
- *               type: integer
- *               format: int64
- *               example: 1
+ *               type: string
+ *               example: "clxyz123456789abcdef"
  *             name:
  *               type: string
  *               example: "Pizzeria"
@@ -72,7 +70,6 @@ const router = Router();
  *               example: true
  *             position:
  *               type: integer
- *               format: int64
  *               example: 1
  *         ingredients:
  *           type: array
@@ -98,9 +95,8 @@ const router = Router();
  *           format: float
  *           example: 9.99
  *         categoryId:
- *           type: integer
- *           format: int64
- *           example: 1
+ *           type: string
+ *           example: "clxyz123456789abcdef"
  *         available:
  *           type: boolean
  *           example: true
@@ -115,19 +111,25 @@ const router = Router();
  * @openapi
  * /v1/foods:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get all foods
  *     description: |
- *       Retrieves all foods from the database. Supports optional grouping by category and ingredient inclusion.
+ *       Retrieves all foods from the database. Supports optional filtering, grouping by category and ingredient inclusion.
  *       
  *       **Query Parameters:**
  *       - `include`: Include additional data (use 'ingredients' to include ingredient details)
- *       - `group_by`: Group results (use 'category' to group foods by category)
+ *       - `groupBy`: Group results (use 'category' to group foods by category)
+ *       - `available`: Filter by availability status (true/false)
+ *       - `category`: Filter by category names (can be used multiple times)
  *       
  *       **Response formats:**
- *       - Without `group_by`: Returns flat array of food items
- *       - With `group_by=category`: Returns array of categories, each containing its foods
+ *       - Without `groupBy`: Returns flat array of food items
+ *       - With `groupBy=category`: Returns array of categories, each containing its foods
  *       
- *       **Note:** Parameter uses snake_case format (`group_by`, not `groupBy`)
+ *       **Authorization:**
+ *       - Non-admin users can only access foods with `available=true`
+ *       - Admin users can access all foods regardless of availability
  *     tags:
  *       - Foods
  *     parameters:
@@ -140,13 +142,31 @@ const router = Router();
  *           enum: [ingredients]
  *         example: ingredients
  *       - in: query
- *         name: group_by
+ *         name: groupBy
  *         required: false
- *         description: Group results by category (snake_case format)
+ *         description: Group results by category
  *         schema:
  *           type: string
  *           enum: [category]
  *         example: category
+ *       - in: query
+ *         name: available
+ *         required: false
+ *         description: Filter by availability status. Leave empty to show all (admin only).
+ *         schema:
+ *           type: boolean
+ *         example: true
+ *       - in: query
+ *         name: category
+ *         required: false
+ *         description: Filter by category names (can be used multiple times for multiple categories). Leave empty to show all categories.
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *         style: form
+ *         explode: true
+ *         example: Pizzeria
  *     responses:
  *       200:
  *         description: A list of foods or grouped by category
@@ -164,8 +184,8 @@ const router = Router();
  *                     type: object
  *                     properties:
  *                       id:
- *                         type: integer
- *                         example: 1
+ *                         type: string
+ *                         example: "clxyz123456789abcdef"
  *                       name:
  *                         type: string
  *                         example: "Pizzeria"
@@ -183,86 +203,9 @@ const router = Router();
 router.get(
     "/",
     validateRequest({
-        query: getFoodQuerySchema
+        query: getFoodsQuerySchema
     }),
     foodController.getFoods
-);
-
-/**
- * @openapi
- * /v1/foods/available:
- *   get:
- *     summary: Get all available foods
- *     description: |
- *       Retrieves only available foods from the database. Supports optional grouping by category and ingredient inclusion.
- *       
- *       **Query Parameters:**
- *       - `include`: Include additional data (use 'ingredients' to include ingredient details)
- *       - `group_by`: Group results (use 'category' to group foods by category)
- *       
- *       **Response formats:**
- *       - Without `group_by`: Returns flat array of available food items
- *       - With `group_by=category`: Returns array of categories, each containing its available foods
- *       
- *       **Note:** Parameter uses snake_case format (`group_by`, not `groupBy`)
- *     tags:
- *       - Foods
- *     parameters:
- *       - in: query
- *         name: include
- *         required: false
- *         description: Include additional data (use 'ingredients' to include ingredient details)
- *         schema:
- *           type: string
- *           enum: [ingredients]
- *         example: ingredients
- *       - in: query
- *         name: group_by
- *         required: false
- *         description: Group results by category (snake_case format)
- *         schema:
- *           type: string
- *           enum: [category]
- *         example: category
- *     responses:
- *       200:
- *         description: A list of available foods or grouped by category
- *         content:
- *           application/json:
- *             schema:
- *               oneOf:
- *                 - type: array
- *                   description: Flat array when group-by is not specified
- *                   items:
- *                     $ref: '#/components/schemas/FoodResponse'
- *                 - type: array
- *                   description: Array of categories when group-by=category
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                         example: 1
- *                       name:
- *                         type: string
- *                         example: "Pizzeria"
- *                       available:
- *                         type: boolean
- *                         example: true
- *                       position:
- *                         type: integer
- *                         example: 1
- *                       foods:
- *                         type: array
- *                         items:
- *                           $ref: '#/components/schemas/FoodResponse'
- */
-router.get(
-    "/available/",
-    validateRequest({
-        query: getFoodQuerySchema
-    }),
-    foodController.getAvailableFoods
 );
 
 /**
@@ -289,6 +232,8 @@ router.get(
  *               $ref: '#/components/schemas/FoodResponse'
  *       400:
  *         description: Invalid request body
+ *       401:
+ *         description: Unauthorized - Non-admin users can only access available foods
  *       409:
  *         description: Food name already exists
  */
@@ -350,7 +295,7 @@ router.put(
 
 /**
  * @openapi
- * /v1/foods/available/{id}:
+ * /v1/foods/{id}:
  *   patch:
  *     security:
  *       - bearerAuth: []
@@ -365,6 +310,17 @@ router.put(
  *         schema:
  *           type: string
  *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               available:
+ *                 type: boolean
+ *                 description: New availability status
+ *                 example: false
  *     responses:
  *       200:
  *         description: Food availability updated successfully
@@ -373,103 +329,21 @@ router.put(
  *             schema:
  *               $ref: '#/components/schemas/FoodResponse'
  *       400:
- *         description: Invalid ID parameter
+ *         description: Invalid ID parameter or request body
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Forbidden - Admin access required
  *       404:
  *         description: Food item not found
  */
 router.patch(
-    "/available/:id",
+    "/:id",
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema
     }),
-    foodController.patchFoodAvailable
-)
-
-/**
- * @openapi
- * /v1/foods/available/categories/{id}:
- *   get:
- *     summary: Get all available foods by category
- *     tags:
- *       - Foods
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the category
- *         schema:
- *           type: integer
- *           format: int64
- *       - in: query
- *         name: include
- *         required: false
- *         description: Include additional data (use 'ingredients' to include ingredient details)
- *         schema:
- *           type: string
- *           enum: [ingredients]
- *     responses:
- *       200:
- *         description: List of available foods in the specified category
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/FoodResponse'
- *       400:
- *         description: Invalid category ID parameter
- */
-router.get(
-    "/available/categories/:id",
-    validateRequest({
-        params: idParamSchema,
-        query: getFoodQuerySchema
-    }),
-    foodController.getAvailableFoodsByCategoryId
-);
-
-/**
- * @openapi
- * /v1/foods/categories/{id}:
- *   get:
- *     summary: Get all foods by category
- *     tags:
- *       - Foods
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the category
- *         schema:
- *           type: integer
- *           format: int64
- *       - in: query
- *         name: include
- *         required: false
- *         description: Include additional data (use 'ingredients' to include ingredient details)
- *         schema:
- *           type: string
- *           enum: [ingredients]
- *     responses:
- *       200:
- *         description: List of foods in the specified category
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/FoodResponse'
- *       400:
- *         description: Invalid category ID parameter
- */
-router.get(
-    "/categories/:id",
-    validateRequest({
-        params: idParamSchema,
-        query: getFoodQuerySchema
-    }),
-    foodController.getFoodsByCategoryId
+    foodController.patchFood
 )
 
 /**
@@ -510,6 +384,8 @@ router.delete(
  * @openapi
  * /v1/foods/{id}:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get a food item by ID
  *     tags:
  *       - Foods
