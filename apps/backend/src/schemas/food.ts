@@ -25,7 +25,6 @@ export const foodSchema = z.object({
 
 export const getFoodsQuerySchema = z.object({
     include: z.enum(['ingredients']).optional(),
-    groupBy: z.enum(['category']).optional(),
     available: z.enum(['true', 'false']).transform(val => val === 'true').optional(),
     category: z.array(z.string()).optional()
 })
@@ -36,6 +35,8 @@ export const getFoodQuerySchema = z.object({
 
 export const patchFoodSchema = z.object({
     available: z.boolean().optional()
+}).refine(data => Object.keys(data).length > 0, {
+    message: "At least one field must be provided"
 })
 
 export type FoodIngredient = z.infer<typeof foodIngredient>

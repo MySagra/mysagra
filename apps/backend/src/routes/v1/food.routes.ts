@@ -115,17 +115,12 @@ const router = Router();
  *       - bearerAuth: []
  *     summary: Get all foods
  *     description: |
- *       Retrieves all foods from the database. Supports optional filtering, grouping by category and ingredient inclusion.
+ *       Retrieves all foods from the database. Supports optional filtering and ingredient inclusion.
  *       
  *       **Query Parameters:**
  *       - `include`: Include additional data (use 'ingredients' to include ingredient details)
- *       - `groupBy`: Group results (use 'category' to group foods by category)
  *       - `available`: Filter by availability status (true/false)
  *       - `category`: Filter by category names (can be used multiple times)
- *       
- *       **Response formats:**
- *       - Without `groupBy`: Returns flat array of food items
- *       - With `groupBy=category`: Returns array of categories, each containing its foods
  *       
  *       **Authorization:**
  *       - Non-admin users can only access foods with `available=true`
@@ -141,14 +136,6 @@ const router = Router();
  *           type: string
  *           enum: [ingredients]
  *         example: ingredients
- *       - in: query
- *         name: groupBy
- *         required: false
- *         description: Group results by category
- *         schema:
- *           type: string
- *           enum: [category]
- *         example: category
  *       - in: query
  *         name: available
  *         required: false
@@ -169,39 +156,17 @@ const router = Router();
  *         example: Pizzeria
  *     responses:
  *       200:
- *         description: A list of foods or grouped by category
+ *         description: A list of foods
  *         content:
  *           application/json:
  *             schema:
- *               oneOf:
- *                 - type: array
- *                   description: Flat array when group-by is not specified
- *                   items:
- *                     $ref: '#/components/schemas/FoodResponse'
- *                 - type: array
- *                   description: Array of categories when group-by=category
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                         example: "clxyz123456789abcdef"
- *                       name:
- *                         type: string
- *                         example: "Pizzeria"
- *                       available:
- *                         type: boolean
- *                         example: true
- *                       position:
- *                         type: integer
- *                         example: 1
- *                       foods:
- *                         type: array
- *                         items:
- *                           $ref: '#/components/schemas/FoodResponse'
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/FoodResponse'
  */
 router.get(
     "/",
+    authenticate(["admin"]),
     validateRequest({
         query: getFoodsQuerySchema
     }),

@@ -12,10 +12,6 @@ export class FoodController {
         req: TypedRequest<{query: GetFoodsQuery}>, 
         res: Response, 
     ): Promise<void> => {
-        if(req.user?.role !== "admin" && req.validated.query.available !== true){
-            res.status(401).json({ message: "Unauthorized" });
-            return;
-        }
         const foods = await this.foodService.getFoods(req.validated.query);
         res.status(200).json(foods);
     });

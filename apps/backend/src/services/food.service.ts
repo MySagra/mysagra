@@ -20,7 +20,7 @@ type FoodWithIngredients = Prisma.FoodGetPayload<{
 export class FoodService {
     private event = EventService.getIstance('cashier')
 
-    private static _formatFoodResponse(food: FoodWithIngredients) {
+    public static formatFoodResponse(food: FoodWithIngredients) {
         const { foodIngredients, ...restOfFood } = food;
         const ingredients = foodIngredients.map(fi => fi.ingredient);
         return {
@@ -44,35 +44,6 @@ export class FoodService {
             }
         }
 
-
-        if (queryParams.groupBy === 'category') {
-            const categories = await prisma.category.findMany({
-                include: {
-                    foods: {
-                        where: whereClause,
-                        include: {
-                            ...(queryParams.include === 'ingredients' && {
-                                foodIngredients: {
-                                    include: {
-                                        ingredient: true
-                                    }
-                                }
-                            })
-                        }
-                    }
-                }
-            });
-
-            if (queryParams.include === 'ingredients') {
-                return categories.map(category => ({
-                    ...category,
-                    foods: category.foods.map(food => FoodService._formatFoodResponse(food as FoodWithIngredients))
-                }));
-            }
-
-            return categories;
-        }
-
         const foods = await prisma.food.findMany({
             where: whereClause,
             include: {
@@ -90,7 +61,7 @@ export class FoodService {
         if (!foods) return null;
 
         if (queryParams.include === 'ingredients') {
-            return foods.map(food => FoodService._formatFoodResponse(food as FoodWithIngredients));
+            return foods.map(food => FoodService.formatFoodResponse(food as FoodWithIngredients));
         }
 
         return foods;
@@ -117,7 +88,7 @@ export class FoodService {
         if (!food) return null;
 
         if (include === 'ingredients') {
-            return FoodService._formatFoodResponse(food as FoodWithIngredients);
+            return FoodService.formatFoodResponse(food as FoodWithIngredients);
         }
 
         return food;
@@ -150,7 +121,7 @@ export class FoodService {
         });
 
         if (food.ingredients && food.ingredients.length > 0) {
-            return FoodService._formatFoodResponse(newFood);
+            return FoodService.formatFoodResponse(newFood);
         }
 
         return newFood;
@@ -194,7 +165,7 @@ export class FoodService {
         });
 
         if (food.ingredients && food.ingredients.length > 0) {
-            return FoodService._formatFoodResponse(updatedFood);
+            return FoodService.formatFoodResponse(updatedFood);
         }
 
         return updatedFood;
