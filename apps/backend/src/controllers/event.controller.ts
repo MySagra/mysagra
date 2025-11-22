@@ -2,12 +2,13 @@ import { Response } from "express";
 import { EventService } from "@/services/event.service";
 import { EventParams } from "@/schemas/event";
 import { TypedRequest } from "@/types/request";
+import { asyncHandler } from "@/utils/asyncHandler";
 
 export class EventController {
-    handleSseConnection(
-        req: TypedRequest<{params: EventParams}>, 
-        res: Response, 
-    ): void {
+    handleSseConnection = asyncHandler(async (
+        req: TypedRequest<{ params: EventParams }>,
+        res: Response,
+    ): Promise<void> => {
         const { channel } = req.validated.params;
 
         res.setHeader('Content-Type', 'text/event-stream');
@@ -25,5 +26,5 @@ export class EventController {
             clearInterval(keepAliveInterval);
             event.removeClient(res);
         });
-    }
+    })
 }

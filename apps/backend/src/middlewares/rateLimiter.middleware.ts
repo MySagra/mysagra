@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { env } from "@/config/env";
 
 const hybridKeyGenerator = (req: Request, res: Response): string => {
-    if (req.user && req.user.sub !== 0) {
+    if (req.user && req.user.sub !== "0") {
         return `user-${req.user.sub}`;
     }
 

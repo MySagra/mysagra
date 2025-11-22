@@ -13,7 +13,7 @@ const envSchema = z.object({
     DATABASE_URL: z.string(),
     PEPPER: z.string(),
     JWT_SECRET: z.string(),
-    FRONTEND_URL: z.preprocess(
+    ALLOWED_ORIGINS: z.preprocess(
         (val) => typeof val === 'string' ? val.split(',').map(url => url.trim()) : [],
         z.array(z.string().url())
     )
@@ -32,5 +32,5 @@ export const env = {
     DATABASE_URL: data.DATABASE_URL,
     PEPPER: data.PEPPER,
     JWT_SECRET: data.JWT_SECRET,
-    FRONTEND_URL: data.FRONTEND_URL
+    ALLOWED_ORIGINS: data.ALLOWED_ORIGINS
 }

@@ -131,7 +131,7 @@ export class OrderService {
 
         if (!order) return null;
 
-        const categoryMap = new Map<number, { category: { id: number, name: string }, items: any[] }>();
+        const categoryMap = new Map<string, { category: { id: string, name: string }, items: any[] }>();
 
         for (const item of order.orderItems) {
             const category = item.food.category;
