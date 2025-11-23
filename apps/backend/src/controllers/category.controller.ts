@@ -1,24 +1,39 @@
-import { NextFunction, Request, Response } from "express";
+import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { CategoryService } from "@/services/category.service";
+import { Category, GetCategoriesQuery, GetCategoryQuery, PatchCategory } from "@/schemas";
+import { CUIDParam } from "@/schemas";
+import { TypedRequest } from "@/types/request";
 
 export class CategoryController {
     constructor(private categoryService: CategoryService) { }
 
-    getCategories = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const categories = await this.categoryService.getCategories();
+    getCategories = asyncHandler(async (
+        req: TypedRequest<{ query: GetCategoriesQuery }>,
+        res: Response,
+    ): Promise<void> => {
+        if (req.user?.role !== "admin" && req.validated.query.available !== true) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+
+        const categories = await this.categoryService.getCategories(req.validated.query);
 
         if (!Array.isArray(categories)) {
             res.status(404).json({ message: "Users not found" })
+            return;
         }
 
         res.status(200).json(categories);
     });
 
-    getCategoryById = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        const category = await this.categoryService.getCategoryById(parseInt(id))
+    getCategoryById = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam, query: GetCategoryQuery }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const category = await this.categoryService.getCategoryById(id, req.validated.query)
 
         if (!category) {
             res.status(404).json({ message: "Category not found" });
@@ -28,58 +43,54 @@ export class CategoryController {
         res.status(200).json(category);
     });
 
-    getAvailableCategories = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const categories = await this.categoryService.getAvailableCategories();
-        res.status(200).json(categories);
-    })
-
-    getCategoryByName = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { name } = req.params;
-        const category = await this.categoryService.getCategoryByName(name)
-
-        if (!category) {
-            res.status(404).json({ message: "Category not found" });
-            return;
-        }
-
-        res.status(200).json(category);
-    });
-
-    createCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { name, available, position } = req.body;
-        const category = await this.categoryService.createCategory(name, available, position);
+    createCategory = asyncHandler(async (
+        req: TypedRequest<{ body: Category }>,
+        res: Response,
+    ): Promise<void> => {
+        const category = await this.categoryService.createCategory(req.validated.body);
         res.status(201).json(category);
     });
 
-    updateCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        const { name, available, position } = req.body;
-        const category = await this.categoryService.updateCategory(parseInt(id), name, available, position);
+    updateCategory = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam, body: Category }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const category = await this.categoryService.updateCategory(id, req.validated.body);
         res.status(200).json(category);
     });
 
-    patchCategoryAvailable = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        const category = await this.categoryService.patchAvailableCategory(parseInt(id));
+    patchCategory = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam, body: PatchCategory }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const category = await this.categoryService.patchCategory(id, req.validated.body);
         res.status(200).json(category);
     })
 
-    uploadImage = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
+    uploadImage = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
         const file = req.file
-        
-        if(!file){
+
+        if (!file) {
             res.status(400).json({ message: "Failed to upload image" });
             return;
         }
 
-        const category = await this.categoryService.uploadImage(parseInt(id), file);
+        const category = await this.categoryService.uploadImage(id, file);
         res.status(200).json(category);
     });
 
-    deleteCategory = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { id } = req.params;
-        this.categoryService.deleteCategory(parseInt(id));
+    deleteCategory = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        this.categoryService.deleteCategory(id);
         res.status(204).send();
     })
 }

@@ -1017,20 +1017,17 @@ router.post(
  *       through different states in the order lifecycle.
  *       
  *       **Status transitions:**
- *       - PENDING → CONFIRMED (use /confirm endpoint instead)
- *       - CONFIRMED → COMPLETED (order has been delivered/served)
- *       - CONFIRMED → PICKED_UP (order has been picked up by customer)
- *       - COMPLETED → PICKED_UP (mark completed order as picked up)
+ *       - You can transition from any state to any other state directly.
+ *       - For example, you can go from PENDING to COMPLETED without passing through CONFIRMED.
  *       
  *       **Use cases:**
  *       - Mark order as completed when delivered to customer
  *       - Mark order as picked up when customer collects it
  *       - Update order workflow status in kitchen/cashier systems
+ *       - Manually correct order status if needed
  *       
  *       **Important notes:**
- *       - To confirm a PENDING order, use POST /orders/{id}/confirm instead
  *       - Status changes are permanent and cannot be undone
- *       - Only CONFIRMED orders can be marked as COMPLETED or PICKED_UP
  *       
  *       **Authentication:** Requires bearer token (admin or operator role).
  *     tags:
@@ -1101,10 +1098,6 @@ router.post(
  *                 summary: Invalid status value
  *                 value:
  *                   error: "Invalid status. Must be one of: PENDING, CONFIRMED, COMPLETED, PICKED_UP"
- *               invalidTransition:
- *                 summary: Invalid status transition
- *                 value:
- *                   error: "Cannot transition from PENDING to COMPLETED. Confirm the order first."
  *       404:
  *         description: Order not found
  *         content:

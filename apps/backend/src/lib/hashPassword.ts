@@ -9,6 +9,5 @@ export async function createHashPassword(password: string): Promise<string> {
 }
 
 export async function checkHashPassword(password: string, hash: string): Promise<boolean> {
-    console.log(env.PEPPER)
     return await bcrypt.compare(password + env.PEPPER, hash);
 }

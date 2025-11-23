@@ -19,9 +19,8 @@ const router = Router();
  *       type: object
  *       properties:
  *         id:
- *           type: integer
- *           format: int64
- *           example: 1
+ *           type: string
+ *           example: "clxyz123456789abcdef"
  *         username:
  *           type: string
  *           example: "john_doe"
@@ -29,9 +28,8 @@ const router = Router();
  *           type: object
  *           properties:
  *             id:
- *               type: integer
- *               format: int64
- *               example: 1
+ *               type: string
+ *               example: "clxyz123456789abcdef"
  *             name:
  *               type: string
  *               example: "admin"
@@ -47,10 +45,8 @@ const router = Router();
  *           minLength: 8
  *           example: "password123"
  *         roleId:
- *           type: integer
- *           format: int64
- *           minimum: 0
- *           example: 1
+ *           type: string
+ *           example: "clxyz123456789abcdef"
  */
 
 /**
@@ -137,8 +133,7 @@ router.post(
  *         required: true
  *         description: ID of the user to update
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -186,8 +181,7 @@ router.put(
  *         required: true
  *         description: ID of the user to delete
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
  *     responses:
  *       204:
  *         description: User deleted successfully
@@ -224,8 +218,7 @@ router.delete(
  *         required: true
  *         description: ID of the user to retrieve
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
  *     responses:
  *       200:
  *         description: User retrieved successfully

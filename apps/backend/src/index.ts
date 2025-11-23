@@ -24,6 +24,7 @@ import { extractUser } from './middlewares/extractUser';
 
 //app config
 const app = express();
+app.set('query parser', 'extended');
 
 //trust nginx
 if (env.NODE_ENV === "production") {
@@ -38,10 +39,10 @@ app.use(cors(corsOptions));
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
-    defaultSrc: ["'self'", ...env.FRONTEND_URL || ""],
-    imgSrc: ["'self'", "data:", ...env.FRONTEND_URL || ""],
-    scriptSrc: ["'self'", ...env.FRONTEND_URL || ""],
-    styleSrc: ["'self'", ...env.FRONTEND_URL || "", "'unsafe-inline'"],
+    defaultSrc: ["'self'", ...env.ALLOWED_ORIGINS || ""],
+    imgSrc: ["'self'", "data:", ...env.ALLOWED_ORIGINS || ""],
+    scriptSrc: ["'self'", ...env.ALLOWED_ORIGINS || ""],
+    styleSrc: ["'self'", ...env.ALLOWED_ORIGINS || "", "'unsafe-inline'"],
   }
 }));
 

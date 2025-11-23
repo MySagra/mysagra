@@ -2,7 +2,7 @@ import { Router } from "express";
 
 //middlewares
 import { authenticate } from "@/middlewares/authenticate";
-import { categorySchema, idParamSchema } from "@/schemas";
+import { categorySchema, cuidParamSchema, getCategoriesQuerySchema, idParamSchema, patchCategorySchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { upload } from "@/middlewares/upload.middleware";
 
@@ -16,46 +16,73 @@ const router = Router();
 /**
  * @swagger
  * components:
-  *   schemas:
-  *     CategoryResponse:
-  *       type: object
-  *       properties:
-  *         id:
-  *           type: integer
-  *           format: int64
-  *           example: 1
-  *         name:
-  *           type: string
-  *           example: "Pizzeria"
-  *         available:
-  *           type: boolean
-  *           example: true
-  *         position:
-  *           type: integer
-  *           format: int64
-  *           example: 1
-  *     CategoryRequest:
-  *       type: object
-  *       properties:
-  *         name:
-  *           type: string
-  *           example: "Pizzeria"
-  *         available:
-  *           type: boolean
-  *           example: true
-  *         position:
-  *           type: integer
-  *           format: int64
-  *           example: 1
-  */
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     CategoryResponse:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: "clxyz123456789abcdef"
+ *         name:
+ *           type: string
+ *           example: "Pizzeria"
+ *         available:
+ *           type: boolean
+ *           example: true
+ *         position:
+ *           type: integer
+ *           example: 1
+ *     CategoryRequest:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: "Pizzeria"
+ *         available:
+ *           type: boolean
+ *           example: true
+ *         position:
+ *           type: integer
+ *           example: 1
+ */
 
 /**
  * @openapi
  * /v1/categories:
  *   get:
  *     summary: Get all categories
+ *     description: |
+ *       Retrieves all categories from the database with optional filtering and food inclusion.
+ *       
+ *       **Authentication:**
+ *       - If `available=true` is specified: Public endpoint, no authentication required
+ *       - If `available=false` or not specified: Requires admin authentication
+ *       
+ *       **Query Parameters:**
+ *       - `available`: Filter by availability status
+ *       - `include`: Include related resources (use 'foods' to include foods with their ingredients)
  *     tags:
  *       - Categories
+ *     security:
+ *       - bearerAuth: []
+ *       - {}
+ *     parameters:
+ *       - in: query
+ *         name: available
+ *         schema:
+ *           type: boolean
+ *         description: Filter categories by availability
+ *       - in: query
+ *         name: include
+ *         schema:
+ *           type: string
+ *           enum: [foods]
+ *         description: Include related resources (e.g. foods)
  *     responses:
  *       200:
  *         description: List of categories
@@ -68,65 +95,50 @@ const router = Router();
  */
 router.get(
     "/",
+    validateRequest({
+        query: getCategoriesQuerySchema
+    }),
     categoryController.getCategories
 );
 
 /**
  * @openapi
- * /v1/categories/available:
+ * /v1/categories/{id}:
  *   get:
- *     summary: Get all available categories
- *     tags:
- *       - Categories
- *     responses:
- *       200:
- *         description: List of available categories
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/CategoryResponse'
- * 
- */
-
-router.get(
-    "/available",
-    categoryController.getAvailableCategories
-)
-
-/**
- * @openapi
- * /v1/categories/available/{id}:
- *   patch:
  *     security:
  *       - bearerAuth: []
- *     summary: Update availability status of a category
+ *     summary: Get a category by ID
  *     tags:
  *       - Categories
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID of the category to update
+ *         description: ID of the category to retrieve
  *         schema:
- *           type: integer
- *           format: int64
- *         example: 1
+ *           type: string
+ *         example: "clxyz123456789abcdef"
+ *       - in: query
+ *         name: include
+ *         schema:
+ *           type: string
+ *           enum: [foods]
+ *         description: Include related resources (e.g. foods)
  *     responses:
  *       200:
- *         description: Category availability updated successfully
+ *         description: Category retrieved successfully
  *       404:
  *         description: Category not found
  */
-router.patch(
-    "/available/:id",
+router.get(
+    "/:id",
     authenticate(["admin"]),
     validateRequest({
-        params: idParamSchema
+        params: cuidParamSchema,
+        query: getCategoriesQuerySchema
     }),
-    categoryController.patchCategoryAvailable
-)
+    categoryController.getCategoryById
+);
 
 /**
  * @openapi
@@ -161,6 +173,96 @@ router.post(
 
 /**
  * @openapi
+ * /v1/categories/{id}:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Update a category
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the category to update
+ *         schema:
+ *           type: string
+ *         example: "clxyz123456789abcdef"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CategoryRequest'
+ *     responses:
+ *       200:
+ *         description: Category updated successfully
+ *       400:
+ *         description: Invalid request body
+ *       404:
+ *         description: Category not found
+ *       409:
+ *         description: Category conflict
+ */
+router.put(
+    "/:id",
+    authenticate(["admin"]),
+    validateRequest({
+        params: cuidParamSchema,
+        body: categorySchema
+    }),
+    categoryController.updateCategory
+);
+
+/**
+ * @openapi
+ * /v1/categories/{id}:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Update availability status of a category
+ *     description: Update the availability of a category. Note that changing the availability of a category will also update the availability of all associated foods.
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the category to update
+ *         schema:
+ *           type: string
+ *         example: "clxyz123456789abcdef"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               available:
+ *                 type: boolean
+ *                 description: The new availability status of the category
+ *             example:
+ *               available: true
+ *     responses:
+ *       200:
+ *         description: Category availability updated successfully
+ *       404:
+ *         description: Category not found
+ */
+router.patch(
+    "/:id",
+    authenticate(["admin"]),
+    validateRequest({
+        params: cuidParamSchema,
+        body: patchCategorySchema
+    }),
+    categoryController.patchCategory
+)
+
+
+/**
+ * @openapi
  * /v1/categories/{id}/image:
  *   patch:
  *     security:
@@ -174,8 +276,8 @@ router.post(
  *         required: true
  *         description: ID of the category to update
  *         schema:
- *           type: integer
- *           format: int64
+ *           type: string
+ *         example: "clxyz123456789abcdef"
  *     requestBody:
  *       required: true
  *       content:
@@ -201,53 +303,10 @@ router.patch(
     "/:id/image",
     authenticate(["admin"]),
     validateRequest({
-        params: idParamSchema
+        params: cuidParamSchema
     }),
     upload(CategoryService.getImagePath(), "category").single('image'),
     categoryController.uploadImage
-);
-
-/**
- * @openapi
- * /v1/categories/{id}:
- *   put:
- *     security:
- *       - bearerAuth: []
- *     summary: Update a category
- *     tags:
- *       - Categories
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the category to update
- *         schema:
- *           type: integer
- *           format: int64
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CategoryRequest'
- *     responses:
- *       200:
- *         description: Category updated successfully
- *       400:
- *         description: Invalid request body
- *       404:
- *         description: Category not found
- *       409:
- *         description: Category conflict
- */
-router.put(
-    "/:id",
-    authenticate(["admin"]),
-    validateRequest({
-        params: idParamSchema,
-        body: categorySchema
-    }),
-    categoryController.updateCategory
 );
 
 /**
@@ -265,9 +324,8 @@ router.put(
  *         required: true
  *         description: ID of the category to delete
  *         schema:
- *           type: integer
- *           format: int64
- *         example: 1
+ *           type: string
+ *         example: "clxyz123456789abcdef"
  *     responses:
  *       204:
  *         description: Category deleted successfully
@@ -278,64 +336,9 @@ router.delete(
     "/:id",
     authenticate(["admin"]),
     validateRequest({
-        params: idParamSchema
+        params: cuidParamSchema
     }),
     categoryController.deleteCategory
-);
-
-/**
- * @openapi
- * /v1/categories/{id}:
- *   get:
- *     summary: Get a category by ID
- *     tags:
- *       - Categories
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the category to retrieve
- *         schema:
- *           type: integer
- *           format: int64
- *     responses:
- *       200:
- *         description: Category retrieved successfully
- *       404:
- *         description: Category not found
- */
-router.get(
-    "/:id",
-    validateRequest({
-        params: idParamSchema
-    }),
-    categoryController.getCategoryById
-);
-
-/**
- * @openapi
- * /v1/categories/name/{name}:
- *   get:
- *     summary: Get a category by name
- *     tags:
- *       - Categories
- *     parameters:
- *       - in: path
- *         name: name
- *         required: true
- *         description: Name of the category to retrieve
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Category retrieved successfully
- *       404:
- *         description: Category not found
-*/
-
-router.get(
-    "/name/:name",
-    categoryController.getCategoryByName
 );
 
 export default router;

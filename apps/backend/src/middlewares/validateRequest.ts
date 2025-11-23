@@ -7,19 +7,20 @@ export const validateRequest = (schemas: {
     params?: ZodTypeAny,
     query?: ZodTypeAny,
     body?: ZodTypeAny
-}) => (req: Request, res: Response, next: NextFunction) => {
+}) => async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!req.validated) req.validated = {};
+
         if (schemas.params) {
-            req.params = schemas.params.parse(req.params);
+            req.validated.params = await schemas.params.parse(req.params);
         }
 
         if (schemas.query) {
-            const parsedQuery = schemas.query.parse(req.query);
-            Object.assign(req.query, parsedQuery);
+            req.validated.query = await schemas.query.parse(req.query);
         }
 
         if (schemas.body) {
-            req.body = schemas.body.parse(req.body);
+            req.validated.body = await schemas.body.parse(req.body);
         }
         next();
     } catch (error) {

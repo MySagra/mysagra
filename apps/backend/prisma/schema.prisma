@@ -15,7 +15,7 @@ datasource db {
 }
 
 model Category {
-  id        Int     @id @default(autoincrement())
+  id        String  @id @default(cuid())
   name      String  @unique
   available Boolean @default(true)
   position  Int     @default(0)
@@ -27,7 +27,7 @@ model Category {
 
 model Ingredient {
   id   String @id @default(cuid())
-  name String
+  name String @unique
 
   foodIngredients FoodIngredient[]
 
@@ -42,7 +42,7 @@ model Food {
   available   Boolean @default(true)
 
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  categoryId Int
+  categoryId String
 
   orderItems      OrderItem[]
   foodIngredients FoodIngredient[]
@@ -87,7 +87,6 @@ model Order {
   ticketNumber Int?
   status       OrderStatus @default(PENDING)
 
-
   paymentMethod PaymentMethod?
   subTotal      Decimal
   discount      Decimal        @default(0)
@@ -123,7 +122,7 @@ model DailyTicketCounter {
 
 //users sections
 model Role {
-  id   Int    @id @default(autoincrement())
+  id   String @id @default(cuid())
   name String @unique
 
   users User[]
@@ -132,12 +131,12 @@ model Role {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(cuid())
   username String @unique
   password String
 
   role          Role           @relation(fields: [roleId], references: [id])
-  roleId        Int
+  roleId        String
   refreshTokens RefreshToken[]
 
   @@map("users")
@@ -146,7 +145,7 @@ model User {
 model RefreshToken {
   id        String    @id @default(uuid())
   token     String    @unique @db.VarChar(500)
-  userId    Int
+  userId    String
   createdAt DateTime  @default(now())
   expiresAt DateTime
   revokedAt DateTime?

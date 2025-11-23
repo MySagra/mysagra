@@ -18,21 +18,24 @@ export default async function hashPwd(password: string): Promise<string> {
 
 async function main() {
     const rolesCount = await prisma.role.count();
-
     if (!rolesCount) {
         await prisma.role.createMany({
             data: [
                 {
-                    id: 1,
                     name: "admin"
                 },
                 {
-                    id: 2,
                     name: "operator"
                 }
             ]
         });
     }
+
+    const adminRole = await prisma.role.findUnique({
+        where: {
+            name: 'admin'
+        }
+    })
 
     const userCount = await prisma.user.count();
 
@@ -42,7 +45,7 @@ async function main() {
             data: {
                 username: "admin",
                 password: hashedPassword,
-                roleId: 1
+                roleId: adminRole?.id!
             }
         });
 

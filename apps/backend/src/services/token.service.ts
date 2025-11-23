@@ -8,7 +8,7 @@ import { tokenPaylaodSchema } from "@/schemas/auth";
 export class TokenService {
     private secret = env.JWT_SECRET;
 
-    async generateRefreshToken(userId: number, ip?: string, userAgent?: string) {
+    async generateRefreshToken(userId: string, ip?: string, userAgent?: string) {
         const token = jwt.sign(
             { sub: userId, jti: randomUUID()},
             this.secret,

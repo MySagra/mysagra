@@ -27,7 +27,7 @@ services:
       - DATABASE_URL=mysql://${DB_USER:-mysagra}:${DB_USER_PASSWORD:-mysagra}@db:3306/${MYSQL_DATABASE:-mysagra}
       - JWT_SECRET=${JWT_SECRET}
       - PEPPER=${PEPPER}
-      - FRONTEND_URL=${FRONTEND_URL}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - MIGRATE_ON_START=true
     depends_on:
       db:

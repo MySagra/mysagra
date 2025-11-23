@@ -1,40 +1,45 @@
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
-import { Request } from "express";
+import { Request, Response } from "express";
 import { env } from "@/config/env";
+
+const hybridKeyGenerator = (req: Request, res: Response): string => {
+    if (req.user && req.user.sub !== "0") {
+        return `user-${req.user.sub}`;
+    }
+
+    const rawIp = req.ip || req.socket.remoteAddress || "0.0.0.0";
+    return ipKeyGenerator(rawIp)
+};
 
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 50,
-    message: {
-        message: "Too many login attemps, try again later"
-    },
+    limit: 20,
+    message: { message: "Too many login attempts, please try again later." },
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => {
-        const ip = req.ip ||
-            req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() ||
-            req.headers['x-real-ip']?.toString() ||
-            req.socket.remoteAddress ||
-            'unknown';
-        return ipKeyGenerator(ip);
-    },
     skipSuccessfulRequests: true, // count only failed attempts
-    skip: () => {
-        return env.NODE_ENV !== 'production'
-    }
+    skip: () => env.NODE_ENV !== 'production'
 });
 
 export const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 50,
-    message: {
-        message: "try again later"
-    },
     standardHeaders: true,
     legacyHeaders: false,
+    limit: (req: Request, res: Response) => {
+        if (req.user?.role === 'admin' || req.user?.role === 'operator') {
+            return 1000; // High limit for working staff
+        }
+        return 100; // Lower limit for guests/public
+    },
+    keyGenerator: hybridKeyGenerator,
+    handler: (req, res, next, options) => {
+        res.status(options.statusCode).json({
+            message: options.message.message || "Too many requests"
+        });
+    },
     skip: (req) => {
-        return Boolean(
-            env.NODE_ENV !== 'production' || req.path.startsWith('/health') // skip health request
-        );
+        if (env.NODE_ENV !== 'production') return true;
+        if (req.path.startsWith('/health') || req.path.startsWith('/metrics')) return true;
+        return false;
     }
 })
