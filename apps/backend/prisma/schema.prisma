@@ -15,7 +15,7 @@ datasource db {
 }
 
 model Category {
-  id        String     @id @default(cuid())
+  id        String  @id @default(cuid())
   name      String  @unique
   available Boolean @default(true)
   position  Int     @default(0)
@@ -27,7 +27,7 @@ model Category {
 
 model Ingredient {
   id   String @id @default(cuid())
-  name String
+  name String @unique
 
   foodIngredients FoodIngredient[]
 
@@ -87,7 +87,6 @@ model Order {
   ticketNumber Int?
   status       OrderStatus @default(PENDING)
 
-
   paymentMethod PaymentMethod?
   subTotal      Decimal
   discount      Decimal        @default(0)
@@ -123,7 +122,7 @@ model DailyTicketCounter {
 
 //users sections
 model Role {
-  id   String    @id @default(cuid())
+  id   String @id @default(cuid())
   name String @unique
 
   users User[]
@@ -132,7 +131,7 @@ model Role {
 }
 
 model User {
-  id       String    @id @default(cuid())
+  id       String @id @default(cuid())
   username String @unique
   password String
 
