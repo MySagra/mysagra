@@ -22,7 +22,7 @@ export class OrderController {
         res.status(200).json(orders);
     });
 
-    getOrderByCode = asyncHandler(async (
+    getOrderById = asyncHandler(async (
         req: TypedRequest<{params: OrderIdParam}>, 
         res: Response, 
     ): Promise<void> => {

@@ -261,7 +261,10 @@ export class OrderService {
         }
 
         // cashier only event
-        this.events[0].broadcastEvent(newOrder, "new-order")
+        if(!confirm){
+            this.events[0].broadcastEvent(newOrder, "new-order")
+        }
+        
         return newOrder;
     }
 
