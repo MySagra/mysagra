@@ -51,6 +51,10 @@ export class OrderService {
             }
         }
 
+        if(queryParams.displayCode){
+            where.displayCode = queryParams.displayCode
+        }
+
         const query = await prisma.$transaction(async (tx) => {
             const count = await tx.order.count({
                 where: where

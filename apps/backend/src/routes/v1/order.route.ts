@@ -442,8 +442,7 @@ const router = Router();
  *       
  *       **Filtering options:**
  *       - Search by customer name, table or order code
- *       - Filter by confirmation status (confirmed/unconfirmed)
- *       - Filter by order status (CONFIRMED, COMPLETED, PICKED_UP)
+ *       - Filter by order status (PENDING, CONFIRMED, COMPLETED, PICKED_UP)
  *       - Filter by date range
  *       
  *       **Important notes:**
@@ -461,12 +460,12 @@ const router = Router();
  *           type: string
  *           example: "Mario"
  *       - in: query
- *         name: confirmed
+ *         name: displayCode
  *         required: false
- *         description: Filter by confirmation status (true = confirmed orders, false = unconfirmed orders)
+ *         description: Filter by orderCode
  *         schema:
- *           type: boolean
- *           example: true
+ *           type: string
+ *           example: "A01"
  *       - in: query
  *         name: page
  *         required: false
