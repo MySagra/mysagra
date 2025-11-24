@@ -503,7 +503,7 @@ const router = Router();
  *           type: array
  *           items:
  *             type: string
- *             enum: [CONFIRMED, COMPLETED, PICKED_UP]
+ *             enum: [PENDING, CONFIRMED, COMPLETED, PICKED_UP]
  *         style: form
  *         explode: true
  *         example: 
@@ -700,7 +700,7 @@ router.get(
     validateRequest({
         params: orderIdParamSchema
     }),
-    orderController.getOrderByCode
+    orderController.getOrderById
 )
 
 /**
@@ -732,7 +732,7 @@ router.get(
  *       - Subtotal is automatically calculated from food items: Σ(quantity × price)
  *       - If confirm data is provided: Total = Subtotal + surcharge - discount
  *       
- *       **Note:** Returns lightweight response without food details. Use GET /{code} to retrieve full order details.
+ *       **Note:** Returns lightweight response without food details. Use GET /{id} to retrieve full order details.
  *       
  *       **Authentication:** Requires bearer token (admin or operator role).
  *     tags:

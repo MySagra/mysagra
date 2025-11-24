@@ -51,7 +51,7 @@ export const patchOrderSchema = z.object({
 })
 
 export const orderIdParamSchema = z.object({
-    id: z.number().int().min(0)
+    id: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().int().min(1))
 })
 
 export type ConfirmedOrder = z.infer<typeof confirmedOrderSchema>
