@@ -42,6 +42,10 @@ const router = Router();
  *         user:
  *           type: object
  *           properties:
+ *             id:
+ *               type: string
+ *               description: User's unique identifier
+ *               example: "clxyz123456789abcdef"
  *             username:
  *               type: string
  *               description: User's username

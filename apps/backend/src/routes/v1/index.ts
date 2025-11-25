@@ -6,6 +6,8 @@ import orderRoutes from "./order.route";
 //import statsRoutes from "./stats.route";
 import userRoutes from "./user.route";
 import ingredientRoutes from "./ingredient.route"
+import cashRegisterRoutes from "./cash-register.route"
+import printerRoutes from "./printer.route"
 
 const router = Router();
 
@@ -17,5 +19,7 @@ router.use("/orders", orderRoutes);
 //router.use("/roles", roleRoutes);
 //router.use("/stats", statsRoutes);
 router.use("/users", userRoutes);
+router.use("/cash-registers", cashRegisterRoutes);
+router.use("/printers", printerRoutes);
 
 export default router;

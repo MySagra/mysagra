@@ -28,7 +28,8 @@
   "devDependencies": {
     "@types/node": "^22.18.1",
     "cross-env": "^7.0.3",
-    "prisma": "^6.9.0",
+    "dotenv": "^16.6.1",
+    "prisma": "^6.15.0",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
@@ -51,7 +52,6 @@
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
@@ -67,6 +67,6 @@
     "zod": "^3.25.76"
   },
   "prisma": {
-    "seed": "tsx -r tsconfig-paths/register prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   }
 }

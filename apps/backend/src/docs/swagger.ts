@@ -41,6 +41,14 @@ const options: SwaggerOptions = {
             {
                 name: 'Orders',
                 description: 'Order management'
+            },
+            {
+                name: 'Printers',
+                description: 'Printer management'
+            },
+            {
+                name: 'CashRegisters',
+                description: 'Cash Register management'
             }/*,
             
             {

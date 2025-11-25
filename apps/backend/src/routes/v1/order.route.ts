@@ -46,6 +46,15 @@ const router = Router();
  *       required:
  *         - paymentMethod
  *       properties:
+ *         userId: 
+ *           type: string
+ *           format: cuid
+ *           description: User ID who confirmed the order
+ *           example: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *         cashRegisterId:
+ *           type: string
+ *           format: cuid
+ *           description: Cash register ID where the order was confirmed
  *         paymentMethod:
  *           type: string
  *           enum: [CASH, CARD]
@@ -760,6 +769,8 @@ router.get(
  *                   paymentMethod: "CASH"
  *                   discount: 2.50
  *                   surcharge: 1.00
+ *                   userId: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *                   cashRegisterId: "clx9z8y7x6w5v4u3t2s1r0q9"
  *             withoutConfirmation:
  *               summary: Create pending order (no authentication required)
  *               description: Creates a PENDING order without payment info - accessible by all clients
@@ -903,6 +914,8 @@ router.post(
  *               summary: Confirm with modified items
  *               description: Replaces existing items and confirms the order
  *               value:
+ *                 userId: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *                 cashRegisterId: "clx9z8y7x6w5v4u3t2s1r0q9"
  *                 paymentMethod: "CASH"
  *                 discount: 5.00
  *                 surcharge: 2.00
@@ -945,6 +958,8 @@ router.post(
  *                 summary: Successfully confirmed order
  *                 value:
  *                   id: 42
+ *                   userId: "clx1a2b3c4d5e6f7g8h9i0j1"
+ *                   cashRegisterId: "clx9z8y7x6w5v4u3t2s1r0q9"
  *                   displayCode: "A01"
  *                   table: "5"
  *                   customer: "Mario Rossi"
