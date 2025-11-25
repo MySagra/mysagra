@@ -5,7 +5,9 @@ import { EventService } from "./event.service";
 import { Prisma } from "@/generated/prisma_client";
 
 export class OrderService {
-    private events = [EventService.getIstance('cashier'), EventService.getIstance('display')]
+    private cashierEvent = EventService.getIstance('cashier');
+    private displayEvent = EventService.getIstance('display');
+    private printerEvent = EventService.getIstance('printer');
 
     private async _getNextTicketNumber(tx: Prisma.TransactionClient): Promise<number> {
         const today = new Date();
@@ -198,6 +200,8 @@ export class OrderService {
             let finalStatus: Status = 'PENDING';
             let ticketNumber = null;
             let confirmedAt = null;
+            let userId = null;
+            let cashRegisterId = null;
 
             if (confirm) {
                 const discount = new Prisma.Decimal(confirm.discount || 0);
@@ -210,6 +214,9 @@ export class OrderService {
                 confirmedAt = new Date();
 
                 ticketNumber = await this._getNextTicketNumber(tx);
+
+                userId = confirm.userId
+                cashRegisterId = confirm.cashRegisterId
             }
 
             const createdOrder = await tx.order.create({
@@ -225,7 +232,10 @@ export class OrderService {
                     paymentMethod: confirm?.paymentMethod || null,
                     discount: confirm?.discount || 0,
                     surcharge: confirm?.surcharge || 0,
-                    total: total
+                    total: total,
+
+                    userId: userId,
+                    cashRegisterId: cashRegisterId
                 }
             });
 
@@ -254,7 +264,7 @@ export class OrderService {
 
         if (confirm) {
             EventService.broadcastEvents(
-                this.events,
+                [this.cashierEvent, this.displayEvent],
                 {
                     displayCode: newOrder?.displayCode,
                     ticketNumber: newOrder?.ticketNumber,
@@ -262,11 +272,16 @@ export class OrderService {
                 },
                 "confirmed-order"
             )
+
+            this.printerEvent.broadcastEvent(
+                newOrder,
+                "confirmed-order"
+            );
         }
 
         // cashier only event
         if(!confirm){
-            this.events[0].broadcastEvent(newOrder, "new-order")
+            this.cashierEvent.broadcastEvent(newOrder, "new-order")
         }
         
         return newOrder;
@@ -338,7 +353,9 @@ export class OrderService {
                     discount: confirm.discount || 0,
                     surcharge: confirm.surcharge || 0,
                     subTotal: subTotal,
-                    total: total
+                    total: total,
+                    userId: confirm.userId,
+                    cashRegisterId: confirm.cashRegisterId
                 },
                 include: { orderItems: true } // Return updated items
             });
@@ -347,7 +364,7 @@ export class OrderService {
         });
 
         EventService.broadcastEvents(
-            this.events,
+            [this.cashierEvent, this.displayEvent],
             {
                 displayCode: confirmedOrder.displayCode,
                 ticketNumber: confirmedOrder.ticketNumber,
@@ -355,6 +372,12 @@ export class OrderService {
             },
             "confirmed-order"
         );
+
+        this.printerEvent.broadcastEvent(
+            confirmedOrder,
+            "confirmed-order"
+        );
+            
 
         return confirmedOrder;
     }

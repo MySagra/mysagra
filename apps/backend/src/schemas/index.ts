@@ -4,3 +4,8 @@ export * from "./params";
 export * from "./order";
 export * from "./role";
 export * from "./user";
+export * from "./auth";
+export * from "./cash-register";
+export * from "./event";
+export * from "./ingredient";
+export * from "./printer";

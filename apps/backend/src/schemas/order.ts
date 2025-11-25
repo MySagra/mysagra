@@ -17,7 +17,9 @@ export const confirmedOrderSchema = z.object({
     surcharge: z.number().min(0).default(0),
     total: z.number().min(0).optional(),
     orderItems: z.array(orderItemSchema).optional(),
-    status: statusSchema.default("CONFIRMED")
+    status: statusSchema.default("CONFIRMED"),
+    cashRegisterId: z.string().cuid(),
+    userId: z.string().cuid()
 })
 
 export const orderSchema = z.object({

@@ -95,6 +95,12 @@ model Order {
 
   orderItems OrderItem[]
 
+  userId         String?
+  user           User?   @relation(fields: [userId], references: [id])
+
+  cashRegisterId String?
+  cashRegister   CashRegister? @relation(fields: [cashRegisterId], references: [id])
+
   @@map("orders")
 }
 
@@ -139,6 +145,8 @@ model User {
   roleId        String
   refreshTokens RefreshToken[]
 
+  orders Order[]
+  
   @@map("users")
 }
 
@@ -156,4 +164,28 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+model Printer {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  ip          String
+  port        Int      @default(9100) 
+  description String?
+  
+  cashRegisters CashRegister[]
+
+  @@map("printers")
+}
+
+model CashRegister {
+  id          String  @id @default(cuid())
+  name        String  @unique // e.g., "Cassa Bar 1", "Cassa Food Principale"
+  enabled     Boolean @default(true)
+
+  defaultPrinterId String?
+  defaultPrinter   Printer? @relation(fields: [defaultPrinterId], references: [id])
+
+  orders      Order[]
+
+  @@map("cash_registers")
 }
