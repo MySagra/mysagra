@@ -90,14 +90,7 @@ export class OrderService {
             where: {
                 id
             },
-            select: {
-                id: true,
-                displayCode: true,
-                table: true,
-                customer: true,
-                subTotal: true,
-                createdAt: true,
-
+            include: {
                 orderItems: {
                     select: {
                         id: true,
