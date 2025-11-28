@@ -17,12 +17,15 @@ const envSchema = z.object({
         (val) => typeof val === 'string' ? val.split(',').map(url => url.trim()) : [],
         z.array(z.string().url())
     ),
-    TRUST_PROXY_LEVEL: z.coerce.number().int().min(0).max(5).default(1)
+    TRUST_PROXY_LEVEL: z.preprocess(
+        (val) => val === undefined ? undefined : Number(val),
+        z.number().int().min(0).optional()
+    ),
 }).strip()
 
 const { success, error, data } = envSchema.safeParse(process.env)
 
-if(error) {
+if (error) {
     console.error(`Error during validation of .env variables: `, error.errors);
     process.exit(1);
 }

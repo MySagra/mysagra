@@ -29,6 +29,7 @@ services:
       - PEPPER=${PEPPER}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - MIGRATE_ON_START=true
+      - TRUST_PROXY_LEVEL=3
     depends_on:
       db:
         condition: service_healthy
