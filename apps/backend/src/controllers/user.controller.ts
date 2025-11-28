@@ -3,8 +3,8 @@ import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { UserService } from "@/services/user.service";
 
-import { CUIDParam } from "@/schemas";
-import { User } from "@/schemas";
+import { CUIDParam, UpdateUserInput } from "@/schemas";
+import { CreateUserInput } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class UserController {
@@ -39,7 +39,7 @@ export class UserController {
     })
 
     createUser = asyncHandler(async (
-        req: TypedRequest<{body: User}>, 
+        req: TypedRequest<{body: CreateUserInput}>,
         res: Response, 
     ): Promise<void> => {
         const user = await this.userService.createUser(req.validated.body)
@@ -47,7 +47,7 @@ export class UserController {
     });
 
     updateUser = asyncHandler(async (
-        req: TypedRequest<{params: CUIDParam, body: User}>, 
+        req: TypedRequest<{params: CUIDParam, body: UpdateUserInput}>,
         res: Response, 
     ): Promise<void> => {
         const { id } = req.validated.params;

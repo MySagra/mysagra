@@ -21,7 +21,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
                 return;
             }
             case "P2003": {
-                const fieldName = err.meta?.field_name || "relation";
+                const fieldName = err.meta?.constraint || "relation";
                 res.status(400).json({
                     message: `Invalid reference: The related ${fieldName} does not exist.`,
                     error: "ForeignKeyConstraintViolation",

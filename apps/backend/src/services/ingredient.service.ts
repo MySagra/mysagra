@@ -1,3 +1,4 @@
+import { CreateIngredientInput, UpdateIngredientInput } from "@/schemas";
 import prisma from "@/utils/prisma";
 
 export class IngredientService {
@@ -13,22 +14,18 @@ export class IngredientService {
         })
     }
 
-    async createIngredient(name: string) {
+    async createIngredient(ingredient: CreateIngredientInput) {
         return await prisma.ingredient.create({
-            data: {
-                name
-            }
+            data: ingredient
         })
     }
 
-    async updateIngredient(id: string, name: string) {
+    async updateIngredient(id: string, ingredient: UpdateIngredientInput) {
         return await prisma.ingredient.update({
             where: {
                 id
             },
-            data: {
-                name
-            }
+            data: ingredient
         })
     }
 

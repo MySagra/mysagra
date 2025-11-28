@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { roleSchema, idParamSchema } from "@/schemas";
+import { CreateRoleSchema, idParamSchema } from "@/schemas";
 
 import { RoleController } from "@/controllers/role.controller";
 import { RoleService } from "@/services/role.service";
@@ -21,7 +21,7 @@ router.post(
     "/",
     authenticate(["admin"]),
     validateRequest({
-        body: roleSchema
+        body: CreateRoleSchema
     }),
     roleController.createRole
 );
@@ -30,7 +30,7 @@ router.put(
     authenticate(["admin"]),
     validateRequest({
         params: idParamSchema,
-        body: roleSchema
+        body: CreateRoleSchema
     }),
     roleController.updateRole
 );

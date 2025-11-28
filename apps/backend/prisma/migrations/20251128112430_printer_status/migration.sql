@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `printers` ADD COLUMN `status` ENUM('ONLINE', 'OFFLINE', 'ERROR') NOT NULL DEFAULT 'ONLINE';

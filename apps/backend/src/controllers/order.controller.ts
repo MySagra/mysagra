@@ -2,14 +2,14 @@ import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { TypedRequest } from "@/types/request";
 import { OrderService } from "@/services/order.service";
-import { ConfirmedOrder, OrderQuery, Order, OrderIdParam, PatchOrder } from "@/schemas/order";
+import { ConfirmOrderInput, GetOrdersQueryParams, CreateOrder, OrderIdParam, PatchOrderInput } from "@/schemas/order";
 import { NumberIdParam } from "@/schemas";
 
 export class OrderController {
     constructor(private orderService: OrderService) { }
 
     getOrders = asyncHandler(async (
-        req: TypedRequest<{query: OrderQuery}>, 
+        req: TypedRequest<{query: GetOrdersQueryParams}>,
         res: Response, 
     ): Promise<void> => {
         const orders = await this.orderService.getOrders(req.validated.query);
@@ -38,7 +38,7 @@ export class OrderController {
     });
 
     createOrder = asyncHandler(async (
-        req: TypedRequest<{body: Order}>, 
+        req: TypedRequest<{body: CreateOrder}>,
         res: Response, 
     ): Promise<void> => {
         const { confirm } = req.validated.body;
@@ -53,7 +53,7 @@ export class OrderController {
     });
 
     confirmOrder = asyncHandler(async (
-        req: TypedRequest<{params: NumberIdParam, body: ConfirmedOrder}>, 
+        req: TypedRequest<{params: NumberIdParam, body: ConfirmOrderInput}>,
         res: Response, 
     ): Promise<void> => {
         const { id } = req.validated.params;
@@ -63,7 +63,7 @@ export class OrderController {
     });
 
     patchOrder = asyncHandler(async (
-        req: TypedRequest<{params: NumberIdParam, body: PatchOrder}>, 
+        req: TypedRequest<{params: NumberIdParam, body: PatchOrderInput}>,
         res: Response, 
     ): Promise<void> => {
         const { status } = req.validated.body;

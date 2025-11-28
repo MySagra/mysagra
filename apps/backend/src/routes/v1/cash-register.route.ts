@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { cuidParamSchema, cashRegisterSchema, getCashRegisterQuerySchema, patchCashRegisterSchema } from "@/schemas";
+import { cuidParamSchema, CreateCashRegisterSchema, GetCashRegisterQuerySchema, PatchCashRegisterSchema, UpdateCashRegisterSchema } from "@/schemas";
 
 import { CashRegisterController } from "@/controllers/cash-register.controller";
 import { CashRegisterService } from "@/services/cash-register.service";
@@ -83,6 +83,11 @@ const router = Router();
  *           type: string
  *           enum: [printer]
  *         description: Include related resources (e.g. printer)
+ *       - in: query
+ *         name: enabled
+ *         schema:
+ *           type: boolean
+ *         description: Filter by enabled status
  *     responses:
  *       200:
  *         description: The list of the cash registers
@@ -95,9 +100,8 @@ const router = Router();
  */
 router.get(
     "/",
-    authenticate(["admin", "operator"]),
     validateRequest({
-        query: getCashRegisterQuerySchema
+        query: GetCashRegisterQuerySchema
     }),
     cashRegisterController.getCashRegisters
 );
@@ -135,10 +139,10 @@ router.get(
  */
 router.get(
     "/:id",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        query: getCashRegisterQuerySchema
+        query: GetCashRegisterQuerySchema
     }),
     cashRegisterController.getCashRegisterById
 );
@@ -171,7 +175,7 @@ router.post(
     "/",
     authenticate(["admin"]),
     validateRequest({
-        body: cashRegisterSchema
+        body: CreateCashRegisterSchema
     }),
     cashRegisterController.createCashRegister
 );
@@ -212,9 +216,19 @@ router.put(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        body: cashRegisterSchema
+        body: UpdateCashRegisterSchema
     }),
     cashRegisterController.updateCashRegister
+);
+
+router.patch(
+    "/:id",
+    authenticate(["admin"]),
+    validateRequest({
+        params: cuidParamSchema,
+        body: PatchCashRegisterSchema
+    }),
+    cashRegisterController.patchCashRegister
 );
 
 /**
@@ -253,7 +267,7 @@ router.patch(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        body: patchCashRegisterSchema
+        body: PatchCashRegisterSchema
     }),
     cashRegisterController.patchCashRegister
 );

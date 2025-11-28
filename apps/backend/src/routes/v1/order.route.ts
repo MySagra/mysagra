@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { orderSchema, orderQuerySchema, confirmedOrderSchema, idParamSchema, orderIdParamSchema, patchOrderSchema } from "@/schemas";
+import { CreateOrderSchema, GetOrdersQuerySchema, ConfirmOrderSchema, idParamSchema, OrderIdParamSchema, PatchOrderSchema } from "@/schemas";
 import { OrderController } from "@/controllers/order.controller";
 import { OrderService } from "@/services/order.service";
 
@@ -597,7 +597,7 @@ router.get(
     "/",
     authenticate(["admin", "operator"]),
     validateRequest({
-        query: orderQuerySchema
+        query: GetOrdersQuerySchema
     }),
     orderController.getOrders
 );
@@ -706,7 +706,7 @@ router.get(
     "/:id",
     authenticate(["admin", "operator"]),
     validateRequest({
-        params: orderIdParamSchema
+        params: OrderIdParamSchema
     }),
     orderController.getOrderById
 )
@@ -842,9 +842,8 @@ router.get(
  */
 router.post(
     "/",
-    authenticate(["admin", "operator"]),
     validateRequest({
-        body: orderSchema
+        body: CreateOrderSchema
     }),
     orderController.createOrder
 );
@@ -1014,7 +1013,7 @@ router.post(
     authenticate(["admin", "operator"]),
     validateRequest({
         params: idParamSchema,
-        body: confirmedOrderSchema
+        body: ConfirmOrderSchema
     }),
     orderController.confirmOrder
 )
@@ -1130,7 +1129,7 @@ router.patch(
     authenticate(["admin", "operator"]),
     validateRequest({
         params: idParamSchema,
-        body: patchOrderSchema
+        body: PatchOrderSchema
     }),
     orderController.patchOrder
 )

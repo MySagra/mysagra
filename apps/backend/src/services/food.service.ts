@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 
 import { Prisma } from "@generated/prisma_client";
-import { FoodIngredient, GetFoodsQuery, GetFoodQuery, Food, PatchFood } from "@/schemas";
+import { GetFoodsQueryParams, GetFoodQueryParams, CreateFoodInput, PatchFoodInput, UpdateFoodInput } from "@/schemas";
 import { EventService } from "./event.service";
 
 const foodWithIngredientsInclude = {
@@ -29,7 +29,7 @@ export class FoodService {
         };
     }
 
-    async getFoods(queryParams: GetFoodsQuery) {
+    async getFoods(queryParams: GetFoodsQueryParams) {
         const whereClause: Prisma.FoodWhereInput = {}
 
         if (queryParams.available !== undefined) {
@@ -67,7 +67,7 @@ export class FoodService {
         return foods;
     }
 
-    async getFoodById(id: string, queryParams: GetFoodQuery) {
+    async getFoodById(id: string, queryParams: GetFoodQueryParams) {
         const { include } = queryParams;
         const food = await prisma.food.findUnique({
             where: {
@@ -94,7 +94,7 @@ export class FoodService {
         return food;
     }
 
-    async createFood(food: Food) {
+    async createFood(food: CreateFoodInput) {
         const newFood = await prisma.food.create({
             data: {
                 name: food.name,
@@ -127,7 +127,7 @@ export class FoodService {
         return newFood;
     }
 
-    async updateFood(id: string, food: Food) {
+    async updateFood(id: string, food: UpdateFoodInput) {
         // First delete existing ingredient relations
         await prisma.foodIngredient.deleteMany({
             where: {
@@ -171,7 +171,7 @@ export class FoodService {
         return updatedFood;
     }
 
-    async patchFood(id: string, food: PatchFood) {
+    async patchFood(id: string, food: PatchFoodInput) {
         const patchedFood = await prisma.food.update({
             where: {
                 id

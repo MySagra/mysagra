@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { deleteFile, getUploadsPath } from "@/utils/fileManager";
-import { Category, GetCategoriesQuery, GetCategoryQuery, PatchCategory } from "@/schemas";
+import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateFoodInput } from "@/schemas";
 import { Prisma } from "@generated/prisma_client";
 import { FoodService } from "./food.service";
 
@@ -79,13 +79,13 @@ export class CategoryService {
         return category;
     }
 
-    async createCategory(category: Category) {
+    async createCategory(category: CreateCategoryInput) {
         return await prisma.category.create({
             data: category
         })
     }
 
-    async updateCategory(id: string, category: Category) {
+    async updateCategory(id: string, category: UpdateFoodInput) {
         return await prisma.category.update({
             where: {
                 id
@@ -94,7 +94,7 @@ export class CategoryService {
         })
     }
 
-    async patchCategory(id: string, category: PatchCategory) {
+    async patchCategory(id: string, category: PatchCategoryInput) {
         return await prisma.$transaction(async (tx) => {
             const patchCategory = await tx.category.update({
                 where: {

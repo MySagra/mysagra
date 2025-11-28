@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { cuidParamSchema, printerSchema } from "@/schemas";
+import { cuidParamSchema, CreatePrinterSchema, UpdatePrinterSchema } from "@/schemas";
 
 import { PrinterController } from "@/controllers/printer.controller";
 import { PrinterService } from "@/services/printer.service";
@@ -152,7 +152,7 @@ router.post(
     "/",
     authenticate(["admin"]),
     validateRequest({
-        body: printerSchema
+        body: CreatePrinterSchema
     }),
     printerController.createPrinter
 );
@@ -193,7 +193,7 @@ router.put(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        body: printerSchema
+        body: UpdatePrinterSchema
     }),
     printerController.updatePrinter
 );

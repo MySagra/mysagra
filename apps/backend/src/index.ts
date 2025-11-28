@@ -28,7 +28,7 @@ app.set('query parser', 'extended');
 
 //trust nginx
 if (env.NODE_ENV === "production") {
-  app.set('trust proxy', 1); //trust nginx reverse proxy
+  app.set('trust proxy', env.TRUST_PROXY_LEVEL); //trust nginx reverse proxy
   app.disable('x-powered-by');
 }
 
@@ -64,6 +64,11 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
+});
+
+app.get('/v1/test-ip', (req, res) => {
+  const clientIp = req.ip;
+  res.json({ ip: clientIp, env: env.NODE_ENV });
 });
 
 app.use(express.static(path.join(__dirname, '../public')));
