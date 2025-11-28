@@ -22,6 +22,9 @@ model Category {
   image     String?
   foods     Food[]
 
+  printerId String?
+  printer   Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
+
   @@map("categories")
 }
 
@@ -46,6 +49,9 @@ model Food {
 
   orderItems      OrderItem[]
   foodIngredients FoodIngredient[]
+
+  printerId String?
+  printer   Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
 
   @@map("foods")
 }
@@ -181,6 +187,8 @@ model Printer {
   status      PrinterStatus @default(ONLINE)
 
   cashRegisters CashRegister[]
+  foods         Food[]
+  categories    Category[]
 
   @@map("printers")
 }

@@ -5,19 +5,23 @@ import { FoodResponseSchema } from "@/schemas/food";
 const CategoryBase = {
     name: z.string().min(1),
     available: z.boolean(),
-    position: z.number().int()
+    position: z.number().int(),
+    printerId: z.string().cuid().nullish()
 }
 
 export const CreateCategorySchema = z.object({
-    ...CategoryBase
+    ...CategoryBase,
+    printerId: CategoryBase.printerId.optional()
 })
 
 export const UpdateCategorySchema = z.object({
-    ...CategoryBase
+    ...CategoryBase,
+    printerId: CategoryBase.printerId.optional()
 })
 
 export const PatchCategorySchema = z.object({
-    available: z.boolean().optional()
+    available: z.boolean().optional(),
+    printerId: CategoryBase.printerId.optional()
 }).refine(data => Object.keys(data).length > 0, {
     message: "At least one field must be provided"
 })

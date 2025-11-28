@@ -53,6 +53,11 @@ const router = Router();
  *         categoryId:
  *           type: string
  *           example: "clxyz123456789abcdef"
+ *         printerId:
+ *           type: string
+ *           nullable: true
+ *           description: CUID of the printer associated with this food item
+ *           example: "clxyz987654321fedcba"
  *         available:
  *           type: boolean
  *           example: true
@@ -97,6 +102,11 @@ const router = Router();
  *         categoryId:
  *           type: string
  *           example: "clxyz123456789abcdef"
+ *         printerId:
+ *           type: string
+ *           nullable: true
+ *           description: Optional CUID of the printer associated with this food item
+ *           example: "clxyz987654321fedcba"
  *         available:
  *           type: boolean
  *           example: true
@@ -264,7 +274,7 @@ router.put(
  *   patch:
  *     security:
  *       - bearerAuth: []
- *     summary: Update availability status of a food item
+ *     summary: Update availability status or printer of a food item
  *     tags:
  *       - Foods
  *     parameters:

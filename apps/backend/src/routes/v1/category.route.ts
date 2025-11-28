@@ -49,6 +49,11 @@ const router = Router();
  *         position:
  *           type: integer
  *           example: 1
+ *         printerId:
+ *           type: string
+ *           nullable: true
+ *           description: Optional CUID of the printer associated with this category
+ *           example: "clxyz987654321fedcba"
  */
 
 /**

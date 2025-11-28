@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { deleteFile, getUploadsPath } from "@/utils/fileManager";
-import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateFoodInput } from "@/schemas";
+import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCategoryInput, UpdateFoodInput } from "@/schemas";
 import { Prisma } from "@generated/prisma_client";
 import { FoodService } from "./food.service";
 
@@ -85,7 +85,7 @@ export class CategoryService {
         })
     }
 
-    async updateCategory(id: string, category: UpdateFoodInput) {
+    async updateCategory(id: string, category: UpdateCategoryInput) {
         return await prisma.category.update({
             where: {
                 id
@@ -103,14 +103,16 @@ export class CategoryService {
                 data: category
             });
 
-            await tx.food.updateMany({
+            const foodUpdate: Prisma.FoodUpdateManyArgs = {
                 where: {
-                    categoryId: patchCategory.id
+                    categoryId: id
                 },
                 data: {
                     available: patchCategory.available
                 }
-            })
+            }
+
+            await tx.food.updateMany(foodUpdate)
             return patchCategory;
         })
     }

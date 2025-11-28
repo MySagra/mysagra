@@ -62,11 +62,33 @@ async function main() {
             }
         })
 
+        const ingredient = await prisma.ingredient.create({
+            data: {
+                name: "Mozzarella"
+            }
+        })
+
+        const printer = await prisma.printer.create({
+            data: {
+                name: "Pizzeria Printer",
+                ip: "192.168.1.10",
+                status: "ONLINE"
+            }
+        })
+
         await prisma.food.create({
             data: {
                 name: "Margherita",
                 price: 15.50,
-                categoryId: category.id
+                categoryId: category.id,
+                foodIngredients: {
+                    create: [
+                        {
+                            ingredientId: ingredient.id
+                        }
+                    ]
+                },
+                printerId: printer.id
             }
         })
     }

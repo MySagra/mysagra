@@ -243,7 +243,7 @@ export class OrderService {
                     quantity: item.quantity,
                     foodId: item.foodId,
                     orderId: createdOrder.id,
-                    notes: item.notes || null
+                    notes: item.notes || null,
                 }))
             });
 
@@ -350,7 +350,9 @@ export class OrderService {
                     userId: confirm.userId,
                     cashRegisterId: confirm.cashRegisterId
                 },
-                include: { orderItems: true } // Return updated items
+                include: { 
+                    orderItems: true // Return updated items
+                } 
             });
 
             return updatedOrder;

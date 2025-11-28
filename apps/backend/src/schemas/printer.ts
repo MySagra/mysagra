@@ -5,13 +5,13 @@ const PrinterBase = {
     ip: z.string().ip({ version: "v4" }),
     port: z.number().int().min(0).max(65535).default(9100),
     description: z.string().optional(),
-    status: z.enum(["ONLINE", "OFFLINE", "ERROR"]).default("ONLINE"),
+    status: z.enum(["ONLINE", "OFFLINE", "ERROR"]).default("ONLINE")
 }
 
 export const CreatePrinterSchema = z.object({
     ...PrinterBase,
     port: PrinterBase.port.optional(),
-    status: PrinterBase.status.optional(),
+    status: PrinterBase.status.optional()
 })
 
 export const UpdatePrinterSchema = z.object({

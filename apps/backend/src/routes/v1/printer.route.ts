@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { cuidParamSchema, CreatePrinterSchema, UpdatePrinterSchema } from "@/schemas";
+import { cuidParamSchema, CreatePrinterSchema, UpdatePrinterSchema, PatchPrinterSchema } from "@/schemas";
 
 import { PrinterController } from "@/controllers/printer.controller";
 import { PrinterService } from "@/services/printer.service";
@@ -42,6 +42,16 @@ const router = Router();
  *           type: string
  *           description: The description of the printer
  *           example: "Printer located in the kitchen"
+ *         status:
+ *           type: string
+ *           enum: [ONLINE, OFFLINE, ERROR]
+ *           default: ONLINE
+ *           description: The status of the printer
+ *           example: "ONLINE"
+ *         printerId:
+ *           type: string
+ *           description: The CUID identifier of the printer
+ *           example: "clx1a2b3c4d5e6f7g8h9i0j1"
  *     PrinterInput:
  *       type: object
  *       required:
@@ -64,6 +74,12 @@ const router = Router();
  *           type: string
  *           description: The description of the printer
  *           example: "Printer located in the kitchen"
+ *         status:
+ *           type: string
+ *           enum: [ONLINE, OFFLINE, ERROR]
+ *           default: ONLINE
+ *           description: The status of the printer
+ *           example: "ONLINE"
  */
 
 /**
@@ -196,6 +212,58 @@ router.put(
         body: UpdatePrinterSchema
     }),
     printerController.updatePrinter
+);
+
+/**
+ * @openapi
+ * /v1/printers/{id}:
+ *   patch:
+ *     summary: Update the status of a printer
+ *     description: Update the status of a printer by its ID. This endpoint allows changing the printer status to ONLINE, OFFLINE, or ERROR.
+ *     tags: [Printers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The printer id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [ONLINE, OFFLINE, ERROR]
+ *                 description: The new status of the printer
+ *                 example: "OFFLINE"
+ *     responses:
+ *       200:
+ *         description: The printer status was updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Printer'
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: The printer was not found
+ */
+router.patch(
+    "/:id",
+    authenticate(["admin"]),
+    validateRequest({
+        params: cuidParamSchema,
+        body: PatchPrinterSchema
+    }),
+    printerController.patchPrinter
 );
 
 /**

@@ -10,7 +10,8 @@ const FoodBase = {
     description: z.string().min(0).nullish(),
     price: z.number().min(0.01),
     available: z.boolean(),
-    categoryId: z.string().cuid()
+    categoryId: z.string().cuid(),
+    printerId: z.string().cuid().nullish().optional()
 }
 
 export const CreateFoodSchema = z.object({
@@ -37,7 +38,8 @@ export const UpdateFoodSchema = z.object({
 })
 
 export const PatchFoodSchema = z.object({
-    available: z.boolean().optional()
+    available: z.boolean().optional(),
+    printerId: z.string().cuid()
 }).refine(data => Object.keys(data).length > 0, {
     message: "At least one field must be provided"
 })

@@ -97,11 +97,7 @@ export class FoodService {
     async createFood(food: CreateFoodInput) {
         const newFood = await prisma.food.create({
             data: {
-                name: food.name,
-                description: food.description,
-                price: food.price,
-                categoryId: food.categoryId,
-                available: food.available,
+                ...food,
                 ...(food.ingredients && food.ingredients.length > 0 && {
                     foodIngredients: {
                         create: food.ingredients.map(ingredient => ({
