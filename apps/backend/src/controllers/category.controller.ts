@@ -2,7 +2,7 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { CategoryService } from "@/services/category.service";
-import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCashRegisterInput, UpdateFoodInput } from "@/schemas";
+import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCashRegisterInput, UpdateCategoryInput, UpdateFoodInput } from "@/schemas";
 import { CUIDParam } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
@@ -52,7 +52,7 @@ export class CategoryController {
     });
 
     updateCategory = asyncHandler(async (
-        req: TypedRequest<{ params: CUIDParam, body: UpdateFoodInput }>,
+        req: TypedRequest<{ params: CUIDParam, body: UpdateCategoryInput }>,
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
