@@ -2,7 +2,7 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { CashRegisterService } from "@/services/cash-register.service";
-import { CashRegister, GetCashRegisterQuery, PatchCashRegister } from "@/schemas/cash-register";
+import { CreateCashRegisterInput, GetCashRegisterQueryParams, PatchCashRegister, UpdateCashRegisterInput } from "@/schemas/cash-register";
 import { CUIDParam } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
@@ -10,9 +10,19 @@ export class CashRegisterController {
     constructor(private cashRegisterService: CashRegisterService) { }
 
     getCashRegisters = asyncHandler(async (
-        req: TypedRequest<{ query: GetCashRegisterQuery }>,
+        req: TypedRequest<{ query: GetCashRegisterQueryParams }>,
         res: Response,
     ): Promise<void> => {
+        if(req.user?.role === "guest"){
+            res.status(403).json({ message: "Forbidden" });
+            return;
+        }
+
+        if(req.user?.role === "operator" && req.validated.query.enabled !== true){
+            res.status(403).json({ message: "Forbidden" });
+            return;
+        }
+        
         const cashRegisters = await this.cashRegisterService.getCashRegisters(req.validated.query)
 
         if (!Array.isArray(cashRegisters)) {
@@ -23,7 +33,7 @@ export class CashRegisterController {
     });
 
     getCashRegisterById = asyncHandler(async (
-        req: TypedRequest<{ params: CUIDParam, query: GetCashRegisterQuery }>,
+        req: TypedRequest<{ params: CUIDParam, query: GetCashRegisterQueryParams }>,
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
@@ -37,7 +47,7 @@ export class CashRegisterController {
     });
 
     createCashRegister = asyncHandler(async (
-        req: TypedRequest<{ body: CashRegister }>,
+        req: TypedRequest<{ body: CreateCashRegisterInput }>,
         res: Response,
     ): Promise<void> => {
         const cashRegister = await this.cashRegisterService.createCashRegister(req.validated.body)
@@ -46,7 +56,7 @@ export class CashRegisterController {
     });
 
     updateCashRegister = asyncHandler(async (
-        req: TypedRequest<{ params: CUIDParam, body: CashRegister }>,
+        req: TypedRequest<{ params: CUIDParam, body: UpdateCashRegisterInput }>,
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;

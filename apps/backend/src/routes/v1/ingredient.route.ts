@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { ingredientSchema } from "@/schemas/ingredient";
+import { CreateIngredientSchema, UpdateIngredientSchema } from "@/schemas/ingredient";
 import { cuidParamSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
@@ -135,7 +135,7 @@ router.post(
     "/",
     authenticate(["admin"]),
     validateRequest({
-        body: ingredientSchema
+        body: CreateIngredientSchema
     }),
     ingredientController.createIngredient
 )
@@ -183,7 +183,7 @@ router.put(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        body: ingredientSchema
+        body: UpdateIngredientSchema
     }),
     ingredientController.updateIngredient
 )
@@ -220,7 +220,7 @@ router.delete(
     validateRequest({
         params: cuidParamSchema
     }),
-    ingredientController.updateIngredient
+    ingredientController.deleteIngredient
 )
 
 export default router;

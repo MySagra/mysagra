@@ -1,7 +1,7 @@
 import z from "zod";
 
 const channelSchema = z.enum(["cashier", "display", "printer"])
-const eventName = z.enum(["new-order", "confirmed-order", "food-availability-changed"])
+const eventName = z.enum(["new-order", "confirmed-order", "food-availability-changed", "printer-status-changed"])
 
 export const eventSchema = z.object({
     channel: channelSchema

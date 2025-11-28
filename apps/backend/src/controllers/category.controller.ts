@@ -2,7 +2,7 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { CategoryService } from "@/services/category.service";
-import { Category, GetCategoriesQuery, GetCategoryQuery, PatchCategory } from "@/schemas";
+import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCashRegisterInput, UpdateFoodInput } from "@/schemas";
 import { CUIDParam } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
@@ -44,7 +44,7 @@ export class CategoryController {
     });
 
     createCategory = asyncHandler(async (
-        req: TypedRequest<{ body: Category }>,
+        req: TypedRequest<{ body: CreateCategoryInput }>,
         res: Response,
     ): Promise<void> => {
         const category = await this.categoryService.createCategory(req.validated.body);
@@ -52,7 +52,7 @@ export class CategoryController {
     });
 
     updateCategory = asyncHandler(async (
-        req: TypedRequest<{ params: CUIDParam, body: Category }>,
+        req: TypedRequest<{ params: CUIDParam, body: UpdateFoodInput }>,
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
@@ -61,7 +61,7 @@ export class CategoryController {
     });
 
     patchCategory = asyncHandler(async (
-        req: TypedRequest<{ params: CUIDParam, body: PatchCategory }>,
+        req: TypedRequest<{ params: CUIDParam, body: PatchCategoryInput }>,
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;

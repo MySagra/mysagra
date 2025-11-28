@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Request, Response } from "express";
 
-import { loginSchema } from "@/schemas/auth";
+import { LoginSchema } from "@/schemas/auth";
 import { validateRequest } from "@/middlewares/validateRequest";
 
 import { AuthService } from "@/services/auth.service";
@@ -138,7 +138,7 @@ const router = Router();
 router.post(
     "/login",
     validateRequest({
-        body: loginSchema
+        body: LoginSchema
     }),
     authController.login
 );

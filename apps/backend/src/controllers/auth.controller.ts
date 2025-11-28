@@ -2,14 +2,14 @@ import { Response } from "express";
 import { AuthService } from "@/services/auth.service";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { env } from "@/config/env";
-import { Login } from "@/schemas/auth";
+import { LoginInput } from "@/schemas/auth";
 import { TypedRequest } from "@/types/request";
 
 export class AuthController {
     constructor(private authService: AuthService) { }
 
     login = asyncHandler(async (
-        req: TypedRequest<{body: Login}>, 
+        req: TypedRequest<{body: LoginInput}>,
         res: Response, 
     ): Promise<void> => {
         const { username, password } = req.validated.body;

@@ -2,7 +2,7 @@ import { Router } from "express";
 
 //middlewares
 import { authenticate } from "@/middlewares/authenticate";
-import { categorySchema, cuidParamSchema, getCategoriesQuerySchema, idParamSchema, patchCategorySchema } from "@/schemas";
+import { CreateCategorySchema, cuidParamSchema, GetCategoriesQuerySchema, PatchCategorySchema, UpdateFoodSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { upload } from "@/middlewares/upload.middleware";
 
@@ -49,6 +49,11 @@ const router = Router();
  *         position:
  *           type: integer
  *           example: 1
+ *         printerId:
+ *           type: string
+ *           nullable: true
+ *           description: Optional CUID of the printer associated with this category
+ *           example: "clxyz987654321fedcba"
  */
 
 /**
@@ -96,7 +101,7 @@ const router = Router();
 router.get(
     "/",
     validateRequest({
-        query: getCategoriesQuerySchema
+        query: GetCategoriesQuerySchema
     }),
     categoryController.getCategories
 );
@@ -135,7 +140,7 @@ router.get(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        query: getCategoriesQuerySchema
+        query: GetCategoriesQuerySchema
     }),
     categoryController.getCategoryById
 );
@@ -166,7 +171,7 @@ router.post(
     "/",
     authenticate(["admin"]),
     validateRequest({
-        body: categorySchema
+        body: CreateCategorySchema
     }),
     categoryController.createCategory
 );
@@ -209,7 +214,7 @@ router.put(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        body: categorySchema
+        body: UpdateFoodSchema
     }),
     categoryController.updateCategory
 );
@@ -255,7 +260,7 @@ router.patch(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        body: patchCategorySchema
+        body: PatchCategorySchema
     }),
     categoryController.patchCategory
 )

@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { TokenService } from '@/services/token.service';
 import { TokenPayload } from '@/schemas/auth';
-import { Role } from '@/schemas/auth';
+import { UserRole } from '@/schemas/auth';
 
 const tokenService = new TokenService();
 
-export function authenticate(allowedRoles: Role[]) {
+export function authenticate(allowedRoles: UserRole[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     

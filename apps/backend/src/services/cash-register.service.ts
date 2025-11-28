@@ -1,21 +1,27 @@
 import { Prisma } from "@/generated/prisma_client";
-import { CashRegister, GetCashRegisterQuery, PatchCashRegister } from "@/schemas/cash-register";
+import { CreateCashRegisterInput, GetCashRegisterQueryParams, PatchCashRegister, UpdateCashRegisterInput } from "@/schemas/cash-register";
 import prisma from "@/utils/prisma";
 
 export class CashRegisterService {
-    async getCashRegisters(queryParams?: GetCashRegisterQuery) {
+    async getCashRegisters(queryParams?: GetCashRegisterQueryParams) {
+        const where: Prisma.CashRegisterWhereInput = {};
         const include: Prisma.CashRegisterInclude = {}
 
         if (queryParams?.include === "printer") {
             include.defaultPrinter = true
         }
 
+        if(queryParams?.enabled !== undefined){
+            where.enabled = queryParams.enabled;
+        }
+
         return await prisma.cashRegister.findMany({
+            where,
             include
         });
     }
 
-    async getCashRegisterById(id: string, queryParams?: GetCashRegisterQuery) {
+    async getCashRegisterById(id: string, queryParams?: GetCashRegisterQueryParams) {
         const include: Prisma.CashRegisterInclude = {}
 
         if (queryParams?.include === "printer") {
@@ -30,13 +36,13 @@ export class CashRegisterService {
         })
     }
 
-    async createCashRegister(cashRegister: CashRegister) {
+    async createCashRegister(cashRegister: CreateCashRegisterInput) {
         return await prisma.cashRegister.create({
             data: cashRegister
         })
     }
 
-    async updateCashRegister(id: string, cashRegister: CashRegister) {
+    async updateCashRegister(id: string, cashRegister: UpdateCashRegisterInput) {
         return await prisma.cashRegister.update({
             where: {
                 id

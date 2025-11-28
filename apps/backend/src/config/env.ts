@@ -16,7 +16,8 @@ const envSchema = z.object({
     ALLOWED_ORIGINS: z.preprocess(
         (val) => typeof val === 'string' ? val.split(',').map(url => url.trim()) : [],
         z.array(z.string().url())
-    )
+    ),
+    TRUST_PROXY_LEVEL: z.coerce.number().int().min(0).max(5).default(1)
 }).strip()
 
 const { success, error, data } = envSchema.safeParse(process.env)
@@ -32,5 +33,6 @@ export const env = {
     DATABASE_URL: data.DATABASE_URL,
     PEPPER: data.PEPPER,
     JWT_SECRET: data.JWT_SECRET,
-    ALLOWED_ORIGINS: data.ALLOWED_ORIGINS
+    ALLOWED_ORIGINS: data.ALLOWED_ORIGINS,
+    TRUST_PROXY_LEVEL: data.TRUST_PROXY_LEVEL
 }

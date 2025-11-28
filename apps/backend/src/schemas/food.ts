@@ -1,17 +1,26 @@
 import z from "zod"
-import { cuidParamSchema, idParamSchema } from "./params";
+import { IngredientResponseSchema } from "@/schemas/ingredient";
 
-const foodIngredient = z.object({
+const FoodIngredientInputSchema = z.object({
     id: z.string().cuid()
 })
 
-export const foodSchema = z.object({
+const FoodBase = {
     name: z.string().min(1),
-    description: z.string().min(0).optional(),
+    description: z.string().min(0).nullish(),
     price: z.number().min(0.01),
     available: z.boolean(),
     categoryId: z.string().cuid(),
-    ingredients: z.array(foodIngredient).optional().refine(
+    printerId: z.string().cuid().nullish().optional()
+}
+
+export const CreateFoodSchema = z.object({
+    ...FoodBase,
+    description: FoodBase.description.optional(),
+    available: FoodBase.available.default(true),
+    ingredients: z.array(FoodIngredientInputSchema)
+        .optional()
+        .refine(
         (ingredients) => {
             if (!ingredients) return true;
             const ids = ingredients.map(ing => ing.id);
@@ -23,25 +32,41 @@ export const foodSchema = z.object({
     )
 })
 
-export const getFoodsQuerySchema = z.object({
-    include: z.enum(['ingredients']).optional(),
-    available: z.enum(['true', 'false']).transform(val => val === 'true').optional(),
-    category: z.array(z.string()).optional()
+export const UpdateFoodSchema = z.object({
+    ...FoodBase,
+    ingredients: z.array(FoodIngredientInputSchema).optional()
 })
 
-export const getFoodQuerySchema = z.object({
-    include: z.enum(['ingredients']).optional(),
-})
-
-export const patchFoodSchema = z.object({
-    available: z.boolean().optional()
+export const PatchFoodSchema = z.object({
+    available: z.boolean().optional(),
+    printerId: z.string().cuid()
 }).refine(data => Object.keys(data).length > 0, {
     message: "At least one field must be provided"
 })
 
-export type FoodIngredient = z.infer<typeof foodIngredient>
-export type Food = z.infer<typeof foodSchema>
-export type GetFoodsQuery = z.infer<typeof getFoodsQuerySchema>;
-export type GetFoodParams = z.infer<typeof cuidParamSchema>;
-export type GetFoodQuery = z.infer<typeof getFoodQuerySchema>;
-export type PatchFood = z.infer<typeof patchFoodSchema>
+export const GetFoodsQuerySchema = z.object({
+    include: z.enum(['ingredients']).optional(),
+    available: z.enum(['true', 'false']).transform(val => val === 'true').optional(),
+    category: z.union([z.string(), z.array(z.string())]).optional()
+        .transform(val => {
+            if (val === undefined) return undefined;
+            return Array.isArray(val) ? val : [val];
+        })
+})
+
+export const GetFoodQuerySchema = z.object({
+    include: z.enum(['ingredients']).optional(),
+})
+
+export const FoodResponseSchema = z.object({
+    id: z.string().cuid(),
+    ...FoodBase,
+    ingredients: z.array(IngredientResponseSchema).nullish()
+})
+
+export type CreateFoodInput = z.infer<typeof CreateFoodSchema>
+export type UpdateFoodInput = z.infer<typeof UpdateFoodSchema>
+export type PatchFoodInput = z.infer<typeof PatchFoodSchema>
+export type GetFoodsQueryParams = z.infer<typeof GetFoodsQuerySchema>;
+export type GetFoodQueryParams = z.infer<typeof GetFoodQuerySchema>;
+export type FoodResponse = z.infer<typeof FoodResponseSchema>;

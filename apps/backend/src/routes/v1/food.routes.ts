@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { foodSchema, getFoodsQuerySchema, cuidParamSchema, idParamSchema, getFoodQuerySchema } from "@/schemas";
+import { CreateFoodSchema, GetFoodsQuerySchema, cuidParamSchema, idParamSchema, GetFoodQuerySchema, PatchFoodSchema, UpdateFoodSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
@@ -53,6 +53,11 @@ const router = Router();
  *         categoryId:
  *           type: string
  *           example: "clxyz123456789abcdef"
+ *         printerId:
+ *           type: string
+ *           nullable: true
+ *           description: CUID of the printer associated with this food item
+ *           example: "clxyz987654321fedcba"
  *         available:
  *           type: boolean
  *           example: true
@@ -97,6 +102,11 @@ const router = Router();
  *         categoryId:
  *           type: string
  *           example: "clxyz123456789abcdef"
+ *         printerId:
+ *           type: string
+ *           nullable: true
+ *           description: Optional CUID of the printer associated with this food item
+ *           example: "clxyz987654321fedcba"
  *         available:
  *           type: boolean
  *           example: true
@@ -168,7 +178,7 @@ router.get(
     "/",
     authenticate(["admin"]),
     validateRequest({
-        query: getFoodsQuerySchema
+        query: GetFoodsQuerySchema
     }),
     foodController.getFoods
 );
@@ -206,7 +216,7 @@ router.post(
     "/",
     authenticate(["admin"]),
     validateRequest({
-        body: foodSchema
+        body: CreateFoodSchema
     }),
     foodController.createFood
 );
@@ -253,7 +263,7 @@ router.put(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        body: foodSchema
+        body: UpdateFoodSchema
     }),
     foodController.updateFood
 );
@@ -264,7 +274,7 @@ router.put(
  *   patch:
  *     security:
  *       - bearerAuth: []
- *     summary: Update availability status of a food item
+ *     summary: Update availability status or printer of a food item
  *     tags:
  *       - Foods
  *     parameters:
@@ -306,7 +316,8 @@ router.patch(
     "/:id",
     authenticate(["admin"]),
     validateRequest({
-        params: cuidParamSchema
+        params: cuidParamSchema,
+        body: PatchFoodSchema
     }),
     foodController.patchFood
 )
@@ -385,7 +396,7 @@ router.get(
     "/:id",
     validateRequest({
         params: cuidParamSchema,
-        query: getFoodQuerySchema
+        query: GetFoodQuerySchema
     }),
     foodController.getFoodById
 );

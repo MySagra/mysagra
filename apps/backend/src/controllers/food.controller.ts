@@ -2,14 +2,14 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { FoodService } from "@/services/food.service";
-import { CUIDParam, Food, GetFoodParams, GetFoodQuery, GetFoodsQuery, PatchFood } from "@/schemas";
+import { CUIDParam, CreateFoodInput, GetFoodQueryParams, GetFoodsQueryParams, PatchFoodInput, UpdateFoodInput } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class FoodController {
     constructor(private foodService: FoodService) { }
 
     getFoods = asyncHandler(async (
-        req: TypedRequest<{query: GetFoodsQuery}>, 
+        req: TypedRequest<{query: GetFoodsQueryParams}>,
         res: Response, 
     ): Promise<void> => {
         const foods = await this.foodService.getFoods(req.validated.query);
@@ -17,7 +17,7 @@ export class FoodController {
     });
 
     getFoodById = asyncHandler(async (
-        req: TypedRequest<{params: CUIDParam, query: GetFoodQuery}>, 
+        req: TypedRequest<{params: CUIDParam, query: GetFoodQueryParams}>,
         res: Response, 
     ): Promise<void> => {
         const { id } = req.validated.params;
@@ -30,7 +30,7 @@ export class FoodController {
     });
 
     createFood = asyncHandler(async (
-        req: TypedRequest<{body: Food}>, 
+        req: TypedRequest<{body: CreateFoodInput}>,
         res: Response, 
     ): Promise<void> => {
         const food = await this.foodService.createFood(req.validated.body);
@@ -38,7 +38,7 @@ export class FoodController {
     });
 
     updateFood = asyncHandler(async (
-        req: TypedRequest<{params: CUIDParam, body: Food}>, 
+        req: TypedRequest<{params: CUIDParam, body: UpdateFoodInput}>,
         res: Response, 
     ): Promise<void> => {
         const { id } = req.validated.params;
@@ -47,7 +47,7 @@ export class FoodController {
     });
 
     patchFood = asyncHandler(async (
-        req: TypedRequest<{params: CUIDParam, body: PatchFood}>, 
+        req: TypedRequest<{params: CUIDParam, body: PatchFoodInput}>,
         res: Response, 
     ): Promise<void> => {
         const { id } = req.validated.params;

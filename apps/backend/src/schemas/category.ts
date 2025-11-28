@@ -1,27 +1,55 @@
 import z from "zod"
 
-export const categorySchema = z.object({
+import { FoodResponseSchema } from "@/schemas/food";
+
+const CategoryBase = {
     name: z.string().min(1),
     available: z.boolean(),
-    position: z.number().int()
+    position: z.number().int(),
+    printerId: z.string().cuid().nullish()
+}
+
+export const CreateCategorySchema = z.object({
+    ...CategoryBase,
+    printerId: CategoryBase.printerId.optional()
 })
 
-export const getCategoriesQuerySchema = z.object({
-    available: z.enum(['true', 'false']).transform(val => val === 'true').optional(),
-    include: z.enum(['foods']).optional()
+export const UpdateCategorySchema = z.object({
+    ...CategoryBase,
+    printerId: CategoryBase.printerId.optional()
 })
 
-export const getCategoryQuerySchema = z.object({
-    include: z.enum(['foods'])
-})
-
-export const patchCategorySchema = z.object({
-    available: z.boolean().optional()
+export const PatchCategorySchema = z.object({
+    available: z.boolean().optional(),
+    printerId: CategoryBase.printerId.optional()
 }).refine(data => Object.keys(data).length > 0, {
     message: "At least one field must be provided"
 })
 
-export type Category = z.infer<typeof categorySchema>
-export type GetCategoriesQuery = z.infer<typeof getCategoriesQuerySchema>
-export type GetCategoryQuery = z.infer<typeof getCategoryQuerySchema>
-export type PatchCategory = z.infer<typeof patchCategorySchema>
+export const UploadCategoryImageSchema = z.object({
+    image: z.any()
+})
+
+export const GetCategoriesQuerySchema = z.object({
+    available: z.enum(['true', 'false']).transform(val => val === 'true').optional(),
+    include: z.enum(['foods']).optional()
+})
+
+export const GetCategoryQuerySchema = z.object({
+    include: z.enum(['foods'])
+})
+
+export const CategoryResponseSchema = z.object({
+    id: z.string().cuid(),
+    ...CategoryBase,
+    image: z.string().url().nullish(),
+    foods: z.array(FoodResponseSchema).optional()
+})
+
+export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>
+export type UpdateCategoryInput = z.infer<typeof UpdateCategorySchema>
+export type PatchCategoryInput = z.infer<typeof PatchCategorySchema>
+export type UploadCategoryImageInput = z.infer<typeof UploadCategoryImageSchema>
+export type GetCategoriesQuery = z.infer<typeof GetCategoriesQuerySchema>
+export type GetCategoryQuery = z.infer<typeof GetCategoryQuerySchema>
+export type CategoryResponse = z.infer<typeof CategoryResponseSchema>

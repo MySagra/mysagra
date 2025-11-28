@@ -2,7 +2,7 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { PrinterService } from "@/services/printer.service";
-import { Printer } from "@/schemas/printer";
+import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@/schemas/printer";
 import { CUIDParam } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
@@ -37,7 +37,7 @@ export class PrinterController {
     });
 
     createPrinter = asyncHandler(async (
-        req: TypedRequest<{ body: Printer }>,
+        req: TypedRequest<{ body: CreatePrinterInput }>,
         res: Response,
     ): Promise<void> => {
         const printer = await this.printerService.createPrinter(req.validated.body)
@@ -46,11 +46,21 @@ export class PrinterController {
     });
 
     updatePrinter = asyncHandler(async (
-        req: TypedRequest<{ params: CUIDParam, body: Printer }>,
+        req: TypedRequest<{ params: CUIDParam, body: UpdatePrinterInput }>,
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
         const printer = await this.printerService.updatePrinter(id, req.validated.body)
+
+        res.status(200).json(printer);
+    });
+
+    patchPrinter = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam, body: PatchPrinterInput }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const printer = await this.printerService.patchPrinter(id, req.validated.body)
 
         res.status(200).json(printer);
     });

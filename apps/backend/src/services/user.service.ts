@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { createHashPassword } from "@/lib/hashPassword";
-import { User } from "@/schemas";
+import { CreateUserInput, UpdateUserInput } from "@/schemas";
 
 export class UserService {
     async getUsers() {
@@ -39,7 +39,7 @@ export class UserService {
         })
     }
 
-    async createUser(user: User) {
+    async createUser(user: CreateUserInput) {
         return await prisma.user.create({
             data: {
                 ...user,
@@ -53,7 +53,7 @@ export class UserService {
         })
     }
 
-    async updateUser(id: string, user: User) {
+    async updateUser(id: string, user: UpdateUserInput) {
         return await prisma.user.update({
             where: {
                 id

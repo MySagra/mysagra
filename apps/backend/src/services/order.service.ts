@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { ConfirmedOrder, Order, OrderQuery, Status } from "@/schemas";
+import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderStatus } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventService } from "./event.service";
 import { Prisma } from "@/generated/prisma_client";
@@ -23,7 +23,7 @@ export class OrderService {
         return ticketCount.counter;
     }
 
-    async getOrders(queryParams: OrderQuery) {
+    async getOrders(queryParams: GetOrdersQueryParams) {
         const { limit, page } = queryParams;
         const skip = (1 - page) * limit;
 
@@ -90,14 +90,7 @@ export class OrderService {
             where: {
                 id
             },
-            select: {
-                id: true,
-                displayCode: true,
-                table: true,
-                customer: true,
-                subTotal: true,
-                createdAt: true,
-
+            include: {
                 orderItems: {
                     select: {
                         id: true,
@@ -171,10 +164,10 @@ export class OrderService {
         };
     }
 
-    async createOrder(order: Order) {
+    async createOrder(order: CreateOrder) {
         const { orderItems, confirm } = order;
 
-        const newOrder = await prisma.$transaction(async (tx) => {
+        const createdOrder = await prisma.$transaction(async (tx) => {
             const foodIds = orderItems.map(item => item.foodId);
             const foods = await tx.food.findMany({
                 where: { id: { in: foodIds } },
@@ -197,7 +190,7 @@ export class OrderService {
             });
 
             let total = subTotal;
-            let finalStatus: Status = 'PENDING';
+            let finalStatus: OrderStatus = 'PENDING';
             let ticketNumber = null;
             let confirmedAt = null;
             let userId = null;
@@ -250,7 +243,7 @@ export class OrderService {
                     quantity: item.quantity,
                     foodId: item.foodId,
                     orderId: createdOrder.id,
-                    notes: item.notes || null
+                    notes: item.notes || null,
                 }))
             });
 
@@ -266,28 +259,28 @@ export class OrderService {
             EventService.broadcastEvents(
                 [this.cashierEvent, this.displayEvent],
                 {
-                    displayCode: newOrder?.displayCode,
-                    ticketNumber: newOrder?.ticketNumber,
-                    id: newOrder?.id
+                    displayCode: createdOrder?.displayCode,
+                    ticketNumber: createdOrder?.ticketNumber,
+                    id: createdOrder?.id
                 },
                 "confirmed-order"
             )
 
             this.printerEvent.broadcastEvent(
-                newOrder,
+                createdOrder,
                 "confirmed-order"
             );
         }
 
         // cashier only event
         if(!confirm){
-            this.cashierEvent.broadcastEvent(newOrder, "new-order")
+            this.cashierEvent.broadcastEvent(createdOrder, "new-order")
         }
         
-        return newOrder;
+        return createdOrder;
     }
 
-    async confirmOrder(orderId: number, confirm: ConfirmedOrder) {
+    async confirmOrder(orderId: number, confirm: ConfirmOrderInput) {
         const confirmedOrder = await prisma.$transaction(async (tx) => {
             const existingOrder = await tx.order.findUnique({
                 where: { id: orderId },
@@ -357,7 +350,9 @@ export class OrderService {
                     userId: confirm.userId,
                     cashRegisterId: confirm.cashRegisterId
                 },
-                include: { orderItems: true } // Return updated items
+                include: { 
+                    orderItems: true // Return updated items
+                } 
             });
 
             return updatedOrder;
@@ -382,7 +377,7 @@ export class OrderService {
         return confirmedOrder;
     }
 
-    async updateStatus(id: number, status: Status){
+    async updateStatus(id: number, status: OrderStatus){
         return await prisma.order.update({
             where: {
                 id

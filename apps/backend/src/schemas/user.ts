@@ -1,9 +1,29 @@
 import z from "zod"
 
-export const userSchema = z.object({
+import { RoleResponseSchema} from "@/schemas/role";
+
+export const UserBase = {
     username: z.string().min(4),
-    password: z.string().min(8),
     roleId: z.string().cuid()
+}
+
+
+export const CreateUserSchema = z.object({
+    ...UserBase,
+    password: z.string()
 })
 
-export type User = z.infer<typeof userSchema>
+export const UpdateUserSchema = z.object({
+    ...UserBase,
+    password: z.string()
+})
+
+export const UserResponseSchema = z.object({
+    id: z.string().cuid(),
+    ...UserBase,
+    role: RoleResponseSchema,
+})
+
+export type CreateUserInput = z.infer<typeof CreateUserSchema>
+export type UpdateUserInput = z.infer<typeof UpdateUserSchema>
+export type UserResponse = z.infer<typeof UserResponseSchema>

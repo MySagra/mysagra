@@ -1,7 +1,22 @@
 import z from "zod"
 
-export const ingredientSchema = z.object({
-    name: z.string().min(1)
+const IngredientBase = {
+    name: z.string().min(1),
+}
+
+export const CreateIngredientSchema = z.object({
+    ...IngredientBase
 })
 
-export type Ingredient = z.infer<typeof ingredientSchema>
+export const UpdateIngredientSchema = z.object({
+    ...IngredientBase
+})
+
+export const IngredientResponseSchema = z.object({
+    id: z.string().cuid(),
+    ...IngredientBase
+})
+
+export type CreateIngredientInput = z.infer<typeof CreateIngredientSchema>;
+export type UpdateIngredientInput = z.infer<typeof UpdateIngredientSchema>;
+export type IngredientResponse = z.infer<typeof IngredientResponseSchema>;
