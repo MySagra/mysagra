@@ -235,7 +235,7 @@ function FoodForm({ form, onSubmit, food, categories }: FoodFormProps) {
                             <FormLabel>{t('formFields.category.title')}</FormLabel>
                             <Select
                                 onValueChange={(value) => field.onChange(parseInt(value))}
-                                defaultValue={field.value.toString()}
+                                defaultValue={field?.value?.toString()}
                             >
                                 <FormControl>
                                     <SelectTrigger>
