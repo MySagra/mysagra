@@ -9,14 +9,6 @@ import {
     DialogClose
 } from "@/components/ui/dialog"
 
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-
 import { Button } from "@/components/ui/button"
 import { PlusCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -97,6 +89,7 @@ interface UserFormProps {
 }
 
 function UserForm({ form, onSubmit, roles }: UserFormProps) {
+    console.log(roles)
     const t = useTranslations('User')
     return (
         <Form {...form}>
@@ -126,35 +119,6 @@ function UserForm({ form, onSubmit, roles }: UserFormProps) {
                             <FormControl>
                                 <Input type="password" placeholder={t('dialog.password.placeholder')} {...field} />
                             </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="roleId"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>{t('formFields.role')}</FormLabel>
-                            <Select
-                                onValueChange={(value) => field.onChange(parseInt(value))}
-                                defaultValue={field.value.toString()}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {
-                                        roles.map(role =>
-                                            <SelectItem key={role.id} value={role.id.toString()}>
-                                                {role.name}
-                                            </SelectItem>
-                                        )
-                                    }
-                                </SelectContent>
-                            </Select>
                             <FormMessage />
                         </FormItem>
                     )}

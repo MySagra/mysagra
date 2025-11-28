@@ -11,14 +11,6 @@ import {
     DialogClose
 } from "@/components/ui/dialog"
 
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-
 import { Button } from "@/components/ui/button"
 import { Food } from "@/types/food"
 import { Pencil, PlusCircle } from "lucide-react"
@@ -175,7 +167,8 @@ interface FoodFormProps {
 function FoodForm({ form, onSubmit, food, categories }: FoodFormProps) {
 
     const t = useTranslations('Food');
-
+    console.log(categories)
+    
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -223,35 +216,6 @@ function FoodForm({ form, onSubmit, food, categories }: FoodFormProps) {
                             <FormDescription>
                                 {t('formFields.price.description')}
                             </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="categoryId"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>{t('formFields.category.title')}</FormLabel>
-                            <Select
-                                onValueChange={(value) => field.onChange(parseInt(value))}
-                                defaultValue={field.value.toString()}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={t('formFields.category.placeholder')} />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {
-                                        categories.map(category =>
-                                            <SelectItem key={category.id} value={category.id.toString()}>
-                                                {category.name}
-                                            </SelectItem>
-                                        )
-                                    }
-                                </SelectContent>
-                            </Select>
                             <FormMessage />
                         </FormItem>
                     )}
