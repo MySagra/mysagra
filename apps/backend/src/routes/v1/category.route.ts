@@ -9,8 +9,10 @@ import { upload } from "@/middlewares/upload.middleware";
 //service and controller
 import { CategoryService } from "@/services/category.service";
 import { CategoryController } from "@/controllers/category.controller";
+import { ImageService } from "@/services/image.service";
 
 const categoryController = new CategoryController(new CategoryService());
+const imageService = new ImageService("category-images", "category");
 const router = Router();
 
 /**
@@ -310,7 +312,7 @@ router.patch(
     validateRequest({
         params: cuidParamSchema
     }),
-    upload(CategoryService.getImagePath(), "category").single('image'),
+    imageService.upload(),
     categoryController.uploadImage
 );
 
