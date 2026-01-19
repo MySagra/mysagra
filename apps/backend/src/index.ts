@@ -12,8 +12,9 @@ import { errorHandler } from './middlewares/errorHandler';
 import { corsOptions } from './config/corsOptions';
 
 //docs
+import { generateOpenApiDocument } from './docs/openapi';
+import { registerPaths } from './docs/register-paths';
 import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from './docs/swagger';
 
 //routes
 import routes from "@/routes"
@@ -60,10 +61,13 @@ app.use((req, res, next) => {
 });
 
 //static routes
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get('/swagger.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
+registerPaths()
+
+const openApiDocs = generateOpenApiDocument();
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDocs));
+
+app.get('/docs.json', (req, res) => {
+  res.json(openApiDocs);
 });
 
 app.get('/v1/test-ip', (req, res) => {

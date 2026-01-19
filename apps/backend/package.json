@@ -27,6 +27,7 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.18.1",
+    "@types/swagger-ui-express": "^4.1.8",
     "cross-env": "^7.0.3",
     "dotenv": "^16.6.1",
     "prisma": "^6.15.0",
@@ -38,7 +39,9 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.4.0",
     "@prisma/client": "^6.9.0",
+    "@repo/contract": "workspace:*",
     "@types/bcrypt": "^5.0.2",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.9",
@@ -47,7 +50,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.8",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
@@ -64,7 +66,7 @@
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
-    "zod": "^3.25.76"
+    "zod": "^4.3.5"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

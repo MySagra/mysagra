@@ -1,0 +1,33 @@
+{
+  "name": "@repo/contract",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint ."
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.4.0",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^25.0.9",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
