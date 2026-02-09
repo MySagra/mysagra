@@ -203,7 +203,7 @@ export class OrderService {
                 }
 
                 createOrderItems.push(createItem)
-                subTotal = subTotal.add(createItem.total);
+                subTotal = subTotal.add(createItem.unitPrice * createItem.quantity);
                 totalSurcharge = totalSurcharge.add(surcharge);
             });
 
@@ -342,7 +342,7 @@ export class OrderService {
                     };
 
                     createOrderItems.push(createItem);
-                    subTotal = subTotal.add(createItem.total);
+                    subTotal = subTotal.add(createItem.unitPrice * createItem.quantity);
                     totalSurcharge = totalSurcharge.add(item.surcharge);
                 });
 
@@ -366,7 +366,7 @@ export class OrderService {
 
             const discount = new Prisma.Decimal(confirm.discount || 0);
 
-            let total = subTotal.sub(discount);
+            let total = subTotal.add(totalSurcharge).sub(discount)
             if (total.isNegative()) total = new Prisma.Decimal(0);
 
             const ticketNumber = await this._getNextTicketNumber(tx);
