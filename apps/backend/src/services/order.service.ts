@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderStatus } from "@/schemas";
+import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderItem, OrderStatus } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventService } from "./event.service";
 import { Prisma } from "@/generated/prisma_client";
@@ -53,7 +53,7 @@ export class OrderService {
             }
         }
 
-        if(queryParams.displayCode){
+        if (queryParams.displayCode) {
             where.displayCode = queryParams.displayCode
         }
 
@@ -180,13 +180,26 @@ export class OrderService {
 
             const foodMap = new Map(foods.map(f => [f.id, f.price]));
             let subTotal = new Prisma.Decimal(0);
+            let totalSurcharge = new Prisma.Decimal(0);
+            const createOrderItems: Array<OrderItem> = []
 
             orderItems.forEach(item => {
-                const price = foodMap.get(item.foodId);
-                if (!price) throw new Error("Internal price error");
+                const price = foodMap.get(item.foodId)!;
 
-                const lineTotal = price.mul(item.quantity);
-                subTotal = subTotal.add(lineTotal);
+                const surcharge = confirm ? item.surcharge : 0
+
+                const createItem = {
+                    foodId: item.foodId,
+                    quantity: item.quantity,
+                    notes: item.notes,
+                    unitPrice: price.toNumber(),
+                    surcharge: surcharge,
+                    total: surcharge + price.toNumber() * item.quantity
+                }
+
+                createOrderItems.push(createItem)
+                subTotal = subTotal.add(createItem.total);
+                totalSurcharge = totalSurcharge.add(surcharge);
             });
 
             let total = subTotal;
@@ -198,7 +211,7 @@ export class OrderService {
 
             if (confirm) {
                 const discount = new Prisma.Decimal(confirm.discount || 0);
-                const surcharge = new Prisma.Decimal(confirm.surcharge || 0);
+                const surcharge = new Prisma.Decimal(totalSurcharge || 0);
                 total = subTotal.add(surcharge).sub(discount);
 
                 if (total.isNegative()) total = new Prisma.Decimal(0);
@@ -224,7 +237,7 @@ export class OrderService {
 
                     paymentMethod: confirm?.paymentMethod || null,
                     discount: confirm?.discount || 0,
-                    surcharge: confirm?.surcharge || 0,
+                    surcharge: totalSurcharge || 0,
                     total: total,
 
                     userId: userId,
@@ -239,11 +252,14 @@ export class OrderService {
             });
 
             await tx.orderItem.createMany({
-                data: orderItems.map(item => ({
-                    quantity: item.quantity,
-                    foodId: item.foodId,
+                data: createOrderItems.map(item => ({
                     orderId: createdOrder.id,
+                    foodId: item.foodId,
+                    quantity: item.quantity,
                     notes: item.notes || null,
+                    unitPrice: item.unitPrice!,
+                    unitSurcharge: item.surcharge / item.quantity,
+                    total: item.total!
                 }))
             });
 
@@ -273,10 +289,10 @@ export class OrderService {
         }
 
         // cashier only event
-        if(!confirm){
+        if (!confirm) {
             this.cashierEvent.broadcastEvent(createdOrder, "new-order")
         }
-        
+
         return createdOrder;
     }
 
@@ -291,6 +307,7 @@ export class OrderService {
             if (existingOrder.status !== 'PENDING') throw new Error("Order is already confirmed");
 
             let subTotal = new Prisma.Decimal(0);
+            let totalSurcharge = new Prisma.Decimal(0);
 
             if (confirm.orderItems && confirm.orderItems.length > 0) {
                 await tx.orderItem.deleteMany({ where: { orderId } });
@@ -306,19 +323,33 @@ export class OrderService {
                 }
 
                 const foodMap = new Map(foods.map(f => [f.id, f.price]));
+                const createOrderItems: Array<OrderItem> = [];
 
                 confirm.orderItems.forEach(item => {
-                    const price = foodMap.get(item.foodId)!; // Safe thanks to the check above
-                    // Use Decimal for precision
-                    subTotal = subTotal.add(price.mul(item.quantity));
+                    const price = foodMap.get(item.foodId)!;
+                    const createItem = {
+                        foodId: item.foodId,
+                        quantity: item.quantity,
+                        notes: item.notes,
+                        unitPrice: price.toNumber(),
+                        surcharge: item.surcharge,
+                        total: item.surcharge + price.toNumber() * item.quantity
+                    };
+
+                    createOrderItems.push(createItem);
+                    subTotal = subTotal.add(createItem.total);
+                    totalSurcharge = totalSurcharge.add(item.surcharge);
                 });
 
                 await tx.orderItem.createMany({
-                    data: confirm.orderItems.map(item => ({
+                    data: createOrderItems.map(item => ({
                         orderId: orderId,
                         foodId: item.foodId,
                         quantity: item.quantity,
-                        notes: item.notes || null
+                        notes: item.notes || null,
+                        unitPrice: item.unitPrice!,
+                        unitSurcharge: item.surcharge / item.quantity,
+                        total: item.total!
                     }))
                 });
 
@@ -329,9 +360,8 @@ export class OrderService {
             }
 
             const discount = new Prisma.Decimal(confirm.discount || 0);
-            const surcharge = new Prisma.Decimal(confirm.surcharge || 0);
 
-            let total = subTotal.add(surcharge).sub(discount);
+            let total = subTotal.sub(discount);
             if (total.isNegative()) total = new Prisma.Decimal(0);
 
             const ticketNumber = await this._getNextTicketNumber(tx);
@@ -344,15 +374,15 @@ export class OrderService {
                     ticketNumber: ticketNumber,
                     paymentMethod: confirm.paymentMethod,
                     discount: confirm.discount || 0,
-                    surcharge: confirm.surcharge || 0,
+                    surcharge: totalSurcharge || 0,
                     subTotal: subTotal,
                     total: total,
                     userId: confirm.userId,
                     cashRegisterId: confirm.cashRegisterId
                 },
-                include: { 
+                include: {
                     orderItems: true // Return updated items
-                } 
+                }
             });
 
             return updatedOrder;
@@ -372,12 +402,12 @@ export class OrderService {
             confirmedOrder,
             "confirmed-order"
         );
-            
+
 
         return confirmedOrder;
     }
 
-    async updateStatus(id: number, status: OrderStatus){
+    async updateStatus(id: number, status: OrderStatus) {
         return await prisma.order.update({
             where: {
                 id

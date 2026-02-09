@@ -1,12 +1,15 @@
 import z from "zod"
 
-export const OrderStatusSchema = z.enum(["PENDING","CONFIRMED", "COMPLETED", "PICKED_UP"]);
+export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"]);
 export const PaymentMethodSchema = z.enum(["CASH", "CARD"])
 
 export const OrderItemInputSchema = z.object({
     foodId: z.string().cuid(),
     quantity: z.number().int().min(1),
-    notes: z.string().optional()
+    notes: z.string().optional(),
+    unitPrice: z.number().optional(),
+    surcharge: z.number().default(0),
+    total: z.number().optional()
 });
 
 export const OrderItemResponseSchema = z.object({
@@ -17,15 +20,17 @@ export const OrderItemResponseSchema = z.object({
         id: z.string(),
         name: z.string(),
         price: z.number()
-    }).optional()
+    }).optional(),
+    unitPrice: z.number(),
+    surcharge: z.number().default(0),
+    total: z.number()
 });
 
 const ConfirmationDataSchema = z.object({
     paymentMethod: PaymentMethodSchema,
-    discount: z.number().min(0).default(0),
-    surcharge: z.number().min(0).default(0),
     cashRegisterId: z.string().cuid(),
-    userId: z.string().cuid().optional()
+    userId: z.string().cuid().optional(),
+    discount: z.number().min(0).default(0)
 });
 
 export const CreateOrderSchema = z.object({
