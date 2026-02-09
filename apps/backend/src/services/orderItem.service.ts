@@ -30,7 +30,12 @@ export class OrderItemService {
         return await prisma.orderItem.create({
             data: {
                 orderId,
-                ...item
+                foodId: item.foodId,
+                quantity: item.quantity,
+                notes: item.notes,
+                unitPrice: item.unitPrice!,
+                unitSurcharge: item.surcharge / item.quantity,
+                total: item.total!,
             }
         })
     }
@@ -47,7 +52,10 @@ export class OrderItemService {
                 orderId,
                 foodId: item.foodId,
                 quantity: item.quantity,
-                notes: item.notes
+                notes: item.notes,
+                unitPrice: item.unitPrice!,
+                unitSurcharge: item.surcharge / item.quantity,
+                total: item.total!,
             })),
         });
 
