@@ -96,7 +96,9 @@ export class OrderService {
                         id: true,
                         quantity: true,
                         notes: true,
-
+                        total: true,
+                        unitPrice: true,
+                        unitSurcharge: true,
                         food: {
                             select: {
                                 id: true,
@@ -149,6 +151,9 @@ export class OrderService {
                 id: item.id,
                 quantity: item.quantity,
                 notes: item.notes,
+                total: item.total,
+                unitPrice: item.unitPrice,
+                unitSurcharge: item.unitSurcharge,
                 food: {
                     ...foodData,
                     ingredients: ingredients
