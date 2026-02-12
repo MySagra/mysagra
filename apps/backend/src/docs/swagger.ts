@@ -21,11 +21,11 @@ const options: SwaggerOptions = {
             {
                 name: 'Users',
                 description: 'User management'
-            }/*,
+            },
             {
                 name: 'Roles',
                 description: 'Role management'
-            }*/,
+            },
             {
                 name: 'Categories',
                 description: 'Category management'
