@@ -120,6 +120,10 @@ model OrderItem {
   food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
   foodId String
 
+  unitPrice     Decimal
+  unitSurcharge Decimal @default(0)
+  total         Decimal
+
   notes String?
 
   @@unique([orderId, foodId, notes], name: "unique_order_food_notes")

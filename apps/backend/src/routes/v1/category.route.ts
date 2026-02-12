@@ -4,8 +4,6 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 import { CreateCategorySchema, cuidParamSchema, GetCategoriesQuerySchema, PatchCategorySchema, UpdateFoodSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { upload } from "@/middlewares/upload.middleware";
-
 //service and controller
 import { CategoryService } from "@/services/category.service";
 import { CategoryController } from "@/controllers/category.controller";
@@ -310,7 +308,7 @@ router.patch(
     validateRequest({
         params: cuidParamSchema
     }),
-    upload(CategoryService.getImagePath(), "category").single('image'),
+    CategoryService.imageService.upload(),
     categoryController.uploadImage
 );
 

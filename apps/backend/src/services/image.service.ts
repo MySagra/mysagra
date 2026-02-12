@@ -22,21 +22,23 @@ const fileFilter = (
 }
 
 export class ImageService {
-    private folderPath: string
     private uploader: multer.Multer
     private resource: string
 
+    private folderPath: string
+    public static rootPath = process.cwd();
+    public static uploadsPath = path.join(ImageService.rootPath, "public/uploads");
+
     constructor(folderName: string, resource: string) {
-        this.folderPath = path.join(__dirname, `../../public/uploads/${folderName}`);
+        this.folderPath = path.join(ImageService.uploadsPath, folderName);
         this.resource = resource;
 
-        const uploadsPath = path.join(__dirname, "../../public/uploads");
-        if (!fs.existsSync(uploadsPath)) {
-            fs.mkdirSync(uploadsPath, { recursive: true });
-        }
-
         if (!fs.existsSync(this.folderPath)) {
-            fs.mkdirSync(this.folderPath, { recursive: true });
+            try {
+                fs.mkdirSync(this.folderPath, { recursive: true });
+            } catch (err) {
+                console.error("Errore creazione folderPath:", err);
+            }
         }
 
         this.uploader = multer({
@@ -60,7 +62,7 @@ export class ImageService {
         })
     }
 
-    public upload() : RequestHandler {
+    public upload(): RequestHandler {
         return this.uploader.single('image');
     }
 
@@ -68,7 +70,7 @@ export class ImageService {
         const filePath = path.join(this.folderPath, fileName);
         fs.unlink(filePath, (err) => {
             if (err) {
-                logger.error(`Error deleting file ${filePath}:`, err);
+                logger.warn(`Image in ${filePath} already deleted:`, err);
             } else {
                 logger.info(`File ${filePath} deleted successfully.`);
             }

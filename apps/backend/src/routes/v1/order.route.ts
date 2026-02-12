@@ -41,6 +41,22 @@ const router = Router();
  *           type: string
  *           description: Optional notes for this specific item
  *           example: "No onions, extra cheese"
+ *         surcharge:
+ *           type: number
+ *           format: float
+ *           default: 0
+ *           description: Surcharge for this item (e.g., extra toppings)
+ *           example: 1.50
+ *         unitPrice:
+ *           type: number
+ *           format: float
+ *           description: Unit price of the food item (set automatically by backend)
+ *           example: 8.50
+ *         total:
+ *           type: number
+ *           format: float
+ *           description: Total for this item (surcharge + unitPrice * quantity, set automatically by backend)
+ *           example: 18.50
  *     ConfirmationData:
  *       type: object
  *       required:
@@ -67,13 +83,6 @@ const router = Router();
  *           default: 0
  *           description: Discount amount to subtract from subtotal
  *           example: 2.50
- *         surcharge:
- *           type: number
- *           format: float
- *           minimum: 0
- *           default: 0
- *           description: Surcharge amount to add to subtotal (e.g., service fee)
- *           example: 1.00
  *         orderItems:
  *           type: array
  *           description: Optional list of order items to replace existing ones
@@ -230,6 +239,21 @@ const router = Router();
  *           type: string
  *           description: Optional notes for this specific item
  *           example: "No onions, extra cheese"
+ *         unitPrice:
+ *           type: number
+ *           format: decimal
+ *           description: Unit price of the food at time of order
+ *           example: 8.50
+ *         unitSurcharge:
+ *           type: number
+ *           format: decimal
+ *           description: Per-unit surcharge (item surcharge / quantity)
+ *           example: 0.75
+ *         total:
+ *           type: number
+ *           format: decimal
+ *           description: Total for this item (surcharge + unitPrice * quantity)
+ *           example: 18.50
  *         food:
  *           $ref: '#/components/schemas/FoodBasic'
  *     OrderItemDetailed:
@@ -244,6 +268,21 @@ const router = Router();
  *           type: string
  *           description: Optional notes for this specific item
  *           example: "No onions, extra cheese"
+ *         unitPrice:
+ *           type: number
+ *           format: decimal
+ *           description: Unit price of the food at time of order
+ *           example: 8.50
+ *         unitSurcharge:
+ *           type: number
+ *           format: decimal
+ *           description: Per-unit surcharge (item surcharge / quantity)
+ *           example: 0.75
+ *         total:
+ *           type: number
+ *           format: decimal
+ *           description: Total for this item (surcharge + unitPrice * quantity)
+ *           example: 18.50
  *         food:
  *           $ref: '#/components/schemas/FoodDetailed'
  *     OrderListResponse:
@@ -328,6 +367,21 @@ const router = Router();
  *           nullable: true
  *           description: Optional notes for this specific item
  *           example: "No onions, extra cheese"
+ *         unitPrice:
+ *           type: number
+ *           format: decimal
+ *           description: Unit price of the food at time of order
+ *           example: 8.50
+ *         unitSurcharge:
+ *           type: number
+ *           format: decimal
+ *           description: Per-unit surcharge (item surcharge / quantity)
+ *           example: 0.75
+ *         total:
+ *           type: number
+ *           format: decimal
+ *           description: Total for this item (surcharge + unitPrice * quantity)
+ *           example: 18.50
  *         food:
  *           $ref: '#/components/schemas/FoodWithIngredients'
  *     CategorizedItems:
@@ -737,8 +791,10 @@ router.get(
  *       - Broadcasts confirmation event to displays
  *       
  *       **Price calculation:**
- *       - Subtotal is automatically calculated from food items: Σ(quantity × price)
- *       - If confirm data is provided: Total = Subtotal + surcharge - discount
+ *       - Each item total: surcharge + (unitPrice × quantity)
+ *       - Subtotal = Σ(item.total)
+ *       - Order surcharge = Σ(item.surcharge)
+ *       - If confirm data is provided: Total = Subtotal - discount
  *       
  *       **Note:** Returns lightweight response without food details. Use GET /{id} to retrieve full order details.
  *       
@@ -762,13 +818,14 @@ router.get(
  *                   - foodId: "clx1a2b3c4d5e6f7g8h9i0j1"
  *                     quantity: 2
  *                     notes: "No onions, extra cheese"
+ *                     surcharge: 1.50
  *                   - foodId: "clx9z8y7x6w5v4u3t2s1r0q9"
  *                     quantity: 1
  *                     notes: "Well done"
+ *                     surcharge: 0
  *                 confirm:
  *                   paymentMethod: "CASH"
  *                   discount: 2.50
- *                   surcharge: 1.00
  *                   userId: "clx1a2b3c4d5e6f7g8h9i0j1"
  *                   cashRegisterId: "clx9z8y7x6w5v4u3t2s1r0q9"
  *             withoutConfirmation:
@@ -781,8 +838,10 @@ router.get(
  *                   - foodId: "clx1a2b3c4d5e6f7g8h9i0j1"
  *                     quantity: 2
  *                     notes: "No onions, extra cheese"
+ *                     surcharge: 0
  *                   - foodId: "clx9z8y7x6w5v4u3t2s1r0q9"
  *                     quantity: 1
+ *                     surcharge: 0
  *     responses:
  *       201:
  *         description: Order created successfully (lightweight, no food details)
@@ -876,8 +935,10 @@ router.post(
  *       7. Broadcasts confirmation event to display systems
  *       
  *       **Total calculation:**
- *       - Subtotal = Σ(item.quantity × item.food.price)
- *       - Total = Subtotal + surcharge - discount
+ *       - Each item total: surcharge + (unitPrice × quantity)
+ *       - Subtotal = Σ(item.total)
+ *       - Order surcharge = Σ(item.surcharge)
+ *       - Total = Subtotal - discount
  *       - If total becomes negative, it's set to 0
  *       
  *       **Important notes:**
@@ -917,21 +978,21 @@ router.post(
  *                 cashRegisterId: "clx9z8y7x6w5v4u3t2s1r0q9"
  *                 paymentMethod: "CASH"
  *                 discount: 5.00
- *                 surcharge: 2.00
  *                 orderItems:
  *                   - foodId: "clm1234567890"
  *                     quantity: 2
  *                     notes: "Extra spicy"
+ *                     surcharge: 1.50
  *                   - foodId: "clm9876543210"
  *                     quantity: 1
  *                     notes: "No onions"
+ *                     surcharge: 0
  *             withoutNewItems:
  *               summary: Confirm with existing items
  *               description: Keeps existing items and only adds payment info
  *               value:
  *                 paymentMethod: "CARD"
  *                 discount: 0
- *                 surcharge: 1.50
  *             withDiscountOnly:
  *               summary: Confirm with discount only
  *               value:

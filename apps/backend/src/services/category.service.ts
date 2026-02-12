@@ -1,12 +1,11 @@
 import prisma from "@/utils/prisma";
-import { deleteFile, getUploadsPath } from "@/utils/fileManager";
 import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCategoryInput, UpdateFoodInput } from "@/schemas";
 import { Prisma } from "@generated/prisma_client";
 import { FoodService } from "./food.service";
+import { ImageService } from "./image.service";
 
 export class CategoryService {
-    private static folderName = 'categories'
-    private static imagePath = getUploadsPath();
+    public static imageService = new ImageService('categories', 'category');
 
     async getCategories(queryParams?: GetCategoriesQuery) {
         const whereClause: Prisma.CategoryWhereInput = {}
@@ -125,7 +124,7 @@ export class CategoryService {
         });
 
         if (category.image) {
-            deleteFile(CategoryService.getImagePath(), category.image)
+            CategoryService.imageService.delete(category.image)
         }
 
         return null;
@@ -136,7 +135,7 @@ export class CategoryService {
             const category = await this.getCategoryById(id, undefined, tx);
 
             if (category?.image && (category.image !== file.filename)) {
-                deleteFile(CategoryService.getImagePath(), category.image)
+                CategoryService.imageService.delete(category.image)
             }
 
             return await tx.category.update({
@@ -151,7 +150,4 @@ export class CategoryService {
 
     }
 
-    static getImagePath() {
-        return `${this.imagePath}/${this.folderName}`
-    }
 }
