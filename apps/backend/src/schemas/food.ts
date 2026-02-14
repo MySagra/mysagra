@@ -39,7 +39,7 @@ export const UpdateFoodSchema = z.object({
 
 export const PatchFoodSchema = z.object({
     available: z.boolean().optional(),
-    printerId: z.string().cuid()
+    printerId: z.string().cuid().nullable().optional()
 }).refine(data => Object.keys(data).length > 0, {
     message: "At least one field must be provided"
 })

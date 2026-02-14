@@ -173,6 +173,7 @@ export class FoodService {
                 id
             },
             data: {
+                printerId: food.printerId,
                 available: food.available
             }
         })

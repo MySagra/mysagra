@@ -296,9 +296,14 @@ router.put(
  *                 type: boolean
  *                 description: New availability status
  *                 example: false
+ *               printerId:
+ *                 type: string
+ *                 nullable: true
+ *                 description: CUID of the printer associated with this food item. Set to `null` to remove the printer association.
+ *                 example: "clxyz987654321fedcba"
  *     responses:
  *       200:
- *         description: Food availability updated successfully
+ *         description: Food item updated successfully
  *         content:
  *           application/json:
  *             schema:

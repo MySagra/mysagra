@@ -85,11 +85,25 @@ export class CategoryService {
     }
 
     async updateCategory(id: string, category: UpdateCategoryInput) {
-        return await prisma.category.update({
-            where: {
-                id
-            },
-            data: category
+        return await prisma.$transaction(async (tx) => {
+            const updateCategory = await tx.category.update({
+                where: {
+                    id
+                },
+                data: category
+            })
+
+            const foodUpdate: Prisma.FoodUpdateManyArgs = {
+                where: {
+                    categoryId: id,
+                },
+                data: {
+                    available: category.available,
+                    printerId: category.printerId
+                }
+            }
+            await tx.food.updateMany(foodUpdate)
+            return updateCategory;
         })
     }
 
@@ -104,10 +118,11 @@ export class CategoryService {
 
             const foodUpdate: Prisma.FoodUpdateManyArgs = {
                 where: {
-                    categoryId: id
+                    categoryId: id,
                 },
                 data: {
-                    available: patchCategory.available
+                    available: patchCategory.available,
+                    printerId: patchCategory.printerId
                 }
             }
 

@@ -41,30 +41,127 @@ const router = Router();
  *       
  *       **Available Channels:**
  *       
- *       **`order`** - Order events channel
- *       - Broadcasts real-time updates when orders are created, updated, or deleted
- *       - Event data includes complete order information with items
- *       - Use case: Display live order feed in kitchen display systems or operator dashboards
- *       - Message format: Complete order object matching the POST /v1/orders response
+ *       ---
+ *       
+ *       ### `cashier`
+ *       Broadcasts real-time updates for the cashier interface when orders are created or confirmed.
+ *       
+ *       **Event: `new-order`** — Fired when a new order is placed.
+ *       ```json
+ *       {
+ *         "id": 1,
+ *         "displayCode": "A01",
+ *         "table": "3",
+ *         "customer": "John Doe",
+ *         "createdAt": "2026-01-15T18:30:00.000Z",
+ *         "confirmedAt": null,
+ *         "ticketNumber": null,
+ *         "status": "PENDING",
+ *         "paymentMethod": null,
+ *         "subTotal": "25",
+ *         "discount": "0",
+ *         "surcharge": "0",
+ *         "total": "25",
+ *         "userId": null,
+ *         "cashRegisterId": null,
+ *         "orderItems": [
+ *           {
+ *             "id": "clx0abc0001mx01example",
+ *             "quantity": 2,
+ *             "orderId": 1,
+ *             "foodId": "clx0def0002mx01example",
+ *             "unitPrice": "12.5",
+ *             "unitSurcharge": "0",
+ *             "total": "25",
+ *             "notes": "No onions"
+ *           }
+ *         ]
+ *       }
+ *       ```
+ *       
+ *       **Event: `confirmed-order`** — Fired when an order is confirmed by a cashier.
+ *       ```json
+ *       {
+ *         "displayCode": "A01",
+ *         "ticketNumber": 1,
+ *         "id": 1
+ *       }
+ *       ```
+ *       
+ *       ---
+ *       
+ *       ### `display`
+ *       Broadcasts real-time updates for display systems (kitchen screens, customer-facing displays) when order confirmations occur.
+ *       
+ *       **Event: `confirmed-order`** — Fired when an order is confirmed.
+ *       ```json
+ *       {
+ *         "displayCode": "A01",
+ *         "ticketNumber": 1,
+ *         "id": 1
+ *       }
+ *       ```
+ *       
+ *       ---
+ *       
+ *       ### `printer`
+ *       Broadcasts real-time updates for printers when a cashier confirms a new order. Includes full order details for printing.
+ *       
+ *       **Event: `confirmed-order`** — Fired when an order is confirmed, includes full order details for printing.
+ *       ```json
+ *       {
+ *         "id": 1,
+ *         "displayCode": "A01",
+ *         "table": "3",
+ *         "customer": "John Doe",
+ *         "createdAt": "2026-01-15T18:30:00.000Z",
+ *         "confirmedAt": "2026-01-15T18:35:12.000Z",
+ *         "ticketNumber": 1,
+ *         "status": "CONFIRMED",
+ *         "paymentMethod": "CASH",
+ *         "subTotal": "25",
+ *         "discount": "2",
+ *         "surcharge": "1",
+ *         "total": "24",
+ *         "userId": "clx0usr0003mx01example",
+ *         "cashRegisterId": "clx0csh0004mx01example",
+ *         "orderItems": [
+ *           {
+ *             "id": "clx0abc0001mx01example",
+ *             "quantity": 2,
+ *             "orderId": 1,
+ *             "foodId": "clx0def0002mx01example",
+ *             "unitPrice": "12.5",
+ *             "unitSurcharge": "0.5",
+ *             "total": "26",
+ *             "notes": "Extra spicy"
+ *           }
+ *         ]
+ *       }
+ *       ```
+ *       
+ *       ---
  *       
  *       **Connection details:**
  *       - Content-Type: `text/event-stream`
+ *       - Cache-Control: `no-cache`
+ *       - Connection: `keep-alive`
  *       - Keep-alive messages sent every 15 seconds (`: keep-alive\n\n`)
  *       - Data messages format: `data: {JSON}\n\n`
  *       
  *       **Example client implementation (JavaScript):**
  *       ```javascript
- *       const eventSource = new EventSource('/v1/events/order', {
+ *       const eventSource = new EventSource('/events/cashier', {
  *         headers: { 'Authorization': 'Bearer YOUR_TOKEN' }
  *       });
  *       
  *       eventSource.onmessage = (event) => {
  *         const orderData = JSON.parse(event.data);
- *         console.log('New order:', orderData);
+ *         console.log('Order update:', orderData);
  *       };
  *       
  *       eventSource.onerror = (error) => {
- *         console.error('SSE error:', error);
+ *         console.error('SSE connection error:', error);
  *       };
  *       ```
  *     security:
@@ -75,10 +172,10 @@ const router = Router();
  *         required: true
  *         description: |
  *           Event channel to subscribe to.
- *           Currently available: `cashier, display`
+ *           Available channels: `cashier`, `display`, `printer`
  *         schema:
  *           type: string
- *           enum: [cashier, display]
+ *           enum: [cashier, display, printer]
  *           example: "cashier"
  *     responses:
  *       200:
@@ -95,10 +192,18 @@ const router = Router();
  *               keepAlive:
  *                 summary: Keep-alive heartbeat message
  *                 value: ": keep-alive\n\n"
- *               orderCreated:
- *                 summary: New order created event (order channel)
+ *               newOrder:
+ *                 summary: New order event (cashier channel)
  *                 value: |
- *                   data: {"id":123,"displayCode":"A01","table":"5","customer":"Mario Rossi","subTotal":"25.50","createdAt":"2025-11-08T10:30:00Z","orderItems":[{"id":"clx123","quantity":2,"foodId":"clx456","notes":null}]}
+ *                   data: {"id":1,"displayCode":"A01","table":"3","customer":"John Doe","createdAt":"2026-01-15T18:30:00.000Z","confirmedAt":null,"ticketNumber":null,"status":"PENDING","paymentMethod":null,"subTotal":"25","discount":"0","surcharge":"0","total":"25","userId":null,"cashRegisterId":null,"orderItems":[{"id":"clx0abc0001mx01example","quantity":2,"orderId":1,"foodId":"clx0def0002mx01example","unitPrice":"12.5","unitSurcharge":"0","total":"25","notes":"No onions"}]}
+ *               confirmedOrderCashier:
+ *                 summary: Confirmed order event (cashier/display channel)
+ *                 value: |
+ *                   data: {"displayCode":"A01","ticketNumber":1,"id":1}
+ *               confirmedOrderPrinter:
+ *                 summary: Confirmed order event (printer channel)
+ *                 value: |
+ *                   data: {"id":1,"displayCode":"A01","table":"3","customer":"John Doe","createdAt":"2026-01-15T18:30:00.000Z","confirmedAt":"2026-01-15T18:35:12.000Z","ticketNumber":1,"status":"CONFIRMED","paymentMethod":"CASH","subTotal":"25","discount":"2","surcharge":"1","total":"24","userId":"clx0usr0003mx01example","cashRegisterId":"clx0csh0004mx01example","orderItems":[{"id":"clx0abc0001mx01example","quantity":2,"orderId":1,"foodId":"clx0def0002mx01example","unitPrice":"12.5","unitSurcharge":"0.5","total":"26","notes":"Extra spicy"}]}
  *       400:
  *         description: Invalid channel parameter
  *         content:
@@ -122,7 +227,7 @@ const router = Router();
  *               message: "Validation error"
  *               errors:
  *                 - field: "channel"
- *                   message: "Invalid enum value. Expected 'order'"
+ *                   message: "Invalid enum value. Expected 'cashier' | 'display' | 'printer'"
  *       401:
  *         description: Unauthorized - Authentication required
  *         content:
