@@ -2,7 +2,7 @@ import { Router } from "express";
 
 //middlewares
 import { authenticate } from "@/middlewares/authenticate";
-import { CreateCategorySchema, cuidParamSchema, GetCategoriesQuerySchema, PatchCategorySchema, UpdateFoodSchema } from "@/schemas";
+import { CreateCategorySchema, cuidParamSchema, GetCategoriesQuerySchema, PatchCategorySchema, UpdateCategorySchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 //service and controller
 import { CategoryService } from "@/services/category.service";
@@ -181,6 +181,11 @@ router.post(
  *     security:
  *       - bearerAuth: []
  *     summary: Update a category
+ *     description: |
+ *       Update a category by ID.
+ *       
+ *       - Changing the **available** field will also update the availability of all associated foods.
+ *       - Changing the **printerId** field will also update the printer of all associated foods. Setting it to `null` will remove the printer association from the category and all its foods.
  *     tags:
  *       - Categories
  *     parameters:
@@ -212,7 +217,7 @@ router.put(
     authenticate(["admin"]),
     validateRequest({
         params: cuidParamSchema,
-        body: UpdateFoodSchema
+        body: UpdateCategorySchema
     }),
     categoryController.updateCategory
 );
@@ -223,8 +228,12 @@ router.put(
  *   patch:
  *     security:
  *       - bearerAuth: []
- *     summary: Update availability status of a category
- *     description: Update the availability of a category. Note that changing the availability of a category will also update the availability of all associated foods.
+ *     summary: Partially update a category
+ *     description: |
+ *       Partially update a category by ID.
+ *       
+ *       - Changing the **available** field will also update the availability of all associated foods.
+ *       - Changing the **printerId** field will also update the printer of all associated foods. Setting it to `null` will remove the printer association from the category and all its foods.
  *     tags:
  *       - Categories
  *     parameters:

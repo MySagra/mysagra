@@ -21,7 +21,7 @@ export const UpdateCategorySchema = z.object({
 
 export const PatchCategorySchema = z.object({
     available: z.boolean().optional(),
-    printerId: CategoryBase.printerId.optional()
+    printerId: CategoryBase.printerId.optional().nullable()
 }).refine(data => Object.keys(data).length > 0, {
     message: "At least one field must be provided"
 })
