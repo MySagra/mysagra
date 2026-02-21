@@ -176,7 +176,7 @@ const router = Router();
  */
 router.get(
     "/",
-    authenticate(["admin"]),
+    authenticate(["admin", "operator"]),
     validateRequest({
         query: GetFoodsQuerySchema
     }),

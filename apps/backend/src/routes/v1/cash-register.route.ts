@@ -100,6 +100,7 @@ const router = Router();
  */
 router.get(
     "/",
+    authenticate(["admin", "operator"]),
     validateRequest({
         query: GetCashRegisterQuerySchema
     }),
@@ -139,7 +140,7 @@ router.get(
  */
 router.get(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "operator"]),
     validateRequest({
         params: cuidParamSchema,
         query: GetCashRegisterQuerySchema
