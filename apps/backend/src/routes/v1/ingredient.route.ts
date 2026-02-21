@@ -59,7 +59,7 @@ const router = Router();
  */
 router.get(
     "/",
-    authenticate(["admin"]),
+    authenticate(["admin", "operator"]),
     ingredientController.getIngredients
 )
 
@@ -95,7 +95,7 @@ router.get(
  */
 router.get(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "operator"]),
     validateRequest({
         params: cuidParamSchema
     }),

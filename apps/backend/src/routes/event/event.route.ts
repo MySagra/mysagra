@@ -130,11 +130,15 @@ const router = Router();
  *             "id": "clx0abc0001mx01example",
  *             "quantity": 2,
  *             "orderId": 1,
- *             "foodId": "clx0def0002mx01example",
+ *             "notes": "Extra spicy",
  *             "unitPrice": "12.5",
  *             "unitSurcharge": "0.5",
  *             "total": "26",
- *             "notes": "Extra spicy"
+ *             "food": {
+ *               "id": "clx0def0002mx01example",
+ *               "name": "Margherita",
+ *               "printerId": null
+ *             }
  *           }
  *         ]
  *       }
@@ -203,7 +207,7 @@ const router = Router();
  *               confirmedOrderPrinter:
  *                 summary: Confirmed order event (printer channel)
  *                 value: |
- *                   data: {"id":1,"displayCode":"A01","table":"3","customer":"John Doe","createdAt":"2026-01-15T18:30:00.000Z","confirmedAt":"2026-01-15T18:35:12.000Z","ticketNumber":1,"status":"CONFIRMED","paymentMethod":"CASH","subTotal":"25","discount":"2","surcharge":"1","total":"24","userId":"clx0usr0003mx01example","cashRegisterId":"clx0csh0004mx01example","orderItems":[{"id":"clx0abc0001mx01example","quantity":2,"orderId":1,"foodId":"clx0def0002mx01example","unitPrice":"12.5","unitSurcharge":"0.5","total":"26","notes":"Extra spicy"}]}
+ *                   data: {"id":1,"displayCode":"A01","table":"3","customer":"John Doe","createdAt":"2026-01-15T18:30:00.000Z","confirmedAt":"2026-01-15T18:35:12.000Z","ticketNumber":1,"status":"CONFIRMED","paymentMethod":"CASH","subTotal":"25","discount":"2","surcharge":"1","total":"24","userId":"clx0usr0003mx01example","cashRegisterId":"clx0csh0004mx01example","orderItems":[{"id":"clx0abc0001mx01example","quantity":2,"notes":"Extra spicy","unitPrice":"12.5","unitSurcharge":"0.5","total":"26","food":{"id":"clx0def0002mx01example","name":"Margherita","printerId":null}}]}
  *       400:
  *         description: Invalid channel parameter
  *         content:

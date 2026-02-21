@@ -271,7 +271,24 @@ export class OrderService {
             return await tx.order.findUnique({
                 where: { id: createdOrder.id },
                 include: {
-                    orderItems: true
+                    orderItems: {
+                        select: {
+                            id: true,
+                            orderId: true,
+                            quantity: true,
+                            notes: true,
+                            unitPrice: true,
+                            unitSurcharge: true,
+                            total: true,
+                            food: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    printerId: true
+                                }
+                            }
+                        }
+                    }
                 }
             });
         })
@@ -298,7 +315,16 @@ export class OrderService {
             this.cashierEvent.broadcastEvent(createdOrder, "new-order")
         }
 
-        return createdOrder;
+        if (!createdOrder) return null;
+
+        const { orderItems: items, ...orderData } = createdOrder;
+        return {
+            ...orderData,
+            orderItems: items.map(({ food, ...item }) => ({
+                ...item,
+                foodId: food.id
+            }))
+        };
     }
 
     async confirmOrder(orderId: number, confirm: ConfirmOrderInput) {
@@ -386,7 +412,24 @@ export class OrderService {
                     cashRegisterId: confirm.cashRegisterId
                 },
                 include: {
-                    orderItems: true // Return updated items
+                    orderItems: {
+                        select: {
+                            id: true,
+                            orderId: true,
+                            quantity: true,
+                            notes: true,
+                            unitPrice: true,
+                            unitSurcharge: true,
+                            total: true,
+                            food: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    printerId: true
+                                }
+                            }
+                        }
+                    }
                 }
             });
 
