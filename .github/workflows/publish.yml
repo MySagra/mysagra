@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./docker/images/mysagra-myamministratore/Dockerfile
+          file: ./docker/images/mysagra-frontend/Dockerfile
           push: true
           tags: ghcr.io/mysagra/${{ env.IMAGE_NAME_FRONTEND }}:latest
           platforms: linux/amd64,linux/arm64
