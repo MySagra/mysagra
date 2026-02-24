@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { User, Role } from "@/lib/api-types";
 import { createUser, updateUser } from "@/actions/users";
@@ -61,7 +61,7 @@ export function UserDialog({
   const isEditing = !!user;
 
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+    resolver: standardSchemaResolver(userSchema),
     defaultValues: {
       username: "",
       password: "",

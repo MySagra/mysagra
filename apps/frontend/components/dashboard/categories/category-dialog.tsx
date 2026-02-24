@@ -51,7 +51,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -61,7 +61,7 @@ const categorySchema = z.object({
   printerId: z.string().optional(),
 });
 
-type CategoryFormValues = z.input<typeof categorySchema>;
+type CategoryFormValues = z.infer<typeof categorySchema>;
 
 interface CategoryDialogProps {
   open: boolean;
@@ -88,7 +88,7 @@ export function CategoryDialog({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(categorySchema),
+    resolver: standardSchemaResolver(categorySchema),
     defaultValues: {
       name: "",
       available: true,

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { FormField, FormItem, FormControl } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useForm, FormProvider } from "react-hook-form";
 import { toast } from "sonner";
 import { login as loginAction } from "@/actions/auth";
@@ -28,7 +28,7 @@ export function LoginForm() {
     });
 
     const form = useForm<z.input<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+        resolver: standardSchemaResolver(formSchema),
         defaultValues: {
             username: "",
             password: "",

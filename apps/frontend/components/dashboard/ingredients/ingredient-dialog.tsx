@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Ingredient } from "@/lib/api-types";
 import { createIngredient, updateIngredient } from "@/actions/ingredients";
@@ -60,7 +60,7 @@ export function IngredientDialog({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const form = useForm<IngredientFormValues>({
-    resolver: zodResolver(ingredientSchema),
+    resolver: standardSchemaResolver(ingredientSchema),
     defaultValues: {
       name: "",
     },

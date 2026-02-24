@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Food, Category, Ingredient, Printer } from "@/lib/api-types";
 import { createFood, updateFood } from "@/actions/foods";
@@ -89,7 +89,7 @@ export function FoodDialog({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const form = useForm<FoodFormValues>({
-    resolver: zodResolver(foodSchema),
+    resolver: standardSchemaResolver(foodSchema),
     defaultValues: {
       name: "",
       description: "",

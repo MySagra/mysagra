@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { CashRegister, Printer } from "@/lib/api-types";
 import {
@@ -75,7 +75,7 @@ export function CashRegisterDialog({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const form = useForm<CashRegisterFormValues>({
-    resolver: zodResolver(cashRegisterSchema),
+    resolver: standardSchemaResolver(cashRegisterSchema),
     defaultValues: {
       name: "",
       defaultPrinterId: printers[0]?.id || "",

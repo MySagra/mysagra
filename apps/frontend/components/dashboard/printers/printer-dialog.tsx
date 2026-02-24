@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Printer } from "@/lib/api-types";
 import { createPrinter, updatePrinter } from "@/actions/printers";
@@ -67,7 +67,7 @@ export function PrinterDialog({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const form = useForm<PrinterFormValues>({
-    resolver: zodResolver(printerSchema),
+    resolver: standardSchemaResolver(printerSchema),
     defaultValues: {
       name: "",
       ip: "",
