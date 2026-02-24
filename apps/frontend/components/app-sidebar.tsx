@@ -113,7 +113,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="flex aspect-square size-16 items-center justify-center rounded-lg overflow-hidden">
                   <img src="/icona.png" alt="MySagra Logo" className="object-contain p-2 w-full h-full" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight text-left">
+                <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-bold text-2xl">MySagra</span>
                   <span className="truncate text-xs">MyAmministratore</span>
                   
