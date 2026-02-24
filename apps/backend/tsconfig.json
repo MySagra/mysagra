@@ -107,5 +107,5 @@
     "files": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "src/generated"]
+  "exclude": ["node_modules"]
 }
