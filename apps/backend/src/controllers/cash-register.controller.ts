@@ -13,11 +13,6 @@ export class CashRegisterController {
         req: TypedRequest<{ query: GetCashRegisterQueryParams }>,
         res: Response,
     ): Promise<void> => {
-        if(req.user?.role === "guest"){
-            res.status(403).json({ message: "Forbidden" });
-            return;
-        }
-
         if(req.user?.role === "operator" && req.validated.query.enabled !== true){
             res.status(403).json({ message: "Forbidden" });
             return;

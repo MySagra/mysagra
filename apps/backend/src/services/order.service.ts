@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderItem, OrderStatus } from "@/schemas";
+import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderItem, OrderStatus, ReprintOrder } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventService } from "./event.service";
 import { Prisma } from "@/generated/prisma_client";
@@ -25,7 +25,7 @@ export class OrderService {
 
     async getOrders(queryParams: GetOrdersQueryParams) {
         const { limit, page } = queryParams;
-        const skip = (1 - page) * limit;
+        const skip = (page - 1) * limit;
 
         const where: Prisma.OrderWhereInput = {};
 
@@ -105,6 +105,7 @@ export class OrderService {
                                 name: true,
                                 description: true,
                                 price: true,
+                                printerId: true,
 
                                 category: {
                                     select: {
@@ -271,7 +272,24 @@ export class OrderService {
             return await tx.order.findUnique({
                 where: { id: createdOrder.id },
                 include: {
-                    orderItems: true
+                    orderItems: {
+                        select: {
+                            id: true,
+                            orderId: true,
+                            quantity: true,
+                            notes: true,
+                            unitPrice: true,
+                            unitSurcharge: true,
+                            total: true,
+                            food: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    printerId: true
+                                }
+                            }
+                        }
+                    }
                 }
             });
         })
@@ -298,7 +316,16 @@ export class OrderService {
             this.cashierEvent.broadcastEvent(createdOrder, "new-order")
         }
 
-        return createdOrder;
+        if (!createdOrder) return null;
+
+        const { orderItems: items, ...orderData } = createdOrder;
+        return {
+            ...orderData,
+            orderItems: items.map(({ food, ...item }) => ({
+                ...item,
+                foodId: food.id
+            }))
+        };
     }
 
     async confirmOrder(orderId: number, confirm: ConfirmOrderInput) {
@@ -386,7 +413,24 @@ export class OrderService {
                     cashRegisterId: confirm.cashRegisterId
                 },
                 include: {
-                    orderItems: true // Return updated items
+                    orderItems: {
+                        select: {
+                            id: true,
+                            orderId: true,
+                            quantity: true,
+                            notes: true,
+                            unitPrice: true,
+                            unitSurcharge: true,
+                            total: true,
+                            food: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    printerId: true
+                                }
+                            }
+                        }
+                    }
                 }
             });
 
@@ -431,5 +475,55 @@ export class OrderService {
             }
         });
         return null;
+    }
+
+    async reprintOrder(id: number, reprint: ReprintOrder) {
+        const order = await prisma.order.findUnique({
+            where: {
+                id
+            },
+            include: {
+                orderItems: {
+                    include: {
+                        food: {
+                            select: {
+                                name: true,
+                                id: true,
+                                printerId: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
+
+        if (!order) {
+            return undefined;
+        }
+
+        let reprintOrderItems: typeof order.orderItems = []
+
+        if(reprint.orderItems){
+            reprintOrderItems = order.orderItems.filter((item) => reprint.orderItems?.some(reprintItem => reprintItem.id === item.id))
+        }
+
+        if (reprint.orderItems && reprintOrderItems.length !== reprint.orderItems.length) {
+            throw new Error("Some order items were not found");
+        }
+
+        this.printerEvent.broadcastEvent(
+            {
+                ...order,
+                reprintOrderItems,
+                reprintReceipt: reprint.reprintReceipt,
+            },
+            "reprint-order"
+        );
+
+        return {
+            ...order,
+            reprintOrderItems,
+            reprintReceipt: reprint.reprintReceipt
+        };
     }
 }

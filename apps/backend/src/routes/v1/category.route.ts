@@ -135,7 +135,7 @@ router.get(
  */
 router.get(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "operator"]),
     validateRequest({
         params: cuidParamSchema,
         query: GetCategoriesQuerySchema

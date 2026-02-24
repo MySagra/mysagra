@@ -142,6 +142,7 @@ export class FoodService {
                 price: food.price,
                 categoryId: food.categoryId,
                 available: food.available,
+                printerId: food.printerId,
                 ...(food.ingredients && food.ingredients.length > 0 && {
                     foodIngredients: {
                         create: food.ingredients.map(ingredient => ({

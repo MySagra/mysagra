@@ -12,6 +12,7 @@ services:
       - "3000:3000"
     environment:
       - API_URL=http://mysagra-backend:4300
+      - AUTH_URL=http://localhost:3000
       - ENABLE_TABLE_SERVICE=true
     restart: unless-stopped
 

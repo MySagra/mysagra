@@ -1,4 +1,5 @@
 import z from "zod"
+import { cuidParamSchema } from "./params";
 
 export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"]);
 export const PaymentMethodSchema = z.enum(["CASH", "CARD"])
@@ -100,6 +101,13 @@ export const OrderResponseSchema = z.object({
     orderItems: z.array(OrderItemResponseSchema).optional()
 });
 
+export const ReprintOrderSchema = z.object({
+    orderItems: z.array(cuidParamSchema).optional(),
+    reprintReceipt: z.boolean()
+}).refine(data => data.orderItems || data.reprintReceipt, {
+    message: "At least one of 'orderItems' or 'reprintReceipt' must be provided"
+})
+
 export type OrderStatus = z.infer<typeof OrderStatusSchema>
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>
 
@@ -112,3 +120,5 @@ export type OrderIdParam = z.infer<typeof OrderIdParamSchema>
 export type OrderResponse = z.infer<typeof OrderResponseSchema>
 export type OrderItem = z.infer<typeof OrderItemInputSchema>
 export type ConfirmationData = z.infer<typeof ConfirmationDataSchema>
+
+export type ReprintOrder = z.infer<typeof ReprintOrderSchema>

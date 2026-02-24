@@ -8,7 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME_BACKEND: mysagra-backend
-  IMAGE_NAME_FRONTEND: mysagra-frontend
+  IMAGE_NAME_FRONTEND: mysagra-myamministratore
 
 jobs:
   build-and-push:
@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./docker/images/mysagra-frontend/Dockerfile
+          file: ./docker/images/mysagra-myamministratore/Dockerfile
           push: true
           tags: ghcr.io/mysagra/${{ env.IMAGE_NAME_FRONTEND }}:latest
           platforms: linux/amd64,linux/arm64

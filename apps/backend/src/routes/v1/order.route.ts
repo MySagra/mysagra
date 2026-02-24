@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { CreateOrderSchema, GetOrdersQuerySchema, ConfirmOrderSchema, idParamSchema, OrderIdParamSchema, PatchOrderSchema } from "@/schemas";
+import { CreateOrderSchema, GetOrdersQuerySchema, ConfirmOrderSchema, idParamSchema, OrderIdParamSchema, PatchOrderSchema, ReprintOrderSchema } from "@/schemas";
 import { OrderController } from "@/controllers/order.controller";
 import { OrderService } from "@/services/order.service";
 
@@ -1258,6 +1258,279 @@ router.delete(
         params: idParamSchema
     }),
     orderController.deleteOrder
+);
+
+/**
+ * @openapi
+ * /v1/orders/{id}/reprint:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Reprint selected order items
+ *     description: |
+ *       Triggers a reprint of selected order items by broadcasting a `reprint-order` event
+ *       to the printer SSE channel. This is useful when a printed ticket is lost or damaged,
+ *       or when specific items need to be reprinted for kitchen/bar stations.
+ *       
+ *       **Operational flow:**
+ *       1. Retrieves the order with its items and associated food details (name, printerId)
+ *       2. Filters order items to include only the ones specified in the request body
+ *       3. Validates that all requested item IDs exist in the order
+ *       4. Broadcasts a `reprint-order` event to the printer SSE channel
+ *       5. Returns the order with only the selected items
+ *       
+ *       **Use cases:**
+ *       - Reprint a lost or damaged ticket
+ *       - Reprint specific items for a particular kitchen/bar station
+ *       - Optionally reprint the receipt as well
+ *       
+ *       **Important notes:**
+ *       - All provided orderItem IDs must belong to the specified order
+ *       - The `reprintReceipt` flag controls whether the fiscal receipt should also be reprinted
+ *       - This endpoint does NOT modify the order in any way
+ *       
+ *       **Authentication:** Requires bearer token (admin or operator role).
+ *     tags:
+ *       - Orders
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric order ID to reprint items from
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         example: 42
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - orderItems
+ *               - reprintReceipt
+ *             properties:
+ *               orderItems:
+ *                 type: array
+ *                 minItems: 1
+ *                 description: List of order item IDs to reprint
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - id
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: cuid
+ *                       description: Order item CUID
+ *                       example: "clx0abc0001mx01example"
+ *               reprintReceipt:
+ *                 type: boolean
+ *                 description: Whether to also reprint the fiscal receipt
+ *                 example: false
+ *           examples:
+ *             reprintItemsOnly:
+ *               summary: Reprint specific items without receipt
+ *               value:
+ *                 orderItems:
+ *                   - id: "clx0abc0001mx01example"
+ *                   - id: "clx0def0002mx01example"
+ *                 reprintReceipt: false
+ *             reprintWithReceipt:
+ *               summary: Reprint items and receipt
+ *               value:
+ *                 orderItems:
+ *                   - id: "clx0abc0001mx01example"
+ *                 reprintReceipt: true
+ *     responses:
+ *       200:
+ *         description: Reprint event broadcast successfully. Returns the order with `reprintOrderItems` (filtered items), `reprintReceipt` flag, and `orderItems` (complete list).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 42
+ *                 displayCode:
+ *                   type: string
+ *                   example: "A01"
+ *                 table:
+ *                   type: string
+ *                   example: "5"
+ *                 customer:
+ *                   type: string
+ *                   example: "Mario Rossi"
+ *                 status:
+ *                   $ref: '#/components/schemas/OrderStatus'
+ *                 ticketNumber:
+ *                   type: integer
+ *                   nullable: true
+ *                   example: 15
+ *                 subTotal:
+ *                   type: string
+ *                   example: "25.50"
+ *                 total:
+ *                   type: string
+ *                   example: "23.00"
+ *                 discount:
+ *                   type: string
+ *                   example: "2.50"
+ *                 surcharge:
+ *                   type: string
+ *                   example: "0"
+ *                 paymentMethod:
+ *                   type: string
+ *                   enum: [CASH, CARD]
+ *                   nullable: true
+ *                   example: "CASH"
+ *                 confirmedAt:
+ *                   type: string
+ *                   format: date-time
+ *                   nullable: true
+ *                   example: "2025-11-12T14:30:00.000Z"
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2025-11-12T14:00:00.000Z"
+ *                 reprintReceipt:
+ *                   type: boolean
+ *                   description: Whether the fiscal receipt should also be reprinted
+ *                   example: false
+ *                 reprintOrderItems:
+ *                   type: array
+ *                   description: Order items selected for reprint (filtered from orderItems)
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: cuid
+ *                         example: "clx0abc0001mx01example"
+ *                       orderId:
+ *                         type: integer
+ *                         example: 42
+ *                       foodId:
+ *                         type: string
+ *                         format: cuid
+ *                         example: "clx0def0002mx01example"
+ *                       quantity:
+ *                         type: integer
+ *                         example: 2
+ *                       notes:
+ *                         type: string
+ *                         nullable: true
+ *                         example: "Extra spicy"
+ *                       unitPrice:
+ *                         type: string
+ *                         example: "12.50"
+ *                       unitSurcharge:
+ *                         type: string
+ *                         example: "0.50"
+ *                       total:
+ *                         type: string
+ *                         example: "26.00"
+ *                       food:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: cuid
+ *                             example: "clx0def0002mx01example"
+ *                           name:
+ *                             type: string
+ *                             example: "Margherita"
+ *                           printerId:
+ *                             type: string
+ *                             format: cuid
+ *                             nullable: true
+ *                             example: null
+ *                 orderItems:
+ *                   type: array
+ *                   description: Complete list of all order items (unfiltered)
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: cuid
+ *                         example: "clx0abc0001mx01example"
+ *                       orderId:
+ *                         type: integer
+ *                         example: 42
+ *                       foodId:
+ *                         type: string
+ *                         format: cuid
+ *                         example: "clx0def0002mx01example"
+ *                       quantity:
+ *                         type: integer
+ *                         example: 2
+ *                       notes:
+ *                         type: string
+ *                         nullable: true
+ *                         example: "Extra spicy"
+ *                       unitPrice:
+ *                         type: string
+ *                         example: "12.50"
+ *                       unitSurcharge:
+ *                         type: string
+ *                         example: "0.50"
+ *                       total:
+ *                         type: string
+ *                         example: "26.00"
+ *                       food:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: cuid
+ *                             example: "clx0def0002mx01example"
+ *                           name:
+ *                             type: string
+ *                             example: "Margherita"
+ *                           printerId:
+ *                             type: string
+ *                             format: cuid
+ *                             nullable: true
+ *                             example: null
+ *       400:
+ *         description: Invalid request body or order item IDs not found in order
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               itemsNotFound:
+ *                 summary: Some order items not found
+ *                 value:
+ *                   error: "Some order items were not found"
+ *               invalidBody:
+ *                 summary: Invalid request body
+ *                 value:
+ *                   error: "Validation error"
+ *       404:
+ *         description: Order not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: "Order not found"
+ *       401:
+ *         description: Unauthorized - Authentication required
+ *       403:
+ *         description: Forbidden - Insufficient permissions
+ */
+router.post(
+    "/:id/reprint",
+    authenticate(["admin", "operator"]),
+    validateRequest({
+        params: idParamSchema,
+        body: ReprintOrderSchema
+    }),
+    orderController.reprintOrder
 );
 
 export default router;
