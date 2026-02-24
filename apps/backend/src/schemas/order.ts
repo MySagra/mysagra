@@ -1,4 +1,5 @@
 import z from "zod"
+import { cuidParamSchema } from "./params";
 
 export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"]);
 export const PaymentMethodSchema = z.enum(["CASH", "CARD"])
@@ -100,6 +101,23 @@ export const OrderResponseSchema = z.object({
     orderItems: z.array(OrderItemResponseSchema).optional()
 });
 
+export const ReprintOrderSchema = z.object({
+    orderItems: z.array(cuidParamSchema),
+    reprintReceipt: z.boolean()
+})
+
+export const ReprintOrderResponseSchema = OrderResponseSchema.omit({ orderItems: true }).extend({
+    orderItems: z.array(
+        OrderItemResponseSchema.extend({
+            food: z.object({
+                id: z.string(),
+                name: z.string(),
+                printerId: z.string().nullish()
+            })
+        })
+    )
+})
+
 export type OrderStatus = z.infer<typeof OrderStatusSchema>
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>
 
@@ -112,3 +130,6 @@ export type OrderIdParam = z.infer<typeof OrderIdParamSchema>
 export type OrderResponse = z.infer<typeof OrderResponseSchema>
 export type OrderItem = z.infer<typeof OrderItemInputSchema>
 export type ConfirmationData = z.infer<typeof ConfirmationDataSchema>
+
+export type ReprintOrder = z.infer<typeof ReprintOrderSchema>
+export type ReprintOrderResponse = z.infer<typeof ReprintOrderResponseSchema>

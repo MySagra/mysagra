@@ -2,7 +2,7 @@ import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { TypedRequest } from "@/types/request";
 import { OrderService } from "@/services/order.service";
-import { ConfirmOrderInput, GetOrdersQueryParams, CreateOrder, OrderIdParam, PatchOrderInput } from "@/schemas/order";
+import { ConfirmOrderInput, GetOrdersQueryParams, CreateOrder, OrderIdParam, PatchOrderInput, ReprintOrder } from "@/schemas/order";
 import { NumberIdParam } from "@/schemas";
 
 export class OrderController {
@@ -82,4 +82,17 @@ export class OrderController {
 
         res.status(204).send();
     });
+
+    reprintOrder = asyncHandler(async (
+        req: TypedRequest<{params: OrderIdParam, body: ReprintOrder}>, 
+        res: Response, 
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const order = await this.orderService.reprintOrder(id, req.body)
+        if(order == undefined){
+            res.status(400).json({ message: "Order not found" })
+            return;
+        }
+        res.status(201).json(order)
+    })
 }

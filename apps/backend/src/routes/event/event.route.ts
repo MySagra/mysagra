@@ -146,6 +146,50 @@ const router = Router();
  *       
  *       ---
  *       
+ *       ### `printer` (continued)
+ *       
+ *       **Event: `reprint-order`** — Fired when a cashier requests a reprint of specific order items.
+ *       The payload is a flat object with all order fields spread at the top level, plus `reprintReceipt`.
+ *       ```json
+ *       {
+ *         "id": 1,
+ *         "displayCode": "A01",
+ *         "table": "3",
+ *         "customer": "John Doe",
+ *         "createdAt": "2026-01-15T18:30:00.000Z",
+ *         "confirmedAt": "2026-01-15T18:35:12.000Z",
+ *         "ticketNumber": 1,
+ *         "status": "CONFIRMED",
+ *         "paymentMethod": "CASH",
+ *         "subTotal": "25",
+ *         "discount": "2",
+ *         "surcharge": "1",
+ *         "total": "24",
+ *         "userId": "clx0usr0003mx01example",
+ *         "cashRegisterId": "clx0csh0004mx01example",
+ *         "reprintReceipt": false,
+ *         "orderItems": [
+ *           {
+ *             "id": "clx0abc0001mx01example",
+ *             "orderId": 1,
+ *             "foodId": "clx0def0002mx01example",
+ *             "quantity": 2,
+ *             "notes": "Extra spicy",
+ *             "unitPrice": "12.5",
+ *             "unitSurcharge": "0.5",
+ *             "total": "26",
+ *             "food": {
+ *               "id": "clx0def0002mx01example",
+ *               "name": "Margherita",
+ *               "printerId": null
+ *             }
+ *           }
+ *         ]
+ *       }
+ *       ```
+ *       
+ *       ---
+ *       
  *       **Connection details:**
  *       - Content-Type: `text/event-stream`
  *       - Cache-Control: `no-cache`

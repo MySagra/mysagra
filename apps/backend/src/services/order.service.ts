@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderItem, OrderStatus } from "@/schemas";
+import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderItem, OrderStatus, ReprintOrder } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventService } from "./event.service";
 import { Prisma } from "@/generated/prisma_client";
@@ -25,7 +25,7 @@ export class OrderService {
 
     async getOrders(queryParams: GetOrdersQueryParams) {
         const { limit, page } = queryParams;
-        const skip = (1 - page) * limit;
+        const skip = (page - 1) * limit;
 
         const where: Prisma.OrderWhereInput = {};
 
@@ -474,5 +474,51 @@ export class OrderService {
             }
         });
         return null;
+    }
+
+    async reprintOrder(id: number, reprint: ReprintOrder) {
+        const order = await prisma.order.findUnique({
+            where: {
+                id
+            },
+            include: {
+                orderItems: {
+                    include: {
+                        food: {
+                            select: {
+                                name: true,
+                                id: true,
+                                printerId: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
+
+        if (!order) {
+            return undefined;
+        }
+
+        const orderItems = order.orderItems.filter((item) => reprint.orderItems.some(reprintItem => reprintItem.id === item.id))
+
+        if (orderItems.length !== reprint.orderItems.length) {
+            throw new Error("Some order items were not found");
+        }
+
+        order.orderItems = orderItems;
+
+        this.printerEvent.broadcastEvent(
+            {
+                ...order,
+                reprintReceipt: reprint.reprintReceipt,
+            },
+            "reprint-order"
+        );
+
+        return {
+            ...order,
+            reprintReceipt: reprint.reprintReceipt
+        };
     }
 }
