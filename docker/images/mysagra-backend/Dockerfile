@@ -6,10 +6,10 @@ RUN apk update && apk add --no-cache libc6-compat curl
 # Set working directory
 WORKDIR /app
 RUN corepack enable
-RUN yarn global add turbo@^2
+RUN corepack prepare pnpm@9.0.0 --activate
 COPY . .
 # Generate a partial monorepo with a pruned lockfile for a target workspace.
-RUN turbo prune mysagra-backend --docker
+RUN pnpm dlx turbo@^2 prune mysagra-backend --docker
 
 FROM base AS installer
 # Install system dependencies for Prisma

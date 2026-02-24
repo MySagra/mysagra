@@ -5,11 +5,12 @@ RUN apk update
 RUN apk add --no-cache libc6-compat
 # Set working directory
 WORKDIR /app
-RUN yarn global add turbo@^2
+RUN corepack enable
+RUN corepack prepare pnpm@9.0.0 --activate
 COPY . .
  
 # Generate a partial monorepo with a pruned lockfile for a target workspace.
-RUN turbo prune mysagra-frontend --docker
+RUN pnpm dlx turbo@^2 prune mysagra-frontend --docker
  
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
