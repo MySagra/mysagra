@@ -1345,7 +1345,7 @@ router.delete(
  *                 reprintReceipt: true
  *     responses:
  *       200:
- *         description: Reprint event broadcast successfully. Returns the order with filtered items and reprintReceipt flag.
+ *         description: Reprint event broadcast successfully. Returns the order with `reprintOrderItems` (filtered items), `reprintReceipt` flag, and `orderItems` (complete list).
  *         content:
  *           application/json:
  *             schema:
@@ -1399,9 +1399,57 @@ router.delete(
  *                   type: boolean
  *                   description: Whether the fiscal receipt should also be reprinted
  *                   example: false
+ *                 reprintOrderItems:
+ *                   type: array
+ *                   description: Order items selected for reprint (filtered from orderItems)
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: cuid
+ *                         example: "clx0abc0001mx01example"
+ *                       orderId:
+ *                         type: integer
+ *                         example: 42
+ *                       foodId:
+ *                         type: string
+ *                         format: cuid
+ *                         example: "clx0def0002mx01example"
+ *                       quantity:
+ *                         type: integer
+ *                         example: 2
+ *                       notes:
+ *                         type: string
+ *                         nullable: true
+ *                         example: "Extra spicy"
+ *                       unitPrice:
+ *                         type: string
+ *                         example: "12.50"
+ *                       unitSurcharge:
+ *                         type: string
+ *                         example: "0.50"
+ *                       total:
+ *                         type: string
+ *                         example: "26.00"
+ *                       food:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: cuid
+ *                             example: "clx0def0002mx01example"
+ *                           name:
+ *                             type: string
+ *                             example: "Margherita"
+ *                           printerId:
+ *                             type: string
+ *                             format: cuid
+ *                             nullable: true
+ *                             example: null
  *                 orderItems:
  *                   type: array
- *                   description: Only the reprinted items (filtered)
+ *                   description: Complete list of all order items (unfiltered)
  *                   items:
  *                     type: object
  *                     properties:

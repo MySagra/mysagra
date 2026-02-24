@@ -102,20 +102,10 @@ export const OrderResponseSchema = z.object({
 });
 
 export const ReprintOrderSchema = z.object({
-    orderItems: z.array(cuidParamSchema),
+    orderItems: z.array(cuidParamSchema).optional(),
     reprintReceipt: z.boolean()
-})
-
-export const ReprintOrderResponseSchema = OrderResponseSchema.omit({ orderItems: true }).extend({
-    orderItems: z.array(
-        OrderItemResponseSchema.extend({
-            food: z.object({
-                id: z.string(),
-                name: z.string(),
-                printerId: z.string().nullish()
-            })
-        })
-    )
+}).refine(data => data.orderItems || data.reprintReceipt, {
+    message: "At least one of 'orderItems' or 'reprintReceipt' must be provided"
 })
 
 export type OrderStatus = z.infer<typeof OrderStatusSchema>
@@ -132,4 +122,3 @@ export type OrderItem = z.infer<typeof OrderItemInputSchema>
 export type ConfirmationData = z.infer<typeof ConfirmationDataSchema>
 
 export type ReprintOrder = z.infer<typeof ReprintOrderSchema>
-export type ReprintOrderResponse = z.infer<typeof ReprintOrderResponseSchema>

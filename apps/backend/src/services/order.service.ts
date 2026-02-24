@@ -501,17 +501,20 @@ export class OrderService {
             return undefined;
         }
 
-        const orderItems = order.orderItems.filter((item) => reprint.orderItems.some(reprintItem => reprintItem.id === item.id))
+        let reprintOrderItems: typeof order.orderItems = []
 
-        if (orderItems.length !== reprint.orderItems.length) {
-            throw new Error("Some order items were not found");
+        if(reprint.orderItems){
+            reprintOrderItems = order.orderItems.filter((item) => reprint.orderItems?.some(reprintItem => reprintItem.id === item.id))
         }
 
-        order.orderItems = orderItems;
+        if (reprint.orderItems && reprintOrderItems.length !== reprint.orderItems.length) {
+            throw new Error("Some order items were not found");
+        }
 
         this.printerEvent.broadcastEvent(
             {
                 ...order,
+                reprintOrderItems,
                 reprintReceipt: reprint.reprintReceipt,
             },
             "reprint-order"
@@ -519,6 +522,7 @@ export class OrderService {
 
         return {
             ...order,
+            reprintOrderItems,
             reprintReceipt: reprint.reprintReceipt
         };
     }

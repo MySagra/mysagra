@@ -148,8 +148,15 @@ const router = Router();
  *       
  *       ### `printer` (continued)
  *       
- *       **Event: `reprint-order`** — Fired when a cashier requests a reprint of specific order items.
- *       The payload is a flat object with all order fields spread at the top level, plus `reprintReceipt`.
+ *       **Event: `reprint-order`** — Fired when a cashier requests a reprint of specific order items or the receipt.
+ *       The payload contains all order fields, with `reprintOrderItems` containing only the items selected for reprint, 
+ *       and `reprintReceipt` indicating if the receipt should also be reprinted.
+ *       
+ *       **Response fields:**
+ *       - `reprintOrderItems`: Array of order items selected for reprint (filtered from `orderItems`)
+ *       - `reprintReceipt`: Boolean flag indicating whether the receipt should also be reprinted
+ *       - `orderItems`: Complete list of all order items (unfiltered)
+ *       
  *       ```json
  *       {
  *         "id": 1,
@@ -167,7 +174,24 @@ const router = Router();
  *         "total": "24",
  *         "userId": "clx0usr0003mx01example",
  *         "cashRegisterId": "clx0csh0004mx01example",
- *         "reprintReceipt": false,
+ *         "reprintReceipt": true,
+ *         "reprintOrderItems": [
+ *           {
+ *             "id": "clx0abc0001mx01example",
+ *             "orderId": 1,
+ *             "foodId": "clx0def0002mx01example",
+ *             "quantity": 2,
+ *             "notes": "Extra spicy",
+ *             "unitPrice": "12.5",
+ *             "unitSurcharge": "0.5",
+ *             "total": "26",
+ *             "food": {
+ *               "id": "clx0def0002mx01example",
+ *               "name": "Margherita",
+ *               "printerId": null
+ *             }
+ *           }
+ *         ],
  *         "orderItems": [
  *           {
  *             "id": "clx0abc0001mx01example",
@@ -181,6 +205,21 @@ const router = Router();
  *             "food": {
  *               "id": "clx0def0002mx01example",
  *               "name": "Margherita",
+ *               "printerId": null
+ *             }
+ *           },
+ *           {
+ *             "id": "clx0abc0002mx01example",
+ *             "orderId": 1,
+ *             "foodId": "clx0def0003mx01example",
+ *             "quantity": 1,
+ *             "notes": null,
+ *             "unitPrice": "8.5",
+ *             "unitSurcharge": "0",
+ *             "total": "8.5",
+ *             "food": {
+ *               "id": "clx0def0003mx01example",
+ *               "name": "Focaccia",
  *               "printerId": null
  *             }
  *           }
