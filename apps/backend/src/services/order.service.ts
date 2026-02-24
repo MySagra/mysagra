@@ -105,6 +105,7 @@ export class OrderService {
                                 name: true,
                                 description: true,
                                 price: true,
+                                printerId: true,
 
                                 category: {
                                     select: {
