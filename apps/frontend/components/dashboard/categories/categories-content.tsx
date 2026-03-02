@@ -132,6 +132,7 @@ export function CategoriesContent({ initialCategories, printers }: CategoriesCon
           printers={printers}
           onSaved={handleSaved}
           onDelete={handleDelete}
+          categoriesCount={categories.length}
         />
         <DeleteCategoryDialog
           open={deleteDialogOpen}

@@ -22,6 +22,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -30,7 +32,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers";
 
 interface CategoriesTableProps {
   categories: Category[];
@@ -63,13 +65,13 @@ function SortableRow({
     isDragging,
   } = useSortable({ id: category.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 1 : 0,
-    position: "relative" as const,
-  };
+  const style = isDragging
+    ? { opacity: 0, position: "relative" as const }
+    : {
+        transform: CSS.Translate.toString(transform),
+        transition,
+        position: "relative" as const,
+      };
 
   return (
     <TableRow ref={setNodeRef} style={style}>
@@ -119,6 +121,9 @@ export function CategoriesTable({
 }: CategoriesTableProps) {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const activeCategory = categories.find((c) => c.id === activeId) ?? null;
 
   useEffect(() => {
     setMounted(true);
@@ -151,7 +156,12 @@ export function CategoriesTable({
     }
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(event.active.id as string);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -181,7 +191,7 @@ export function CategoriesTable({
   // Render simple table during SSR to avoid hydration mismatch
   if (!mounted) {
     return (
-      <div className="rounded-xl border">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
@@ -233,12 +243,13 @@ export function CategoriesTable({
   }
 
   return (
-    <div className="rounded-xl border overflow-hidden">
+    <div className="rounded-md border overflow-hidden relative">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        modifiers={[restrictToVerticalAxis]}
+        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       >
         <Table>
           <TableHeader>
@@ -270,6 +281,14 @@ export function CategoriesTable({
             </TableBody>
           </SortableContext>
         </Table>
+        <DragOverlay>
+          {activeCategory ? (
+            <div className="flex items-center gap-3 rounded-md border bg-background px-4 py-3 shadow-lg">
+              <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{activeCategory.name}</span>
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
