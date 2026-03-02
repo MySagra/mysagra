@@ -70,6 +70,7 @@ interface CategoryDialogProps {
   printers?: Printer[];
   onSaved: (category: Category) => void;
   onDelete?: (category: Category) => void;
+  categoriesCount?: number;
 }
 
 export function CategoryDialog({
@@ -79,6 +80,7 @@ export function CategoryDialog({
   printers = [],
   onSaved,
   onDelete,
+  categoriesCount = 0,
 }: CategoryDialogProps) {
   const isEditing = !!category;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -169,7 +171,7 @@ export function CategoryDialog({
         savedCategory = await updateCategory(category.id, data);
         toast.success("Category updated");
       } else {
-        savedCategory = await createCategory(data);
+        savedCategory = await createCategory({ ...data, position: categoriesCount });
         toast.success("Category created");
       }
 

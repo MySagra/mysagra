@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth, signOut } from "@/lib/auth";
 
 const API_URL = process.env.API_URL || "";
 
@@ -24,6 +24,10 @@ export async function fetchApi<T>(
     ...options,
     headers,
   });
+
+  if (response.status === 401 || response.status === 403) {
+    await signOut({ redirectTo: "/login" });
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: "Errore sconosciuto" }));
