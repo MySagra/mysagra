@@ -1,4 +1,4 @@
-import prisma from "@/utils/prisma";
+import { prisma } from "@mysagra/database";
 import { createHashPassword } from "@/lib/hashPassword";
 import { CreateUserInput, UpdateUserInput } from "@mysagra/schemas";
 

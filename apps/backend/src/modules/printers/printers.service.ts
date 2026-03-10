@@ -1,5 +1,5 @@
 import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@mysagra/schemas";
-import prisma from "@/utils/prisma";
+import { prisma } from "@mysagra/database";
 import { EventsService } from "../events/events.service";
 
 export class PrintersService {

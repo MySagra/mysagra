@@ -1,5 +1,5 @@
 import { checkHashPassword } from "@/lib/hashPassword";
-import prisma from "@/utils/prisma";
+import { prisma } from "@mysagra/database";
 import { Role, User } from "@mysagra/database";
 import { TokenService } from "./token.service";
 

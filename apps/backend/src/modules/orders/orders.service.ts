@@ -1,8 +1,15 @@
-import prisma from "@/utils/prisma";
-import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderItem, OrderStatus, ReprintOrder } from "@/schemas";
+import { 
+    ConfirmOrderInput, 
+    CreateOrder, 
+    GetOrdersQueryParams, 
+    OrderItem, 
+    OrderStatus, 
+    ReprintOrder 
+} from "@mysagra/schemas";
+
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventsService } from "../events/events.service";
-import { Prisma } from "@mysagra/database";
+import { prisma, Prisma } from "@mysagra/database";
 
 export class OrdersService {
     private cashierEvent = EventsService.getIstance('cashier');
@@ -504,7 +511,7 @@ export class OrdersService {
         let reprintOrderItems: typeof order.orderItems = []
 
         if(reprint.orderItems){
-            reprintOrderItems = order.orderItems.filter((item) => reprint.orderItems?.some(reprintItem => reprintItem.id === item.id))
+            reprintOrderItems = order.orderItems.filter((item) => reprint.orderItems?.some(reprintItem => reprintItem === item.id))
         }
 
         if (reprint.orderItems && reprintOrderItems.length !== reprint.orderItems.length) {

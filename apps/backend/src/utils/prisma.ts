@@ -1,1 +1,0 @@
-export { prisma as default } from '@mysagra/database';

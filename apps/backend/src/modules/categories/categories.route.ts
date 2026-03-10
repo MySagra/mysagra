@@ -2,7 +2,13 @@ import { Router } from "express";
 
 //middlewares
 import { authenticate } from "@/middlewares/authenticate";
-import { CreateCategorySchema, cuidParamSchema, GetCategoriesQuerySchema, PatchCategorySchema, UpdateCategorySchema } from "@mysagra/schemas";
+import { 
+    CreateCategorySchema, 
+    cuidParamSchema, 
+    GetCategoriesQuerySchema, 
+    PatchCategorySchema, 
+    UpdateCategorySchema 
+} from "@mysagra/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 //service and controller
 import { CategoriesService } from "@/modules/categories/categories.service";

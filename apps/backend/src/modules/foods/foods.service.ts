@@ -1,6 +1,4 @@
-import prisma from "@/utils/prisma";
-
-import { Prisma } from "@mysagra/database";
+import { prisma, Prisma } from "@mysagra/database";
 import { 
     GetFoodsQueryParams, 
     GetFoodQueryParams, 

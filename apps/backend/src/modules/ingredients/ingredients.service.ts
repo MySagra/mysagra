@@ -1,5 +1,5 @@
 import { CreateIngredientInput, UpdateIngredientInput } from "@mysagra/schemas";
-import prisma from "@/utils/prisma";
+import { prisma } from "@mysagra/database";
 
 export class IngredientsService {
     async getIngredients() {

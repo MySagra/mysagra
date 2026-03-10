@@ -1,6 +1,11 @@
-import prisma from "@/utils/prisma";
-import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCategoryInput, UpdateFoodInput } from "@/schemas";
-import { Prisma } from "@mysagra/database";
+import { 
+    CreateCategoryInput, 
+    GetCategoriesQuery, 
+    GetCategoryQuery, 
+    PatchCategoryInput, 
+    UpdateCategoryInput 
+} from "@mysagra/schemas";
+import { prisma, Prisma } from "@mysagra/database";
 import { FoodsService } from "../foods/foods.service";
 import { ImagesService } from "../images/images.service";
 

@@ -1,12 +1,10 @@
-import { Prisma } from "@mysagra/database";
+import { prisma, Prisma } from "@mysagra/database";
 import { 
     CreateCashRegisterInput, 
     GetCashRegisterQueryParams, 
     PatchCashRegister, 
     UpdateCashRegisterInput 
 } from "@mysagra/schemas";
-import prisma from "@/utils/prisma";
-
 export class CashRegistersService {
     async getCashRegisters(queryParams?: GetCashRegisterQueryParams) {
         const where: Prisma.CashRegisterWhereInput = {};

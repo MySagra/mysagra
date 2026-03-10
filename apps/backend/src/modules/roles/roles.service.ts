@@ -1,4 +1,4 @@
-import prisma from "@/utils/prisma";
+import { prisma } from "@mysagra/database";
 
 export class RolesService {
     async getRoles() {
