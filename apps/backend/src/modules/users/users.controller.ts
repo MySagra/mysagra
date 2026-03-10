@@ -3,8 +3,7 @@ import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { UsersService } from "@/modules/users/users.service";
 
-import { CUIDParam, UpdateUserInput } from "@mysagra/schemas";
-import { CreateUserInput } from "@mysagra/schemas";
+import { CUIDParam, UpdateUserInput, CreateUserInput } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class UsersController {

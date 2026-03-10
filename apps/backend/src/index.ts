@@ -16,7 +16,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from './docs/swagger';
 
 //routes
-import routes from "@/routes"
+import routes from "./routes"
 
 import { requestId } from './middlewares/requestId';
 import { loggingMiddleware } from './middlewares/logging';

@@ -1,5 +1,10 @@
 import { Prisma } from "@mysagra/database";
-import { CreateCashRegisterInput, GetCashRegisterQueryParams, PatchCashRegister, UpdateCashRegisterInput } from "@/schemas/cash-register";
+import { 
+    CreateCashRegisterInput, 
+    GetCashRegisterQueryParams, 
+    PatchCashRegister, 
+    UpdateCashRegisterInput 
+} from "@mysagra/schemas";
 import prisma from "@/utils/prisma";
 
 export class CashRegistersService {

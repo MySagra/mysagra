@@ -2,8 +2,14 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { CategoriesService } from "@/modules/categories/categories.service";
-import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCashRegisterInput, UpdateCategoryInput, UpdateFoodInput } from "@mysagra/schemas";
-import { CUIDParam } from "@mysagra/schemas";
+import { 
+    CreateCategoryInput, 
+    GetCategoriesQuery, 
+    GetCategoryQuery, 
+    PatchCategoryInput, 
+    UpdateCategoryInput,
+    CUIDParam
+} from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class CategoriesController {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import 'zod-openapi'
+
 import { FoodResponseSchema } from "./food.schema"
 
 const CategoryBase = {

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Request, Response } from "express";
 
-import { LoginSchema } from "@/schemas/auth";
+import { LoginSchema } from "@mysagra/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 
 import { AuthService } from "@/modules/auth/auth.service";

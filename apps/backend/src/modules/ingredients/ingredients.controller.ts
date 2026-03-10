@@ -2,8 +2,8 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { IngredientsService } from "@/modules/ingredients/ingredients.service";
-import { CreateIngredientInput, UpdateIngredientInput } from "@/schemas"
-import { CUIDParam } from "@/schemas";
+import { CreateIngredientInput, UpdateIngredientInput } from "@mysagra/schemas"
+import { CUIDParam } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class IngredientsController {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import 'zod-openapi'
+
 
 export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"]).meta({
     id: "OrderStatus",

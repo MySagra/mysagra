@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { CreateUserSchema, cuidParamSchema, idParamSchema, UpdateUserSchema } from "@/schemas";
+import { CreateUserSchema, cuidParamSchema, UpdateUserSchema } from "@mysagra/schemas";
 
 import { UsersService } from "@/modules/users/users.service";
 import { UsersController } from "@/modules/users/users.controller";

@@ -2,8 +2,15 @@ import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { TypedRequest } from "@/types/request";
 import { OrdersService } from "@/modules/orders/orders.service";
-import { ConfirmOrderInput, GetOrdersQueryParams, CreateOrder, OrderIdParam, PatchOrderInput, ReprintOrder } from "@/schemas/order";
-import { NumberIdParam } from "@/schemas";
+import { 
+    ConfirmOrderInput, 
+    GetOrdersQueryParams, 
+    CreateOrder, 
+    OrderIdParam, 
+    PatchOrderInput, 
+    ReprintOrder,
+    NumberIdParam
+} from "@mysagra/schemas";
 
 export class OrdersController {
     constructor(private orderService: OrdersService) { }

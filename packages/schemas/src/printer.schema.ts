@@ -1,4 +1,4 @@
-import 'zod-openapi'
+
 import { z } from 'zod'
 
 const PrinterEnum = z.enum(["ONLINE", "OFFLINE", "ERROR"]).meta({

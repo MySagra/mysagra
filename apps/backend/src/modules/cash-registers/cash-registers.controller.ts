@@ -2,8 +2,13 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { CashRegistersService } from "@/modules/cash-registers/cash-registers.service";
-import { CreateCashRegisterInput, GetCashRegisterQueryParams, PatchCashRegister, UpdateCashRegisterInput } from "@/schemas/cash-register";
-import { CUIDParam } from "@/schemas";
+import { 
+    CreateCashRegisterInput, 
+    GetCashRegisterQueryParams, 
+    PatchCashRegister, 
+    UpdateCashRegisterInput,
+    CUIDParam
+} from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class CashRegistersController {

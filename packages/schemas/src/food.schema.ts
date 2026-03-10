@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import 'zod-openapi'
+
 import { IngredientResponseSchema } from "./ingredient.schema"
 
 const FoodIngredientInputSchema = z.object({

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { cuidParamSchema, CreatePrinterSchema, UpdatePrinterSchema, PatchPrinterSchema } from "@/schemas";
+import { cuidParamSchema, CreatePrinterSchema, UpdatePrinterSchema, PatchPrinterSchema } from "@mysagra/schemas";
 
 import { PrintersController } from "@/modules/printers/printers.controller";
 import { PrintersService } from "@/modules/printers/printers.service";

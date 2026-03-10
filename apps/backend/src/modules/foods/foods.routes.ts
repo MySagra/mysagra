@@ -1,6 +1,13 @@
 import { Router } from "express";
 
-import { CreateFoodSchema, GetFoodsQuerySchema, cuidParamSchema, idParamSchema, GetFoodQuerySchema, PatchFoodSchema, UpdateFoodSchema } from "@/schemas";
+import { 
+    CreateFoodSchema, 
+    GetFoodsQuerySchema, 
+    cuidParamSchema, 
+    GetFoodQuerySchema, 
+    PatchFoodSchema, 
+    UpdateFoodSchema 
+} from "@mysagra/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 

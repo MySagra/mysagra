@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken"
 import prisma from "@/utils/prisma";
 import { User, Role } from "@mysagra/database";
-import { TokenPayloadSchema } from "@/schemas/auth";
+import { TokenPayloadSchema } from "@mysagra/schemas";
 
 export class TokenService {
     private secret = env.JWT_SECRET;

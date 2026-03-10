@@ -2,14 +2,14 @@ import { Response } from "express";
 import { AuthService } from "@/modules/auth/auth.service";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { env } from "@/config/env";
-import { LoginInput } from "@/schemas/auth";
+import { LoginRequest } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class AuthController {
     constructor(private authService: AuthService) { }
 
     login = asyncHandler(async (
-        req: TypedRequest<{body: LoginInput}>,
+        req: TypedRequest<{body: LoginRequest}>,
         res: Response, 
     ): Promise<void> => {
         const { username, password } = req.validated.body;

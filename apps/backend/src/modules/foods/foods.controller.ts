@@ -2,7 +2,14 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { FoodsService } from "@/modules/foods/foods.service";
-import { CUIDParam, CreateFoodInput, GetFoodQueryParams, GetFoodsQueryParams, PatchFoodInput, UpdateFoodInput } from "@/schemas";
+import { 
+    CUIDParam, 
+    CreateFoodInput, 
+    GetFoodQueryParams, 
+    GetFoodsQueryParams, 
+    PatchFoodInput, 
+    UpdateFoodInput 
+} from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class FoodsController {

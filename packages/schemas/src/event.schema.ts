@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import 'zod-openapi'
 
 const channelSchema = z.enum(["cashier", "display", "printer"]).meta({
     id: "Channel",

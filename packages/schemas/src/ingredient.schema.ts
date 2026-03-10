@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import 'zod-openapi'
+
 
 const IngredientBase = {
     name: z.string().min(1).meta({

@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { OrderItem } from "@/schemas";
+import { OrderItem } from "@mysagra/schemas";
 import { Prisma } from "@mysagra/database";
 
 export class OrderItemsService {

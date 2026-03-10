@@ -2,7 +2,15 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { CreateOrderSchema, GetOrdersQuerySchema, ConfirmOrderSchema, idParamSchema, OrderIdParamSchema, PatchOrderSchema, ReprintOrderSchema } from "@/schemas";
+import { 
+    CreateOrderSchema, 
+    GetOrdersQuerySchema, 
+    ConfirmOrderSchema, 
+    idParamSchema, 
+    OrderIdParamSchema, 
+    PatchOrderSchema, 
+    ReprintOrderSchema 
+} from "@mysagra/schemas";
 import { OrdersController } from "@/modules/orders/orders.controller";
 import { OrdersService } from "@/modules/orders/orders.service";
 

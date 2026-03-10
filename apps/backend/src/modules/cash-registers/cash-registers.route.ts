@@ -2,7 +2,13 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { cuidParamSchema, CreateCashRegisterSchema, GetCashRegisterQuerySchema, PatchCashRegisterSchema, UpdateCashRegisterSchema } from "@/schemas";
+import { 
+    cuidParamSchema, 
+    CreateCashRegisterSchema, 
+    GetCashRegisterQuerySchema, 
+    PatchCashRegisterSchema, 
+    UpdateCashRegisterSchema 
+} from "@mysagra/schemas";
 
 import { CashRegistersController } from "@/modules/cash-registers/cash-registers.controller";
 import { CashRegistersService } from "@/modules/cash-registers/cash-registers.service";

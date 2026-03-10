@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { EventsController } from "@/modules/events/events.controller";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { eventSchema } from "@/schemas/event";
+import { eventSchema } from "@mysagra/schemas";
 import { authenticate } from "@/middlewares/authenticate";
 
 const eventController = new EventsController();

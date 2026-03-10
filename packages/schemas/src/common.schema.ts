@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import 'zod-openapi'
+
 
 export const idParamSchema = z.object({
     id: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().int().min(1)).meta({

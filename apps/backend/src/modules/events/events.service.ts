@@ -1,6 +1,6 @@
 import { logger } from "@/config/logger";
 import { Response } from "express";
-import { Channel, EventName } from "@/schemas/event";
+import { Channel, EventName } from "@mysagra/schemas";
 
 export class EventsService {
     private static events = new Map<Channel, EventsService>

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
-import { cuidParamSchema } from "@/schemas";
+import { cuidParamSchema } from "@mysagra/schemas";
 
 import { RolesController } from "@/modules/roles/roles.controller";
 import { RolesService } from "@/modules/roles/roles.service";

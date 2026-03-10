@@ -1,4 +1,4 @@
-import 'zod-openapi'
+
 import { z } from 'zod'
 
 export const RoleEnum = z.enum(["guest", "admin", "operator"]).meta({

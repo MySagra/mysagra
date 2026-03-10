@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import 'zod-openapi'
+
 import { PrinterResponseSchema } from "./printer.schema"
 
 const CashRegisterBase = {

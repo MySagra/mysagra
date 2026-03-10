@@ -1,7 +1,13 @@
 import prisma from "@/utils/prisma";
 
 import { Prisma } from "@mysagra/database";
-import { GetFoodsQueryParams, GetFoodQueryParams, CreateFoodInput, PatchFoodInput, UpdateFoodInput } from "@/schemas";
+import { 
+    GetFoodsQueryParams, 
+    GetFoodQueryParams, 
+    CreateFoodInput, 
+    PatchFoodInput, 
+    UpdateFoodInput 
+} from "@mysagra/schemas";
 import { EventsService } from "../events/events.service";
 
 const foodWithIngredientsInclude = {

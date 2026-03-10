@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { EventsService } from "@/modules/events/events.service";
-import { EventParams } from "@/schemas/event";
+import { EventParams } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 import { asyncHandler } from "@/utils/asyncHandler";
 

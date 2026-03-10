@@ -1,7 +1,6 @@
 import { Router } from "express";
 
-import { CreateIngredientSchema, UpdateIngredientSchema } from "@/schemas/ingredient";
-import { cuidParamSchema } from "@/schemas";
+import { CreateIngredientSchema, UpdateIngredientSchema, cuidParamSchema } from "@mysagra/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 

@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { createHashPassword } from "@/lib/hashPassword";
-import { CreateUserInput, UpdateUserInput } from "@/schemas";
+import { CreateUserInput, UpdateUserInput } from "@mysagra/schemas";
 
 export class UsersService {
     async getUsers() {

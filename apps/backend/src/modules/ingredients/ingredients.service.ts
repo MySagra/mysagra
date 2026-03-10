@@ -1,4 +1,4 @@
-import { CreateIngredientInput, UpdateIngredientInput } from "@/schemas";
+import { CreateIngredientInput, UpdateIngredientInput } from "@mysagra/schemas";
 import prisma from "@/utils/prisma";
 
 export class IngredientsService {
