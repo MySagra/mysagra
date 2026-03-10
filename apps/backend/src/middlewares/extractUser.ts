@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 import { TokenService } from "@/modules/auth/token.service";
-import { TokenPayload } from "@/schemas/auth";
+import { TokenPayload } from "@mysagra/schemas";
 
 const tokenService = new TokenService();
 

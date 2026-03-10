@@ -29,4 +29,5 @@ export const RoleResponseSchema = z.object({
 })
 
 export type CreateRoleInput = z.infer<typeof CreateRoleSchema>
-export type  RoleResponse = z.infer<typeof RoleResponseSchema>
+export type RoleResponse = z.infer<typeof RoleResponseSchema>
+export type RoleNames = z.infer<typeof RoleEnum>

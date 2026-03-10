@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const channelSchema = z.enum(["cashier", "display", "printer"]).meta({
+const ChannelSchema = z.enum(["cashier", "display", "printer"]).meta({
     id: "Channel",
     description: "Event channel/destination",
     example: "cashier"
@@ -13,7 +13,7 @@ const eventName = z.enum(["new-order", "confirmed-order", "food-availability-cha
 })
 
 export const eventSchema = z.object({
-    channel: channelSchema.meta({
+    channel: ChannelSchema.meta({
         description: "Target channel for event subscription"
     })
 }).meta({
@@ -22,5 +22,5 @@ export const eventSchema = z.object({
 })
 
 export type EventParams = z.infer<typeof eventSchema>;
-export type Channel = z.infer<typeof channelSchema>;
+export type Channel = z.infer<typeof ChannelSchema>;
 export type EventName = z.infer<typeof eventName>;

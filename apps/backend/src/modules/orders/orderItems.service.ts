@@ -1,4 +1,4 @@
-import prisma from "@/utils/prisma";
+import { prisma } from "@mysagra/database";
 import { OrderItem } from "@mysagra/schemas";
 import { Prisma } from "@mysagra/database";
 

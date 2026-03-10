@@ -26,7 +26,7 @@ const envSchema = z.object({
 const { success, error, data } = envSchema.safeParse(process.env)
 
 if (error) {
-    console.error(`Error during validation of .env variables: `, error.errors);
+    console.error(`Error during validation of .env variables: `, error);
     process.exit(1);
 }
 
