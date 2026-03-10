@@ -5,11 +5,11 @@ import { cuidParamSchema } from "@/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
-import { IngredientController } from "@/controllers/ingredient.controller";
-import { IngredientService } from "@/services/ingredient.service";
+import { IngredientsController } from "@/modules/ingredients/ingredients.controller";
+import { IngredientsService } from "@/modules/ingredients/ingredients.service";
 
-const ingredientService = new IngredientService()
-const ingredientController = new IngredientController(ingredientService);
+const ingredientService = new IngredientsService()
+const ingredientController = new IngredientsController(ingredientService);
 
 const router = Router();
 

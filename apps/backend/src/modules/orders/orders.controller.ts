@@ -1,12 +1,12 @@
 import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { TypedRequest } from "@/types/request";
-import { OrderService } from "@/services/order.service";
+import { OrdersService } from "@/modules/orders/orders.service";
 import { ConfirmOrderInput, GetOrdersQueryParams, CreateOrder, OrderIdParam, PatchOrderInput, ReprintOrder } from "@/schemas/order";
 import { NumberIdParam } from "@/schemas";
 
-export class OrderController {
-    constructor(private orderService: OrderService) { }
+export class OrdersController {
+    constructor(private orderService: OrdersService) { }
 
     getOrders = asyncHandler(async (
         req: TypedRequest<{query: GetOrdersQueryParams}>,

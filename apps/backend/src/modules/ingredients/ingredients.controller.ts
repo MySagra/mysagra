@@ -1,13 +1,13 @@
 import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
-import { IngredientService } from "@/services/ingredient.service";
+import { IngredientsService } from "@/modules/ingredients/ingredients.service";
 import { CreateIngredientInput, UpdateIngredientInput } from "@/schemas"
 import { CUIDParam } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
-export class IngredientController {
-    constructor(private ingredientService: IngredientService) { }
+export class IngredientsController {
+    constructor(private ingredientService: IngredientsService) { }
 
     getIngredients = asyncHandler(async (
         req: TypedRequest<{}>, 

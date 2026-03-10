@@ -2,13 +2,13 @@ import { Router } from "express";
 
 //middlewares
 import { authenticate } from "@/middlewares/authenticate";
-import { CreateCategorySchema, cuidParamSchema, GetCategoriesQuerySchema, PatchCategorySchema, UpdateCategorySchema } from "@/schemas";
+import { CreateCategorySchema, cuidParamSchema, GetCategoriesQuerySchema, PatchCategorySchema, UpdateCategorySchema } from "@mysagra/schemas";
 import { validateRequest } from "@/middlewares/validateRequest";
 //service and controller
-import { CategoryService } from "@/services/category.service";
-import { CategoryController } from "@/controllers/category.controller";
+import { CategoriesService } from "@/modules/categories/categories.service";
+import { CategoriesController } from "@/modules/categories/categories.controller";
 
-const categoryController = new CategoryController(new CategoryService());
+const categoryController = new CategoriesController(new CategoriesService());
 const router = Router();
 
 /**
@@ -317,7 +317,7 @@ router.patch(
     validateRequest({
         params: cuidParamSchema
     }),
-    CategoryService.imageService.upload(),
+    CategoriesService.imageService.upload(),
     categoryController.uploadImage
 );
 

@@ -2,7 +2,7 @@ import prisma from "@/utils/prisma";
 
 import { Prisma } from "@mysagra/database";
 import { GetFoodsQueryParams, GetFoodQueryParams, CreateFoodInput, PatchFoodInput, UpdateFoodInput } from "@/schemas";
-import { EventService } from "./event.service";
+import { EventsService } from "../events/events.service";
 
 const foodWithIngredientsInclude = {
     category: true,
@@ -17,8 +17,8 @@ type FoodWithIngredients = Prisma.FoodGetPayload<{
     include: typeof foodWithIngredientsInclude;
 }>;
 
-export class FoodService {
-    private event = EventService.getIstance('cashier')
+export class FoodsService {
+    private event = EventsService.getIstance('cashier')
 
     public static formatFoodResponse(food: FoodWithIngredients) {
         const { foodIngredients, ...restOfFood } = food;
@@ -61,7 +61,7 @@ export class FoodService {
         if (!foods) return null;
 
         if (queryParams.include === 'ingredients') {
-            return foods.map(food => FoodService.formatFoodResponse(food as FoodWithIngredients));
+            return foods.map(food => FoodsService.formatFoodResponse(food as FoodWithIngredients));
         }
 
         return foods;
@@ -88,7 +88,7 @@ export class FoodService {
         if (!food) return null;
 
         if (include === 'ingredients') {
-            return FoodService.formatFoodResponse(food as FoodWithIngredients);
+            return FoodsService.formatFoodResponse(food as FoodWithIngredients);
         }
 
         return food;
@@ -118,7 +118,7 @@ export class FoodService {
         });
 
         if (ingredients && ingredients.length > 0) {
-            return FoodService.formatFoodResponse(newFood);
+            return FoodsService.formatFoodResponse(newFood);
         }
 
         return newFood;
@@ -163,7 +163,7 @@ export class FoodService {
         });
 
         if (food.ingredients && food.ingredients.length > 0) {
-            return FoodService.formatFoodResponse(updatedFood);
+            return FoodsService.formatFoodResponse(updatedFood);
         }
 
         return updatedFood;

@@ -1,9 +1,11 @@
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env' });
+import "dotenv/config";
 
-import { PrismaClient } from "../src/generated/prisma_client"
-const prisma = new PrismaClient();
+import { PrismaClient } from "../src/generated/prisma_client/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import bcrypt from "bcrypt";
+
+const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+const prisma = new PrismaClient({ adapter });
 
 const PEPPER = process.env.PEPPER;
 

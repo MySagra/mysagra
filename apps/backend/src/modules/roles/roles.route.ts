@@ -4,10 +4,10 @@ import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { cuidParamSchema } from "@/schemas";
 
-import { RoleController } from "@/controllers/role.controller";
-import { RoleService } from "@/services/role.service";
+import { RolesController } from "@/modules/roles/roles.controller";
+import { RolesService } from "@/modules/roles/roles.service";
 
-const roleController = new RoleController(new RoleService());
+const roleController = new RolesController(new RolesService());
 
 const router = Router();
 

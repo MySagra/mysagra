@@ -1,14 +1,14 @@
 import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
-import { UserService } from "@/modules/users/user.service";
+import { UsersService } from "@/modules/users/users.service";
 
 import { CUIDParam, UpdateUserInput } from "@mysagra/schemas";
 import { CreateUserInput } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
-export class UserController {
-    constructor(private userService: UserService) { }
+export class UsersController {
+    constructor(private userService: UsersService) { }
 
     getUsers = asyncHandler(async (
         req: TypedRequest<{}>, 

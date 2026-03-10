@@ -1,12 +1,12 @@
 import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
-import { FoodService } from "@/services/food.service";
+import { FoodsService } from "@/modules/foods/foods.service";
 import { CUIDParam, CreateFoodInput, GetFoodQueryParams, GetFoodsQueryParams, PatchFoodInput, UpdateFoodInput } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
-export class FoodController {
-    constructor(private foodService: FoodService) { }
+export class FoodsController {
+    constructor(private foodService: FoodsService) { }
 
     getFoods = asyncHandler(async (
         req: TypedRequest<{query: GetFoodsQueryParams}>,

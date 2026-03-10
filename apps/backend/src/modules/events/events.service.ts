@@ -2,14 +2,14 @@ import { logger } from "@/config/logger";
 import { Response } from "express";
 import { Channel, EventName } from "@/schemas/event";
 
-export class EventService {
-    private static events = new Map<Channel, EventService>
+export class EventsService {
+    private static events = new Map<Channel, EventsService>
     private channel : string;
     private clients = new Set<Response>();
 
     static getIstance(channel: Channel){
-        if(EventService.events.has(channel)){
-            return EventService.events.get(channel)!;
+        if(EventsService.events.has(channel)){
+            return EventsService.events.get(channel)!;
         }
 
         const event = new this(channel);
@@ -52,7 +52,7 @@ export class EventService {
         }
     }
 
-    static broadcastEvents<T>(events: Array<EventService>, data: T, eventName: EventName){
+    static broadcastEvents<T>(events: Array<EventsService>, data: T, eventName: EventName){
         for(const event of events){
             event.broadcastEvent(data, eventName);
         }

@@ -1,4 +1,4 @@
-import { Role } from "@generated/prisma_client/client";
+import { Role } from "@mysagra/database";
 
 export type Token = {
     userId: number,

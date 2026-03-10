@@ -2,7 +2,7 @@ import { Prisma } from "@mysagra/database";
 import { CreateCashRegisterInput, GetCashRegisterQueryParams, PatchCashRegister, UpdateCashRegisterInput } from "@/schemas/cash-register";
 import prisma from "@/utils/prisma";
 
-export class CashRegisterService {
+export class CashRegistersService {
     async getCashRegisters(queryParams?: GetCashRegisterQueryParams) {
         const where: Prisma.CashRegisterWhereInput = {};
         const include: Prisma.CashRegisterInclude = {}

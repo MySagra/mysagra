@@ -4,8 +4,8 @@ import { Request, Response } from "express";
 import { LoginSchema } from "@/schemas/auth";
 import { validateRequest } from "@/middlewares/validateRequest";
 
-import { AuthService } from "@/services/auth.service";
-import { AuthController } from "@/controllers/auth.controller";
+import { AuthService } from "@/modules/auth/auth.service";
+import { AuthController } from "@/modules/auth/auth.controller";
 
 
 const authController = new AuthController(new AuthService());

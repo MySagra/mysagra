@@ -1,13 +1,13 @@
 import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
-import { PrinterService } from "@/modules/printers/printer.service";
+import { PrintersService } from "@/modules/printers/printers.service";
 import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@mysagra/schemas"
 import { CUIDParam } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
-export class PrinterController {
-    constructor(private printerService: PrinterService) { }
+export class PrintersController {
+    constructor(private printerService: PrintersService) { }
 
     getPrinters = asyncHandler(async (
         req: TypedRequest<{}>,

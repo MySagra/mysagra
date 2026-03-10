@@ -1,10 +1,10 @@
-import { RoleService } from "@/services/role.service";
+import { RolesService } from "@/modules/roles/roles.service";
 
 import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 
-export class RoleController {
-    constructor(private roleService: RoleService) { }
+export class RolesController {
+    constructor(private roleService: RolesService) { }
 
     getRoles = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const roles = await this.roleService.getRoles();

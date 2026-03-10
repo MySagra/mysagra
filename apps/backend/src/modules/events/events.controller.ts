@@ -1,10 +1,10 @@
 import { Response } from "express";
-import { EventService } from "@/services/event.service";
+import { EventsService } from "@/modules/events/events.service";
 import { EventParams } from "@/schemas/event";
 import { TypedRequest } from "@/types/request";
 import { asyncHandler } from "@/utils/asyncHandler";
 
-export class EventController {
+export class EventsController {
     handleSseConnection = asyncHandler(async (
         req: TypedRequest<{ params: EventParams }>,
         res: Response,
@@ -16,7 +16,7 @@ export class EventController {
         res.setHeader('Connection', 'keep-alive');
         res.flushHeaders();
 
-        const event = EventService.getIstance(channel);
+        const event = EventsService.getIstance(channel);
         event.addClient(res);
 
         // Hearthbeat

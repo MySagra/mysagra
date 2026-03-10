@@ -4,10 +4,10 @@ import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { CreateUserSchema, cuidParamSchema, idParamSchema, UpdateUserSchema } from "@/schemas";
 
-import { UserService } from "@/modules/users/user.service";
-import { UserController } from "@/modules/users/user.controller";
+import { UsersService } from "@/modules/users/users.service";
+import { UsersController } from "@/modules/users/users.controller";
 
-const userController = new UserController(new UserService());
+const userController = new UsersController(new UsersService());
 
 const router = Router();
 

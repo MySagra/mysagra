@@ -1,13 +1,13 @@
 import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
-import { CategoryService } from "@/services/category.service";
-import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCashRegisterInput, UpdateCategoryInput, UpdateFoodInput } from "@/schemas";
-import { CUIDParam } from "@/schemas";
+import { CategoriesService } from "@/modules/categories/categories.service";
+import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCashRegisterInput, UpdateCategoryInput, UpdateFoodInput } from "@mysagra/schemas";
+import { CUIDParam } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
-export class CategoryController {
-    constructor(private categoryService: CategoryService) { }
+export class CategoriesController {
+    constructor(private categoryService: CategoriesService) { }
 
     getCategories = asyncHandler(async (
         req: TypedRequest<{ query: GetCategoriesQuery }>,

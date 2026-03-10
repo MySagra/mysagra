@@ -3,10 +3,10 @@ import { authenticate } from "@/middlewares/authenticate";
 
 import { validateRequest } from "@/middlewares/validateRequest";
 import { CreateOrderSchema, GetOrdersQuerySchema, ConfirmOrderSchema, idParamSchema, OrderIdParamSchema, PatchOrderSchema, ReprintOrderSchema } from "@/schemas";
-import { OrderController } from "@/controllers/order.controller";
-import { OrderService } from "@/services/order.service";
+import { OrdersController } from "@/modules/orders/orders.controller";
+import { OrdersService } from "@/modules/orders/orders.service";
 
-const orderController = new OrderController(new OrderService());
+const orderController = new OrdersController(new OrdersService());
 
 const router = Router();
 

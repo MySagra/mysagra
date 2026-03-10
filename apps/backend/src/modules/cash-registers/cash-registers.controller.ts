@@ -1,13 +1,13 @@
 import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
-import { CashRegisterService } from "@/services/cash-register.service";
+import { CashRegistersService } from "@/modules/cash-registers/cash-registers.service";
 import { CreateCashRegisterInput, GetCashRegisterQueryParams, PatchCashRegister, UpdateCashRegisterInput } from "@/schemas/cash-register";
 import { CUIDParam } from "@/schemas";
 import { TypedRequest } from "@/types/request";
 
-export class CashRegisterController {
-    constructor(private cashRegisterService: CashRegisterService) { }
+export class CashRegistersController {
+    constructor(private cashRegisterService: CashRegistersService) { }
 
     getCashRegisters = asyncHandler(async (
         req: TypedRequest<{ query: GetCashRegisterQueryParams }>,

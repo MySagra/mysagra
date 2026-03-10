@@ -1,7 +1,7 @@
 import { CreateIngredientInput, UpdateIngredientInput } from "@/schemas";
 import prisma from "@/utils/prisma";
 
-export class IngredientService {
+export class IngredientsService {
     async getIngredients() {
         return await prisma.ingredient.findMany();
     }

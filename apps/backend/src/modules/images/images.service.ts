@@ -21,16 +21,16 @@ const fileFilter = (
     }
 }
 
-export class ImageService {
+export class ImagesService {
     private uploader: multer.Multer
     private resource: string
 
     private folderPath: string
     public static rootPath = process.cwd();
-    public static uploadsPath = path.join(ImageService.rootPath, "public/uploads");
+    public static uploadsPath = path.join(ImagesService.rootPath, "public/uploads");
 
     constructor(folderName: string, resource: string) {
-        this.folderPath = path.join(ImageService.uploadsPath, folderName);
+        this.folderPath = path.join(ImagesService.uploadsPath, folderName);
         this.resource = resource;
 
         if (!fs.existsSync(this.folderPath)) {

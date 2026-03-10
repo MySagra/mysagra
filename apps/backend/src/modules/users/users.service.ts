@@ -2,7 +2,7 @@ import prisma from "@/utils/prisma";
 import { createHashPassword } from "@/lib/hashPassword";
 import { CreateUserInput, UpdateUserInput } from "@/schemas";
 
-export class UserService {
+export class UsersService {
     async getUsers() {
         return await prisma.user.findMany({
             select: {

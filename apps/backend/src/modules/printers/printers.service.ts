@@ -1,9 +1,9 @@
 import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@mysagra/schemas";
 import prisma from "@/utils/prisma";
-import { EventService } from "../../services/event.service";
+import { EventsService } from "../events/events.service";
 
-export class PrinterService {
-    private cashierEvent = EventService.getIstance('cashier');
+export class PrintersService {
+    private cashierEvent = EventsService.getIstance('cashier');
 
     async getPrinters() {
         return await prisma.printer.findMany();

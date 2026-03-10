@@ -1,13 +1,13 @@
 import prisma from "@/utils/prisma";
 import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderItem, OrderStatus, ReprintOrder } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
-import { EventService } from "./event.service";
+import { EventsService } from "../events/events.service";
 import { Prisma } from "@mysagra/database";
 
-export class OrderService {
-    private cashierEvent = EventService.getIstance('cashier');
-    private displayEvent = EventService.getIstance('display');
-    private printerEvent = EventService.getIstance('printer');
+export class OrdersService {
+    private cashierEvent = EventsService.getIstance('cashier');
+    private displayEvent = EventsService.getIstance('display');
+    private printerEvent = EventsService.getIstance('printer');
 
     private async _getNextTicketNumber(tx: Prisma.TransactionClient): Promise<number> {
         const today = new Date();
@@ -295,7 +295,7 @@ export class OrderService {
         })
 
         if (confirm) {
-            EventService.broadcastEvents(
+            EventsService.broadcastEvents(
                 [this.cashierEvent, this.displayEvent],
                 {
                     displayCode: createdOrder?.displayCode,
@@ -437,7 +437,7 @@ export class OrderService {
             return updatedOrder;
         });
 
-        EventService.broadcastEvents(
+        EventsService.broadcastEvents(
             [this.cashierEvent, this.displayEvent],
             {
                 displayCode: confirmedOrder.displayCode,

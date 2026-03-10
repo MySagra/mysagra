@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { AuthService } from "@/services/auth.service";
+import { AuthService } from "@/modules/auth/auth.service";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { env } from "@/config/env";
 import { LoginInput } from "@/schemas/auth";

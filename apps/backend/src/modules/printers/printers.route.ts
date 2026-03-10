@@ -4,10 +4,10 @@ import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { cuidParamSchema, CreatePrinterSchema, UpdatePrinterSchema, PatchPrinterSchema } from "@/schemas";
 
-import { PrinterController } from "@/modules/printers/printer.controller";
-import { PrinterService } from "@/modules/printers/printer.service";
+import { PrintersController } from "@/modules/printers/printers.controller";
+import { PrintersService } from "@/modules/printers/printers.service";
 
-const printerController = new PrinterController(new PrinterService());
+const printerController = new PrintersController(new PrintersService());
 
 const router = Router();
 

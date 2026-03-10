@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 
-export class RoleService {
+export class RolesService {
     async getRoles() {
         return await prisma.role.findMany();
     }

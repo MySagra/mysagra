@@ -2,7 +2,7 @@ import prisma from "@/utils/prisma";
 import { OrderItem } from "@/schemas";
 import { Prisma } from "@mysagra/database";
 
-export class OrderItemService {
+export class OrderItemsService {
     async getOrderItemById(id: string) {
         return await prisma.orderItem.findUnique({
             where: {

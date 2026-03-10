@@ -4,10 +4,10 @@ import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { cuidParamSchema, CreateCashRegisterSchema, GetCashRegisterQuerySchema, PatchCashRegisterSchema, UpdateCashRegisterSchema } from "@/schemas";
 
-import { CashRegisterController } from "@/controllers/cash-register.controller";
-import { CashRegisterService } from "@/services/cash-register.service";
+import { CashRegistersController } from "@/modules/cash-registers/cash-registers.controller";
+import { CashRegistersService } from "@/modules/cash-registers/cash-registers.service";
 
-const cashRegisterController = new CashRegisterController(new CashRegisterService());
+const cashRegisterController = new CashRegistersController(new CashRegistersService());
 
 const router = Router();
 

@@ -1,5 +1,1 @@
-import { PrismaClient } from "@/generated/prisma_client/client";
-
-const prisma = new PrismaClient();
-
-export default prisma;
+export { prisma as default } from '@mysagra/database';

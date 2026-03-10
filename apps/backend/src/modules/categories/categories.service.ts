@@ -1,11 +1,11 @@
 import prisma from "@/utils/prisma";
 import { CreateCategoryInput, GetCategoriesQuery, GetCategoryQuery, PatchCategoryInput, UpdateCategoryInput, UpdateFoodInput } from "@/schemas";
 import { Prisma } from "@mysagra/database";
-import { FoodService } from "./food.service";
-import { ImageService } from "./image.service";
+import { FoodsService } from "../foods/foods.service";
+import { ImagesService } from "../images/images.service";
 
-export class CategoryService {
-    public static imageService = new ImageService('categories', 'category');
+export class CategoriesService {
+    public static imageService = new ImagesService('categories', 'category');
 
     async getCategories(queryParams?: GetCategoriesQuery) {
         const whereClause: Prisma.CategoryWhereInput = {}
@@ -35,7 +35,7 @@ export class CategoryService {
         if (queryParams?.include === "foods") {
             return categories.map(category => ({
                 ...category,
-                foods: (category as any).foods.map((food: any) => FoodService.formatFoodResponse(food))
+                foods: (category as any).foods.map((food: any) => FoodsService.formatFoodResponse(food))
             }))
         }
 
@@ -71,7 +71,7 @@ export class CategoryService {
         if (queryParams?.include === "foods") {
             return {
                 ...category,
-                foods: (category as any).foods.map((food: any) => FoodService.formatFoodResponse(food))
+                foods: (category as any).foods.map((food: any) => FoodsService.formatFoodResponse(food))
             }
         }
 
@@ -139,7 +139,7 @@ export class CategoryService {
         });
 
         if (category.image) {
-            CategoryService.imageService.delete(category.image)
+            CategoriesService.imageService.delete(category.image)
         }
 
         return null;
@@ -150,7 +150,7 @@ export class CategoryService {
             const category = await this.getCategoryById(id, undefined, tx);
 
             if (category?.image && (category.image !== file.filename)) {
-                CategoryService.imageService.delete(category.image)
+                CategoriesService.imageService.delete(category.image)
             }
 
             return await tx.category.update({

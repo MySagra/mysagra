@@ -4,11 +4,11 @@ import { CreateFoodSchema, GetFoodsQuerySchema, cuidParamSchema, idParamSchema, 
 import { validateRequest } from "@/middlewares/validateRequest";
 import { authenticate } from "@/middlewares/authenticate";
 
-import { FoodController } from "@/controllers/food.controller";
-import { FoodService } from "@/services/food.service";
+import { FoodsController } from "@/modules/foods/foods.controller";
+import { FoodsService } from "@/modules/foods/foods.service";
 
-const foodService = new FoodService();
-const foodController = new FoodController(foodService);
+const foodService = new FoodsService();
+const foodController = new FoodsController(foodService);
 
 const router = Router();
 
