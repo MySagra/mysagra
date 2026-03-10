@@ -2,7 +2,7 @@ import prisma from "@/utils/prisma";
 import { ConfirmOrderInput, CreateOrder, GetOrdersQueryParams, OrderItem, OrderStatus, ReprintOrder } from "@/schemas";
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventService } from "./event.service";
-import { Prisma } from "@/generated/prisma_client";
+import { Prisma } from "@mysagra/database";
 
 export class OrderService {
     private cashierEvent = EventService.getIstance('cashier');

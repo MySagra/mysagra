@@ -1,6 +1,6 @@
-import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@/schemas/printer";
+import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@mysagra/schemas";
 import prisma from "@/utils/prisma";
-import { EventService } from "./event.service";
+import { EventService } from "../../services/event.service";
 
 export class PrinterService {
     private cashierEvent = EventService.getIstance('cashier');

@@ -1,4 +1,4 @@
-import { Prisma } from "@/generated/prisma_client";
+import { Prisma } from "@mysagra/database";
 import { CreateCashRegisterInput, GetCashRegisterQueryParams, PatchCashRegister, UpdateCashRegisterInput } from "@/schemas/cash-register";
 import prisma from "@/utils/prisma";
 

@@ -1,6 +1,6 @@
 import { checkHashPassword } from "@/lib/hashPassword";
 import prisma from "@/utils/prisma";
-import { Role, User } from "@generated/prisma_client";
+import { Role, User } from "@mysagra/database";
 import { TokenService } from "./token.service";
 
 export class AuthService {

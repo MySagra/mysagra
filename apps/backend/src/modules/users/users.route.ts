@@ -4,8 +4,8 @@ import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { CreateUserSchema, cuidParamSchema, idParamSchema, UpdateUserSchema } from "@/schemas";
 
-import { UserService } from "@/services/user.service";
-import { UserController } from "@/controllers/user.controller";
+import { UserService } from "@/modules/users/user.service";
+import { UserController } from "@/modules/users/user.controller";
 
 const userController = new UserController(new UserService());
 

@@ -1,9 +1,9 @@
 import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
-import { PrinterService } from "@/services/printer.service";
-import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@/schemas/printer";
-import { CUIDParam } from "@/schemas";
+import { PrinterService } from "@/modules/printers/printer.service";
+import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@mysagra/schemas"
+import { CUIDParam } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class PrinterController {

@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { OrderItem } from "@/schemas";
-import { Prisma } from "@generated/prisma_client";
+import { Prisma } from "@mysagra/database";
 
 export class OrderItemService {
     async getOrderItemById(id: string) {

@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 
-import { Prisma } from "@generated/prisma_client";
+import { Prisma } from "@mysagra/database";
 import { GetFoodsQueryParams, GetFoodQueryParams, CreateFoodInput, PatchFoodInput, UpdateFoodInput } from "@/schemas";
 import { EventService } from "./event.service";
 

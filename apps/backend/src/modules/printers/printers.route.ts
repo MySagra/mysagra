@@ -4,8 +4,8 @@ import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { cuidParamSchema, CreatePrinterSchema, UpdatePrinterSchema, PatchPrinterSchema } from "@/schemas";
 
-import { PrinterController } from "@/controllers/printer.controller";
-import { PrinterService } from "@/services/printer.service";
+import { PrinterController } from "@/modules/printers/printer.controller";
+import { PrinterService } from "@/modules/printers/printer.service";
 
 const printerController = new PrinterController(new PrinterService());
 

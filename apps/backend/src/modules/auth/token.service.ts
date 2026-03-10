@@ -2,7 +2,7 @@ import { env } from "@/config/env"
 import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken"
 import prisma from "@/utils/prisma";
-import { User, Role } from "@generated/prisma_client";
+import { User, Role } from "@mysagra/database";
 import { TokenPayloadSchema } from "@/schemas/auth";
 
 export class TokenService {

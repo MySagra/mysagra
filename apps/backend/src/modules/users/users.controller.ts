@@ -1,10 +1,10 @@
 import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
-import { UserService } from "@/services/user.service";
+import { UserService } from "@/modules/users/user.service";
 
-import { CUIDParam, UpdateUserInput } from "@/schemas";
-import { CreateUserInput } from "@/schemas";
+import { CUIDParam, UpdateUserInput } from "@mysagra/schemas";
+import { CreateUserInput } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
 
 export class UserController {
