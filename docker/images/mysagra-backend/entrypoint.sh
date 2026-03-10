@@ -3,19 +3,17 @@ set -e
 
 echo "Starting application..."
 
-# Create logs directory if it doesn't exist
-mkdir -p /app/logs
+mkdir -p /app/apps/backend/logs
 
-# Change to the backend directory
-cd /app/apps/backend
-
-# Run Prisma migrations if MIGRATE_ON_START is set
 if [ "$MIGRATE_ON_START" = "true" ]; then
   echo "Running Prisma migrations..."
-  npx prisma migrate deploy
-  npx prisma db seed
+  cd /app/packages/database
+  node_modules/.bin/prisma migrate deploy
+
+  echo "Seeding database..."
+  node_modules/.bin/tsx prisma/seed.ts
 fi
 
-# Start the application
 echo "Starting Node.js application..."
-exec node dist/index.js
+cd /app/apps/backend
+exec node_modules/.bin/tsx src/index.ts

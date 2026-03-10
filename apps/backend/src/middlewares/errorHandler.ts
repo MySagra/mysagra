@@ -1,6 +1,6 @@
 import { logger } from "@/config/logger";
 import { ErrorRequestHandler } from "express";
-import { Prisma } from "@/generated/prisma_client";
+import { Prisma } from "@mysagra/database";
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {

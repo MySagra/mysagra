@@ -1,0 +1,210 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma_client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Category {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  available Boolean @default(true)
+  position  Int     @default(0)
+  image     String?
+  foods     Food[]
+
+  printerId String?
+  printer   Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
+
+  @@map("categories")
+}
+
+model Ingredient {
+  id   String @id @default(cuid())
+  name String @unique
+
+  foodIngredients FoodIngredient[]
+
+  @@map("ingredients")
+}
+
+model Food {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  price       Decimal
+  available   Boolean @default(true)
+
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryId String
+
+  orderItems      OrderItem[]
+  foodIngredients FoodIngredient[]
+
+  printerId String?
+  printer   Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
+
+  @@map("foods")
+}
+
+model FoodIngredient {
+  food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId String
+
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  ingredientId String
+
+  @@id([foodId, ingredientId])
+  @@map("food_ingredients")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  PICKED_UP
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+}
+
+model Order {
+  id          Int     @id @default(autoincrement())
+  displayCode String? @unique
+
+  // user data
+  table    String
+  customer String
+
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+
+  ticketNumber Int?
+  status       OrderStatus @default(PENDING)
+
+  paymentMethod PaymentMethod?
+  subTotal      Decimal
+  discount      Decimal        @default(0)
+  surcharge     Decimal        @default(0)
+  total         Decimal
+
+  orderItems OrderItem[]
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  cashRegisterId String?
+  cashRegister   CashRegister? @relation(fields: [cashRegisterId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  quantity Int
+
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId Int
+
+  food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId String
+
+  unitPrice     Decimal
+  unitSurcharge Decimal @default(0)
+  total         Decimal
+
+  notes String?
+
+  @@unique([orderId, foodId, notes], name: "unique_order_food_notes")
+  @@map("order_items")
+}
+
+model DailyTicketCounter {
+  id      String   @id @default(cuid())
+  date    DateTime @unique @db.Date
+  counter Int      @default(0)
+}
+
+//users sections
+model Role {
+  id   String @id @default(cuid())
+  name String @unique
+
+  users User[]
+
+  @@map("roles")
+}
+
+model User {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+
+  role          Role           @relation(fields: [roleId], references: [id])
+  roleId        String
+  refreshTokens RefreshToken[]
+
+  orders Order[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar(500)
+  userId    String
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  ip        String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+enum PrinterStatus {
+  ONLINE
+  OFFLINE
+  ERROR
+}
+
+model Printer {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  ip          String
+  port        Int           @default(9100)
+  description String?
+  status      PrinterStatus @default(ONLINE)
+
+  cashRegisters CashRegister[]
+  foods         Food[]
+  categories    Category[]
+
+  @@map("printers")
+}
+
+model CashRegister {
+  id      String  @id @default(cuid())
+  name    String  @unique // e.g., "Cassa Bar 1", "Cassa Food Principale"
+  enabled Boolean @default(true)
+
+  defaultPrinterId String?
+  defaultPrinter   Printer? @relation(fields: [defaultPrinterId], references: [id])
+
+  orders Order[]
+
+  @@map("cash_registers")
+}

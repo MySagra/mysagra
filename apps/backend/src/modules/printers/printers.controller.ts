@@ -1,0 +1,77 @@
+import { Response } from "express";
+
+import { asyncHandler } from "@/utils/asyncHandler";
+import { PrintersService } from "@/modules/printers/printers.service";
+import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@mysagra/schemas"
+import { CUIDParam } from "@mysagra/schemas";
+import { TypedRequest } from "@/types/request";
+
+export class PrintersController {
+    constructor(private printerService: PrintersService) { }
+
+    getPrinters = asyncHandler(async (
+        req: TypedRequest<{}>,
+        res: Response,
+    ): Promise<void> => {
+        const printers = await this.printerService.getPrinters()
+
+        if (!Array.isArray(printers)) {
+            res.status(404).json({ message: "Printers not found" })
+            return;
+        }
+        res.status(200).json(printers);
+    });
+
+    getPrinterById = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const printer = await this.printerService.getPrinterById(id)
+
+        if (!printer) {
+            res.status(404).json({ message: "Printers not found" })
+            return;
+        }
+        res.status(200).json(printer);
+    });
+
+    createPrinter = asyncHandler(async (
+        req: TypedRequest<{ body: CreatePrinterInput }>,
+        res: Response,
+    ): Promise<void> => {
+        const printer = await this.printerService.createPrinter(req.validated.body)
+
+        res.status(201).json(printer);
+    });
+
+    updatePrinter = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam, body: UpdatePrinterInput }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const printer = await this.printerService.updatePrinter(id, req.validated.body)
+
+        res.status(200).json(printer);
+    });
+
+    patchPrinter = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam, body: PatchPrinterInput }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const printer = await this.printerService.patchPrinter(id, req.validated.body)
+
+        res.status(200).json(printer);
+    });
+
+    deletePrinter = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        await this.printerService.deletePrinter(id)
+
+        res.status(204).send();
+    });
+}

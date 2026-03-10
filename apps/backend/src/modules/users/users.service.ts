@@ -1,0 +1,80 @@
+import { prisma } from "@mysagra/database";
+import { createHashPassword } from "@/lib/hashPassword";
+import { CreateUserInput, UpdateUserInput } from "@mysagra/schemas";
+
+export class UsersService {
+    async getUsers() {
+        return await prisma.user.findMany({
+            select: {
+                id: true,
+                username: true,
+                role: true
+            }
+        });
+    }
+
+    async getUserById(id: string) {
+        return await prisma.user.findUnique({
+            where: {
+                id
+            },
+            select: {
+                id: true,
+                username: true,
+                role: true
+            }
+        })
+    }
+
+    async getUserByUsername(username: string) {
+        return await prisma.user.findUnique({
+            where: {
+                username
+            },
+            select: {
+                id: true,
+                username: true,
+                role: true
+            }
+        })
+    }
+
+    async createUser(user: CreateUserInput) {
+        return await prisma.user.create({
+            data: {
+                ...user,
+                password: await createHashPassword(user.password),
+            },
+            select: {
+                id: true,
+                username: true,
+                role: true
+            }
+        })
+    }
+
+    async updateUser(id: string, user: UpdateUserInput) {
+        return await prisma.user.update({
+            where: {
+                id
+            },
+            data: {
+                ...user,
+                password: await createHashPassword(user.password),
+            },
+            select: {
+                id: true,
+                username: true,
+                role: true
+            }
+        })
+    }
+
+    async deleteUser(id: string) {
+        return await prisma.user.delete({
+            where: {
+                id
+            }
+        });
+    }
+}

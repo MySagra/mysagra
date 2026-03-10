@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { TokenService } from '@/services/token.service';
-import { TokenPayload } from '@/schemas/auth';
-import { UserRole } from '@/schemas/auth';
+import { TokenService } from '@/modules/auth/token.service';
+import { RoleNames } from '@mysagra/schemas';
 
 const tokenService = new TokenService();
 
-export function authenticate(allowedRoles: UserRole[]) {
+export function authenticate(allowedRoles: RoleNames[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     
