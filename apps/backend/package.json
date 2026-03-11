@@ -27,6 +27,7 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.19.11",
+    "@types/swagger-ui-express": "^4.1.8",
     "cross-env": "^7.0.3",
     "dotenv": "^16.6.1",
     "prisma": "^7.0.0",
@@ -38,6 +39,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.4.3",
     "@mysagra/database": "workspace:*",
     "@mysagra/schemas": "workspace:*",
     "@prisma/adapter-mariadb": "^7.0.0",
@@ -49,7 +51,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.8",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",

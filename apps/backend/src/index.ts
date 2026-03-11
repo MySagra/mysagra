@@ -11,12 +11,11 @@ import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/errorHandler';
 import { corsOptions } from './config/corsOptions';
 
-//docs
-import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from './docs/swagger';
-
 //routes
 import routes from "./routes"
+
+//docs
+import { setupSwagger } from './config/swagger';
 
 import { requestId } from './middlewares/requestId';
 import { loggingMiddleware } from './middlewares/logging';
@@ -60,11 +59,8 @@ app.use((req, res, next) => {
 });
 
 //static routes
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get('/swagger.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
-});
+//generated documentation
+setupSwagger(app)
 
 app.get('/v1/test-ip', (req, res) => {
   const clientIp = req.ip;

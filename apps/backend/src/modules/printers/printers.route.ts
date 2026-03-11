@@ -1,136 +1,20 @@
 import { Router } from "express";
+import "./printers.docs";
 import { authenticate } from "@/middlewares/authenticate";
-
 import { validateRequest } from "@/middlewares/validateRequest";
 import { cuidParamSchema, CreatePrinterSchema, UpdatePrinterSchema, PatchPrinterSchema } from "@mysagra/schemas";
-
 import { PrintersController } from "@/modules/printers/printers.controller";
 import { PrintersService } from "@/modules/printers/printers.service";
-
 const printerController = new PrintersController(new PrintersService());
-
 const router = Router();
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Printer:
- *       type: object
- *       required:
- *         - name
- *         - ip
- *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the printer
- *           example: "clx1a2b3c4d5e6f7g8h9i0j1"
- *         name:
- *           type: string
- *           description: The name of the printer
- *           example: "Kitchen Printer"
- *         ip:
- *           type: string
- *           description: The IP address of the printer
- *           example: "192.168.1.200"
- *         port:
- *           type: integer
- *           description: The port of the printer
- *           default: 9100
- *           example: 9100
- *         description:
- *           type: string
- *           description: The description of the printer
- *           example: "Printer located in the kitchen"
- *         status:
- *           type: string
- *           enum: [ONLINE, OFFLINE, ERROR]
- *           default: ONLINE
- *           description: The status of the printer
- *           example: "ONLINE"
- *         printerId:
- *           type: string
- *           description: The CUID identifier of the printer
- *           example: "clx1a2b3c4d5e6f7g8h9i0j1"
- *     PrinterInput:
- *       type: object
- *       required:
- *         - name
- *         - ip
- *       properties:
- *         name:
- *           type: string
- *           description: The name of the printer
- *           example: "Kitchen Printer"
- *         ip:
- *           type: string
- *           description: The IP address of the printer
- *           example: "192.168.1.200"
- *         port:
- *           type: integer
- *           description: The port of the printer
- *           example: 9100
- *         description:
- *           type: string
- *           description: The description of the printer
- *           example: "Printer located in the kitchen"
- *         status:
- *           type: string
- *           enum: [ONLINE, OFFLINE, ERROR]
- *           default: ONLINE
- *           description: The status of the printer
- *           example: "ONLINE"
- */
 
-/**
- * @openapi
- * /v1/printers:
- *   get:
- *     summary: Get all printers
- *     tags: [Printers]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: The list of the printers
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Printer'
- */
 router.get(
     "/",
     authenticate(["admin", "operator"]),
     printerController.getPrinters
 );
 
-/**
- * @openapi
- * /v1/printers/{id}:
- *   get:
- *     summary: Get the printer by id
- *     tags: [Printers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The printer id
- *     responses:
- *       200:
- *         description: The printer description by id
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Printer'
- *       404:
- *         description: The printer was not found
- */
 router.get(
     "/:id",
     authenticate(["admin", "operator"]),
@@ -140,30 +24,6 @@ router.get(
     printerController.getPrinterById
 );
 
-/**
- * @openapi
- * /v1/printers:
- *   post:
- *     summary: Create a new printer
- *     tags: [Printers]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/PrinterInput'
- *     responses:
- *       201:
- *         description: The printer was successfully created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Printer'
- *       400:
- *         description: Invalid input
- */
 router.post(
     "/",
     authenticate(["admin"]),
@@ -173,37 +33,6 @@ router.post(
     printerController.createPrinter
 );
 
-/**
- * @openapi
- * /v1/printers/{id}:
- *   put:
- *     summary: Update the printer by the id
- *     tags: [Printers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The printer id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/PrinterInput'
- *     responses:
- *       200:
- *         description: The printer was updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Printer'
- *       404:
- *         description: The printer was not found
- */
 router.put(
     "/:id",
     authenticate(["admin"]),
@@ -214,48 +43,6 @@ router.put(
     printerController.updatePrinter
 );
 
-/**
- * @openapi
- * /v1/printers/{id}:
- *   patch:
- *     summary: Update the status of a printer
- *     description: Update the status of a printer by its ID. This endpoint allows changing the printer status to ONLINE, OFFLINE, or ERROR.
- *     tags: [Printers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The printer id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - status
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [ONLINE, OFFLINE, ERROR]
- *                 description: The new status of the printer
- *                 example: "OFFLINE"
- *     responses:
- *       200:
- *         description: The printer status was updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Printer'
- *       400:
- *         description: Invalid input
- *       404:
- *         description: The printer was not found
- */
 router.patch(
     "/:id",
     authenticate(["admin"]),
@@ -266,27 +53,6 @@ router.patch(
     printerController.patchPrinter
 );
 
-/**
- * @openapi
- * /v1/printers/{id}:
- *   delete:
- *     summary: Remove the printer by id
- *     tags: [Printers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The printer id
- *     responses:
- *       200:
- *         description: The printer was deleted
- *       404:
- *         description: The printer was not found
- */
 router.delete(
     "/:id",
     authenticate(["admin"]),
@@ -295,5 +61,4 @@ router.delete(
     }),
     printerController.deletePrinter
 );
-
 export default router;
