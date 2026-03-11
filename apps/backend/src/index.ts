@@ -1,111 +1,24 @@
-//server
-import express from 'express';
-import cors from "cors"
-import helmet from 'helmet';
-import path from "path";
-
-import { env } from './config/env';
-
-import compression from 'compression';
-import cookieParser from 'cookie-parser';
-import { errorHandler } from './middlewares/errorHandler';
-import { corsOptions } from './config/corsOptions';
-
-//routes
-import routes from "./routes"
-
-//docs
-import { setupSwagger } from './config/swagger';
-
-import { requestId } from './middlewares/requestId';
-import { loggingMiddleware } from './middlewares/logging';
-import { extractUser } from './middlewares/extractUser';
-
-//app config
-const app = express();
-app.set('query parser', 'extended');
-
-//trust nginx
-if (env.NODE_ENV === "production") {
-  app.set('trust proxy', env.TRUST_PROXY_LEVEL); //trust nginx reverse proxy
-  app.disable('x-powered-by');
-}
-
-//security middlewares
-app.use(express.json({ limit: "10kb" }));
-app.use(cookieParser());
-app.use(cors(corsOptions));
-app.use(helmet());
-app.use(helmet.contentSecurityPolicy({
-  directives: {
-    defaultSrc: ["'self'", ...env.ALLOWED_ORIGINS || ""],
-    imgSrc: ["'self'", "data:", ...env.ALLOWED_ORIGINS || ""],
-    scriptSrc: ["'self'", ...env.ALLOWED_ORIGINS || ""],
-    styleSrc: ["'self'", ...env.ALLOWED_ORIGINS || "", "'unsafe-inline'"],
-  }
-}));
-
-//global middlewares
-app.use(requestId);
-app.use(loggingMiddleware);
-app.use(extractUser());
-
-// Compression middleware (skip per SSE)
-app.use((req, res, next) => {
-  if (req.path.startsWith('/events')) {
-    return next(); // Salta compression per SSE
-  }
-  compression()(req, res, next);
-});
-
-//static routes
-//generated documentation
-setupSwagger(app)
-
-app.get('/v1/test-ip', (req, res) => {
-  const clientIp = req.ip;
-  res.json({ ip: clientIp, env: env.NODE_ENV });
-});
-
-app.use(express.static(path.join(__dirname, '../public')));
-app.use('/images', express.static(path.join(__dirname, '../public/images')));
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
-
-//health check
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    timestamp: new Date(),
-    uptime: process.uptime(),
-    memoryUsage: process.memoryUsage(),
-  });
-});
-
-//routes
-app.use(routes);
-
-//error handling for 404
-app.use((req, res, next) => {
-  res.status(404).json({
-    status: "error",
-    message: "Not Found",
-  });
-});
-
-//error middleware
-app.use(errorHandler);
+import { prisma } from "@mysagra/database";
+import app from "./app";
+import { env } from "./config/env";
 
 const server = app.listen(env.PORT, () => {
   console.log(`Server is listening on http://localhost:${env.PORT}`);
   console.log(`Documentation: http://localhost:${env.PORT}/api-docs`);
 });
 
-function shutdown() {
+async function shutdown() {
   console.log('Shutting down server...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
+  try {
+    await prisma.$disconnect();
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+    process.exit(1);
+  }
 }
 
 process.on('SIGINT', shutdown);
