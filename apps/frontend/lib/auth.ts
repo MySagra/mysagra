@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { cookies } from "next/headers";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -21,20 +22,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               username: credentials.username,
               password: credentials.password,
             }),
-            credentials: "include",
           });
 
           if (!response.ok) {
             return null;
           }
 
+          // Propagate the mysagra_token cookie from the backend response to the browser.
+          // The backend sets it via Set-Cookie header, but since this is a server-to-server
+          // fetch, the cookie would otherwise be lost and never reach the user's browser.
+          const setCookieHeader = response.headers.getSetCookie();
+          if (setCookieHeader) {
+            const cookieStore = await cookies();
+            for (const rawCookie of setCookieHeader) {
+              // Parse the mysagra_token cookie from the Set-Cookie header
+              if (rawCookie.startsWith("mysagra_token=")) {
+                const tokenValue = rawCookie
+                  .split(";")[0]           // "mysagra_token=<value>"
+                  .split("=")
+                  .slice(1)
+                  .join("=");              // handle '=' in token value
+
+                cookieStore.set("mysagra_token", tokenValue, {
+                  httpOnly: true,
+                  secure: process.env.NODE_ENV === "production",
+                  sameSite: "lax",
+                  path: "/",
+                  maxAge: 6 * 60 * 60, // 6 hours — matches backend
+                });
+              }
+            }
+          }
+
           const data = await response.json();
 
           return {
-            id: String(data.user?.id || "1"),
-            name: data.user?.username || (credentials.username as string),
+            id: String(data.id || "1"),
+            name: data.username || (credentials.username as string),
             email: `${credentials.username}@myamministratore.local`,
-            role: data.user?.role || "admin",
+            role: data.role || "admin",
           };
         } catch (error) {
           return null;

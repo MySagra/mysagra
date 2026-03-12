@@ -41,7 +41,6 @@ export class TokenService {
             if (!parsed.success) return null;
             return parsed.data;
         } catch (err) {
-            console.error(err)
             return null;
         }
     }
