@@ -20,7 +20,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { ChevronsUpDownIcon, LogOutIcon } from "lucide-react"
-import { logout } from "@/actions/auth"
 
 export function NavUser({
   user,
@@ -40,9 +39,8 @@ export function NavUser({
     .toUpperCase()
     .slice(0, 2)
 
-  async function handleLogout() {
-    await logout()
-    window.location.href = "/login"
+  function handleLogout() {
+    window.location.href = "/api/auth/force-logout"
   }
 
   return (

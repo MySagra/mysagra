@@ -2,6 +2,7 @@ import { getOrders } from "@/actions/orders";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { OrdersContent } from "@/components/dashboard/orders/orders-content";
 import { PaginatedOrders } from "@/lib/api-types";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default async function OrdersPage() {
   let ordersData: PaginatedOrders = {
@@ -16,6 +17,7 @@ export default async function OrdersPage() {
   try {
     ordersData = await getOrders({ page: 1, limit: 20 });
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     // fallback to empty
   }
 

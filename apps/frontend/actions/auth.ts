@@ -1,7 +1,8 @@
 "use server";
 
-import { signIn, signOut } from "@/lib/auth";
+import { signIn } from "@/lib/auth";
 import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 
 export async function login(username: string, password: string) {
   try {
@@ -21,8 +22,6 @@ export async function login(username: string, password: string) {
       switch (error.type) {
         case "CredentialsSignin":
           return { success: false, error: "Credenziali non valide" };
-        case "CallbackRouteError":
-          return { success: false, error: "Errore di autenticazione" };
         default:
           return { success: false, error: "Errore durante il login" };
       }
@@ -33,6 +32,8 @@ export async function login(username: string, password: string) {
 }
 
 export async function logout() {
-  await signOut({ redirect: false });
-  return { success: true };
+  // Redirect to the force-logout route handler which properly
+  // clears both backend and NextAuth cookies via Set-Cookie headers
+  redirect("/api/auth/force-logout");
 }
+

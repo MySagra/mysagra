@@ -3,6 +3,7 @@ import { CashRegistersContent } from "@/components/dashboard/cash-registers/cash
 import { getCashRegisters } from "@/actions/cash-registers";
 import { getPrinters } from "@/actions/printers";
 import { CashRegister, Printer } from "@/lib/api-types";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default async function CashRegistersPage() {
   let cashRegisters: CashRegister[] = [];
@@ -14,6 +15,7 @@ export default async function CashRegistersPage() {
       getPrinters(),
     ]);
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     cashRegisters = [];
     printers = [];
   }

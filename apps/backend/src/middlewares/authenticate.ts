@@ -8,7 +8,7 @@ export function authenticate(allowedRoles: RoleNames[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     
-    if(!user){
+    if(!user || user.role === "guest"){
       res.status(401).json({ message: "Authentication required" });
       return;
     }

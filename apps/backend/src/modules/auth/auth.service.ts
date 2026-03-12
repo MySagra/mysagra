@@ -19,30 +19,26 @@ export class AuthService {
         return user;
     }
 
-    async login(user: User & { role: Role }, password: string, ip? : string, userAgent?: string) {
+    async login(user: User & { role: Role }, password: string) {
         if (!await checkHashPassword(password, user.password)) return null;
-
-        const refreshToken = await this.tokenService.generateRefreshToken(user.id, ip, userAgent)
-        const accessToken = await this.tokenService.generateAccessToken(user)
-
-        return {
-            accessToken,
-            refreshToken
-        }
+        const accessToken = await this.tokenService.generateToken(user)
+        return accessToken
     }
 
+    /*
     async logout(refreshToken: string) : Promise<Boolean>{
         return await this.tokenService.revokeToken(refreshToken);
     }
+    
 
-    async revokeToken(refreshToken: string){
+    async revokeToken(refreshToken: string) {
         return await this.tokenService.revokeToken(refreshToken);
     }
 
-    async refresh(refreshToken: string) : Promise<string | null>{
-        if(!await this.tokenService.isRefreshTokenValid(refreshToken)) return null;
-        const payload = this.tokenService.getPayload(refreshToken);
-        if(!payload?.sub) return null;
+    async refresh(refreshToken: string): Promise<string | null> {
+        if (!await this.tokenService.isRefreshTokenValid(refreshToken)) return null;
+        const payload = this.tokenService.getRefreshTokenPayload(refreshToken);
+        if (!payload?.sub) return null;
 
         const user = await prisma.user.findUnique({
             where: {
@@ -56,7 +52,8 @@ export class AuthService {
                 role: true
             }
         })
-        if(!user) return null;
-        return this.tokenService.generateAccessToken(user)
+        if (!user) return null;
+        return await this.tokenService.generateAccessToken(user)
     }
+    */
 }

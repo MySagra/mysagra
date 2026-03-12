@@ -36,6 +36,22 @@ export const TokenPayloadSchema = z.object({
     description: "Decoded JWT access-token payload"
 })
 
+export const LoginResponseSchema = z.object({
+    user: z.object({
+        id: z.cuid().meta({
+            description: "User id"
+        }),
+        username: z.string().meta({
+            description: "User role",
+            example: "admin"
+        }),
+        role: RoleEnum
+    }),
+    accessToken: z.jwt().meta({
+        description: "JWT for access token"
+    })
+})
+
 // Inferred types
 export type LoginRequest = z.infer<typeof LoginSchema>
 export type RefreshRequest = z.infer<typeof RefreshSchema>
