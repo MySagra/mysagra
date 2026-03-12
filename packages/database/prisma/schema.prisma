@@ -43,7 +43,7 @@ model Food {
   price       Decimal
   available   Boolean @default(true)
 
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId String
 
   orderItems      OrderItem[]
@@ -101,10 +101,10 @@ model Order {
   orderItems OrderItem[]
 
   userId String?
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   cashRegisterId String?
-  cashRegister   CashRegister? @relation(fields: [cashRegisterId], references: [id])
+  cashRegister   CashRegister? @relation(fields: [cashRegisterId], references: [id], onDelete: SetNull)
 
   @@map("orders")
 }
@@ -152,27 +152,10 @@ model User {
 
   role          Role           @relation(fields: [roleId], references: [id])
   roleId        String
-  refreshTokens RefreshToken[]
 
   orders Order[]
 
   @@map("users")
-}
-
-model RefreshToken {
-  id        String    @id @default(uuid())
-  token     String    @unique @db.VarChar(500)
-  userId    String
-  createdAt DateTime  @default(now())
-  expiresAt DateTime
-  revokedAt DateTime?
-  ip        String?
-  userAgent String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("refresh_tokens")
 }
 
 enum PrinterStatus {

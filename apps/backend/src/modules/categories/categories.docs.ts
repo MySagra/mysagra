@@ -28,7 +28,7 @@ registry.registerPath({
         "Returns all categories with optional filtering by availability and optional inclusion of foods. " +
         "If `available=true` is specified the endpoint is public; otherwise admin authentication is required.",
     tags: ["Categories"],
-    security: [{ bearerAuth: [] }, {}],
+    security: [{ cookieAuth: [] }, {}],
     request: { query: GetCategoriesQuery },
     responses: {
         200: {
@@ -48,7 +48,7 @@ registry.registerPath({
     path: "/v1/categories/{id}",
     summary: "Get category by ID",
     tags: ["Categories"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         query: GetCategoriesQuery,
@@ -70,7 +70,7 @@ registry.registerPath({
     path: "/v1/categories",
     summary: "Create a new category",
     tags: ["Categories"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         body: {
             required: true,
@@ -99,7 +99,7 @@ registry.registerPath({
         "Updates a category. Changing `available` also updates all associated foods' availability. " +
         "Changing `printerId` (or setting it to null) propagates to all associated foods.",
     tags: ["Categories"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -129,7 +129,7 @@ registry.registerPath({
     description:
         "Partially updates a category. Changing `available` or `printerId` propagates to all associated foods.",
     tags: ["Categories"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -156,7 +156,7 @@ registry.registerPath({
     path: "/v1/categories/{id}/image",
     summary: "Upload category image",
     tags: ["Categories"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -188,7 +188,7 @@ registry.registerPath({
     path: "/v1/categories/{id}",
     summary: "Delete category by ID",
     tags: ["Categories"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         204: { description: "Category deleted" },

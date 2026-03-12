@@ -8,10 +8,10 @@ extendZodWithOpenApi(z);
 
 export const registry = new OpenAPIRegistry();
 
-registry.registerComponent('securitySchemes', 'bearerAuth', {
-    type: 'http',
-    scheme: 'bearer',
-    bearerFormat: 'JWT'
+registry.registerComponent('securitySchemes', 'cookieAuth', {
+    type: 'apiKey',
+    scheme: 'cookie',
+    name: 'mysagra_token'
 })
 
 export function generateOpenApiDocument() {

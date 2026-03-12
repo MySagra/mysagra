@@ -1,6 +1,6 @@
+import { env } from "./config/env"; // load the .env before prisma
 import { prisma } from "@mysagra/database";
 import app from "./app";
-import { env } from "./config/env";
 
 const server = app.listen(env.PORT, () => {
   console.log(`Server is listening on http://localhost:${env.PORT}`);

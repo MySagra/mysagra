@@ -8,26 +8,13 @@ registry.registerComponent("securitySchemes", "cookieAuth", {
     type: "apiKey",
     in: "cookie",
     name: "refreshToken",
-    description: "HTTP-only refresh token cookie set automatically on login",
+    description: "HTTP-only token cookie set automatically on login",
 });
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
 const LoginRequestSchema = registry.register("LoginRequest", LoginSchema);
 const LoginResponse = registry.register("LoginResponse", LoginResponseSchema);
-
-const RefreshResponseSchema = registry.register(
-    "RefreshResponse",
-    z.object({
-        accessToken: z.string().meta({
-            description: "New short-lived JWT access token (expires in 15 minutes)",
-            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        }),
-    }).meta({
-        id: "RefreshResponse",
-        description: "Successful token refresh response",
-    })
-);
 
 const ErrorResponseSchema = registry.register(
     "ErrorResponse",
@@ -49,7 +36,7 @@ registry.registerPath({
     path: "/auth/login",
     summary: "Authenticate user",
     description:
-        "Authenticate a user with username and password. Returns user info and a short-lived access token. A long-lived refresh token is set as an HTTP-only cookie named `refreshToken` (7 days).",
+        "Authenticate a user with username and password. Returns user info. A short-lived token is set as an HTTP-only cookie named `mysagra_token` (6 hours).",
     tags: ["Auth"],
     request: {
         body: {
@@ -116,6 +103,7 @@ registry.registerPath({
     },
 });
 
+
 registry.registerPath({
     method: "post",
     path: "/auth/logout",
@@ -155,6 +143,7 @@ registry.registerPath({
     },
 });
 
+/*
 registry.registerPath({
     method: "post",
     path: "/auth/refresh",
@@ -198,3 +187,4 @@ registry.registerPath({
         },
     },
 });
+*/

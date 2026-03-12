@@ -21,7 +21,7 @@ registry.registerPath({
     path: "/v1/ingredients",
     summary: "Get all ingredients",
     tags: ["Ingredients"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     responses: {
         200: {
             description: "List of ingredients",
@@ -40,7 +40,7 @@ registry.registerPath({
     path: "/v1/ingredients/{id}",
     summary: "Get ingredient by ID",
     tags: ["Ingredients"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         200: {
@@ -59,7 +59,7 @@ registry.registerPath({
     path: "/v1/ingredients",
     summary: "Create a new ingredient",
     tags: ["Ingredients"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         body: {
             required: true,
@@ -86,7 +86,7 @@ registry.registerPath({
     path: "/v1/ingredients/{id}",
     summary: "Update ingredient by ID",
     tags: ["Ingredients"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -113,7 +113,7 @@ registry.registerPath({
     path: "/v1/ingredients/{id}",
     summary: "Delete ingredient by ID",
     tags: ["Ingredients"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         204: { description: "Ingredient deleted" },

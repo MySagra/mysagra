@@ -9,72 +9,70 @@ export class AuthController {
     constructor(private authService: AuthService) { }
 
     login = asyncHandler(async (
-        req: TypedRequest<{body: LoginRequest}>,
-        res: Response, 
+        req: TypedRequest<{ body: LoginRequest }>,
+        res: Response,
     ): Promise<void> => {
         const { username, password } = req.validated.body;
         const user = await this.authService.getUser(username);
 
-        if(!user){
+        if (!user) {
             res.status(404).json({
                 message: "User not exist"
             })
             return;
         }
 
-        const tokens = await this.authService.login(user, password, req.ip, req.get('User-Agent'));
+        const token = await this.authService.login(user, password);
 
-        if(!tokens){
+        if (!token) {
             res.status(401).json({
                 message: "Invalid Credentials"
             });
             return;
         }
 
-        res.cookie('refreshToken', tokens.refreshToken, {
+        res.cookie('mysagra_token', token, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
-            maxAge: 7 * 24 * 60 * 60 * 1000
+            maxAge: 6 * 60 * 60 * 1000
         });
 
         res.status(200).json({
-            user: {
-                id: user.id,
-                username: user.username,
-                role: user.role.name
-            },
-            accessToken: tokens.accessToken
+            id: user.id,
+            username: user.username,
+            role: user.role.name
         });
     });
-    
-    logout = asyncHandler(async (
-        req: TypedRequest<{}>, 
-        res: Response, 
-    ): Promise<void> => {
-        const { refreshToken } = req.cookies;
-        this.authService.logout(refreshToken);
 
-        res.clearCookie('refreshToken', {
+    logout = asyncHandler(async (
+        req: TypedRequest<{}>,
+        res: Response,
+    ): Promise<void> => {
+        res.clearCookie('mysagra_token', {
             path: '/',
             sameSite: 'lax',
-            secure: env.NODE_ENV === 'production'
+            secure: env.NODE_ENV === 'production',
+            httpOnly: true
         });
         res.status(200).json({ message: "Logged out successfully" });
     });
 
+    /*
     refresh = asyncHandler(async (
-        req: TypedRequest<{}>, 
-        res: Response, 
+        req: TypedRequest<{}>,
+        res: Response,
     ): Promise<void> => {
         const { refreshToken } = req.cookies;
         const accessToken = await this.authService.refresh(refreshToken)
-        if(!accessToken) {
+
+        if (!accessToken) {
             res.status(401).json({ message: "Refresh token not valid" });
             return;
         }
-        
+
         res.status(200).json({ accessToken });
     });
+    */
 }

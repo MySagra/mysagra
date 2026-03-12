@@ -21,7 +21,7 @@ registry.registerPath({
     path: "/v1/users",
     summary: "Get all users",
     tags: ["Users"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     responses: {
         200: {
             description: "List of users",
@@ -41,7 +41,7 @@ registry.registerPath({
     path: "/v1/users/{id}",
     summary: "Get user by ID",
     tags: ["Users"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         200: {
@@ -61,7 +61,7 @@ registry.registerPath({
     path: "/v1/users",
     summary: "Create a new user",
     tags: ["Users"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         body: {
             required: true,
@@ -89,7 +89,7 @@ registry.registerPath({
     path: "/v1/users/{id}",
     summary: "Update user by ID",
     tags: ["Users"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -117,7 +117,7 @@ registry.registerPath({
     path: "/v1/users/{id}",
     summary: "Delete user by ID",
     tags: ["Users"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         204: { description: "User deleted" },

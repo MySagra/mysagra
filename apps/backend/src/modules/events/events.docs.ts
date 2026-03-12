@@ -58,9 +58,9 @@ const SSEReprintOrderSchema = SSEOrderSchema.extend({
         .meta({ description: "Items selected for reprint" }),
 });
 
-const SSEOrder = registry.register("SSEOrder", SSEOrderSchema);
-const SSEConfirmedOrderSummaryResponse = registry.register("SSEConfirmedOrderSummary", SSEConfirmedOrderSummary);
-const SSEReprintOrder = registry.register("SSEReprintOrder", SSEReprintOrderSchema);
+registry.register("SSEOrder", SSEOrderSchema);
+registry.register("SSEConfirmedOrderSummary", SSEConfirmedOrderSummary);
+registry.register("SSEReprintOrder", SSEReprintOrderSchema);
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -86,7 +86,7 @@ registry.registerPath({
 - **\`confirmed-order\`** — Fired when an order is confirmed (includes food details for printing). Payload: full order object (\`SSEOrder\`).
 - **\`reprint-order\`** — Fired when a reprint is requested. Payload: \`SSEReprintOrder\`.`,
     tags: ["Events (SSE)"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: EventParams },
     responses: {
         200: {

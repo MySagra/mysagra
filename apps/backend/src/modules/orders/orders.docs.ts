@@ -50,7 +50,7 @@ registry.registerPath({
     description:
         "Returns a paginated and filtered list of orders. Use `GET /v1/orders/{id}` for full order details.",
     tags: ["Orders"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { query: GetOrdersQuery },
     responses: {
         200: {
@@ -72,7 +72,7 @@ registry.registerPath({
     description:
         "Returns the complete order with items grouped by category, including full food and ingredient details.",
     tags: ["Orders"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: OrderIdParam },
     responses: {
         200: {
@@ -95,7 +95,7 @@ registry.registerPath({
     description:
         "Creates a new order in PENDING status. If `confirm` data is provided the order is immediately confirmed and a ticket number is assigned.",
     tags: ["Orders"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         body: {
             required: true,
@@ -124,7 +124,7 @@ registry.registerPath({
     description:
         "Confirms a PENDING order, assigns a ticket number and stores payment information.",
     tags: ["Orders"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: OrderIdParam,
         body: {
@@ -153,7 +153,7 @@ registry.registerPath({
     path: "/v1/orders/{id}",
     summary: "Update order status",
     tags: ["Orders"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: OrderIdParam,
         body: {
@@ -181,7 +181,7 @@ registry.registerPath({
     path: "/v1/orders/{id}/reprint",
     summary: "Reprint order receipt or items",
     tags: ["Orders"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: OrderIdParam,
         body: {
@@ -205,7 +205,7 @@ registry.registerPath({
     path: "/v1/orders/{id}",
     summary: "Delete order by ID",
     tags: ["Orders"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: OrderIdParam },
     responses: {
         200: { description: "Order deleted" },

@@ -3,6 +3,7 @@ import { CategoriesContent } from "@/components/dashboard/categories/categories-
 import { getCategories } from "@/actions/categories";
 import { getPrinters } from "@/actions/printers";
 import { Category, Printer } from "@/lib/api-types";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default async function CategoriesPage() {
   let categories: Category[] = [];
@@ -11,12 +12,14 @@ export default async function CategoriesPage() {
   try {
     categories = await getCategories();
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     categories = [];
   }
 
   try {
     printers = await getPrinters();
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     printers = []; // Default to empty if fetch fails
   }
 

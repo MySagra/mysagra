@@ -18,13 +18,6 @@ const PatchCashRegisterRequest = registry.register("PatchCashRegisterRequest", P
 const GetCashRegisterQuery = registry.register("GetCashRegisterQuery", GetCashRegisterQuerySchema);
 const CUIDParam = registry.register("CUIDParam", cuidParamSchema);
 
-const idParam = {
-    in: "path" as const,
-    name: "id",
-    required: true,
-    schema: { type: "string" as const, description: "Cash register CUID" },
-};
-
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 registry.registerPath({
@@ -32,7 +25,7 @@ registry.registerPath({
     path: "/v1/cash-registers",
     summary: "Get all cash registers",
     tags: ["CashRegisters"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { query: GetCashRegisterQuery },
     responses: {
         200: {
@@ -53,7 +46,7 @@ registry.registerPath({
     path: "/v1/cash-registers/{id}",
     summary: "Get cash register by ID",
     tags: ["CashRegisters"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         query: GetCashRegisterQuery,
@@ -77,7 +70,7 @@ registry.registerPath({
     path: "/v1/cash-registers",
     summary: "Create a new cash register",
     tags: ["CashRegisters"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         body: {
             required: true,
@@ -103,7 +96,7 @@ registry.registerPath({
     path: "/v1/cash-registers/{id}",
     summary: "Update cash register by ID",
     tags: ["CashRegisters"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -130,7 +123,7 @@ registry.registerPath({
     path: "/v1/cash-registers/{id}",
     summary: "Patch cash register enabled status",
     tags: ["CashRegisters"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -157,7 +150,7 @@ registry.registerPath({
     path: "/v1/cash-registers/{id}",
     summary: "Delete cash register by ID",
     tags: ["CashRegisters"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         200: { description: "Cash register deleted" },

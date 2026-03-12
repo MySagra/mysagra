@@ -5,6 +5,7 @@ import { getCategories } from "@/actions/categories";
 import { getIngredients } from "@/actions/ingredients";
 import { getPrinters } from "@/actions/printers";
 import { Food, Category, Ingredient, Printer } from "@/lib/api-types";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default async function FoodsPage() {
   let foods: Food[] = [];
@@ -20,6 +21,7 @@ export default async function FoodsPage() {
       getPrinters(),
     ]);
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     foods = [];
     categories = [];
     ingredients = [];

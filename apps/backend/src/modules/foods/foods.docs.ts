@@ -30,7 +30,7 @@ registry.registerPath({
         "Returns all food items with optional filtering by availability, category and ingredient inclusion. " +
         "Non-admin users can only access foods with `available=true`.",
     tags: ["Foods"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { query: GetFoodsQuery },
     responses: {
         200: {
@@ -50,7 +50,7 @@ registry.registerPath({
     path: "/v1/foods/{id}",
     summary: "Get food item by ID",
     tags: ["Foods"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         query: GetFoodQuery,
@@ -72,7 +72,7 @@ registry.registerPath({
     path: "/v1/foods",
     summary: "Create a new food item",
     tags: ["Foods"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         body: {
             required: true,
@@ -99,7 +99,7 @@ registry.registerPath({
     path: "/v1/foods/{id}",
     summary: "Update food item by ID",
     tags: ["Foods"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -127,7 +127,7 @@ registry.registerPath({
     path: "/v1/foods/{id}",
     summary: "Patch food availability or printer",
     tags: ["Foods"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -154,7 +154,7 @@ registry.registerPath({
     path: "/v1/foods/{id}",
     summary: "Delete food item by ID",
     tags: ["Foods"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         204: { description: "Food item deleted" },

@@ -1,9 +1,9 @@
-import { 
-    CreateCategoryInput, 
-    GetCategoriesQuery, 
-    GetCategoryQuery, 
-    PatchCategoryInput, 
-    UpdateCategoryInput 
+import {
+    CreateCategoryInput,
+    GetCategoriesQuery,
+    GetCategoryQuery,
+    PatchCategoryInput,
+    UpdateCategoryInput
 } from "@mysagra/schemas";
 import { prisma, Prisma } from "@mysagra/database";
 import { FoodsService } from "../foods/foods.service";
@@ -137,17 +137,20 @@ export class CategoriesService {
     }
 
     async deleteCategory(id: string) {
-        const category = await prisma.category.delete({
-            where: {
-                id
+        try {
+            const category = await prisma.category.delete({
+                where: {
+                    id
+                }
+            });
+
+            if (category.image) {
+                CategoriesService.imageService.delete(category.image)
             }
-        });
-
-        if (category.image) {
-            CategoriesService.imageService.delete(category.image)
+            return null;
+        }catch(error){
+            return null;
         }
-
-        return null;
     }
 
     async uploadImage(id: string, file: Express.Multer.File) {

@@ -17,7 +17,7 @@ registry.registerPath({
     path: "/v1/roles",
     summary: "Get all roles",
     tags: ["Roles"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     responses: {
         200: {
             description: "List of roles",
@@ -36,7 +36,7 @@ registry.registerPath({
     path: "/v1/roles/{id}",
     summary: "Get role by ID",
     tags: ["Roles"],
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         200: {
