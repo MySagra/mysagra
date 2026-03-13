@@ -45,13 +45,13 @@ RUN apk add --no-cache wget
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs \
- && adduser  --system --uid 1001 express
+  && adduser  --system --uid 1001 express
 
 # ── Backend source ────────────────────────────────────────────────────────
 COPY --from=installer --chown=express:nodejs /app/apps/backend/src           ./apps/backend/src
-COPY --from=installer --chown=express:nodejs /app/apps/backend/public        ./apps/backend/public
 COPY --from=installer --chown=express:nodejs /app/apps/backend/tsconfig.json ./apps/backend/tsconfig.json
 COPY --from=installer --chown=express:nodejs /app/apps/backend/package.json  ./apps/backend/package.json
+RUN mkdir -p ./apps/backend/public && chown express:nodejs ./apps/backend/public
 
 # ── @mysagra/database (source + generated Prisma client) ─────────────────
 COPY --from=installer --chown=express:nodejs /app/packages/database/src          ./packages/database/src
