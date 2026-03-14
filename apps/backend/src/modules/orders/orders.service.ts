@@ -1,10 +1,10 @@
-import { 
-    ConfirmOrderInput, 
-    CreateOrder, 
-    GetOrdersQueryParams, 
-    OrderItem, 
-    OrderStatus, 
-    ReprintOrder 
+import {
+    ConfirmOrderInput,
+    CreateOrder,
+    GetOrdersQueryParams,
+    OrderItem,
+    OrderStatus,
+    ReprintOrder
 } from "@mysagra/schemas";
 
 import { generateDisplayId } from "@/lib/idGenerator";
@@ -464,7 +464,7 @@ export class OrdersService {
     }
 
     async updateStatus(id: number, status: OrderStatus) {
-        return await prisma.order.update({
+        const patchedOrder = await prisma.order.update({
             where: {
                 id
             },
@@ -472,6 +472,14 @@ export class OrdersService {
                 status
             }
         })
+        EventsService.broadcastEvents(
+            [this.displayEvent],
+            {
+                id,
+                status
+            },
+            "order-status-update"
+        );
     }
 
 
@@ -510,7 +518,7 @@ export class OrdersService {
 
         let reprintOrderItems: typeof order.orderItems = []
 
-        if(reprint.orderItems){
+        if (reprint.orderItems) {
             reprintOrderItems = order.orderItems.filter((item) => reprint.orderItems?.some(reprintItem => reprintItem === item.id))
         }
 

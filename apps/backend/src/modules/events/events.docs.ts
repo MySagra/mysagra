@@ -66,7 +66,7 @@ registry.register("SSEReprintOrder", SSEReprintOrderSchema);
 
 registry.registerPath({
     method: "get",
-    path: "/v1/events/{channel}",
+    path: "/events/{channel}",
     summary: "Subscribe to Server-Sent Events (SSE)",
     description: `Establishes a persistent SSE connection to receive real-time updates for the specified channel.
 
