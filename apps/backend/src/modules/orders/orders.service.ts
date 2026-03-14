@@ -476,10 +476,13 @@ export class OrdersService {
             [this.displayEvent],
             {
                 id,
+                ticketNumber: patchedOrder.ticketNumber,
+                displayCode: patchedOrder.displayCode,
                 status
             },
             "order-status-update"
         );
+        return patchedOrder;
     }
 
 
