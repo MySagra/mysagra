@@ -104,7 +104,7 @@ export function PrinterDialog({
         name: values.name.trim(),
         ip: values.ip.trim(),
         port: values.port as number,
-        description: (values.description as string | undefined)?.trim() || undefined,
+        description: (values.description as string | undefined)?.trim() ?? "",
       };
 
       if (isEditing && printer) {

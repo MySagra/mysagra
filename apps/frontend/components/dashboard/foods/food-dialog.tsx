@@ -144,7 +144,7 @@ export function FoodDialog({
     try {
       const data = {
         name: values.name.trim(),
-        description: (values.description as string | undefined)?.trim() || undefined,
+        description: (values.description as string | undefined)?.trim() ?? "",
         price: values.price as number,
         categoryId: values.categoryId,
         available: values.available,
