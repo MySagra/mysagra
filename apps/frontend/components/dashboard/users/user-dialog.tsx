@@ -32,14 +32,7 @@ import {
 import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
-
-const userSchema = z.object({
-  username: z.string().min(4, "Username must be at least 4 characters"),
-  password: z.string(),
-  roleId: z.string().min(1, "Select a role"),
-});
-
-type UserFormValues = z.infer<typeof userSchema>;
+import { useLocale } from "@/contexts/locale-context";
 
 interface UserDialogProps {
   open: boolean;
@@ -58,7 +51,16 @@ export function UserDialog({
   onSaved,
   onDelete,
 }: UserDialogProps) {
+  const { t } = useLocale();
   const isEditing = !!user;
+
+  const userSchema = z.object({
+    username: z.string().min(4, t.users.usernameMin),
+    password: z.string(),
+    roleId: z.string().min(1, t.users.roleRequired),
+  });
+
+  type UserFormValues = z.infer<typeof userSchema>;
 
   const form = useForm<UserFormValues>({
     resolver: standardSchemaResolver(userSchema),
@@ -87,7 +89,7 @@ export function UserDialog({
 
   async function onSubmit(values: UserFormValues) {
     if (!values.password && !isEditing) {
-      toast.error("Password is required");
+      toast.error(t.users.passwordRequired);
       return;
     }
 
@@ -101,14 +103,14 @@ export function UserDialog({
       if (isEditing && user) {
         const updated = await updateUser(user.id, data);
         onSaved(updated);
-        toast.success("User updated");
+        toast.success(t.users.toastUpdated);
       } else {
         const created = await createUser(data);
         onSaved(created);
-        toast.success("User created");
+        toast.success(t.users.toastCreated);
       }
     } catch (error: any) {
-      toast.error(error.message || "Error saving user");
+      toast.error(error.message || t.users.toastErrorSave);
     }
   }
 
@@ -120,7 +122,7 @@ export function UserDialog({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? "Edit User" : "New User"}
+              {isEditing ? t.users.editTitle : t.users.newTitle}
             </DialogTitle>
           </DialogHeader>
           <FormProvider {...form}>
@@ -132,11 +134,11 @@ export function UserDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Username</FieldLabel>
+                        <FieldLabel>{t.users.usernameLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Username (min. 4 characters)"
+                            placeholder={t.users.usernamePlaceholder}
                             autoFocus
                           />
                         </FormControl>
@@ -151,19 +153,19 @@ export function UserDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Password</FieldLabel>
+                        <FieldLabel>{t.users.passwordLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
                             type="password"
                             placeholder={
-                              isEditing ? "New password" : "Password"
+                              isEditing ? t.users.passwordNewPlaceholder : t.users.passwordPlaceholder
                             }
                           />
                         </FormControl>
                         {isEditing && (
                           <FieldDescription>
-                            Leave empty to keep unchanged
+                            {t.users.passwordLeaveEmpty}
                           </FieldDescription>
                         )}
                         <FormMessage />
@@ -177,14 +179,14 @@ export function UserDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Role</FieldLabel>
+                        <FieldLabel>{t.users.roleLabel}</FieldLabel>
                         <FormControl>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select role" />
+                              <SelectValue placeholder={t.users.roleSelectPlaceholder} />
                             </SelectTrigger>
                             <SelectContent>
                               {roles.map((role) => (
@@ -213,7 +215,7 @@ export function UserDialog({
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
-                    Delete
+                    {t.common.delete}
                   </Button>
                 )}
                 <Button
@@ -221,14 +223,14 @@ export function UserDialog({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting
-                    ? "Saving..."
+                    ? t.users.saving
                     : isEditing
-                      ? "Save"
-                      : "Create"}
+                      ? t.common.save
+                      : t.users.create}
                 </Button>
               </DialogFooter>
             </form>

@@ -11,6 +11,9 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -19,7 +22,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, LogOutIcon } from "lucide-react"
+import { ChevronsUpDownIcon, LogOutIcon, LanguagesIcon, CheckIcon } from "lucide-react"
+import { useLocale } from "@/contexts/locale-context"
+import type { Locale } from "@/lib/i18n"
+
+const LOCALES: { value: Locale; flag: string }[] = [
+  { value: "it", flag: "🇮🇹" },
+  { value: "en", flag: "🇬🇧" },
+]
 
 export function NavUser({
   user,
@@ -31,6 +41,7 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const { locale, setLocale, t } = useLocale()
 
   const initials = user.name
     .split(" ")
@@ -82,9 +93,31 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="gap-2">
+                <LanguagesIcon className="size-4" />
+                {t.language.label}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {LOCALES.map(({ value, flag }) => (
+                  <DropdownMenuItem
+                    key={value}
+                    onClick={() => setLocale(value)}
+                    className="gap-2"
+                  >
+                    <span>{flag}</span>
+                    <span>{t.language[value]}</span>
+                    {locale === value && (
+                      <CheckIcon className="ml-auto size-3.5 opacity-70" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon />
-              Esci
+              {t.common.logout}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

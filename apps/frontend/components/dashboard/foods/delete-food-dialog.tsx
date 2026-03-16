@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
 
 interface DeleteFoodDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function DeleteFoodDialog({
   food,
   onDeleted,
 }: DeleteFoodDialogProps) {
+  const { t } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleDelete() {
@@ -37,9 +39,9 @@ export function DeleteFoodDialog({
     try {
       await deleteFood(food.id);
       onDeleted(food.id);
-      toast.success(`"${food.name}" deleted`);
+      toast.success(`"${food.name}" ${t.foods.toastDeleted}`);
     } catch (error: any) {
-      toast.error(error.message || "Error deleting food");
+      toast.error(error.message || t.foods.toastErrorDelete);
     } finally {
       setIsLoading(false);
     }
@@ -49,20 +51,19 @@ export function DeleteFoodDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Food</AlertDialogTitle>
+          <AlertDialogTitle>{t.foods.deleteTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete &quot;{food?.name}&quot;? This
-            action cannot be undone.
+            {t.foods.deleteDescription} &quot;{food?.name}&quot;? {t.foods.cannotUndo}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{t.common.cancel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
             variant="destructive"
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? t.foods.deleting : t.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

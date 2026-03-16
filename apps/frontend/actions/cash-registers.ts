@@ -7,18 +7,20 @@ import {
   CashRegisterRequest,
 } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { CashRegisterResponseSchema } from "@mysagra/schemas";
 
 export async function getCashRegisters(
   include?: string
 ): Promise<CashRegister[]> {
   const query = include ? `?include=${include}` : "";
-  return fetchApi<CashRegister[]>(`${API_ENDPOINTS.CASH_REGISTERS.ALL}${query}`);
+  return fetchApi<CashRegister[]>(`${API_ENDPOINTS.CASH_REGISTERS.ALL}${query}`, {}, z.array(CashRegisterResponseSchema));
 }
 
 export async function getCashRegisterById(
   id: string
 ): Promise<CashRegister> {
-  return fetchApi<CashRegister>(API_ENDPOINTS.CASH_REGISTERS.BY_ID(id));
+  return fetchApi<CashRegister>(API_ENDPOINTS.CASH_REGISTERS.BY_ID(id), {}, CashRegisterResponseSchema);
 }
 
 export async function createCashRegister(
@@ -29,7 +31,8 @@ export async function createCashRegister(
     {
       method: "POST",
       body: JSON.stringify(data),
-    }
+    },
+    CashRegisterResponseSchema
   );
   revalidatePath("/dashboard/cash-registers");
   return result;
@@ -44,7 +47,8 @@ export async function updateCashRegister(
     {
       method: "PUT",
       body: JSON.stringify(data),
-    }
+    },
+    CashRegisterResponseSchema
   );
   revalidatePath("/dashboard/cash-registers");
   return result;
@@ -59,7 +63,8 @@ export async function toggleCashRegisterEnabled(
     {
       method: "PATCH",
       body: JSON.stringify({ enabled }),
-    }
+    },
+    CashRegisterResponseSchema
   );
   revalidatePath("/dashboard/cash-registers");
   return result;

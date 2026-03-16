@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
 
 interface DeletePrinterDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function DeletePrinterDialog({
   printer,
   onDeleted,
 }: DeletePrinterDialogProps) {
+  const { t } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleDelete() {
@@ -37,9 +39,9 @@ export function DeletePrinterDialog({
     try {
       await deletePrinter(printer.id);
       onDeleted(printer.id);
-      toast.success(`Printer "${printer.name}" deleted`);
+      toast.success(`"${printer.name}" ${t.printers.toastDeleted}`);
     } catch (error: any) {
-      toast.error(error.message || "Error deleting printer");
+      toast.error(error.message || t.printers.toastErrorDelete);
     } finally {
       setIsLoading(false);
     }
@@ -49,20 +51,19 @@ export function DeletePrinterDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Printer</AlertDialogTitle>
+          <AlertDialogTitle>{t.printers.deleteTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the printer &quot;{printer?.name}
-            &quot;? This action cannot be undone.
+            {t.printers.deleteDescription} &quot;{printer?.name}&quot;? {t.printers.cannotUndo}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{t.common.cancel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? t.printers.deleting : t.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

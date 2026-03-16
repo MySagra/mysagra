@@ -3,6 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, SearchIcon, SaveIcon, Loader2Icon, RotateCcwIcon } from "lucide-react";
+import { useLocale } from "@/contexts/locale-context";
 
 interface CategoriesToolbarProps {
   searchQuery: string;
@@ -23,12 +24,14 @@ export function CategoriesToolbar({
   hasOrderChanged,
   isSavingOrder,
 }: CategoriesToolbarProps) {
+  const { t } = useLocale();
+
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="relative flex-1 max-w-sm">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search categories..."
+          placeholder={t.categories.searchPlaceholder}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9"
@@ -43,7 +46,7 @@ export function CategoriesToolbar({
               disabled={isSavingOrder}
             >
               <RotateCcwIcon className="h-4 w-4 mr-2" />
-              Reset
+              {t.categories.resetOrder}
             </Button>
             <Button
               variant="outline"
@@ -55,13 +58,13 @@ export function CategoriesToolbar({
               ) : (
                 <SaveIcon className="h-4 w-4 mr-2" />
               )}
-              Save
+              {t.categories.saveOrder}
             </Button>
           </>
         )}
         <Button onClick={onCreateNew}>
           <PlusIcon className="h-4 w-4 mr-2" />
-          New Category
+          {t.categories.newCategory}
         </Button>
       </div>
     </div>

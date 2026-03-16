@@ -33,6 +33,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers";
+import { useLocale } from "@/contexts/locale-context";
 
 interface CategoriesTableProps {
   categories: Category[];
@@ -48,12 +49,14 @@ function SortableRow({
   togglingId,
   onEdit,
   handleToggle,
+  dragLabel,
 }: {
   category: Category;
   printers: Printer[];
   togglingId: string | null;
   onEdit: (category: Category) => void;
   handleToggle: (category: Category) => void;
+  dragLabel: string;
 }) {
   const {
     attributes,
@@ -103,7 +106,7 @@ function SortableRow({
           {...attributes}
           {...listeners}
           className="p-1 rounded hover:bg-muted transition-colors cursor-grab active:cursor-grabbing touch-none"
-          aria-label="Trascina per riordinare"
+          aria-label={dragLabel}
         >
           <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -119,6 +122,7 @@ export function CategoriesTable({
   onToggle,
   onReorder,
 }: CategoriesTableProps) {
+  const { t } = useLocale();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -146,11 +150,10 @@ export function CategoriesTable({
       );
       onToggle(updated);
       toast.success(
-        `Category "${category.name}" ${updated.available ? "enabled" : "disabled"}
-        }`
+        `"${category.name}" ${updated.available ? t.categories.toastUpdated : t.categories.toastUpdated}`
       );
     } catch (error) {
-      toast.error("Error updating category");
+      toast.error(t.categories.toastErrorUpdate);
     } finally {
       setTogglingId(null);
     }
@@ -182,7 +185,7 @@ export function CategoriesTable({
     return (
       <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
         <p className="text-muted-foreground text-sm">
-          No categories found
+          {t.categories.noCategoriesFound}
         </p>
       </div>
     );
@@ -196,10 +199,10 @@ export function CategoriesTable({
           <TableHeader>
             <TableRow className="bg-muted/50">
               <TableHead className="w-10" />
-              <TableHead className="font-medium">Name</TableHead>
-              <TableHead className="hidden md:table-cell font-medium">Printer</TableHead>
+              <TableHead className="font-medium">{t.categories.columnName}</TableHead>
+              <TableHead className="hidden md:table-cell font-medium">{t.categories.columnPrinter}</TableHead>
               <TableHead className="w-32 text-center font-medium">
-                Available
+                {t.categories.columnAvailable}
               </TableHead>
               <TableHead className="w-10 text-right" />
             </TableRow>
@@ -255,10 +258,10 @@ export function CategoriesTable({
           <TableHeader>
             <TableRow className="bg-muted/50">
               <TableHead className="w-10" />
-              <TableHead className="font-medium">Name</TableHead>
-              <TableHead className="hidden md:table-cell font-medium">Printer</TableHead>
+              <TableHead className="font-medium">{t.categories.columnName}</TableHead>
+              <TableHead className="hidden md:table-cell font-medium">{t.categories.columnPrinter}</TableHead>
               <TableHead className="w-32 text-center font-medium">
-                Available
+                {t.categories.columnAvailable}
               </TableHead>
               <TableHead className="w-10 text-right" />
             </TableRow>
@@ -276,6 +279,7 @@ export function CategoriesTable({
                   togglingId={togglingId}
                   onEdit={onEdit}
                   handleToggle={handleToggle}
+                  dragLabel={t.categories.dragToReorder}
                 />
               ))}
             </TableBody>

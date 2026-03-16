@@ -10,21 +10,21 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { FormField, FormItem, FormControl } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useForm, FormProvider } from "react-hook-form";
 import { toast } from "sonner";
 import { login as loginAction } from "@/actions/auth";
+import { useLocale } from "@/contexts/locale-context";
 import z from "zod";
 
 export function LoginForm() {
-    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const { t } = useLocale();
 
     const formSchema = z.object({
-        username: z.string().min(1, "Username required"),
-        password: z.string().min(1, "Password required"),
+        username: z.string().min(1, t.login.username + " required"),
+        password: z.string().min(1, t.login.password + " required"),
     });
 
     const form = useForm<z.input<typeof formSchema>>({
@@ -37,38 +37,42 @@ export function LoginForm() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
+        const isDefaultAdmin = values.username === "admin" && values.password === "admin";
         try {
             const result = await loginAction(values.username, values.password);
             if (result.success) {
                 // Wait a bit for session to be fully set
                 await new Promise((resolve) => setTimeout(resolve, 100));
-                window.location.href = "/dashboard"; // Force full page reload to ensure session is loaded
+                // Redirect to setup if logging in with default admin credentials
+                window.location.href = isDefaultAdmin ? "/setup" : "/dashboard";
             } else {
-                toast.error(result.error || "Invalid credentials");
+                const errorMsg =
+                    result.error === "role_not_allowed"
+                        ? t.login.errorRoleNotAllowed
+                        : result.error || t.login.errorInvalid;
+                toast.error(errorMsg);
                 form.reset();
             }
         } catch (error) {
             console.error("Login error:", error);
-            toast.error("Login error");
+            toast.error(t.login.errorGeneric);
             form.reset();
         } finally {
             setIsLoading(false);
         }
     }
 
-    // Handle validation errors from react-hook-form (zod)
     function onError(errors: any) {
-        // If both username and password are missing, show a combined message
         const usernameError = (errors.username as any)?.message;
         const passwordError = (errors.password as any)?.message;
 
         if (usernameError && passwordError) {
-            toast.error(`Username and Password are required`);
+            toast.error(t.login.errorBoth);
             return;
         }
 
         const first = Object.values(errors)[0];
-        const message = (first as any)?.message || "Validation error";
+        const message = (first as any)?.message || t.login.validationError;
         toast.error(message);
     }
 
@@ -89,14 +93,14 @@ export function LoginForm() {
                                 />
                                 <div className="flex flex-col items-center gap-2 text-center">
                                     <h1 className="text-2xl font-bold select-none">
-                                        Welcome!
+                                        {t.login.title}
                                     </h1>
                                     <p className="text-muted-foreground text-balance select-none">
-                                        Login to your MyAdmin account
+                                        {t.login.subtitle}
                                     </p>
                                 </div>
                                 <Field>
-                                    <FieldLabel htmlFor="username">Username</FieldLabel>
+                                    <FieldLabel htmlFor="username">{t.login.username}</FieldLabel>
                                     <FormField
                                         control={form.control}
                                         name="username"
@@ -105,7 +109,7 @@ export function LoginForm() {
                                                 <FormControl>
                                                     <Input
                                                         autoComplete="off"
-                                                        placeholder="Username or Email"
+                                                        placeholder={t.login.usernamePlaceholder}
                                                         className="h-10"
                                                         {...field}
                                                     />
@@ -115,7 +119,7 @@ export function LoginForm() {
                                     />
                                 </Field>
                                 <Field>
-                                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                                    <FieldLabel htmlFor="password">{t.login.password}</FieldLabel>
                                     <FormField
                                         control={form.control}
                                         name="password"
@@ -124,7 +128,7 @@ export function LoginForm() {
                                                 <FormControl>
                                                     <Input
                                                         autoComplete="off"
-                                                        placeholder="Your password"
+                                                        placeholder={t.login.passwordPlaceholder}
                                                         type="password"
                                                         className="h-10"
                                                         {...field}
@@ -140,7 +144,7 @@ export function LoginForm() {
                                         disabled={isLoading}
                                         className="w-full select-none h-10 text-base"
                                     >
-                                        {isLoading ? "Logging in..." : "Login"}
+                                        {isLoading ? t.login.submitting : t.login.submit}
                                     </Button>
                                 </Field>
                             </FieldGroup>

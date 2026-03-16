@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
 
 interface CashRegistersTableProps {
   cashRegisters: CashRegister[];
@@ -33,6 +34,7 @@ export function CashRegistersTable({
   onEdit,
   onToggle,
 }: CashRegistersTableProps) {
+  const { t } = useLocale();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -115,10 +117,10 @@ export function CashRegistersTable({
       );
       onToggle(updated);
       toast.success(
-        `Register "${cashRegister.name}" ${updated.enabled ? "enabled" : "disabled"}`
+        `"${cashRegister.name}" ${t.cashRegisters.toastUpdated}`
       );
     } catch (error) {
-      toast.error("Error updating register");
+      toast.error(t.cashRegisters.toastErrorUpdate);
     } finally {
       setTogglingId(null);
     }
@@ -139,7 +141,7 @@ export function CashRegistersTable({
     return (
       <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
         <p className="text-muted-foreground text-sm">
-          No cash registers found
+          {t.cashRegisters.noCashRegistersFound}
         </p>
       </div>
     );
@@ -156,7 +158,7 @@ export function CashRegistersTable({
                 onClick={() => handleSort("name")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                Name
+                {t.cashRegisters.columnName}
                 <SortIcon column="name" />
               </button>
             </TableHead>
@@ -165,7 +167,7 @@ export function CashRegistersTable({
                 onClick={() => handleSort("printer")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                Printer
+                {t.cashRegisters.columnPrinter}
                 <SortIcon column="printer" />
               </button>
             </TableHead>
@@ -174,7 +176,7 @@ export function CashRegistersTable({
                 onClick={() => handleSort("enabled")}
                 className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
               >
-                Enabled
+                {t.cashRegisters.columnEnabled}
                 <SortIcon column="enabled" />
               </button>
             </TableHead>

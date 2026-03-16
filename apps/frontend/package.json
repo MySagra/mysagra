@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@mysagra/schemas": "workspace:*",
     "@auth/core": "^0.41.1",
     "@base-ui/react": "^1.2.0",
     "@dnd-kit/core": "^6.3.1",

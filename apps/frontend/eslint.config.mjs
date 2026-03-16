@@ -13,6 +13,17 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "JSXElement > Literal[value=/[a-zA-Z]{2,}/]",
+          message: "Hardcoded text in JSX. Use i18n translations instead.",
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

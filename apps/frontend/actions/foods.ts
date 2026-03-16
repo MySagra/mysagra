@@ -3,6 +3,12 @@
 import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS, Food, FoodRequest } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { FoodResponseSchema } from "@mysagra/schemas";
+
+// Cast to ZodType<Food> since schema allows null for ingredients but interface uses undefined
+const FoodSchema = FoodResponseSchema as z.ZodType<Food>;
+const FoodsArraySchema = z.array(FoodResponseSchema) as z.ZodType<Food[]>;
 
 export async function getFoods(params?: {
   include?: string;
@@ -19,7 +25,7 @@ export async function getFoods(params?: {
 
   const query = searchParams.toString();
   const endpoint = `${API_ENDPOINTS.FOODS.ALL}${query ? `?${query}` : ""}`;
-  return fetchApi<Food[]>(endpoint);
+  return fetchApi<Food[]>(endpoint, {}, FoodsArraySchema);
 }
 
 export async function getFoodById(
@@ -27,14 +33,14 @@ export async function getFoodById(
   include?: string
 ): Promise<Food> {
   const query = include ? `?include=${include}` : "";
-  return fetchApi<Food>(`${API_ENDPOINTS.FOODS.BY_ID(id)}${query}`);
+  return fetchApi<Food>(`${API_ENDPOINTS.FOODS.BY_ID(id)}${query}`, {}, FoodSchema);
 }
 
 export async function createFood(data: FoodRequest): Promise<Food> {
   const result = await fetchApi<Food>(API_ENDPOINTS.FOODS.ALL, {
     method: "POST",
     body: JSON.stringify(data),
-  });
+  }, FoodSchema);
   revalidatePath("/dashboard/foods");
   return result;
 }
@@ -43,7 +49,7 @@ export async function updateFood(id: string, data: FoodRequest): Promise<Food> {
   const result = await fetchApi<Food>(API_ENDPOINTS.FOODS.BY_ID(id), {
     method: "PUT",
     body: JSON.stringify(data),
-  });
+  }, FoodSchema);
   revalidatePath("/dashboard/foods");
   return result;
 }
@@ -55,7 +61,7 @@ export async function toggleFoodAvailability(
   const result = await fetchApi<Food>(API_ENDPOINTS.FOODS.BY_ID(id), {
     method: "PATCH",
     body: JSON.stringify({ available }),
-  });
+  }, FoodSchema);
   revalidatePath("/dashboard/foods");
   return result;
 }

@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/select";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
 
 interface PrintersTableProps {
   printers: Printer[];
@@ -31,12 +33,6 @@ interface PrintersTableProps {
 
 type SortColumn = "name" | "ip" | "port" | "description" | "status" | null;
 type SortDirection = "asc" | "desc";
-
-const statusLabels: Record<string, string> = {
-  ONLINE: "Online",
-  OFFLINE: "Offline",
-  ERROR: "Error",
-};
 
 const statusVariants: Record<
   string,
@@ -52,9 +48,17 @@ export function PrintersTable({
   onEdit,
   onStatusUpdate,
 }: PrintersTableProps) {
+  const { t } = useLocale();
+  const { canEditPrinters } = useRole();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const statusLabels: Record<string, string> = {
+    ONLINE: t.printers.statusOnline,
+    OFFLINE: t.printers.statusOffline,
+    ERROR: t.printers.statusError,
+  };
 
   useEffect(() => {
     const savedColumn = localStorage.getItem("printers-table-sort-column");
@@ -136,9 +140,9 @@ export function PrintersTable({
     try {
       const updated = await updatePrinterStatus(printer.id, newStatus);
       onStatusUpdate(updated);
-      toast.success(`Status of "${printer.name}" updated`);
+      toast.success(`${t.printers.toastStatusUpdated} "${printer.name}" ${t.printers.toastStatusUpdatedSuffix}`);
     } catch (error) {
-      toast.error("Error updating status");
+      toast.error(t.printers.toastErrorStatus);
     } finally {
       setUpdatingId(null);
     }
@@ -159,7 +163,7 @@ export function PrintersTable({
     return (
       <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
         <p className="text-muted-foreground text-sm">
-          No printers found
+          {t.printers.noPrintersFound}
         </p>
       </div>
     );
@@ -176,7 +180,7 @@ export function PrintersTable({
                 onClick={() => handleSort("name")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                Name
+                {t.printers.columnName}
                 <SortIcon column="name" />
               </button>
             </TableHead>
@@ -185,7 +189,7 @@ export function PrintersTable({
                 onClick={() => handleSort("ip")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                IP
+                {t.printers.columnIp}
                 <SortIcon column="ip" />
               </button>
             </TableHead>
@@ -194,7 +198,7 @@ export function PrintersTable({
                 onClick={() => handleSort("port")}
                 className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
               >
-                Port
+                {t.printers.columnPort}
                 <SortIcon column="port" />
               </button>
             </TableHead>
@@ -203,7 +207,7 @@ export function PrintersTable({
                 onClick={() => handleSort("description")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                Description
+                {t.printers.columnDescription}
                 <SortIcon column="description" />
               </button>
             </TableHead>
@@ -212,7 +216,7 @@ export function PrintersTable({
                 onClick={() => handleSort("status")}
                 className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
               >
-                Status
+                {t.printers.columnStatus}
                 <SortIcon column="status" />
               </button>
             </TableHead>
@@ -222,13 +226,15 @@ export function PrintersTable({
           {sortedPrinters.map((printer) => (
             <TableRow key={printer.id}>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(printer)}
-                >
-                  <PencilIcon className="h-4 w-4" />
-                </Button>
+                {canEditPrinters && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(printer)}
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </Button>
+                )}
               </TableCell>
               <TableCell className="font-medium">{printer.name}</TableCell>
               <TableCell className="font-mono text-sm hidden md:table-cell">{printer.ip}</TableCell>
@@ -255,9 +261,9 @@ export function PrintersTable({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ONLINE">Online</SelectItem>
-                    <SelectItem value="OFFLINE">Offline</SelectItem>
-                    <SelectItem value="ERROR">Error</SelectItem>
+                    <SelectItem value="ONLINE">{t.printers.statusOnline}</SelectItem>
+                    <SelectItem value="OFFLINE">{t.printers.statusOffline}</SelectItem>
+                    <SelectItem value="ERROR">{t.printers.statusError}</SelectItem>
                   </SelectContent>
                 </Select>
               </TableCell>

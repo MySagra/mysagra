@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EyeIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
+import { useLocale } from "@/contexts/locale-context";
 
 interface OrdersTableProps {
   orders: OrderListResponse[];
@@ -29,13 +30,6 @@ interface OrdersTableProps {
 type SortColumn = "displayCode" | "customer" | "table" | "subTotal" | "status" | "createdAt" | null;
 type SortDirection = "asc" | "desc";
 
-const statusLabels: Record<string, string> = {
-  PENDING: "Pending",
-  CONFIRMED: "Confirmed",
-  COMPLETED: "Completed",
-  PICKED_UP: "Picked Up",
-};
-
 const statusVariants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   PENDING: "outline",
   CONFIRMED: "default",
@@ -50,8 +44,16 @@ export function OrdersTable({
   onViewDetail,
   onPageChange,
 }: OrdersTableProps) {
+  const { t } = useLocale();
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const statusLabels: Record<string, string> = {
+    PENDING: t.orders.statusPending,
+    CONFIRMED: t.orders.statusConfirmed,
+    COMPLETED: t.orders.statusCompleted,
+    PICKED_UP: t.orders.statusPickedUp,
+  };
 
   useEffect(() => {
     const savedColumn = localStorage.getItem("orders-table-sort-column");
@@ -128,6 +130,7 @@ export function OrdersTable({
       return 0;
     });
   }, [orders, sortColumn, sortDirection]);
+
   function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleString("it-IT", {
       day: "2-digit",
@@ -153,7 +156,7 @@ export function OrdersTable({
     return (
       <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
         <p className="text-muted-foreground text-sm">
-          No orders found
+          {t.orders.noOrdersFound}
         </p>
       </div>
     );
@@ -170,7 +173,7 @@ export function OrdersTable({
                   onClick={() => handleSort("displayCode")}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
                 >
-                  Code
+                  {t.orders.columnCode}
                   <SortIcon column="displayCode" />
                 </button>
               </TableHead>
@@ -179,7 +182,7 @@ export function OrdersTable({
                   onClick={() => handleSort("customer")}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
                 >
-                  Customer
+                  {t.orders.columnCustomer}
                   <SortIcon column="customer" />
                 </button>
               </TableHead>
@@ -188,7 +191,7 @@ export function OrdersTable({
                   onClick={() => handleSort("table")}
                   className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
                 >
-                  Table
+                  {t.orders.columnTable}
                   <SortIcon column="table" />
                 </button>
               </TableHead>
@@ -197,7 +200,7 @@ export function OrdersTable({
                   onClick={() => handleSort("subTotal")}
                   className="flex items-center ml-auto hover:text-foreground transition-colors font-medium"
                 >
-                  Total
+                  {t.orders.columnTotal}
                   <SortIcon column="subTotal" />
                 </button>
               </TableHead>
@@ -206,7 +209,7 @@ export function OrdersTable({
                   onClick={() => handleSort("status")}
                   className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
                 >
-                  Status
+                  {t.orders.columnStatus}
                   <SortIcon column="status" />
                 </button>
               </TableHead>
@@ -215,18 +218,18 @@ export function OrdersTable({
                   onClick={() => handleSort("createdAt")}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
                 >
-                  Date
+                  {t.orders.columnDate}
                   <SortIcon column="createdAt" />
                 </button>
               </TableHead>
-              <TableHead className="w-16 text-right">Details</TableHead>
+              <TableHead className="w-16 text-right">{t.orders.columnDetails}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8">
-                  <p className="text-muted-foreground">Loading...</p>
+                  <p className="text-muted-foreground">{t.common.loading}</p>
                 </TableCell>
               </TableRow>
             ) : (
@@ -272,8 +275,8 @@ export function OrdersTable({
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Pagina {pagination.currentPage} di {pagination.totalPages} (
-            {pagination.totalItems} ordini totali)
+            {t.orders.paginationPage} {pagination.currentPage} {t.orders.paginationOf} {pagination.totalPages} (
+            {pagination.totalItems} {t.orders.paginationOrders})
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -283,7 +286,7 @@ export function OrdersTable({
               onClick={() => onPageChange(pagination.currentPage - 1)}
             >
               <ChevronLeftIcon className="h-4 w-4" />
-              Precedente
+              {t.orders.previousPage}
             </Button>
             <Button
               variant="outline"
@@ -291,7 +294,7 @@ export function OrdersTable({
               disabled={pagination.currentPage >= pagination.totalPages || isLoading}
               onClick={() => onPageChange(pagination.currentPage + 1)}
             >
-              Successiva
+              {t.orders.nextPage}
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </div>

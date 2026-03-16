@@ -3,13 +3,15 @@
 import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS, Category } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { CategoryResponseSchema } from "@mysagra/schemas";
 
 export async function getCategories(): Promise<Category[]> {
-  return fetchApi<Category[]>(API_ENDPOINTS.CATEGORIES.ALL);
+  return fetchApi<Category[]>(API_ENDPOINTS.CATEGORIES.ALL, {}, z.array(CategoryResponseSchema));
 }
 
 export async function getCategoryById(id: string): Promise<Category> {
-  return fetchApi<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id));
+  return fetchApi<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id), {}, CategoryResponseSchema);
 }
 
 export async function createCategory(data: {
@@ -21,7 +23,7 @@ export async function createCategory(data: {
   const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.ALL, {
     method: "POST",
     body: JSON.stringify(data),
-  });
+  }, CategoryResponseSchema);
   revalidatePath("/dashboard/categories");
   return result;
 }
@@ -49,7 +51,7 @@ export async function updateCategory(
   const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id), {
     method: "PUT",
     body: JSON.stringify(payload),
-  });
+  }, CategoryResponseSchema);
 
   revalidatePath("/dashboard/categories");
   return result;
@@ -65,7 +67,8 @@ export async function reorderCategories(
       {
         method: "PATCH",
         body: JSON.stringify({ position }),
-      }
+      },
+      CategoryResponseSchema
     );
     results.push(result);
   }
@@ -80,7 +83,7 @@ export async function toggleCategoryAvailability(
   const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id), {
     method: "PATCH",
     body: JSON.stringify({ available }),
-  });
+  }, CategoryResponseSchema);
   revalidatePath("/dashboard/categories");
   return result;
 }
@@ -89,7 +92,6 @@ export async function deleteCategory(id: string): Promise<void> {
   await fetchApi(API_ENDPOINTS.CATEGORIES.BY_ID(id), {
     method: "DELETE",
   });
-  revalidatePath("/dashboard/categories");
   revalidatePath("/dashboard/categories");
 }
 

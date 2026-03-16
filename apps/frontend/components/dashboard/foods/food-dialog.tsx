@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Food, Category, Ingredient, Printer } from "@/lib/api-types";
@@ -46,20 +46,13 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
 import { SearchIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
 
-const foodSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-  price: z.coerce.number().min(0, "Price must be greater than or equal to 0"),
-  categoryId: z.string().min(1, "Select a category"),
-  available: z.boolean(),
-});
-
-type FoodFormValues = z.input<typeof foodSchema>;
 
 interface FoodDialogProps {
   open: boolean;
@@ -82,14 +75,25 @@ export function FoodDialog({
   onSaved,
   onDelete,
 }: FoodDialogProps) {
+  const { t } = useLocale();
+  const { canDelete } = useRole();
   const isEditing = !!food;
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [selectedPrinterId, setSelectedPrinterId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const foodSchema = z.object({
+    name: z.string().min(1, t.foods.nameRequired),
+    description: z.string().optional(),
+    price: z.coerce.number().min(0, t.foods.priceMin),
+    categoryId: z.string().min(1, t.foods.categoryRequired),
+    available: z.boolean(),
+  });
+  type FoodFormValues = z.output<typeof foodSchema>;
+
   const form = useForm<FoodFormValues>({
-    resolver: standardSchemaResolver(foodSchema),
+    resolver: standardSchemaResolver(foodSchema) as unknown as Resolver<FoodFormValues>,
     defaultValues: {
       name: "",
       description: "",
@@ -140,7 +144,7 @@ export function FoodDialog({
     try {
       const data = {
         name: values.name.trim(),
-        description: values.description?.trim() || undefined,
+        description: (values.description as string | undefined)?.trim() || undefined,
         price: values.price as number,
         categoryId: values.categoryId,
         available: values.available,
@@ -151,14 +155,14 @@ export function FoodDialog({
       if (isEditing && food) {
         const updated = await updateFood(food.id, data);
         onSaved(updated);
-        toast.success("Food updated");
+        toast.success(t.foods.toastUpdated);
       } else {
         const created = await createFood(data);
         onSaved(created);
-        toast.success("Food created");
+        toast.success(t.foods.toastCreated);
       }
     } catch (error: any) {
-      toast.error(error.message || "Error saving food");
+      toast.error(error.message || t.foods.toastErrorSave);
     }
   }
 
@@ -176,7 +180,7 @@ export function FoodDialog({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl">
-              {isEditing ? "Edit Food" : "New Food"}
+              {isEditing ? t.foods.editTitle : t.foods.newTitle}
             </DialogTitle>
           </DialogHeader>
           <FormProvider {...form}>
@@ -188,9 +192,9 @@ export function FoodDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Name</FieldLabel>
+                        <FieldLabel>{t.foods.nameLabel}</FieldLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Food name" autoFocus />
+                          <Input {...field} placeholder={t.foods.namePlaceholder} autoFocus />
                         </FormControl>
                         <FormMessage />
                       </Field>
@@ -200,7 +204,7 @@ export function FoodDialog({
 
                 <div className="flex items-center gap-3">
                   <FieldLabel htmlFor="available" className="mb-0">
-                    Available
+                    {t.foods.availableLabel}
                   </FieldLabel>
                   <FormField
                     control={form.control}
@@ -225,11 +229,11 @@ export function FoodDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Description</FieldLabel>
+                        <FieldLabel>{t.foods.descriptionLabel}</FieldLabel>
                         <FormControl>
                           <Textarea
                             {...field}
-                            placeholder="Optional description"
+                            placeholder={t.foods.descriptionPlaceholder}
                             rows={3}
                             className="resize-none"
                           />
@@ -246,7 +250,7 @@ export function FoodDialog({
                     render={({ field }) => (
                       <FormItem>
                         <Field>
-                          <FieldLabel>Price (€)</FieldLabel>
+                          <FieldLabel>{t.foods.priceLabel}</FieldLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -269,14 +273,14 @@ export function FoodDialog({
                     render={({ field }) => (
                       <FormItem>
                         <Field>
-                          <FieldLabel>Category</FieldLabel>
+                          <FieldLabel>{t.foods.categoryLabel}</FieldLabel>
                           <FormControl>
                             <Select
                               value={field.value}
                               onValueChange={field.onChange}
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Select category" />
+                                <SelectValue placeholder={t.foods.categorySelectPlaceholder} />
                               </SelectTrigger>
                               <SelectContent>
                                 {categories.map((cat) => (
@@ -297,14 +301,14 @@ export function FoodDialog({
                 <Accordion type="single" collapsible className="border rounded-xl">
                   <AccordionItem value="ingredients" className="border-none">
                     <AccordionTrigger className="px-4 hover:no-underline">
-                      Ingredients
+                      {t.foods.ingredientsLabel}
                     </AccordionTrigger>
                     <AccordionContent className="px-4">
                       <div className="space-y-3">
                         <div className="relative">
                           <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
-                            placeholder="Search..."
+                            placeholder={t.foods.ingredientsSearchPlaceholder}
                             value={ingredientSearch}
                             onChange={(e) => setIngredientSearch(e.target.value)}
                             className="pl-9"
@@ -333,7 +337,7 @@ export function FoodDialog({
                   </AccordionItem>
                   <AccordionItem value="printer" className="border-none">
                     <AccordionTrigger className="px-4 hover:no-underline">
-                      Printer
+                      {t.foods.printerLabel}
                     </AccordionTrigger>
                     <AccordionContent className="px-4">
                       <div className="flex flex-wrap gap-2">
@@ -359,7 +363,7 @@ export function FoodDialog({
                 </Accordion>
               </FieldGroup>
               <DialogFooter>
-                {isEditing && onDelete && food && (
+                {canDelete && isEditing && onDelete && food && (
                   <Button
                     type="button"
                     variant="destructive"
@@ -367,7 +371,7 @@ export function FoodDialog({
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
-                    Delete
+                    {t.common.delete}
                   </Button>
                 )}
                 <Button
@@ -375,14 +379,14 @@ export function FoodDialog({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting
-                    ? "Saving..."
+                    ? t.foods.saving
                     : isEditing
-                      ? "Save"
-                      : "Create"}
+                      ? t.common.save
+                      : t.foods.create}
                 </Button>
               </DialogFooter>
             </form>
@@ -393,20 +397,20 @@ export function FoodDialog({
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
+            <AlertDialogTitle>{t.foods.confirmDeletionTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete <span className="font-bold">{food?.name}</span>?
+              {t.foods.confirmDeletionDescription} <span className="font-bold">{food?.name}</span>?
               <br />
-              This action cannot be undone.
+              {t.foods.cannotUndo}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               variant="destructive"
             >
-              Delete
+              {t.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Printer } from "@/lib/api-types";
@@ -34,19 +34,9 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
 
-const printerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  ip: z.string().regex(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, "Enter a valid IP address"),
-  port: z.coerce
-    .number()
-    .int()
-    .min(0, "Port must be greater than or equal to 0")
-    .max(65535, "Port must be less than or equal to 65535"),
-  description: z.string().optional(),
-});
-
-type PrinterFormValues = z.input<typeof printerSchema>;
 
 interface PrinterDialogProps {
   open: boolean;
@@ -63,11 +53,25 @@ export function PrinterDialog({
   onSaved,
   onDelete,
 }: PrinterDialogProps) {
+  const { t } = useLocale();
+  const { canDelete } = useRole();
   const isEditing = !!printer;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const printerSchema = z.object({
+    name: z.string().min(1, t.printers.nameRequired),
+    ip: z.string().regex(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, t.printers.ipInvalid),
+    port: z.coerce
+      .number()
+      .int()
+      .min(0, t.printers.portMin)
+      .max(65535, t.printers.portMax),
+    description: z.string().optional(),
+  });
+  type PrinterFormValues = z.output<typeof printerSchema>;
+
   const form = useForm<PrinterFormValues>({
-    resolver: standardSchemaResolver(printerSchema),
+    resolver: standardSchemaResolver(printerSchema) as unknown as Resolver<PrinterFormValues>,
     defaultValues: {
       name: "",
       ip: "",
@@ -100,7 +104,7 @@ export function PrinterDialog({
         name: values.name.trim(),
         ip: values.ip.trim(),
         port: values.port as number,
-        description: values.description?.trim() || undefined,
+        description: (values.description as string | undefined)?.trim() || undefined,
       };
 
       if (isEditing && printer) {
@@ -109,14 +113,14 @@ export function PrinterDialog({
           status: printer.status,
         });
         onSaved(updated);
-        toast.success("Printer updated");
+        toast.success(t.printers.toastUpdated);
       } else {
         const created = await createPrinter(data);
         onSaved(created);
-        toast.success("Printer created");
+        toast.success(t.printers.toastCreated);
       }
     } catch (error: any) {
-      toast.error(error.message || "Error saving printer");
+      toast.error(error.message || t.printers.toastErrorSave);
     }
   }
 
@@ -134,7 +138,7 @@ export function PrinterDialog({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? "Edit Printer" : "New Printer"}
+              {isEditing ? t.printers.editTitle : t.printers.newTitle}
             </DialogTitle>
           </DialogHeader>
           <FormProvider {...form}>
@@ -146,11 +150,11 @@ export function PrinterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Name</FieldLabel>
+                        <FieldLabel>{t.printers.nameLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Printer name"
+                            placeholder={t.printers.namePlaceholder}
                             autoFocus
                           />
                         </FormControl>
@@ -165,7 +169,7 @@ export function PrinterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>IP Address</FieldLabel>
+                        <FieldLabel>{t.printers.ipLabel}</FieldLabel>
                         <FormControl>
                           <Input {...field} placeholder="192.168.1.100" />
                         </FormControl>
@@ -180,7 +184,7 @@ export function PrinterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Port</FieldLabel>
+                        <FieldLabel>{t.printers.portLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -202,9 +206,9 @@ export function PrinterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Description</FieldLabel>
+                        <FieldLabel>{t.printers.descriptionLabel}</FieldLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Optional description" />
+                          <Input {...field} placeholder={t.printers.descriptionPlaceholder} />
                         </FormControl>
                         <FormMessage />
                       </Field>
@@ -213,7 +217,7 @@ export function PrinterDialog({
                 />
               </FieldGroup>
               <DialogFooter>
-                {isEditing && onDelete && printer && (
+                {canDelete && isEditing && onDelete && printer && (
                   <Button
                     type="button"
                     variant="destructive"
@@ -221,7 +225,7 @@ export function PrinterDialog({
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
-                    Delete
+                    {t.common.delete}
                   </Button>
                 )}
                 <Button
@@ -229,14 +233,14 @@ export function PrinterDialog({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting
-                    ? "Saving..."
+                    ? t.printers.saving
                     : isEditing
-                      ? "Save"
-                      : "Create"}
+                      ? t.common.save
+                      : t.printers.create}
                 </Button>
               </DialogFooter>
             </form>
@@ -247,20 +251,20 @@ export function PrinterDialog({
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
+            <AlertDialogTitle>{t.printers.confirmDeletionTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the printer <span className="font-bold">{printer?.name}</span>?
+              {t.printers.confirmDeletionDescription} <span className="font-bold">{printer?.name}</span>?
               <br />
-              This action cannot be undone.
+              {t.printers.cannotUndo}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               variant="destructive"
             >
-              Delete
+              {t.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

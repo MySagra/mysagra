@@ -21,6 +21,9 @@ export async function login(username: string, password: string) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
+          if ((error as any).cause?.message === "role_not_allowed") {
+            return { success: false, error: "role_not_allowed" };
+          }
           return { success: false, error: "Credenziali non valide" };
         default:
           return { success: false, error: "Errore durante il login" };
