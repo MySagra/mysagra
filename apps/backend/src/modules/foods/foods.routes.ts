@@ -19,7 +19,7 @@ const router = Router();
 
 router.get(
     "/",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         query: GetFoodsQuerySchema
     }),
@@ -28,7 +28,7 @@ router.get(
 
 router.post(
     "/",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer"]),
     validateRequest({
         body: CreateFoodSchema
     }),
@@ -37,7 +37,7 @@ router.post(
 
 router.put(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer"]),
     validateRequest({
         params: cuidParamSchema,
         body: UpdateFoodSchema
@@ -47,7 +47,7 @@ router.put(
 
 router.patch(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer"]),
     validateRequest({
         params: cuidParamSchema,
         body: PatchFoodSchema

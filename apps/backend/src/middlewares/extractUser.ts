@@ -7,26 +7,21 @@ const tokenService = new TokenService();
 export function extractUser() {
     return (req: Request, res: Response, next: NextFunction) => {
         const cookie = req.cookies.mysagra_token;
+        const payload = tokenService.getTokenPayload(cookie);
 
-        if (!cookie) { // guest user
-            req.user = {
-                sub: "0",
-                username: "guest",
-                role: "guest",
-                iat: 0
-            };
-            next()
+        if (payload) {
+            req.user = payload
+            next();
             return;
         }
 
-        let payload = tokenService.getTokenPayload(cookie);
-
-        if (!payload) {
-            res.status(401).json({ message: "Unauthorized" });
-            return;
-        }
-
-        req.user = payload
-        next();
+        req.user = {
+            sub: "0",
+            username: "guest",
+            role: "guest",
+            iat: 0
+        };
+        next()
+        return;
     }
 }
