@@ -6,7 +6,14 @@ const ChannelSchema = z.enum(["cashier", "display", "printer"]).meta({
     example: "cashier"
 })
 
-const eventName = z.enum(["new-order", "confirmed-order", "food-availability-changed", "printer-status-changed", "reprint-order"]).meta({
+const eventName = z.enum([
+    "new-order",
+    "confirmed-order",
+    "food-availability-changed",
+    "printer-status-changed",
+    "reprint-order",
+    "order-status-update"
+]).meta({
     id: "EventName",
     description: "Type of event",
     example: "new-order"
