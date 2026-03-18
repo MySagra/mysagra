@@ -45,14 +45,14 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
 
-const cashRegisterSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  defaultPrinterId: z.string().min(1, "Select a default printer"),
-  enabled: z.boolean(),
-});
-
-type CashRegisterFormValues = z.infer<typeof cashRegisterSchema>;
+type CashRegisterFormValues = {
+  name: string;
+  defaultPrinterId: string;
+  enabled: boolean;
+};
 
 interface CashRegisterDialogProps {
   open: boolean;
@@ -71,8 +71,16 @@ export function CashRegisterDialog({
   onSaved,
   onDelete,
 }: CashRegisterDialogProps) {
+  const { t } = useLocale();
+  const { canDelete } = useRole();
   const isEditing = !!cashRegister;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const cashRegisterSchema = z.object({
+    name: z.string().min(1, t.cashRegisters.nameRequired),
+    defaultPrinterId: z.string().min(1, t.cashRegisters.printerRequired),
+    enabled: z.boolean(),
+  });
 
   const form = useForm<CashRegisterFormValues>({
     resolver: standardSchemaResolver(cashRegisterSchema),
@@ -110,14 +118,14 @@ export function CashRegisterDialog({
       if (isEditing && cashRegister) {
         const updated = await updateCashRegister(cashRegister.id, data);
         onSaved(updated);
-        toast.success("Cash register updated");
+        toast.success(t.cashRegisters.toastUpdated);
       } else {
         const created = await createCashRegister(data);
         onSaved(created);
-        toast.success("Cash register created");
+        toast.success(t.cashRegisters.toastCreated);
       }
     } catch (error: any) {
-      toast.error(error.message || "Error saving");
+      toast.error(error.message || t.cashRegisters.toastErrorSave);
     }
   }
 
@@ -136,8 +144,8 @@ export function CashRegisterDialog({
           <DialogHeader>
             <DialogTitle className="text-xl">
               {isEditing
-                ? "Edit Cash Register"
-                : "New Cash Register"}
+                ? t.cashRegisters.editTitle
+                : t.cashRegisters.newTitle}
             </DialogTitle>
           </DialogHeader>
           <FormProvider {...form}>
@@ -149,11 +157,11 @@ export function CashRegisterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Name</FieldLabel>
+                        <FieldLabel>{t.cashRegisters.nameLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Register name"
+                            placeholder={t.cashRegisters.namePlaceholder}
                             autoFocus
                           />
                         </FormControl>
@@ -165,7 +173,7 @@ export function CashRegisterDialog({
 
                 <div className="flex items-center gap-3">
                   <FieldLabel htmlFor="enabled" className="mb-0">
-                    Enabled
+                    {t.cashRegisters.enabledLabel}
                   </FieldLabel>
                   <FormField
                     control={form.control}
@@ -190,14 +198,14 @@ export function CashRegisterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Cash Printer</FieldLabel>
+                        <FieldLabel>{t.cashRegisters.cashPrinterLabel}</FieldLabel>
                         <FormControl>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select printer" />
+                              <SelectValue placeholder={t.cashRegisters.printerSelectPlaceholder} />
                             </SelectTrigger>
                             <SelectContent>
                               {printers.map((printer) => (
@@ -215,7 +223,7 @@ export function CashRegisterDialog({
                 />
               </FieldGroup>
               <DialogFooter>
-                {isEditing && onDelete && cashRegister && (
+                {canDelete && isEditing && onDelete && cashRegister && (
                   <Button
                     type="button"
                     variant="destructive"
@@ -223,7 +231,7 @@ export function CashRegisterDialog({
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
-                    Delete
+                    {t.common.delete}
                   </Button>
                 )}
                 <Button
@@ -231,14 +239,14 @@ export function CashRegisterDialog({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting
-                    ? "Saving..."
+                    ? t.cashRegisters.saving
                     : isEditing
-                      ? "Save"
-                      : "Create"}
+                      ? t.common.save
+                      : t.cashRegisters.create}
                 </Button>
               </DialogFooter>
             </form>
@@ -249,20 +257,20 @@ export function CashRegisterDialog({
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
+            <AlertDialogTitle>{t.cashRegisters.confirmDeletionTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the register <span className="font-bold">{cashRegister?.name}</span>?
+              {t.cashRegisters.confirmDeletionDescription} <span className="font-bold">{cashRegister?.name}</span>?
               <br />
-              This action cannot be undone.
+              {t.cashRegisters.cannotUndo}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               variant="destructive"
             >
-              Delete
+              {t.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

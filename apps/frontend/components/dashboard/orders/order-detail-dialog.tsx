@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { OrderDetailResponse } from '@/lib/api-types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -8,6 +10,8 @@ import { FileText, Printer, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { getOrderById, deleteOrder } from '@/actions/orders';
+import { useLocale } from '@/contexts/locale-context';
+import { useRole } from '@/hooks/use-role';
 
 interface OrderDetailDialogProps {
   orderId: number | null;
@@ -17,6 +21,8 @@ interface OrderDetailDialogProps {
 }
 
 export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated }: OrderDetailDialogProps) {
+  const { t } = useLocale();
+  const { canDelete } = useRole();
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -28,7 +34,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
       getOrderById(orderId)
         .then(setOrder)
         .catch(() => {
-          toast.error('Error loading order');
+          toast.error(t.orders.toastErrorLoad);
           onOpenChange(false);
         })
         .finally(() => setLoading(false));
@@ -44,11 +50,11 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
     setDeleting(true);
     try {
       await deleteOrder(orderId);
-      toast.success('Order deleted successfully');
+      toast.success(t.orders.toastDeleted);
       onOpenChange(false);
       onOrderUpdated?.();
     } catch (error) {
-      toast.error('Error deleting order');
+      toast.error(t.orders.toastErrorDelete);
     } finally {
       setDeleting(false);
     }
@@ -61,15 +67,15 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Order Details {order?.displayCode || ''}
+              {t.orders.detailTitle} {order?.displayCode || ''}
             </DialogTitle>
             <DialogDescription>
-              View complete order details
+              {t.orders.detailDescription}
             </DialogDescription>
           </DialogHeader>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="text-muted-foreground">Loading...</div>
+              <div className="text-muted-foreground">{t.common.loading}</div>
             </div>
           ) : order ? (
             <ScrollArea className="overflow-y-auto pr-4">
@@ -77,25 +83,25 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                 {/* Order Info */}
                 <div className="grid grid-cols-4 gap-4 p-4 bg-muted dark:bg-muted/40 rounded-lg">
                   <div>
-                    <p className="text-sm text-muted-foreground">Customer</p>
+                    <p className="text-sm text-muted-foreground">{t.orders.detailCustomer}</p>
                     <h1 className={cn("font-semibold text-sm mb-1 truncate select-none", order.customer.length < 15 ? "text-xl" : "")} title={order.customer}>
                       {order.customer}
                     </h1>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Table</p>
+                    <p className="text-sm text-muted-foreground">{t.orders.detailTable}</p>
                     <p className="font-medium">{order.table}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Code</p>
+                    <p className="text-sm text-muted-foreground">{t.orders.detailCode}</p>
                     <p className="font-mono font-bold text-amber-600">{order.displayCode}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Ticket</p>
+                    <p className="text-sm text-muted-foreground">{t.orders.detailTicket}</p>
                     <p className="font-mono font-bold text-amber-600">{order.ticketNumber ?? 'N/A'}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Creation date</p>
+                    <p className="text-sm text-muted-foreground">{t.orders.detailCreationDate}</p>
                     <p className="text-sm">
                       {new Date(order.createdAt).toLocaleString('it-IT', {
                         day: '2-digit',
@@ -107,7 +113,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Confirmation date</p>
+                    <p className="text-sm text-muted-foreground">{t.orders.detailConfirmationDate}</p>
                     <p className="text-sm">
                       {order.confirmedAt ? new Date(order.confirmedAt).toLocaleString('it-IT', {
                         day: '2-digit',
@@ -119,18 +125,18 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Payment</p>
+                    <p className="text-sm text-muted-foreground">{t.orders.detailPayment}</p>
                     <p className="font-mono font-bold text-amber-600">
                       {order.paymentMethod === 'CARD' ? 'CARD' : order.paymentMethod === 'CASH' ? 'CASH' : order.paymentMethod || 'N/A'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Status</p>
+                    <p className="text-sm text-muted-foreground">{t.orders.detailStatus}</p>
                     <div className="font-mono font-bold text-amber-600">
-                      {order.status === 'PENDING' ? 'PENDING'
-                        : order.status === 'CONFIRMED' ? 'CONFIRMED'
-                          : order.status === 'COMPLETED' ? 'READY'
-                            : order.status === 'PICKED_UP' ? 'PICKED UP'
+                      {order.status === 'PENDING' ? t.orders.statusPending
+                        : order.status === 'CONFIRMED' ? t.orders.statusConfirmed
+                          : order.status === 'COMPLETED' ? t.orders.statusReady
+                            : order.status === 'PICKED_UP' ? t.orders.statusPickedUp
                               : order.status || 'N/A'}
                     </div>
                   </div>
@@ -138,7 +144,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
 
                 {/* Order Items */}
                 <div className="space-y-2">
-                  <h4 className="font-semibold">Products</h4>
+                  <h4 className="font-semibold">{t.orders.detailProducts}</h4>
                   <div className="space-y-3 max-h-[340px] overflow-y-auto ">
                     {order.categorizedItems.map((catItem, catIndex) => (
                       <div key={catIndex}>
@@ -154,11 +160,11 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                                   <p className="font-medium">{item.food.name}</p>
                                   {item.notes && (
                                     <p className="text-xs text-muted-foreground mt-1">
-                                      Notes: {item.notes}
+                                      {t.orders.detailNotes} {item.notes}
                                     </p>
                                   )}
                                   <p className="text-sm text-muted-foreground mt-1">
-                                    Quantity: {item.quantity} × {parseFloat(item.unitPrice.toString()).toFixed(2)} €
+                                    {t.orders.detailQuantity} {item.quantity} × {parseFloat(item.unitPrice.toString()).toFixed(2)} €
                                   </p>
                                 </div>
                                 <div className="text-right">
@@ -185,26 +191,26 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                   <div>
                     <div className="items-center space-y-0 text-xs">
                       <div className="flex items-center justify-between">
-                        <div className="font-semibold">Subtotal:</div>
+                        <div className="font-semibold">{t.orders.detailSubtotal}</div>
                         <div className="font-bold text-muted-foreground">
                           {parseFloat(order.subTotal).toFixed(2)} €
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <div className="font-semibold">Total surcharges:</div>
+                        <div className="font-semibold">{t.orders.detailTotalSurcharges}</div>
                         <div className="font-bold text-amber-600 dark:text-amber-500">
                           {parseFloat(order.surcharge?.toString() || '0').toFixed(2)} €
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <div className="font-semibold">Discount:</div>
+                        <div className="font-semibold">{t.orders.detailDiscount}</div>
                         <div className="font-bold text-green-600 dark:text-green-500">
                           {parseFloat(order.discount?.toString() || '0').toFixed(2)} €
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-2xl font-semibold">Total:</div>
+                      <div className="text-2xl font-semibold">{t.orders.detailTotal}</div>
                       <div className="text-2xl font-bold text-amber-600 dark:text-amber-500">
                         {parseFloat(order.total || order.subTotal).toFixed(2)} €
                       </div>
@@ -216,7 +222,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                 {(order as any).cashRegister && (
                   <div className="p-3 bg-muted dark:bg-muted/40 rounded-lg">
                     <p className="text-sm">
-                      <span className="text-muted-foreground">Cash register: </span>
+                      <span className="text-muted-foreground">{t.orders.detailCashRegister} </span>
                       <span className="font-mono font-bold text-amber-600">
                         {(order as any).cashRegister.name || (order as any).cashRegister}
                       </span>
@@ -230,24 +236,26 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
 
           <DialogFooter>
             <div className="flex items-center justify-between gap-2 w-full">
-              <Button
-                variant="destructive"
-                className='cursor-pointer'
-                onClick={() => setShowDeleteConfirm(true)}
-                disabled={deleting || loading}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                {deleting ? 'Deleting...' : 'Delete'}
-              </Button>
+              {canDelete && (
+                <Button
+                  variant="destructive"
+                  className='cursor-pointer'
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={deleting || loading}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {deleting ? t.orders.deleting : t.common.delete}
+                </Button>
+              )}
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   className='cursor-pointer'
-                  onClick={() => toast.error('Print functionality not yet implemented')}
+                  onClick={() => toast.error(t.orders.toastPrintNotImplemented)}
                   disabled={deleting}
                 >
                   <Printer className="h-4 w-4 mr-2" />
-                  Print
+                  {t.orders.printButton}
                 </Button>
                 <Button
                   variant="outline"
@@ -255,7 +263,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                   onClick={() => onOpenChange(false)}
                   disabled={deleting}
                 >
-                  Close
+                  {t.orders.closeButton}
                 </Button>
               </div>
             </div>
@@ -266,21 +274,21 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
+            <AlertDialogTitle>{t.orders.confirmDeletionTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete order <span className="font-bold">{order?.displayCode}</span>?
+              {t.orders.confirmDeletionDescription} <span className="font-bold">{order?.displayCode}</span>?
               <br />
-              This action cannot be undone.
+              {t.orders.cannotUndo}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleting}
               variant="destructive"
             >
-              {deleting ? 'Deleting...' : 'Delete'}
+              {deleting ? t.orders.deleting : t.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

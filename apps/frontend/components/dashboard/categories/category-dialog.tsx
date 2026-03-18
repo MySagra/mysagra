@@ -13,7 +13,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -54,14 +53,13 @@ import { useForm, FormProvider } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useLocale } from "@/contexts/locale-context";
 
-const categorySchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  available: z.boolean(),
-  printerId: z.string().optional(),
-});
-
-type CategoryFormValues = z.infer<typeof categorySchema>;
+type CategoryFormValues = {
+  name: string;
+  available: boolean;
+  printerId?: string;
+};
 
 interface CategoryDialogProps {
   open: boolean;
@@ -82,12 +80,19 @@ export function CategoryDialog({
   onDelete,
   categoriesCount = 0,
 }: CategoryDialogProps) {
+  const { t } = useLocale();
   const isEditing = !!category;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const categorySchema = z.object({
+    name: z.string().min(1, t.categories.nameRequired),
+    available: z.boolean(),
+    printerId: z.string().optional(),
+  });
 
   const form = useForm<CategoryFormValues>({
     resolver: standardSchemaResolver(categorySchema),
@@ -169,10 +174,10 @@ export function CategoryDialog({
 
       if (isEditing && category) {
         savedCategory = await updateCategory(category.id, data);
-        toast.success("Category updated");
+        toast.success(t.categories.toastUpdated);
       } else {
         savedCategory = await createCategory({ ...data, position: categoriesCount });
-        toast.success("Category created");
+        toast.success(t.categories.toastCreated);
       }
 
       if (imageFile && savedCategory) {
@@ -184,7 +189,7 @@ export function CategoryDialog({
       onSaved(savedCategory);
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error.message || "Error saving category");
+      toast.error(error.message || t.categories.toastErrorSave);
     }
   }
 
@@ -202,14 +207,14 @@ export function CategoryDialog({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl select-none">
-              {isEditing ? "Edit Category" : "New Category"}
+              {isEditing ? t.categories.editTitle : t.categories.newTitle}
             </DialogTitle>
           </DialogHeader>
           <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <FieldGroup className="py-2">
                 <Field>
-                  <FieldLabel htmlFor="name">Name</FieldLabel>
+                  <FieldLabel htmlFor="name">{t.categories.nameLabel}</FieldLabel>
                   <FormField
                     control={form.control}
                     name="name"
@@ -219,7 +224,7 @@ export function CategoryDialog({
                           <Input
                             id="name"
                             autoComplete="off"
-                            placeholder="Category name"
+                            placeholder={t.categories.namePlaceholder}
                             autoFocus
                             {...field}
                           />
@@ -232,7 +237,7 @@ export function CategoryDialog({
 
                 <div className="flex items-center gap-3">
                   <FieldLabel htmlFor="available" className="mb-0">
-                    Available
+                    {t.categories.availableLabel}
                   </FieldLabel>
                   <FormField
                     control={form.control}
@@ -252,7 +257,7 @@ export function CategoryDialog({
                 </div>
 
                 <Field>
-                  <FieldLabel>Default Printer</FieldLabel>
+                  <FieldLabel>{t.categories.defaultPrinterLabel}</FieldLabel>
                   <FormField
                     control={form.control}
                     name="printerId"
@@ -265,11 +270,11 @@ export function CategoryDialog({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select printer" />
+                              <SelectValue placeholder={t.categories.printerSelectPlaceholder} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="none">No printer</SelectItem>
+                            <SelectItem value="none">{t.categories.noPrinter}</SelectItem>
                             {printers.map((printer) => (
                               <SelectItem key={printer.id} value={printer.id}>
                                 {printer.name}
@@ -284,7 +289,7 @@ export function CategoryDialog({
                 </Field>
 
                 <Field>
-                  <FieldLabel>Image</FieldLabel>
+                  <FieldLabel>{t.categories.imageLabel}</FieldLabel>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -324,9 +329,9 @@ export function CategoryDialog({
                         <EmptyMedia>
                           <ImageIcon className="h-8 w-8 text-muted-foreground" />
                         </EmptyMedia>
-                        <EmptyTitle>Upload an image</EmptyTitle>
+                        <EmptyTitle>{t.categories.imageUploadTitle}</EmptyTitle>
                         <EmptyDescription>
-                          Drag here or click to select a file
+                          {t.categories.imageUploadDescription}
                         </EmptyDescription>
                       </EmptyHeader>
                     </Empty>
@@ -342,7 +347,7 @@ export function CategoryDialog({
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
-                    Delete
+                    {t.common.delete}
                   </Button>
                 )}
                 <Button
@@ -350,14 +355,14 @@ export function CategoryDialog({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting
-                    ? "Saving..."
+                    ? t.categories.saving
                     : isEditing
-                      ? "Save"
-                      : "Create"}
+                      ? t.common.save
+                      : t.categories.create}
                 </Button>
               </DialogFooter>
             </form>
@@ -368,20 +373,20 @@ export function CategoryDialog({
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
+            <AlertDialogTitle>{t.categories.confirmDeletionTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the category <span className="font-bold">{category?.name}</span>?
+              {t.categories.confirmDeletionDescription} <span className="font-bold">{category?.name}</span>?
               <br />
-              This action cannot be undone.
+              {t.categories.cannotUndo}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               variant="destructive"
             >
-              Delete
+              {t.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

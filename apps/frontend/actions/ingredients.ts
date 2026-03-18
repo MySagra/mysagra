@@ -3,13 +3,15 @@
 import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS, Ingredient } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { IngredientResponseSchema } from "@mysagra/schemas";
 
 export async function getIngredients(): Promise<Ingredient[]> {
-  return fetchApi<Ingredient[]>(API_ENDPOINTS.INGREDIENTS.ALL);
+  return fetchApi<Ingredient[]>(API_ENDPOINTS.INGREDIENTS.ALL, {}, z.array(IngredientResponseSchema));
 }
 
 export async function getIngredientById(id: string): Promise<Ingredient> {
-  return fetchApi<Ingredient>(API_ENDPOINTS.INGREDIENTS.BY_ID(id));
+  return fetchApi<Ingredient>(API_ENDPOINTS.INGREDIENTS.BY_ID(id), {}, IngredientResponseSchema);
 }
 
 export async function createIngredient(data: {
@@ -18,7 +20,7 @@ export async function createIngredient(data: {
   const result = await fetchApi<Ingredient>(API_ENDPOINTS.INGREDIENTS.ALL, {
     method: "POST",
     body: JSON.stringify(data),
-  });
+  }, IngredientResponseSchema);
   revalidatePath("/dashboard/ingredients");
   return result;
 }
@@ -32,7 +34,8 @@ export async function updateIngredient(
     {
       method: "PUT",
       body: JSON.stringify(data),
-    }
+    },
+    IngredientResponseSchema
   );
   revalidatePath("/dashboard/ingredients");
   return result;

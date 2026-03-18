@@ -19,17 +19,12 @@ export default async function hashPwd(password: string): Promise<string> {
 }
 
 async function main() {
-    const rolesCount = await prisma.role.count();
-    if (!rolesCount) {
-        await prisma.role.createMany({
-            data: [
-                {
-                    name: "admin"
-                },
-                {
-                    name: "operator"
-                }
-            ]
+    const defaultRoles = ["admin", "operator", "maintainer"];
+    for (const roleName of defaultRoles) {
+        await prisma.role.upsert({
+            where: { name: roleName },
+            update: {},
+            create: { name: roleName }
         });
     }
 

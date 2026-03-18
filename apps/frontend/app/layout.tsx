@@ -4,6 +4,7 @@ import "./globals.css";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { LocaleProvider } from "@/contexts/locale-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,10 +37,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionProvider>
-            {children}
-          </SessionProvider>
-          <Toaster position="top-center" offset="6px" />
+          <LocaleProvider>
+            <SessionProvider>
+              {children}
+            </SessionProvider>
+            <Toaster position="top-center" offset="6px" />
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

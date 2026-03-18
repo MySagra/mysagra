@@ -6,6 +6,7 @@ import { deleteUser } from "@/actions/users";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createPortal } from "react-dom";
+import { useLocale } from "@/contexts/locale-context";
 
 interface DeleteUserDialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ export function DeleteUserDialog({
   user,
   onDeleted,
 }: DeleteUserDialogProps) {
+  const { t } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -34,9 +36,9 @@ export function DeleteUserDialog({
     try {
       await deleteUser(user.id);
       onDeleted(user.id);
-      toast.success(`User "${user.username}" deleted`);
+      toast.success(`"${user.username}" ${t.users.toastDeleted}`);
     } catch (error: any) {
-      toast.error(error.message || "Error deleting user");
+      toast.error(error.message || t.users.toastErrorDelete);
     } finally {
       setIsLoading(false);
     }
@@ -58,10 +60,9 @@ export function DeleteUserDialog({
       {/* Dialog */}
       <div className="relative z-101 bg-background ring-foreground/10 ring-1 rounded-xl p-4 w-full max-w-xs sm:max-w-sm mx-4 animate-in fade-in-0 zoom-in-95 duration-150 grid gap-4">
         <div className="grid gap-1.5">
-          <h2 className="text-base font-medium">Delete User</h2>
+          <h2 className="text-base font-medium">{t.users.deleteTitle}</h2>
           <p className="text-muted-foreground text-sm">
-            Are you sure you want to delete the user &quot;{user?.username}
-            &quot;? This action cannot be undone.
+            {t.users.deleteDescription} &quot;{user?.username}&quot;? {t.users.deleteCannotUndo}
           </p>
         </div>
         <div className="bg-muted/50 -mx-4 -mb-4 rounded-b-xl border-t p-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -70,14 +71,14 @@ export function DeleteUserDialog({
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
           >
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             onClick={handleDelete}
             disabled={isLoading}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? t.users.deleting : t.common.delete}
           </Button>
         </div>
       </div>

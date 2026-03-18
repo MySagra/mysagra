@@ -56,11 +56,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           const data = await response.json();
 
+          const role = data.role as string | undefined;
+          if (role !== "admin" && role !== "maintainer") {
+            throw new Error("role_not_allowed");
+          }
+
           return {
             id: String(data.id || "1"),
             name: data.username || (credentials.username as string),
             email: `${credentials.username}@myamministratore.local`,
-            role: data.role || "admin",
+            role,
           };
         } catch (error) {
           return null;

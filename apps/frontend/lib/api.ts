@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 const API_URL = process.env.API_URL || "";
 
@@ -11,7 +12,8 @@ const buildHeaders = (): HeadersInit => {
 
 export async function fetchApi<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  schema?: z.ZodType<T>
 ): Promise<T> {
   // Read the backend auth cookie from the incoming browser request
   const cookieStore = await cookies();
@@ -51,5 +53,16 @@ export async function fetchApi<T>(
     return {} as T;
   }
 
-  return response.json();
+  const data = await response.json();
+
+  if (schema) {
+    const result = schema.safeParse(data);
+    if (!result.success) {
+      console.warn(`[API] Response validation warning for ${endpoint}:`, result.error.issues);
+    } else {
+      return result.data;
+    }
+  }
+
+  return data as T;
 }

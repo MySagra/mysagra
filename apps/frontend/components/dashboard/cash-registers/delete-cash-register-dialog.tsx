@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
 
 interface DeleteCashRegisterDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function DeleteCashRegisterDialog({
   cashRegister,
   onDeleted,
 }: DeleteCashRegisterDialogProps) {
+  const { t } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleDelete() {
@@ -37,9 +39,9 @@ export function DeleteCashRegisterDialog({
     try {
       await deleteCashRegister(cashRegister.id);
       onDeleted(cashRegister.id);
-      toast.success(`Register "${cashRegister.name}" deleted`);
+      toast.success(`"${cashRegister.name}" ${t.cashRegisters.toastDeleted}`);
     } catch (error: any) {
-      toast.error(error.message || "Error deleting register");
+      toast.error(error.message || t.cashRegisters.toastErrorDelete);
     } finally {
       setIsLoading(false);
     }
@@ -49,20 +51,20 @@ export function DeleteCashRegisterDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Cash Register</AlertDialogTitle>
+          <AlertDialogTitle>{t.cashRegisters.deleteTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the register &quot;
-            {cashRegister?.name}&quot;? This action cannot be undone.
+            {t.cashRegisters.deleteDescription} &quot;
+            {cashRegister?.name}&quot;? {t.cashRegisters.cannotUndo}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{t.common.cancel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? t.cashRegisters.deleting : t.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

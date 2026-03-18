@@ -29,78 +29,77 @@ import {
   Github,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
-
-
-const data = {
-  home: [
-    {
-      title: "Home",
-      url: "/dashboard",
-      icon: HomeIcon,
-    },
-  ],
-  cucina: [
-    {
-      title: "Categories",
-      url: "/dashboard/categories",
-      icon: LayoutGridIcon,
-    },
-    {
-      title: "Foods",
-      url: "/dashboard/foods",
-      icon: UtensilsCrossedIcon,
-    },
-    {
-      title: "Ingredients",
-      url: "/dashboard/ingredients",
-      icon: Wheat,
-    },
-  ],
-  ordini: [
-    {
-      title: "Orders",
-      url: "/dashboard/orders",
-      icon: ClipboardListIcon,
-    },
-  ],
-  gestione: [
-    {
-      title: "Cash Registers",
-      url: "/dashboard/cash-registers",
-      icon: Coins,
-    },
-    {
-      title: "Printers",
-      url: "/dashboard/printers",
-      icon: PrinterIcon,
-    },
-    {
-      title: "Users",
-      url: "/dashboard/users",
-      icon: UsersIcon,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "https://mysagra.com/#professional-services",
-      icon: LifeBuoyIcon,
-    },
-    {
-      title: "GitHub",
-      url: "https://github.com/MySagra",
-      icon: Github,
-    },
-  ],
-}
+import { useLocale } from "@/contexts/locale-context"
+import { useRole } from "@/hooks/use-role"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession()
+  const { t } = useLocale()
+  const { canManageUsers, canManageCategories } = useRole()
 
   const user = {
     name: session?.user?.name || "Admin",
     email: session?.user?.email || "",
     avatar: "",
+  }
+
+  const navItems = {
+    home: [
+      {
+        title: t.nav.home,
+        url: "/dashboard",
+        icon: HomeIcon,
+      },
+    ],
+    cucina: [
+      ...(canManageCategories
+        ? [{ title: t.nav.categories, url: "/dashboard/categories", icon: LayoutGridIcon }]
+        : []),
+      {
+        title: t.nav.foods,
+        url: "/dashboard/foods",
+        icon: UtensilsCrossedIcon,
+      },
+      {
+        title: t.nav.ingredients,
+        url: "/dashboard/ingredients",
+        icon: Wheat,
+      },
+    ],
+    ordini: [
+      {
+        title: t.nav.orders,
+        url: "/dashboard/orders",
+        icon: ClipboardListIcon,
+      },
+    ],
+    gestione: [
+      {
+        title: t.nav.cashRegisters,
+        url: "/dashboard/cash-registers",
+        icon: Coins,
+      },
+      {
+        title: t.nav.printers,
+        url: "/dashboard/printers",
+        icon: PrinterIcon,
+      },
+      ...(canManageUsers
+        ? [{ title: t.nav.users, url: "/dashboard/users", icon: UsersIcon }]
+        : []),
+    ],
+    navSecondary: [
+      {
+        title: t.nav.support,
+        url: "https://mysagra.com/#professional-services",
+        icon: LifeBuoyIcon,
+      },
+      {
+        title: "GitHub",
+        url: "https://github.com/MySagra",
+        icon: Github,
+      },
+    ],
   }
 
   return (
@@ -116,7 +115,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-bold text-2xl">MySagra</span>
                   <span className="truncate text-xs">MyAmministratore</span>
-                  
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -124,13 +122,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.home} />
-        <NavMain items={data.cucina} label="Kitchen" />
+        <NavMain items={navItems.home} />
+        <NavMain items={navItems.cucina} label={t.nav.kitchen} />
         <div className="my-2">
-          <NavMain items={data.ordini} />
+          <NavMain items={navItems.ordini} />
         </div>
-        <NavMain items={data.gestione} label="Management" />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navItems.gestione} label={t.nav.management} />
+        <NavSecondary items={navItems.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <ThemeSwitcher />

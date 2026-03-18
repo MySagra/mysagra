@@ -19,7 +19,7 @@ const router = Router();
 
 router.get(
     "/",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         query: GetOrdersQuerySchema
     }),
@@ -28,7 +28,7 @@ router.get(
 
 router.get(
     "/:id",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: OrderIdParamSchema
     }),
@@ -45,7 +45,7 @@ router.post(
 
 router.post(
     "/:id/confirm",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: idParamSchema,
         body: ConfirmOrderSchema
@@ -55,7 +55,7 @@ router.post(
 
 router.patch(
     "/:id",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: idParamSchema,
         body: PatchOrderSchema
@@ -65,7 +65,7 @@ router.patch(
 
 router.delete(
     "/:id",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin"]),
     validateRequest({
         params: idParamSchema
     }),
@@ -74,7 +74,7 @@ router.delete(
 
 router.post(
     "/:id/reprint",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: idParamSchema,
         body: ReprintOrderSchema

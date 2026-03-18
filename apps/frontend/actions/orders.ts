@@ -8,6 +8,22 @@ import {
   OrderStatus,
 } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { OrderResponseSchema } from "@mysagra/schemas";
+
+// The API response shape differs from the schema (displayCode is a string in API,
+// and the paginated wrapper and categorizedItems are not in the schema).
+// We cast to allow safeParse to validate what it can.
+const PaginatedOrdersSchema = z.object({
+  data: z.array(OrderResponseSchema),
+  pagination: z.object({
+    currentPage: z.number(),
+    totalPages: z.number(),
+    totalItems: z.number(),
+  }),
+}) as unknown as z.ZodType<PaginatedOrders>;
+
+const OrderDetailSchema = OrderResponseSchema as unknown as z.ZodType<OrderDetailResponse>;
 
 export async function getOrders(params?: {
   search?: string;
@@ -32,11 +48,11 @@ export async function getOrders(params?: {
 
   const query = searchParams.toString();
   const endpoint = `${API_ENDPOINTS.ORDERS.ALL}${query ? `?${query}` : ""}`;
-  return fetchApi<PaginatedOrders>(endpoint);
+  return fetchApi<PaginatedOrders>(endpoint, {}, PaginatedOrdersSchema);
 }
 
 export async function getOrderById(id: number): Promise<OrderDetailResponse> {
-  return fetchApi<OrderDetailResponse>(API_ENDPOINTS.ORDERS.BY_ID(id));
+  return fetchApi<OrderDetailResponse>(API_ENDPOINTS.ORDERS.BY_ID(id), {}, OrderDetailSchema);
 }
 
 export async function updateOrderStatus(

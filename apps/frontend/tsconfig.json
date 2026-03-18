@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@mysagra/schemas": ["../../packages/schemas/src/index.ts"]
     }
   },
   "include": [

@@ -12,13 +12,13 @@ const router = Router();
 
 router.get(
     "/",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     ingredientController.getIngredients
 )
 
 router.get(
     "/:id",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: cuidParamSchema
     }),
@@ -27,7 +27,7 @@ router.get(
 
 router.post(
     "/",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer"]),
     validateRequest({
         body: CreateIngredientSchema
     }),
@@ -36,7 +36,7 @@ router.post(
 
 router.put(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer"]),
     validateRequest({
         params: cuidParamSchema,
         body: UpdateIngredientSchema

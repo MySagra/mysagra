@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
+import { useLocale } from "@/contexts/locale-context";
 
 interface UsersTableProps {
   users: User[];
@@ -23,6 +24,7 @@ type SortColumn = "username" | "role" | null;
 type SortDirection = "asc" | "desc";
 
 export function UsersTable({ users, onEdit }: UsersTableProps) {
+  const { t } = useLocale();
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -100,7 +102,7 @@ export function UsersTable({ users, onEdit }: UsersTableProps) {
   if (sortedUsers.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
-        <p className="text-muted-foreground text-sm">No users found</p>
+        <p className="text-muted-foreground text-sm">{t.users.noUsersFound}</p>
       </div>
     );
   }
@@ -116,7 +118,7 @@ export function UsersTable({ users, onEdit }: UsersTableProps) {
                 onClick={() => handleSort("username")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                Username
+                {t.users.columnUsername}
                 <SortIcon column="username" />
               </button>
             </TableHead>
@@ -125,7 +127,7 @@ export function UsersTable({ users, onEdit }: UsersTableProps) {
                 onClick={() => handleSort("role")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                Role
+                {t.users.columnRole}
                 <SortIcon column="role" />
               </button>
             </TableHead>

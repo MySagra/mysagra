@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
 
 interface FoodsTableProps {
   foods: Food[];
@@ -27,6 +28,7 @@ type SortColumn = "name" | "category" | "price" | "available" | null;
 type SortDirection = "asc" | "desc";
 
 export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
+  const { t } = useLocale();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -106,10 +108,10 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
       const updated = await toggleFoodAvailability(food.id, !food.available);
       onToggle(updated);
       toast.success(
-        `"${food.name}" ${updated.available ? "enabled" : "disabled"}`
+        `"${food.name}" ${updated.available ? t.foods.toastUpdated : t.foods.toastUpdated}`
       );
     } catch (error) {
-      toast.error("Error updating food");
+      toast.error(t.foods.toastErrorUpdate);
     } finally {
       setTogglingId(null);
     }
@@ -136,7 +138,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
   if (sortedFoods.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
-        <p className="text-muted-foreground text-sm">No foods found</p>
+        <p className="text-muted-foreground text-sm">{t.foods.noFoodsFound}</p>
       </div>
     );
   }
@@ -152,7 +154,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
                 onClick={() => handleSort("name")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                Name
+                {t.foods.columnName}
                 <SortIcon column="name" />
               </button>
             </TableHead>
@@ -161,7 +163,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
                 onClick={() => handleSort("category")}
                 className="flex items-center ml-auto hover:text-foreground transition-colors font-medium"
               >
-                Category
+                {t.foods.columnCategory}
                 <SortIcon column="category" />
               </button>
             </TableHead>
@@ -170,7 +172,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
                 onClick={() => handleSort("price")}
                 className="flex items-center ml-auto hover:text-foreground transition-colors font-medium"
               >
-                Price
+                {t.foods.columnPrice}
                 <SortIcon column="price" />
               </button>
             </TableHead>
@@ -179,7 +181,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
                 onClick={() => handleSort("available")}
                 className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
               >
-                Available
+                {t.foods.columnAvailable}
                 <SortIcon column="available" />
               </button>
             </TableHead>

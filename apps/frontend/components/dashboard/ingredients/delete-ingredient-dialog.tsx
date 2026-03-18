@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
 
 interface DeleteIngredientDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function DeleteIngredientDialog({
   ingredient,
   onDeleted,
 }: DeleteIngredientDialogProps) {
+  const { t } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleDelete() {
@@ -37,9 +39,9 @@ export function DeleteIngredientDialog({
     try {
       await deleteIngredient(ingredient.id);
       onDeleted(ingredient.id);
-      toast.success(`Ingredient "${ingredient.name}" deleted`);
+      toast.success(`"${ingredient.name}" ${t.ingredients.toastDeleted}`);
     } catch (error: any) {
-      toast.error(error.message || "Error deleting ingredient");
+      toast.error(error.message || t.ingredients.toastErrorDelete);
     } finally {
       setIsLoading(false);
     }
@@ -49,20 +51,20 @@ export function DeleteIngredientDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Ingredient</AlertDialogTitle>
+          <AlertDialogTitle>{t.ingredients.deleteTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the ingredient &quot;
-            {ingredient?.name}&quot;? This action cannot be undone.
+            {t.ingredients.deleteDescription} &quot;
+            {ingredient?.name}&quot;? {t.ingredients.cannotUndo}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{t.common.cancel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading}
             variant="destructive"
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? t.ingredients.deleting : t.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

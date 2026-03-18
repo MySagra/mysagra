@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
+import { useLocale } from "@/contexts/locale-context";
 
 interface IngredientsTableProps {
   ingredients: Ingredient[];
@@ -25,6 +26,7 @@ export function IngredientsTable({
   ingredients,
   onEdit,
 }: IngredientsTableProps) {
+  const { t } = useLocale();
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -90,7 +92,7 @@ export function IngredientsTable({
     return (
       <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
         <p className="text-muted-foreground text-sm">
-          No ingredients found
+          {t.ingredients.noIngredientsFound}
         </p>
       </div>
     );
@@ -107,7 +109,7 @@ export function IngredientsTable({
                 onClick={() => handleSort("name")}
                 className="flex items-center hover:text-foreground transition-colors font-medium"
               >
-                Name
+                {t.ingredients.columnName}
                 <SortIcon column="name" />
               </button>
             </TableHead>

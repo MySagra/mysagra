@@ -10,13 +10,13 @@ const router = Router();
 
 router.get(
     "/",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     roleController.getRoles
 );
 
 router.get(
     "/:id",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: cuidParamSchema
     }),

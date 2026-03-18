@@ -34,12 +34,12 @@ import {
 } from "@/components/ui/form";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
 
-const ingredientSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-});
-
-type IngredientFormValues = z.infer<typeof ingredientSchema>;
+type IngredientFormValues = {
+  name: string;
+};
 
 interface IngredientDialogProps {
   open: boolean;
@@ -56,8 +56,14 @@ export function IngredientDialog({
   onSaved,
   onDelete,
 }: IngredientDialogProps) {
+  const { t } = useLocale();
+  const { canDelete } = useRole();
   const isEditing = !!ingredient;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const ingredientSchema = z.object({
+    name: z.string().min(1, t.ingredients.nameRequired),
+  });
 
   const form = useForm<IngredientFormValues>({
     resolver: standardSchemaResolver(ingredientSchema),
@@ -85,14 +91,14 @@ export function IngredientDialog({
           name: values.name.trim(),
         });
         onSaved(updated);
-        toast.success("Ingredient updated");
+        toast.success(t.ingredients.toastUpdated);
       } else {
         const created = await createIngredient({ name: values.name.trim() });
         onSaved(created);
-        toast.success("Ingredient created");
+        toast.success(t.ingredients.toastCreated);
       }
     } catch (error: any) {
-      toast.error(error.message || "Error saving ingredient");
+      toast.error(error.message || t.ingredients.toastErrorSave);
     }
   }
 
@@ -110,7 +116,7 @@ export function IngredientDialog({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl">
-              {isEditing ? "Edit Ingredient" : "New Ingredient"}
+              {isEditing ? t.ingredients.editTitle : t.ingredients.newTitle}
             </DialogTitle>
           </DialogHeader>
           <FormProvider {...form}>
@@ -122,11 +128,11 @@ export function IngredientDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>Name</FieldLabel>
+                        <FieldLabel>{t.ingredients.nameLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Ingredient name"
+                            placeholder={t.ingredients.namePlaceholder}
                             autoFocus
                           />
                         </FormControl>
@@ -137,7 +143,7 @@ export function IngredientDialog({
                 />
               </FieldGroup>
               <DialogFooter>
-                {isEditing && onDelete && ingredient && (
+                {canDelete && isEditing && onDelete && ingredient && (
                   <Button
                     type="button"
                     variant="destructive"
@@ -145,7 +151,7 @@ export function IngredientDialog({
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
-                    Delete
+                    {t.common.delete}
                   </Button>
                 )}
                 <Button
@@ -153,14 +159,14 @@ export function IngredientDialog({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting
-                    ? "Saving..."
+                    ? t.ingredients.saving
                     : isEditing
-                      ? "Save"
-                      : "Create"}
+                      ? t.common.save
+                      : t.ingredients.create}
                 </Button>
               </DialogFooter>
             </form>
@@ -171,20 +177,20 @@ export function IngredientDialog({
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
+            <AlertDialogTitle>{t.ingredients.confirmDeletionTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the ingredient <span className="font-bold">{ingredient?.name}</span>?
+              {t.ingredients.confirmDeletionDescription} <span className="font-bold">{ingredient?.name}</span>?
               <br />
-              This action cannot be undone.
+              {t.ingredients.cannotUndo}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               variant="destructive"
             >
-              Delete
+              {t.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

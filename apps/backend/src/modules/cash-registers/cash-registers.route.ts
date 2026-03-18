@@ -17,7 +17,7 @@ const router = Router();
 
 router.get(
     "/",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         query: GetCashRegisterQuerySchema
     }),
@@ -26,7 +26,7 @@ router.get(
 
 router.get(
     "/:id",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: cuidParamSchema,
         query: GetCashRegisterQuerySchema
@@ -45,7 +45,7 @@ router.post(
 
 router.put(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: cuidParamSchema,
         body: UpdateCashRegisterSchema
@@ -54,17 +54,7 @@ router.put(
 );
 router.patch(
     "/:id",
-    authenticate(["admin"]),
-    validateRequest({
-        params: cuidParamSchema,
-        body: PatchCashRegisterSchema
-    }),
-    cashRegisterController.patchCashRegister
-);
-
-router.patch(
-    "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: cuidParamSchema,
         body: PatchCashRegisterSchema
