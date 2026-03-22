@@ -10,7 +10,7 @@ export class UsersController {
     constructor(private userService: UsersService) { }
 
     getUsers = asyncHandler(async (
-        req: TypedRequest<{}>, 
+        _req: TypedRequest<{}>, 
         res: Response, 
     ): Promise<void> => {
         const users = await this.userService.getUsers();

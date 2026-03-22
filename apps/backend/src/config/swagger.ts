@@ -26,6 +26,7 @@ export function generateOpenApiDocument() {
         },
         tags: [
             { name: 'Auth' },
+            { name: 'API Keys'},
             { name: 'Users' },
             { name: 'Roles' },
             { name: 'Categories' },

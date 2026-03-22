@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models.ts'
-export type * from './prismaNamespace.ts'
+export type * from '../models'
+export type * from './prismaNamespace'
 
 export const Decimal = runtime.Decimal
 
@@ -60,9 +60,9 @@ export const ModelName = {
   DailyTicketCounter: 'DailyTicketCounter',
   Role: 'Role',
   User: 'User',
-  RefreshToken: 'RefreshToken',
   Printer: 'Printer',
-  CashRegister: 'CashRegister'
+  CashRegister: 'CashRegister',
+  ApiKey: 'ApiKey'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -184,20 +184,6 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const RefreshTokenScalarFieldEnum = {
-  id: 'id',
-  token: 'token',
-  userId: 'userId',
-  createdAt: 'createdAt',
-  expiresAt: 'expiresAt',
-  revokedAt: 'revokedAt',
-  ip: 'ip',
-  userAgent: 'userAgent'
-} as const
-
-export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
-
-
 export const PrinterScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -218,6 +204,21 @@ export const CashRegisterScalarFieldEnum = {
 } as const
 
 export type CashRegisterScalarFieldEnum = (typeof CashRegisterScalarFieldEnum)[keyof typeof CashRegisterScalarFieldEnum]
+
+
+export const ApiKeyScalarFieldEnum = {
+  id: 'id',
+  hash_key: 'hash_key',
+  prefix: 'prefix',
+  last_digits: 'last_digits',
+  type: 'type',
+  name: 'name',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -318,17 +319,6 @@ export const UserOrderByRelevanceFieldEnum = {
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
 
 
-export const RefreshTokenOrderByRelevanceFieldEnum = {
-  id: 'id',
-  token: 'token',
-  userId: 'userId',
-  ip: 'ip',
-  userAgent: 'userAgent'
-} as const
-
-export type RefreshTokenOrderByRelevanceFieldEnum = (typeof RefreshTokenOrderByRelevanceFieldEnum)[keyof typeof RefreshTokenOrderByRelevanceFieldEnum]
-
-
 export const PrinterOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
@@ -346,4 +336,15 @@ export const CashRegisterOrderByRelevanceFieldEnum = {
 } as const
 
 export type CashRegisterOrderByRelevanceFieldEnum = (typeof CashRegisterOrderByRelevanceFieldEnum)[keyof typeof CashRegisterOrderByRelevanceFieldEnum]
+
+
+export const ApiKeyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  hash_key: 'hash_key',
+  prefix: 'prefix',
+  last_digits: 'last_digits',
+  name: 'name'
+} as const
+
+export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
 

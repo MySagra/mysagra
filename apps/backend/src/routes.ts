@@ -10,6 +10,7 @@ import ordersRouter from "@/modules/orders/orders.route";
 import printersRouter from "@/modules/printers/printers.route";
 import rolesRouter from "@/modules/roles/roles.route";
 import usersRouter from "@/modules/users/users.route";
+import apiKeysRouter from "@/modules/api-keys/api-keys.route"
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use("/v1/orders", ordersRouter);
 router.use("/v1/printers", printersRouter);
 router.use("/v1/roles", rolesRouter);
 router.use("/v1/users", usersRouter);
+router.use("/v1/api-keys", apiKeysRouter)
 
 export default router;

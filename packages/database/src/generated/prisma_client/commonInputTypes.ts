@@ -10,8 +10,8 @@
  */
 
 import type * as runtime from "@prisma/client/runtime/client"
-import * as $Enums from "./enums.ts"
-import type * as Prisma from "./internal/prismaNamespace.ts"
+import * as $Enums from "./enums"
+import type * as Prisma from "./internal/prismaNamespace"
 
 
 export type StringFilter<$PrismaModel = never> = {
@@ -278,6 +278,23 @@ export type EnumPrinterStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPrinterStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPrinterStatusFilter<$PrismaModel>
+}
+
+export type EnumKeyTypesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KeyTypes | Prisma.EnumKeyTypesFieldRefInput<$PrismaModel>
+  in?: $Enums.KeyTypes[]
+  notIn?: $Enums.KeyTypes[]
+  not?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel> | $Enums.KeyTypes
+}
+
+export type EnumKeyTypesWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KeyTypes | Prisma.EnumKeyTypesFieldRefInput<$PrismaModel>
+  in?: $Enums.KeyTypes[]
+  notIn?: $Enums.KeyTypes[]
+  not?: Prisma.NestedEnumKeyTypesWithAggregatesFilter<$PrismaModel> | $Enums.KeyTypes
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel>
 }
 
 export type NestedStringFilter<$PrismaModel = never> = {
@@ -561,6 +578,23 @@ export type NestedEnumPrinterStatusWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPrinterStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPrinterStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumKeyTypesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KeyTypes | Prisma.EnumKeyTypesFieldRefInput<$PrismaModel>
+  in?: $Enums.KeyTypes[]
+  notIn?: $Enums.KeyTypes[]
+  not?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel> | $Enums.KeyTypes
+}
+
+export type NestedEnumKeyTypesWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KeyTypes | Prisma.EnumKeyTypesFieldRefInput<$PrismaModel>
+  in?: $Enums.KeyTypes[]
+  notIn?: $Enums.KeyTypes[]
+  not?: Prisma.NestedEnumKeyTypesWithAggregatesFilter<$PrismaModel> | $Enums.KeyTypes
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel>
 }
 
 
