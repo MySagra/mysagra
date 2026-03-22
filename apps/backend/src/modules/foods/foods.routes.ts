@@ -28,7 +28,7 @@ router.get(
 
 router.post(
     "/",
-    authenticate(["admin", "maintainer"]),
+    authenticate(["admin", "maintainer"], ["ms_pt_"]),
     validateRequest({
         body: CreateFoodSchema
     }),

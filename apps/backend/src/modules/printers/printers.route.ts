@@ -11,13 +11,13 @@ const router = Router();
 
 router.get(
     "/",
-    authenticate(["admin", "maintainer", "operator"]),
+    authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     printerController.getPrinters
 );
 
 router.get(
     "/:id",
-    authenticate(["admin", "maintainer", "operator"]),
+    authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     validateRequest({
         params: cuidParamSchema,
     }),
@@ -35,7 +35,7 @@ router.post(
 
 router.put(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin"], ["ms_pt_"]),
     validateRequest({
         params: cuidParamSchema,
         body: UpdatePrinterSchema
@@ -45,7 +45,7 @@ router.put(
 
 router.patch(
     "/:id",
-    authenticate(["admin", "maintainer"]),
+    authenticate(["admin", "maintainer"], ["ms_pt_"]),
     validateRequest({
         params: cuidParamSchema,
         body: PatchPrinterSchema

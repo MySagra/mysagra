@@ -193,6 +193,33 @@ export interface CashRegisterRequest {
   defaultPrinterId: string;
 }
 
+// API Keys
+export type ApiKeyType = "PRINTER" | "WEBAPP";
+export type ApiKeyPrefix = "ms_pt_" | "ms_wb_";
+
+export interface ApiKey {
+  id: string;
+  last_digits: string;
+  type: ApiKeyType;
+  prefix: ApiKeyPrefix;
+  name: string;
+  createdAt: Date;
+  lastUsedAt: Date | null;
+  revokedAt: Date | null;
+}
+
+export interface CreateApiKeyRequest {
+  name: string;
+  type: ApiKeyType;
+}
+
+export interface CreateApiKeyResponse {
+  id: string;
+  type: ApiKeyType;
+  apiKey: string;
+  createdAt: string;
+}
+
 // API Endpoints
 export const API_ENDPOINTS = {
   AUTH: {
@@ -233,5 +260,9 @@ export const API_ENDPOINTS = {
   ROLES: {
     ALL: "/v1/roles",
     BY_ID: (id: string) => `/v1/roles/${id}`,
+  },
+  API_KEYS: {
+    ALL: "/v1/api-keys",
+    BY_ID: (id: string) => `/v1/api-keys/${id}`,
   },
 } as const;

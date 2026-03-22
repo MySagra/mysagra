@@ -86,7 +86,7 @@ registry.registerPath({
 - **\`confirmed-order\`** — Fired when an order is confirmed (includes food details for printing). Payload: full order object (\`SSEOrder\`).
 - **\`reprint-order\`** — Fired when a reprint is requested. Payload: \`SSEReprintOrder\`.`,
     tags: ["Events (SSE)"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     request: { params: EventParams },
     responses: {
         200: {

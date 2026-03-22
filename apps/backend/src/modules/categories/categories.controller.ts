@@ -19,7 +19,9 @@ export class CategoriesController {
         req: TypedRequest<{ query: GetCategoriesQuery }>,
         res: Response,
     ): Promise<void> => {
-        if ((req.user?.role !== "admin" && req.user?.role !== "maintainer") && req.validated.query.available !== true) {
+        const { available } = req.validated.query
+
+        if ((req.apiKey && !req.user) && !available) {
             res.status(401).json({ message: "Unauthorized" });
             return;
         }

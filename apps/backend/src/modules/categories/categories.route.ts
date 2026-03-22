@@ -19,6 +19,7 @@ const router = Router();
 
 router.get(
     "/",
+    authenticate(["admin", "maintainer", "operator"], ["ms_wb_"]),
     validateRequest({
         query: GetCategoriesQuerySchema
     }),
@@ -27,7 +28,7 @@ router.get(
 
 router.get(
     "/:id",
-    authenticate(["admin", "operator"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: cuidParamSchema,
         query: GetCategoriesQuerySchema

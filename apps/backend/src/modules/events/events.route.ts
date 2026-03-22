@@ -10,7 +10,7 @@ const router = Router();
 
 router.get(
     '/:channel',
-    authenticate(["admin", "maintainer", "operator"]),
+    authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     validateRequest({
         params: eventSchema
     }),

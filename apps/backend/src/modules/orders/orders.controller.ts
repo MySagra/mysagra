@@ -50,7 +50,7 @@ export class OrdersController {
     ): Promise<void> => {
         const { confirm } = req.validated.body;
 
-        if((confirm && (req.user?.role === "guest" || !req.user?.role))){
+        if((confirm && (req.apiKey && !req.user))){
             res.status(401).json({ message: "Unauthorized" });
             return;
         }

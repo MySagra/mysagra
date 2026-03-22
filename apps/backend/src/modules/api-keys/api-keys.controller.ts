@@ -37,7 +37,7 @@ export class ApiKeysController {
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
-        const keyResponse = await this.apiKeyService.revokeApiKey(id);
-        res.status(204);
+        await this.apiKeyService.revokeApiKey(id);
+        res.status(204).send();
     });
 }

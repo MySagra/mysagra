@@ -11,20 +11,21 @@ import printersRouter from "@/modules/printers/printers.route";
 import rolesRouter from "@/modules/roles/roles.route";
 import usersRouter from "@/modules/users/users.route";
 import apiKeysRouter from "@/modules/api-keys/api-keys.route"
+import { apiLimiter, authLimiter } from "./middlewares/rateLimiter.middleware";
 
 const router = Router();
 
-router.use("/auth", authRouter);
-router.use("/events", eventsRouter);
+router.use("/auth", authLimiter, authRouter);
+router.use("/events", apiLimiter, eventsRouter);
 
-router.use("/v1/cash-registers", cashRegistersRouter);
-router.use("/v1/categories", categoriesRouter);
-router.use("/v1/foods", foodsRouter);
-router.use("/v1/ingredients", ingredientsRouter);
-router.use("/v1/orders", ordersRouter);
-router.use("/v1/printers", printersRouter);
-router.use("/v1/roles", rolesRouter);
-router.use("/v1/users", usersRouter);
-router.use("/v1/api-keys", apiKeysRouter)
+router.use("/v1/cash-registers", apiLimiter, cashRegistersRouter);
+router.use("/v1/categories", apiLimiter, categoriesRouter);
+router.use("/v1/foods", apiLimiter, foodsRouter);
+router.use("/v1/ingredients", apiLimiter, ingredientsRouter);
+router.use("/v1/orders", apiLimiter, ordersRouter);
+router.use("/v1/printers", apiLimiter, printersRouter);
+router.use("/v1/roles", apiLimiter, rolesRouter);
+router.use("/v1/users", apiLimiter, usersRouter);
+router.use("/v1/api-keys", apiLimiter, apiKeysRouter)
 
 export default router;

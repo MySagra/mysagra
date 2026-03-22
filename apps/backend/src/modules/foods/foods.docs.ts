@@ -72,7 +72,7 @@ registry.registerPath({
     path: "/v1/foods",
     summary: "Create a new food item",
     tags: ["Foods"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     request: {
         body: {
             required: true,

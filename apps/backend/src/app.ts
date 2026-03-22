@@ -21,6 +21,7 @@ import { setupSwagger } from './config/swagger';
 import { requestId } from './middlewares/requestId';
 import { loggingMiddleware } from './middlewares/logging';
 import { extractUser } from './middlewares/extractUser';
+import { parseApiKey } from './middlewares/parseApiKey';
 
 //app config
 const app = express();
@@ -52,6 +53,7 @@ setupSwagger(app)
 //global middlewares
 app.use(requestId);
 app.use(loggingMiddleware);
+app.use(parseApiKey());
 app.use(extractUser());
 
 app.use((req, res, next) => {

@@ -26,9 +26,10 @@ registry.registerPath({
     summary: "Get all categories",
     description:
         "Returns all categories with optional filtering by availability and optional inclusion of foods. " +
-        "If `available=true` is specified the endpoint is public; otherwise admin authentication is required.",
+        "If `available=true` is specified the endpoint is public; otherwise admin authentication is required. " +
+        "Also accessible via WEBAPP API key (`ms_wb_`).",
     tags: ["Categories"],
-    security: [{ cookieAuth: [] }, {}],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }, {}],
     request: { query: GetCategoriesQuery },
     responses: {
         200: {
