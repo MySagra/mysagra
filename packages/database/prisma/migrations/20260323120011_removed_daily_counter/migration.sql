@@ -5,4 +5,4 @@
 
 */
 -- DropTable
-DROP TABLE `dailyticketcounter`;
+DROP TABLE IF EXISTS `dailyticketcounter`;

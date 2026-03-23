@@ -11,7 +11,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -30,39 +29,19 @@ import {
   Github,
   KeyRoundIcon,
 } from "lucide-react"
-import { useSession } from "next-auth/react"
 import { useLocale } from "@/contexts/locale-context"
-import { useRole } from "@/hooks/use-role"
-import { Skeleton } from "@/components/ui/skeleton"
 
-function NavSkeleton({ count }: { count: number }) {
-  return (
-    <SidebarGroup>
-      <SidebarMenu>
-        {Array.from({ length: count }).map((_, i) => (
-          <SidebarMenuItem key={i}>
-            <div className="flex items-center gap-2 px-2 py-1.5">
-              <Skeleton className="h-4 w-4 rounded" />
-              <Skeleton className="h-4 w-24 rounded" />
-            </div>
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
-    </SidebarGroup>
-  )
+type AppRole = "admin" | "maintainer" | null
+
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: { name: string; email: string; avatar: string }
+  userRole: AppRole
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session, status } = useSession()
+export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
   const { t } = useLocale()
-  const { canManageUsers, canManageCategories, canManageApiKeys } = useRole()
-  const isLoading = status === "loading"
 
-  const user = {
-    name: session?.user?.name || "Admin",
-    email: session?.user?.email || "",
-    avatar: "",
-  }
+  const isAdmin = userRole === "admin"
 
   const navItems = {
     home: [
@@ -73,7 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     ],
     cucina: [
-      ...(canManageCategories
+      ...(isAdmin
         ? [{ title: t.nav.categories, url: "/dashboard/categories", icon: LayoutGridIcon }]
         : []),
       {
@@ -105,10 +84,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: "/dashboard/printers",
         icon: PrinterIcon,
       },
-      ...(canManageUsers
+      ...(isAdmin
         ? [{ title: t.nav.users, url: "/dashboard/users", icon: UsersIcon }]
         : []),
-      ...(canManageApiKeys
+      ...(isAdmin
         ? [{ title: t.nav.apiKeys, url: "/dashboard/api-keys", icon: KeyRoundIcon }]
         : []),
     ],
@@ -146,23 +125,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {isLoading ? (
-          <>
-            <NavSkeleton count={1} />
-            <NavSkeleton count={3} />
-            <NavSkeleton count={1} />
-            <NavSkeleton count={4} />
-          </>
-        ) : (
-          <>
-            <NavMain items={navItems.home} />
-            <NavMain items={navItems.cucina} label={t.nav.kitchen} />
-            <div className="my-2">
-              <NavMain items={navItems.ordini} />
-            </div>
-            <NavMain items={navItems.gestione} label={t.nav.management} />
-          </>
-        )}
+        <NavMain items={navItems.home} />
+        <NavMain items={navItems.cucina} label={t.nav.kitchen} />
+        <div className="my-2">
+          <NavMain items={navItems.ordini} />
+        </div>
+        <NavMain items={navItems.gestione} label={t.nav.management} />
         <NavSecondary items={navItems.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

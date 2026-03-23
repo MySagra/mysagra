@@ -34,9 +34,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4300/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4300/health",
+        ]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -86,10 +96,30 @@ services:
     security_opt:
       - seccomp=unconfined
     user: mysql
+  redis:
+    image: redis:8.6.1-alpine
+    container_name: mysagra_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: >
+      --requirepass ${REDIS_PASS}
+      --save 60 1
+      --loglevel warning
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASS}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
 volumes:
   api_logs:
     driver: local
   api_public:
+    driver: local
+  redis_data:
     driver: local
   mysql_data:
     driver: local

@@ -7,6 +7,7 @@ import { logger } from "@/config/logger";
 import { env } from "@/config/env";
 
 const apiKeyService = new ApiKeysService();
+const LAST_USED_THROTTLE_SECONDS = 60 * 5;
 
 export async function validateApiKey(req: Request, res: Response, next: NextFunction) {
     const rawKey = req.header('X-API-KEY');
@@ -53,8 +54,12 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
                 return;
             }
 
-            const activeData = { status: 'ACTIVE', prefix: dbKey.prefix, type: dbKey.type };
-            await redisClient.setEx(redisKey, env.REDIS_CACHE_TTL, JSON.stringify(activeData));
+            const now = new Date();
+            const activeData = { status: 'ACTIVE', prefix: dbKey.prefix, type: dbKey.type, lastUsedUpdatedAt: now.getTime() };
+            await Promise.all([
+                redisClient.setEx(redisKey, env.REDIS_CACHE_TTL, JSON.stringify(activeData)),
+                prisma.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } })
+            ]);
         }
         else {
             const keyData = JSON.parse(cachedKey);
@@ -62,6 +67,15 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
             if (keyData.status === 'REVOKED') {
                 res.status(403).json({ message: "API Key has been revoked." });
                 return;
+            }
+
+            const lastUpdated: number = keyData.lastUsedUpdatedAt ?? 0;
+            if (Date.now() - lastUpdated > LAST_USED_THROTTLE_SECONDS * 1000) {
+                const now = new Date();
+                const updatedData = { ...keyData, lastUsedUpdatedAt: now.getTime() };
+                redisClient.setEx(redisKey, env.REDIS_CACHE_TTL, JSON.stringify(updatedData))
+                    .then(() => prisma.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } }))
+                    .catch(err => logger.error("Error updating lastUsedAt:", err));
             }
         }
 
