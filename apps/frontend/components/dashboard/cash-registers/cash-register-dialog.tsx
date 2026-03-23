@@ -190,7 +190,7 @@ export function CashRegisterDialog({
                             <SelectContent>
                               {printers.map((printer) => (
                                 <SelectItem key={printer.id} value={printer.id}>
-                                  {printer.name} ({printer.ip})
+                                  {printer.name}{printer.ip ? ` (${printer.ip})` : ""}
                                 </SelectItem>
                               ))}
                             </SelectContent>
