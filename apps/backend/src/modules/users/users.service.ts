@@ -1,13 +1,14 @@
 import { prisma } from "@mysagra/database";
 import { createHashPassword } from "@/lib/hashPassword";
-import { CreateUserInput, UpdateUserInput } from "@mysagra/schemas";
+import { CreateUserInput, PatchUserInput, UpdateUserInput } from "@mysagra/schemas";
 
 export class UsersService {
     async getUsers() {
         return await prisma.user.findMany({
-            select: {
-                id: true,
-                username: true,
+            omit: {
+                password: true
+            },
+            include: {
                 role: true
             }
         });
@@ -18,9 +19,10 @@ export class UsersService {
             where: {
                 id
             },
-            select: {
-                id: true,
-                username: true,
+            omit: {
+                password: true
+            },
+            include: {
                 role: true
             }
         })
@@ -31,9 +33,10 @@ export class UsersService {
             where: {
                 username
             },
-            select: {
-                id: true,
-                username: true,
+            omit: {
+                password: true
+            },
+            include: {
                 role: true
             }
         })
@@ -45,14 +48,16 @@ export class UsersService {
                 ...user,
                 password: await createHashPassword(user.password),
             },
-            select: {
-                id: true,
-                username: true,
+            omit: {
+                password: true
+            },
+            include: {
                 role: true
             }
         })
     }
 
+    //TODO: update after session manage
     async updateUser(id: string, user: UpdateUserInput) {
         return await prisma.user.update({
             where: {
@@ -62,9 +67,27 @@ export class UsersService {
                 ...user,
                 password: await createHashPassword(user.password),
             },
-            select: {
-                id: true,
-                username: true,
+            omit: {
+                password: true
+            },
+            include: {
+                role: true
+            }
+        })
+    }
+
+    async patchUser(id: string, user: PatchUserInput) {
+        return await prisma.user.update({
+            where: {
+                id
+            },
+            data: {
+                roleId: user.role
+            },
+            omit: {
+                password: true
+            },
+            include: {
                 role: true
             }
         })

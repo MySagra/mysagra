@@ -102,7 +102,7 @@ export function LoginForm() {
                                     </p>
                                 </div>
                                 <Field>
-                                    <FieldLabel htmlFor="username" required>{t.login.username}</FieldLabel>
+                                    <FieldLabel htmlFor="username">{t.login.username}</FieldLabel>
                                     <FormField
                                         control={form.control}
                                         name="username"
@@ -121,7 +121,7 @@ export function LoginForm() {
                                     />
                                 </Field>
                                 <Field>
-                                    <FieldLabel htmlFor="password" required>{t.login.password}</FieldLabel>
+                                    <FieldLabel htmlFor="password">{t.login.password}</FieldLabel>
                                     <FormField
                                         control={form.control}
                                         name="password"

@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { User, Role } from "@/lib/api-types";
+import { patchUserRole } from "@/actions/users";
 import { UsersToolbar } from "./users-toolbar";
 import { UsersTable } from "./users-table";
 import { UserDialog } from "./user-dialog";
 import { DeleteUserDialog } from "./delete-user-dialog";
+import { toast } from "sonner";
+import { useLocale } from "@/contexts/locale-context";
 
 interface UsersContentProps {
   initialUsers: User[];
@@ -13,45 +16,39 @@ interface UsersContentProps {
 }
 
 export function UsersContent({ initialUsers, roles }: UsersContentProps) {
+  const { t } = useLocale();
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const filteredUsers = users.filter((u) =>
     u.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  function handleCreate() {
-    setEditingUser(null);
-    setDialogOpen(true);
-  }
-
-  function handleEdit(user: User) {
-    setEditingUser(user);
-    setDialogOpen(true);
+  async function handleRoleChange(user: User, roleId: string) {
+    setUpdatingId(user.id);
+    try {
+      const updated = await patchUserRole(user.id, roleId);
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+      toast.success(t.users.toastUpdated);
+    } catch (error: any) {
+      toast.error(error.message || t.users.toastErrorSave);
+    } finally {
+      setUpdatingId(null);
+    }
   }
 
   function handleDelete(user: User) {
     setDeletingUser(user);
-    // Close edit dialog first, then open delete dialog after animation completes
-    setDialogOpen(false);
-    setEditingUser(null);
-    setTimeout(() => {
-      setDeleteDialogOpen(true);
-    }, 150);
+    setDeleteDialogOpen(true);
   }
 
-  function handleSaved(saved: User) {
-    if (editingUser) {
-      setUsers((prev) => prev.map((u) => (u.id === saved.id ? saved : u)));
-    } else {
-      setUsers((prev) => [...prev, saved]);
-    }
-    setDialogOpen(false);
-    setEditingUser(null);
+  function handleCreated(created: User) {
+    setUsers((prev) => [...prev, created]);
+    setCreateDialogOpen(false);
   }
 
   function handleDeleted(id: string) {
@@ -66,20 +63,21 @@ export function UsersContent({ initialUsers, roles }: UsersContentProps) {
         <UsersToolbar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          onCreateNew={handleCreate}
+          onCreateNew={() => setCreateDialogOpen(true)}
         />
         <UsersTable
           users={filteredUsers}
-          onEdit={handleEdit}
+          roles={roles}
+          onRoleChange={handleRoleChange}
+          onDelete={handleDelete}
+          updatingId={updatingId}
         />
       </div>
       <UserDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        user={editingUser}
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
         roles={roles}
-        onSaved={handleSaved}
-        onDelete={handleDelete}
+        onCreated={handleCreated}
       />
       <DeleteUserDialog
         open={deleteDialogOpen}

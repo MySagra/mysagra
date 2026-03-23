@@ -3,7 +3,7 @@ import { registry } from "@/config/swagger";
 import {
     UserResponseSchema,
     CreateUserSchema,
-    UpdateUserSchema,
+    PatchUserSchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
 
@@ -11,8 +11,11 @@ import {
 
 const UserResponse = registry.register("UserResponse", UserResponseSchema);
 const CreateUserRequest = registry.register("CreateUserRequest", CreateUserSchema);
-const UpdateUserRequest = registry.register("UpdateUserRequest", UpdateUserSchema);
+const PatchUserRequest = registry.register("PatchUserRequest", PatchUserSchema);
 const CUIDParam = registry.register("CUIDParam", cuidParamSchema);
+
+// UpdateUserRequest is intentionally omitted — PUT /users/:id is not yet implemented.
+// TODO: restore when session management allows full user updates.
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -84,10 +87,22 @@ registry.registerPath({
     },
 });
 
+// TODO: implement PUT /users/:id after session management is in place.
+// This endpoint will allow full user updates (username, password, role).
+/*
 registry.registerPath({
     method: "put",
     path: "/v1/users/{id}",
-    summary: "Update user by ID",
+    summary: "Update user by ID (not yet implemented)",
+    tags: ["Users"],
+    ...
+});
+*/
+
+registry.registerPath({
+    method: "patch",
+    path: "/v1/users/{id}",
+    summary: "Update user role",
     tags: ["Users"],
     security: [{ cookieAuth: [] }],
     request: {
@@ -95,18 +110,19 @@ registry.registerPath({
         body: {
             required: true,
             content: {
-                "application/json": { schema: UpdateUserRequest },
+                "application/json": { schema: PatchUserRequest },
             },
         },
     },
     responses: {
         200: {
-            description: "User updated",
+            description: "User role updated",
             content: {
                 "application/json": { schema: UserResponse },
             },
         },
         404: { description: "User not found" },
+        400: { description: "Invalid role ID" },
         401: { description: "Unauthorized" },
         403: { description: "Forbidden" },
     },

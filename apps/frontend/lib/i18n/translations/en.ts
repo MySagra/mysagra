@@ -99,6 +99,7 @@ export const en = {
     passwordNewPlaceholder: "New password",
     passwordLeaveEmpty: "Leave empty to keep unchanged",
     passwordRequired: "Password is required",
+    passwordMin: "Password must be at least 8 characters",
     roleLabel: "Role",
     roleSelectPlaceholder: "Select role",
     roleRequired: "Select a role",

@@ -99,6 +99,7 @@ export const it = {
     passwordNewPlaceholder: "Nuova password",
     passwordLeaveEmpty: "Lascia vuoto per mantenere invariata",
     passwordRequired: "La password è obbligatoria",
+    passwordMin: "La password deve essere di almeno 8 caratteri",
     roleLabel: "Ruolo",
     roleSelectPlaceholder: "Seleziona ruolo",
     roleRequired: "Seleziona un ruolo",

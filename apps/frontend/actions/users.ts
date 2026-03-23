@@ -23,13 +23,10 @@ export async function createUser(data: UserRequest): Promise<User> {
   return result;
 }
 
-export async function updateUser(
-  id: string,
-  data: UserRequest
-): Promise<User> {
+export async function patchUserRole(id: string, roleId: string): Promise<User> {
   const result = await fetchApi<User>(API_ENDPOINTS.USERS.BY_ID(id), {
-    method: "PUT",
-    body: JSON.stringify(data),
+    method: "PATCH",
+    body: JSON.stringify({ role: roleId }),
   }, UserResponseSchema);
   revalidatePath("/dashboard/users");
   return result;

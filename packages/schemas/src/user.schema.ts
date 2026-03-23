@@ -17,7 +17,7 @@ export const CreateUserSchema = z.object({
     password: z.string().meta({
         description: "User's password",
         example: "Super_secret_password!"
-    })
+    }).min(8)
 }).meta({
     id: "CreateUserRequest",
     description: "Payload required to create a new user"
@@ -25,7 +25,7 @@ export const CreateUserSchema = z.object({
 
 export const UpdateUserSchema = z.object({
     ...UserBase,
-    password: z.string().meta({
+    password: z.string().min(8).meta({
         description: "User's password",
         example: "Super_secret_password!"
     })
@@ -45,6 +45,13 @@ export const UserResponseSchema = z.object({
     description: "User entity with role information"
 })
 
+export const PatchUserSchema = z.object({
+    role: z.cuid().meta({
+        description: "Unique identifier of the assigned role"
+    })
+})
+
 export type CreateUserInput = z.infer<typeof CreateUserSchema>
 export type UpdateUserInput = z.infer<typeof UpdateUserSchema>
 export type UserResponse = z.infer<typeof UserResponseSchema>
+export type PatchUserInput = z.infer<typeof PatchUserSchema>
