@@ -20,8 +20,8 @@ import { setupSwagger } from './config/swagger';
 // middlewares
 import { requestId } from './middlewares/requestId';
 import { loggingMiddleware } from './middlewares/logging';
-import { extractUser } from './middlewares/extractUser';
-import { parseApiKey } from './middlewares/parseApiKey';
+import { validateJwt } from './middlewares/validateJwt';
+import { validateApiKey } from './middlewares/validateApiKey';
 
 //app config
 const app = express();
@@ -53,8 +53,10 @@ setupSwagger(app)
 //global middlewares
 app.use(requestId);
 app.use(loggingMiddleware);
-app.use(parseApiKey());
-app.use(extractUser());
+
+// validate tokens
+app.use(validateApiKey);
+app.use(validateJwt);
 
 app.use((req, res, next) => {
     if (req.path.startsWith('/events')) {

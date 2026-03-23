@@ -1,8 +1,8 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { Request, Response } from "express";
 import { env } from "@/config/env";
 
-const hybridKeyGenerator = (req: Request, res: Response): string => {
+const hybridKeyGenerator = (req: Request, _res: Response): string => {
     if (req.user) {
         return `rate-limit:user:${req.user.sub}`;
     }
@@ -11,8 +11,8 @@ const hybridKeyGenerator = (req: Request, res: Response): string => {
         return `rate-limit:apiKey:${req.apiKey.rawKey}`
     }
 
-    const ip = req.ip || req.socket.remoteAddress || "0.0.0.0";
-    return `rate-limit:ip:${ip}`;
+    const ip = req.ip ?? req.socket.remoteAddress ?? "0.0.0.0";
+    return `rate-limit:ip:${ipKeyGenerator(ip)}`;
 };
 
 export const authLimiter = rateLimit({

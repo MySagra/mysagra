@@ -57,7 +57,6 @@ export const ModelName = {
   FoodIngredient: 'FoodIngredient',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  DailyTicketCounter: 'DailyTicketCounter',
   Role: 'Role',
   User: 'User',
   Printer: 'Printer',
@@ -155,15 +154,6 @@ export const OrderItemScalarFieldEnum = {
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
-
-
-export const DailyTicketCounterScalarFieldEnum = {
-  id: 'id',
-  date: 'date',
-  counter: 'counter'
-} as const
-
-export type DailyTicketCounterScalarFieldEnum = (typeof DailyTicketCounterScalarFieldEnum)[keyof typeof DailyTicketCounterScalarFieldEnum]
 
 
 export const RoleScalarFieldEnum = {
@@ -292,13 +282,6 @@ export const OrderItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type OrderItemOrderByRelevanceFieldEnum = (typeof OrderItemOrderByRelevanceFieldEnum)[keyof typeof OrderItemOrderByRelevanceFieldEnum]
-
-
-export const DailyTicketCounterOrderByRelevanceFieldEnum = {
-  id: 'id'
-} as const
-
-export type DailyTicketCounterOrderByRelevanceFieldEnum = (typeof DailyTicketCounterOrderByRelevanceFieldEnum)[keyof typeof DailyTicketCounterOrderByRelevanceFieldEnum]
 
 
 export const RoleOrderByRelevanceFieldEnum = {

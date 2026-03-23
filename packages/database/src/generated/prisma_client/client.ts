@@ -72,11 +72,6 @@ export type Order = Prisma.OrderModel
  */
 export type OrderItem = Prisma.OrderItemModel
 /**
- * Model DailyTicketCounter
- * 
- */
-export type DailyTicketCounter = Prisma.DailyTicketCounterModel
-/**
  * Model Role
  * 
  */

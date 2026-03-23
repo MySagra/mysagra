@@ -123,12 +123,6 @@ model OrderItem {
   @@map("order_items")
 }
 
-model DailyTicketCounter {
-  id      String   @id @default(cuid())
-  date    DateTime @unique @db.Date
-  counter Int      @default(0)
-}
-
 //users sections
 model Role {
   id   String @id @default(cuid())

@@ -1,9 +1,9 @@
 import { env } from "@/config/env"
-import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken"
 import { prisma } from "@mysagra/database";
 import { User, Role } from "@mysagra/database";
 import { TokenPayloadSchema } from "@mysagra/schemas";
+import { redisClient } from "@/lib/redis";
 
 export class TokenService {
     private secret = env.JWT_SECRET;
@@ -20,19 +20,20 @@ export class TokenService {
         );
     }
 
-    /*
-    async revokeToken(token: string): Promise<Boolean> {
-        if (!await this.isRefreshTokenValid(token)) return false;
-        return await prisma.refreshToken.update({
-            where: {
-                token
-            },
-            data: {
-                revokedAt: new Date(Date.now())
+    async revokeToken(token: string): Promise<boolean> {
+        const payload = this.getTokenPayload(token);
+
+        if (payload) {
+            const nowInSeconds = Math.floor(Date.now() / 1000);
+            const timeRemaining = payload.exp - nowInSeconds;
+
+            if (timeRemaining > 0) {
+                await redisClient.setEx(`blacklist:${token}`, timeRemaining, "REVOKED");
             }
-        }) != null;
+            return true;
+        }
+        return false;
     }
-    */
 
     getTokenPayload(token: string) {
         try {

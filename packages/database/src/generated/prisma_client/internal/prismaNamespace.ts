@@ -390,7 +390,6 @@ export const ModelName = {
   FoodIngredient: 'FoodIngredient',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  DailyTicketCounter: 'DailyTicketCounter',
   Role: 'Role',
   User: 'User',
   Printer: 'Printer',
@@ -411,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "dailyTicketCounter" | "role" | "user" | "printer" | "cashRegister" | "apiKey"
+    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -808,72 +807,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.OrderItemCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.OrderItemCountAggregateOutputType> | number
-        }
-      }
-    }
-    DailyTicketCounter: {
-      payload: Prisma.$DailyTicketCounterPayload<ExtArgs>
-      fields: Prisma.DailyTicketCounterFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DailyTicketCounterFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DailyTicketCounterFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        findFirst: {
-          args: Prisma.DailyTicketCounterFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DailyTicketCounterFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        findMany: {
-          args: Prisma.DailyTicketCounterFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>[]
-        }
-        create: {
-          args: Prisma.DailyTicketCounterCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        createMany: {
-          args: Prisma.DailyTicketCounterCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.DailyTicketCounterDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        update: {
-          args: Prisma.DailyTicketCounterUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        deleteMany: {
-          args: Prisma.DailyTicketCounterDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DailyTicketCounterUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.DailyTicketCounterUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        aggregate: {
-          args: Prisma.DailyTicketCounterAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDailyTicketCounter>
-        }
-        groupBy: {
-          args: Prisma.DailyTicketCounterGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DailyTicketCounterGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DailyTicketCounterCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DailyTicketCounterCountAggregateOutputType> | number
         }
       }
     }
@@ -1322,15 +1255,6 @@ export const OrderItemScalarFieldEnum = {
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
 
 
-export const DailyTicketCounterScalarFieldEnum = {
-  id: 'id',
-  date: 'date',
-  counter: 'counter'
-} as const
-
-export type DailyTicketCounterScalarFieldEnum = (typeof DailyTicketCounterScalarFieldEnum)[keyof typeof DailyTicketCounterScalarFieldEnum]
-
-
 export const RoleScalarFieldEnum = {
   id: 'id',
   name: 'name'
@@ -1457,13 +1381,6 @@ export const OrderItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type OrderItemOrderByRelevanceFieldEnum = (typeof OrderItemOrderByRelevanceFieldEnum)[keyof typeof OrderItemOrderByRelevanceFieldEnum]
-
-
-export const DailyTicketCounterOrderByRelevanceFieldEnum = {
-  id: 'id'
-} as const
-
-export type DailyTicketCounterOrderByRelevanceFieldEnum = (typeof DailyTicketCounterOrderByRelevanceFieldEnum)[keyof typeof DailyTicketCounterOrderByRelevanceFieldEnum]
 
 
 export const RoleOrderByRelevanceFieldEnum = {
@@ -1690,7 +1607,6 @@ export type GlobalOmitConfig = {
   foodIngredient?: Prisma.FoodIngredientOmit
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit
-  dailyTicketCounter?: Prisma.DailyTicketCounterOmit
   role?: Prisma.RoleOmit
   user?: Prisma.UserOmit
   printer?: Prisma.PrinterOmit
