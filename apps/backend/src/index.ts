@@ -1,25 +1,50 @@
 import { env } from "./config/env"; // load the .env before prisma
+import { logger } from "./config/logger";
+import { connectRedis, redisClient } from "./lib/redis";
 import { prisma } from "@mysagra/database";
 import app from "./app";
 
-const server = app.listen(env.PORT, () => {
-  console.log(`Server is listening on http://localhost:${env.PORT}`);
-  console.log(`Documentation: http://localhost:${env.PORT}/api-docs`);
-});
+let server: ReturnType<typeof app.listen>
 
-async function shutdown() {
-  console.log('Shutting down server...');
+async function startServer() {
   try {
-    await prisma.$disconnect();
-    server.close(() => {
-      console.log('Server closed');
-      process.exit(0);
+    await connectRedis();
+    logger.info('Connection to Redis successful')
+
+    server = app.listen(env.PORT, () => {
+      logger.info(`Server is listening on http://localhost:${env.PORT}`);
+      logger.info(`Documentation: http://localhost:${env.PORT}/api-docs`);
     });
   } catch (error) {
-    console.error('Error during shutdown:', error);
+    logger.error("Fatal error during the startup of the server:", error)
+    process.exit(1);
+  }
+}
+
+async function shutdown() {
+  try {
+    logger.info('Shutting down server...');
+
+    if (redisClient.isOpen) {
+      await redisClient.quit();
+      logger.info('Redis connection closed.');
+    }
+
+    if (server) {
+      server.close(() => {
+        logger.info('HTTP server closed.');
+        process.exit(0);
+      });
+    } else {
+      process.exit(0);
+    }
+  } catch (error) {
+    logger.error('Error during shutdown:', error);
     process.exit(1);
   }
 }
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+
+startServer();

@@ -2,13 +2,17 @@ import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { Request, Response } from "express";
 import { env } from "@/config/env";
 
-const hybridKeyGenerator = (req: Request, res: Response): string => {
-    if (req.user && req.user.sub !== "0") {
-        return `user-${req.user.sub}`;
+const hybridKeyGenerator = (req: Request, _res: Response): string => {
+    if (req.user) {
+        return `rate-limit:user:${req.user.sub}`;
     }
 
-    const rawIp = req.ip || req.socket.remoteAddress || "0.0.0.0";
-    return ipKeyGenerator(rawIp)
+    if (req.apiKey) {
+        return `rate-limit:apiKey:${req.apiKey.rawKey}`
+    }
+
+    const ip = req.ip ?? req.socket.remoteAddress ?? "0.0.0.0";
+    return `rate-limit:ip:${ipKeyGenerator(ip)}`;
 };
 
 export const authLimiter = rateLimit({
@@ -26,13 +30,16 @@ export const apiLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     limit: (req: Request, res: Response) => {
-        if (req.user?.role === 'admin' || req.user?.role === 'operator') {
-            return 1000; // High limit for working staff
+        if (req.user) { // High limit for working staff
+            return 500;
         }
-        return 100; // Lower limit for guests/public
+        else if (req.apiKey) { // for api key
+            return 1000;
+        }
+        return 25;
     },
     keyGenerator: hybridKeyGenerator,
-    handler: (req, res, next, options) => {
+    handler: (_req, res, next, options) => {
         res.status(options.statusCode).json({
             message: options.message.message || "Too many requests"
         });

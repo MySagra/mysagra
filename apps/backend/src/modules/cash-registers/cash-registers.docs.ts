@@ -25,7 +25,7 @@ registry.registerPath({
     path: "/v1/cash-registers",
     summary: "Get all cash registers",
     tags: ["CashRegisters"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     request: { query: GetCashRegisterQuery },
     responses: {
         200: {
@@ -46,7 +46,7 @@ registry.registerPath({
     path: "/v1/cash-registers/{id}",
     summary: "Get cash register by ID",
     tags: ["CashRegisters"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     request: {
         params: CUIDParam,
         query: GetCashRegisterQuery,

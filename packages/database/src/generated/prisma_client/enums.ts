@@ -34,3 +34,11 @@ export const PrinterStatus = {
 } as const
 
 export type PrinterStatus = (typeof PrinterStatus)[keyof typeof PrinterStatus]
+
+
+export const KeyTypes = {
+  PRINTER: 'PRINTER',
+  WEBAPP: 'WEBAPP'
+} as const
+
+export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]

@@ -16,10 +16,10 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "../models.ts"
-import { type PrismaClient } from "./class.ts"
+import type * as Prisma from "../models"
+import { type PrismaClient } from "./class"
 
-export type * from '../models.ts'
+export type * from '../models'
 
 export type DMMF = typeof runtime.DMMF
 
@@ -390,12 +390,11 @@ export const ModelName = {
   FoodIngredient: 'FoodIngredient',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  DailyTicketCounter: 'DailyTicketCounter',
   Role: 'Role',
   User: 'User',
-  RefreshToken: 'RefreshToken',
   Printer: 'Printer',
-  CashRegister: 'CashRegister'
+  CashRegister: 'CashRegister',
+  ApiKey: 'ApiKey'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -411,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "dailyTicketCounter" | "role" | "user" | "refreshToken" | "printer" | "cashRegister"
+    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -811,72 +810,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    DailyTicketCounter: {
-      payload: Prisma.$DailyTicketCounterPayload<ExtArgs>
-      fields: Prisma.DailyTicketCounterFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DailyTicketCounterFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DailyTicketCounterFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        findFirst: {
-          args: Prisma.DailyTicketCounterFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DailyTicketCounterFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        findMany: {
-          args: Prisma.DailyTicketCounterFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>[]
-        }
-        create: {
-          args: Prisma.DailyTicketCounterCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        createMany: {
-          args: Prisma.DailyTicketCounterCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.DailyTicketCounterDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        update: {
-          args: Prisma.DailyTicketCounterUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        deleteMany: {
-          args: Prisma.DailyTicketCounterDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DailyTicketCounterUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.DailyTicketCounterUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DailyTicketCounterPayload>
-        }
-        aggregate: {
-          args: Prisma.DailyTicketCounterAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDailyTicketCounter>
-        }
-        groupBy: {
-          args: Prisma.DailyTicketCounterGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DailyTicketCounterGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DailyTicketCounterCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DailyTicketCounterCountAggregateOutputType> | number
-        }
-      }
-    }
     Role: {
       payload: Prisma.$RolePayload<ExtArgs>
       fields: Prisma.RoleFieldRefs
@@ -1006,72 +939,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
-        }
-      }
-    }
-    RefreshToken: {
-      payload: Prisma.$RefreshTokenPayload<ExtArgs>
-      fields: Prisma.RefreshTokenFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.RefreshTokenFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.RefreshTokenFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        findFirst: {
-          args: Prisma.RefreshTokenFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.RefreshTokenFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        findMany: {
-          args: Prisma.RefreshTokenFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>[]
-        }
-        create: {
-          args: Prisma.RefreshTokenCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        createMany: {
-          args: Prisma.RefreshTokenCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.RefreshTokenDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        update: {
-          args: Prisma.RefreshTokenUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        deleteMany: {
-          args: Prisma.RefreshTokenDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.RefreshTokenUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.RefreshTokenUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        aggregate: {
-          args: Prisma.RefreshTokenAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateRefreshToken>
-        }
-        groupBy: {
-          args: Prisma.RefreshTokenGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RefreshTokenGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.RefreshTokenCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RefreshTokenCountAggregateOutputType> | number
         }
       }
     }
@@ -1207,6 +1074,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ApiKey: {
+      payload: Prisma.$ApiKeyPayload<ExtArgs>
+      fields: Prisma.ApiKeyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ApiKeyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ApiKeyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+        }
+        findFirst: {
+          args: Prisma.ApiKeyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ApiKeyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+        }
+        findMany: {
+          args: Prisma.ApiKeyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload>[]
+        }
+        create: {
+          args: Prisma.ApiKeyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+        }
+        createMany: {
+          args: Prisma.ApiKeyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ApiKeyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+        }
+        update: {
+          args: Prisma.ApiKeyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+        }
+        deleteMany: {
+          args: Prisma.ApiKeyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ApiKeyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ApiKeyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+        }
+        aggregate: {
+          args: Prisma.ApiKeyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateApiKey>
+        }
+        groupBy: {
+          args: Prisma.ApiKeyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApiKeyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ApiKeyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApiKeyCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1322,15 +1255,6 @@ export const OrderItemScalarFieldEnum = {
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
 
 
-export const DailyTicketCounterScalarFieldEnum = {
-  id: 'id',
-  date: 'date',
-  counter: 'counter'
-} as const
-
-export type DailyTicketCounterScalarFieldEnum = (typeof DailyTicketCounterScalarFieldEnum)[keyof typeof DailyTicketCounterScalarFieldEnum]
-
-
 export const RoleScalarFieldEnum = {
   id: 'id',
   name: 'name'
@@ -1347,20 +1271,6 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const RefreshTokenScalarFieldEnum = {
-  id: 'id',
-  token: 'token',
-  userId: 'userId',
-  createdAt: 'createdAt',
-  expiresAt: 'expiresAt',
-  revokedAt: 'revokedAt',
-  ip: 'ip',
-  userAgent: 'userAgent'
-} as const
-
-export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
 
 
 export const PrinterScalarFieldEnum = {
@@ -1383,6 +1293,21 @@ export const CashRegisterScalarFieldEnum = {
 } as const
 
 export type CashRegisterScalarFieldEnum = (typeof CashRegisterScalarFieldEnum)[keyof typeof CashRegisterScalarFieldEnum]
+
+
+export const ApiKeyScalarFieldEnum = {
+  id: 'id',
+  hash_key: 'hash_key',
+  prefix: 'prefix',
+  last_digits: 'last_digits',
+  type: 'type',
+  name: 'name',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1458,13 +1383,6 @@ export const OrderItemOrderByRelevanceFieldEnum = {
 export type OrderItemOrderByRelevanceFieldEnum = (typeof OrderItemOrderByRelevanceFieldEnum)[keyof typeof OrderItemOrderByRelevanceFieldEnum]
 
 
-export const DailyTicketCounterOrderByRelevanceFieldEnum = {
-  id: 'id'
-} as const
-
-export type DailyTicketCounterOrderByRelevanceFieldEnum = (typeof DailyTicketCounterOrderByRelevanceFieldEnum)[keyof typeof DailyTicketCounterOrderByRelevanceFieldEnum]
-
-
 export const RoleOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name'
@@ -1481,17 +1399,6 @@ export const UserOrderByRelevanceFieldEnum = {
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
-
-
-export const RefreshTokenOrderByRelevanceFieldEnum = {
-  id: 'id',
-  token: 'token',
-  userId: 'userId',
-  ip: 'ip',
-  userAgent: 'userAgent'
-} as const
-
-export type RefreshTokenOrderByRelevanceFieldEnum = (typeof RefreshTokenOrderByRelevanceFieldEnum)[keyof typeof RefreshTokenOrderByRelevanceFieldEnum]
 
 
 export const PrinterOrderByRelevanceFieldEnum = {
@@ -1511,6 +1418,17 @@ export const CashRegisterOrderByRelevanceFieldEnum = {
 } as const
 
 export type CashRegisterOrderByRelevanceFieldEnum = (typeof CashRegisterOrderByRelevanceFieldEnum)[keyof typeof CashRegisterOrderByRelevanceFieldEnum]
+
+
+export const ApiKeyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  hash_key: 'hash_key',
+  prefix: 'prefix',
+  last_digits: 'last_digits',
+  name: 'name'
+} as const
+
+export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
 
 
 
@@ -1572,6 +1490,13 @@ export type EnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'PrinterStatus'
  */
 export type EnumPrinterStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrinterStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'KeyTypes'
+ */
+export type EnumKeyTypesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KeyTypes'>
     
 
 
@@ -1682,12 +1607,11 @@ export type GlobalOmitConfig = {
   foodIngredient?: Prisma.FoodIngredientOmit
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit
-  dailyTicketCounter?: Prisma.DailyTicketCounterOmit
   role?: Prisma.RoleOmit
   user?: Prisma.UserOmit
-  refreshToken?: Prisma.RefreshTokenOmit
   printer?: Prisma.PrinterOmit
   cashRegister?: Prisma.CashRegisterOmit
+  apiKey?: Prisma.ApiKeyOmit
 }
 
 /* Types for Logging */

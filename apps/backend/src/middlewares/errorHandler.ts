@@ -4,6 +4,7 @@ import { Prisma } from "@mysagra/database";
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        console.log(err)
         switch (err.code) {
             case "P2002": {
                 const target = (err.meta?.target as string[]) || ["field"];
@@ -35,13 +36,6 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
                 });
                 return;
             }
-
-            default:
-                // Fallback for other Prisma errors (e.g. connection issues)
-                res.status(500).json({
-                    message: "Database error occurred.",
-                });
-                return;
         }
     }
 

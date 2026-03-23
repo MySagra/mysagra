@@ -22,5 +22,7 @@ export function useRole() {
     canCreateCashRegisters: role === "admin",
     // Edit full printer record (PUT) — admin only; PATCH (status) is shared
     canEditPrinters: role === "admin",
+    // API Keys management — admin only
+    canManageApiKeys: role === "admin",
   };
 }

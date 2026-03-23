@@ -14,6 +14,12 @@ registry.registerComponent('securitySchemes', 'cookieAuth', {
     name: 'mysagra_token'
 })
 
+registry.registerComponent('securitySchemes', 'apiKeyAuth', {
+    type: 'apiKey',
+    in: 'header',
+    name: 'X-API-KEY'
+})
+
 export function generateOpenApiDocument() {
     const generator = new OpenApiGeneratorV3(registry.definitions);
 
@@ -26,6 +32,7 @@ export function generateOpenApiDocument() {
         },
         tags: [
             { name: 'Auth' },
+            { name: 'API Keys'},
             { name: 'Users' },
             { name: 'Roles' },
             { name: 'Categories' },

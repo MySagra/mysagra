@@ -16,10 +16,12 @@ import { useForm, FormProvider } from "react-hook-form";
 import { toast } from "sonner";
 import { login as loginAction } from "@/actions/auth";
 import { useLocale } from "@/contexts/locale-context";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import z from "zod";
 
 export function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const { t } = useLocale();
 
     const formSchema = z.object({
@@ -126,13 +128,24 @@ export function LoginForm() {
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormControl>
-                                                    <Input
-                                                        autoComplete="off"
-                                                        placeholder={t.login.passwordPlaceholder}
-                                                        type="password"
-                                                        className="h-10"
-                                                        {...field}
-                                                    />
+                                                    <div className="relative">
+                                                        <Input
+                                                            autoComplete="off"
+                                                            placeholder={t.login.passwordPlaceholder}
+                                                            type={showPassword ? "text" : "password"}
+                                                            className="h-10 pr-10"
+                                                            {...field}
+                                                        />
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                                            onClick={() => setShowPassword((v) => !v)}
+                                                        >
+                                                            {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                                                        </Button>
+                                                    </div>
                                                 </FormControl>
                                             </FormItem>
                                         )}

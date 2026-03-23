@@ -2,14 +2,14 @@ import { Router } from "express";
 import "./orders.docs";
 import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { 
-    CreateOrderSchema, 
-    GetOrdersQuerySchema, 
-    ConfirmOrderSchema, 
-    idParamSchema, 
-    OrderIdParamSchema, 
-    PatchOrderSchema, 
-    ReprintOrderSchema 
+import {
+    CreateOrderSchema,
+    GetOrdersQuerySchema,
+    ConfirmOrderSchema,
+    idParamSchema,
+    OrderIdParamSchema,
+    PatchOrderSchema,
+    ReprintOrderSchema
 } from "@mysagra/schemas";
 import { OrdersController } from "@/modules/orders/orders.controller";
 import { OrdersService } from "@/modules/orders/orders.service";
@@ -37,6 +37,7 @@ router.get(
 
 router.post(
     "/",
+    authenticate(["admin", "maintainer", "operator"], ["ms_wb_"]),
     validateRequest({
         body: CreateOrderSchema
     }),
@@ -74,7 +75,7 @@ router.delete(
 
 router.post(
     "/:id/reprint",
-    authenticate(["admin", "maintainer", "operator"]),
+    authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     validateRequest({
         params: idParamSchema,
         body: ReprintOrderSchema

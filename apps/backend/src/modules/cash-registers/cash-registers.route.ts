@@ -17,7 +17,7 @@ const router = Router();
 
 router.get(
     "/",
-    authenticate(["admin", "maintainer", "operator"]),
+    authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     validateRequest({
         query: GetCashRegisterQuerySchema
     }),
@@ -26,7 +26,7 @@ router.get(
 
 router.get(
     "/:id",
-    authenticate(["admin", "maintainer", "operator"]),
+    authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     validateRequest({
         params: cuidParamSchema,
         query: GetCashRegisterQuerySchema

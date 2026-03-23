@@ -10,24 +10,28 @@ import {
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
-
+import { redisClient } from "@/lib/redis";
 export class OrdersService {
     private cashierEvent = EventsService.getIstance('cashier');
     private displayEvent = EventsService.getIstance('display');
     private printerEvent = EventsService.getIstance('printer');
 
     private async _getNextTicketNumber(tx: Prisma.TransactionClient): Promise<number> {
-        const today = new Date();
-        today.setHours(12, 0, 0, 0);
-        const dateOnly = new Date(today.toISOString().split('T')[0]);
+        const today = new Date().toISOString().split('T')[0];
+        const redisKey = `ticket_counter:${today}`;
 
-        const ticketCount = await tx.dailyTicketCounter.upsert({
-            where: { date: dateOnly },
-            create: { date: dateOnly, counter: 1 },
-            update: { counter: { increment: 1 } }
-        })
+        const ticketNumber = await redisClient.incr(redisKey);
 
-        return ticketCount.counter;
+        if (ticketNumber === 1) {
+            const now = new Date();
+            const expireAt = new Date(now);
+            expireAt.setDate(expireAt.getDate() + 1);
+            expireAt.setHours(6, 0, 0, 0);
+            const secondsUntilExpiry = Math.floor((expireAt.getTime() - now.getTime()) / 1000);
+            await redisClient.expire(redisKey, secondsUntilExpiry);
+        }
+
+        return ticketNumber;
     }
 
     async getOrders(queryParams: GetOrdersQueryParams) {

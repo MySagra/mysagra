@@ -23,7 +23,7 @@ registry.registerPath({
     path: "/v1/printers",
     summary: "Get all printers",
     tags: ["Printers"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     responses: {
         200: {
             description: "List of printers",
@@ -42,7 +42,7 @@ registry.registerPath({
     path: "/v1/printers/{id}",
     summary: "Get printer by ID",
     tags: ["Printers"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     request: { params: CUIDParam },
     responses: {
         200: {
@@ -87,7 +87,7 @@ registry.registerPath({
     path: "/v1/printers/{id}",
     summary: "Update printer by ID",
     tags: ["Printers"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     request: {
         params: CUIDParam,
         body: {
@@ -115,7 +115,7 @@ registry.registerPath({
     summary: "Update printer status",
     description: "Updates the operational status of a printer (ONLINE, OFFLINE, ERROR).",
     tags: ["Printers"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     request: {
         params: CUIDParam,
         body: {

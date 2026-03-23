@@ -1,14 +1,23 @@
 "use server";
 
 import { fetchApi } from "@/lib/api";
-import { API_ENDPOINTS } from "@/lib/api-types";
+import { API_ENDPOINTS, CreateApiKeyResponse } from "@/lib/api-types";
 import { UserResponseSchema, RoleResponseSchema } from "@mysagra/schemas";
 import { z } from "zod";
 
 export async function setupNewAdmin(
   username: string,
-  password: string
-): Promise<{ success: boolean; error?: string }> {
+  password: string,
+  options: { generatePrinterKey: boolean; generateWebappKey: boolean } = {
+    generatePrinterKey: true,
+    generateWebappKey: true,
+  }
+): Promise<{
+  success: boolean;
+  error?: string;
+  printerKey?: string;
+  webappKey?: string;
+}> {
   try {
     // 1. Fetch all roles to find the admin role ID
     const roles = await fetchApi<z.infer<typeof RoleResponseSchema>[]>(
@@ -56,7 +65,27 @@ export async function setupNewAdmin(
       method: "DELETE",
     });
 
-    return { success: true };
+    // 5. Optionally generate initial API keys
+    const [printerKeyResult, webappKeyResult] = await Promise.all([
+      options.generatePrinterKey
+        ? fetchApi<CreateApiKeyResponse>(API_ENDPOINTS.API_KEYS.ALL, {
+            method: "POST",
+            body: JSON.stringify({ name: "Servizio Stampanti", type: "PRINTER" }),
+          })
+        : Promise.resolve(null),
+      options.generateWebappKey
+        ? fetchApi<CreateApiKeyResponse>(API_ENDPOINTS.API_KEYS.ALL, {
+            method: "POST",
+            body: JSON.stringify({ name: "Webapp Clienti", type: "WEBAPP" }),
+          })
+        : Promise.resolve(null),
+    ]);
+
+    return {
+      success: true,
+      printerKey: printerKeyResult?.apiKey,
+      webappKey: webappKeyResult?.apiKey,
+    };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Errore sconosciuto";

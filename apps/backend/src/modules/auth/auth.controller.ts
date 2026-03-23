@@ -16,8 +16,8 @@ export class AuthController {
         const user = await this.authService.getUser(username);
 
         if (!user) {
-            res.status(404).json({
-                message: "User not exist"
+            res.status(401).json({
+                message: "Invalid Credentials"
             })
             return;
         }
@@ -50,29 +50,16 @@ export class AuthController {
         req: TypedRequest<{}>,
         res: Response,
     ): Promise<void> => {
+        const token = req.cookies.mysagra_token;
+
         res.clearCookie('mysagra_token', {
             path: '/',
             sameSite: 'lax',
             secure: env.NODE_ENV === 'production',
             httpOnly: true
         });
+
+        await this.authService.logout(token);
         res.status(200).json({ message: "Logged out successfully" });
     });
-
-    /*
-    refresh = asyncHandler(async (
-        req: TypedRequest<{}>,
-        res: Response,
-    ): Promise<void> => {
-        const { refreshToken } = req.cookies;
-        const accessToken = await this.authService.refresh(refreshToken)
-
-        if (!accessToken) {
-            res.status(401).json({ message: "Refresh token not valid" });
-            return;
-        }
-
-        res.status(200).json({ accessToken });
-    });
-    */
 }

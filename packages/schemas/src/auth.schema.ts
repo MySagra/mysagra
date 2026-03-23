@@ -1,4 +1,3 @@
-
 import { z } from 'zod'
 import { RoleEnum } from './role.schema'
 
@@ -30,7 +29,8 @@ export const TokenPayloadSchema = z.object({
     sub: z.string().meta({ description: "Subject — the user's unique identifier" }),
     username: z.string().meta({ description: "The user's username" }),
     role: RoleEnum,
-    iat: z.number().meta({ description: "Issued-at timestamp (Unix epoch seconds)" })
+    iat: z.number().meta({ description: "Issued-at timestamp (Unix epoch seconds)" }),
+    exp: z.number().meta({ description: "Expiration timestamp (Unix epoch seconds)" })
 }).meta({
     id: "TokenPayload",
     description: "Decoded JWT access-token payload"

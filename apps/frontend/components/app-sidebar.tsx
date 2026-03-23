@@ -27,21 +27,21 @@ import {
   HomeIcon,
   LifeBuoyIcon,
   Github,
+  KeyRoundIcon,
 } from "lucide-react"
-import { useSession } from "next-auth/react"
 import { useLocale } from "@/contexts/locale-context"
-import { useRole } from "@/hooks/use-role"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession()
+type AppRole = "admin" | "maintainer" | null
+
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: { name: string; email: string; avatar: string }
+  userRole: AppRole
+}
+
+export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
   const { t } = useLocale()
-  const { canManageUsers, canManageCategories } = useRole()
 
-  const user = {
-    name: session?.user?.name || "Admin",
-    email: session?.user?.email || "",
-    avatar: "",
-  }
+  const isAdmin = userRole === "admin"
 
   const navItems = {
     home: [
@@ -52,7 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     ],
     cucina: [
-      ...(canManageCategories
+      ...(isAdmin
         ? [{ title: t.nav.categories, url: "/dashboard/categories", icon: LayoutGridIcon }]
         : []),
       {
@@ -84,8 +84,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: "/dashboard/printers",
         icon: PrinterIcon,
       },
-      ...(canManageUsers
+      ...(isAdmin
         ? [{ title: t.nav.users, url: "/dashboard/users", icon: UsersIcon }]
+        : []),
+      ...(isAdmin
+        ? [{ title: t.nav.apiKeys, url: "/dashboard/api-keys", icon: KeyRoundIcon }]
         : []),
     ],
     navSecondary: [

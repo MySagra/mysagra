@@ -93,9 +93,10 @@ registry.registerPath({
     path: "/v1/orders",
     summary: "Create a new order",
     description:
-        "Creates a new order in PENDING status. If `confirm` data is provided the order is immediately confirmed and a ticket number is assigned.",
+        "Creates a new order in PENDING status. If `confirm` data is provided the order is immediately confirmed and a ticket number is assigned.\n\n" +
+        "**API key authentication (`ms_wb_`):** only unconfirmed (PENDING) orders can be created — the `confirm` field is ignored.",
     tags: ["Orders"],
-    security: [{ cookieAuth: [] }],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
     request: {
         body: {
             required: true,

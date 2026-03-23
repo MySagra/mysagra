@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma_client"
@@ -129,12 +123,6 @@ model OrderItem {
   @@map("order_items")
 }
 
-model DailyTicketCounter {
-  id      String   @id @default(cuid())
-  date    DateTime @unique @db.Date
-  counter Int      @default(0)
-}
-
 //users sections
 model Role {
   id   String @id @default(cuid())
@@ -150,8 +138,8 @@ model User {
   username String @unique
   password String
 
-  role          Role           @relation(fields: [roleId], references: [id])
-  roleId        String
+  role   Role   @relation(fields: [roleId], references: [id])
+  roleId String
 
   orders Order[]
 
@@ -190,4 +178,24 @@ model CashRegister {
   orders Order[]
 
   @@map("cash_registers")
+}
+
+enum KeyTypes {
+  PRINTER
+  WEBAPP
+}
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  hash_key    String   @unique
+  prefix      String
+  last_digits String
+  type        KeyTypes
+
+  name       String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  @@map("api_keys")
 }

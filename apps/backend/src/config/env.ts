@@ -15,15 +15,17 @@ const envSchema = z.object({
     JWT_SECRET: z.string(),
     ALLOWED_ORIGINS: z.preprocess(
         (val) => typeof val === 'string' ? val.split(',').map(url => url.trim()) : [],
-        z.array(z.string().url())
+        z.array(z.url())
     ),
     TRUST_PROXY_LEVEL: z.preprocess(
         (val) => val === undefined ? undefined : Number(val),
         z.number().int().min(0).optional()
     ),
+    REDIS_URL: z.url(),
+    REDIS_CACHE_TTL: z.number().default(60 * 60 * 24)
 }).strip()
 
-const { success, error, data } = envSchema.safeParse(process.env)
+const { error, data } = envSchema.safeParse(process.env)
 
 if (error) {
     console.error(`Error during validation of .env variables: `, error);
@@ -37,5 +39,7 @@ export const env = {
     PEPPER: data.PEPPER,
     JWT_SECRET: data.JWT_SECRET,
     ALLOWED_ORIGINS: data.ALLOWED_ORIGINS,
-    TRUST_PROXY_LEVEL: data.TRUST_PROXY_LEVEL
+    TRUST_PROXY_LEVEL: data.TRUST_PROXY_LEVEL,
+    REDIS_URL: data.REDIS_URL,
+    REDIS_CACHE_TTL: data.REDIS_CACHE_TTL
 }
