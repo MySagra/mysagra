@@ -164,7 +164,8 @@ export interface PaginatedOrders {
 export interface Printer {
   id: string;
   name: string;
-  ip: string;
+  ip?: string;
+  mac?: string;
   port: number;
   description?: string;
   status: "ONLINE" | "OFFLINE" | "ERROR";
@@ -172,7 +173,8 @@ export interface Printer {
 
 export interface PrinterRequest {
   name: string;
-  ip: string;
+  ip?: string;
+  mac?: string;
   port: number;
   description?: string;
   status?: "ONLINE" | "OFFLINE" | "ERROR";

@@ -1277,6 +1277,7 @@ export const PrinterScalarFieldEnum = {
   id: 'id',
   name: 'name',
   ip: 'ip',
+  mac: 'mac',
   port: 'port',
   description: 'description',
   status: 'status'
@@ -1405,6 +1406,7 @@ export const PrinterOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
   ip: 'ip',
+  mac: 'mac',
   description: 'description'
 } as const
 

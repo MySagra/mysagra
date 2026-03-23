@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { MacAddressInput } from "@/components/ui/mac-address-input";
 import { Button } from "@/components/ui/button";
 import {
   FormField,
@@ -60,7 +61,16 @@ export function PrinterDialog({
 
   const printerSchema = z.object({
     name: z.string().min(1, t.printers.nameRequired),
-    ip: z.string().regex(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, t.printers.ipInvalid),
+    ip: z
+      .string()
+      .regex(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, t.printers.ipInvalid)
+      .optional()
+      .or(z.literal("")),
+    mac: z
+      .string()
+      .regex(/^([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}$/, t.printers.macInvalid)
+      .optional()
+      .or(z.literal("")),
     port: z.coerce
       .number()
       .int()
@@ -75,6 +85,7 @@ export function PrinterDialog({
     defaultValues: {
       name: "",
       ip: "",
+      mac: "",
       port: 9100,
       description: "",
     },
@@ -84,7 +95,8 @@ export function PrinterDialog({
     if (printer) {
       form.reset({
         name: printer.name,
-        ip: printer.ip,
+        ip: printer.ip ?? "",
+        mac: printer.mac ?? "",
         port: printer.port,
         description: printer.description || "",
       });
@@ -92,6 +104,7 @@ export function PrinterDialog({
       form.reset({
         name: "",
         ip: "",
+        mac: "",
         port: 9100,
         description: "",
       });
@@ -100,9 +113,12 @@ export function PrinterDialog({
 
   async function onSubmit(values: PrinterFormValues) {
     try {
+      const ip = (values.ip as string | undefined)?.trim();
+      const mac = (values.mac as string | undefined)?.trim();
       const data = {
         name: values.name.trim(),
-        ip: values.ip.trim(),
+        ...(ip ? { ip } : {}),
+        ...(mac ? { mac } : {}),
         port: values.port as number,
         description: (values.description as string | undefined)?.trim() ?? "",
       };
@@ -150,7 +166,7 @@ export function PrinterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.printers.nameLabel}</FieldLabel>
+                        <FieldLabel required>{t.printers.nameLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -180,11 +196,29 @@ export function PrinterDialog({
                 />
                 <FormField
                   control={form.control}
+                  name="mac"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Field>
+                        <FieldLabel>{t.printers.macLabel}</FieldLabel>
+                        <FormControl>
+                          <MacAddressInput
+                            value={field.value as string ?? ""}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </Field>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="port"
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.printers.portLabel}</FieldLabel>
+                        <FieldLabel required>{t.printers.portLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}

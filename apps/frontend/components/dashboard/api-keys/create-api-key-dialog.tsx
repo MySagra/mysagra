@@ -137,7 +137,7 @@ export function CreateApiKeyDialog({
                     render={({ field }) => (
                       <FormItem>
                         <Field>
-                          <FieldLabel>{t.apiKeys.nameLabel}</FieldLabel>
+                          <FieldLabel required>{t.apiKeys.nameLabel}</FieldLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -156,7 +156,7 @@ export function CreateApiKeyDialog({
                     render={({ field }) => (
                       <FormItem>
                         <Field>
-                          <FieldLabel>{t.apiKeys.typeLabel}</FieldLabel>
+                          <FieldLabel required>{t.apiKeys.typeLabel}</FieldLabel>
                           <FormControl>
                             <div className="grid grid-cols-2 gap-3">
                               {TYPE_OPTIONS.map(({ value, icon: Icon, labelKey, descKey }) => (

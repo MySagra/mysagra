@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `printers` ADD COLUMN `mac` VARCHAR(191) NULL,
+    MODIFY `ip` VARCHAR(191) NULL;

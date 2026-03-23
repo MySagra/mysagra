@@ -134,7 +134,7 @@ export function UserDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.users.usernameLabel}</FieldLabel>
+                        <FieldLabel required>{t.users.usernameLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -153,7 +153,7 @@ export function UserDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.users.passwordLabel}</FieldLabel>
+                        <FieldLabel required={!isEditing}>{t.users.passwordLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -179,7 +179,7 @@ export function UserDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.users.roleLabel}</FieldLabel>
+                        <FieldLabel required>{t.users.roleLabel}</FieldLabel>
                         <FormControl>
                           <Select
                             value={field.value}
