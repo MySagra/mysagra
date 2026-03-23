@@ -173,8 +173,8 @@ export interface Printer {
 
 export interface PrinterRequest {
   name: string;
-  ip?: string;
-  mac?: string;
+  ip?: string | null;
+  mac?: string | null;
   port: number;
   description?: string;
   status?: "ONLINE" | "OFFLINE" | "ERROR";

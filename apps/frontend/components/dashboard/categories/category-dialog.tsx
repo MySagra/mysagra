@@ -17,16 +17,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -86,7 +76,6 @@ export function CategoryDialog({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const categorySchema = z.object({
     name: z.string().min(1, t.categories.nameRequired),
@@ -193,17 +182,8 @@ export function CategoryDialog({
     }
   }
 
-  function handleDeleteConfirm() {
-    if (category && onDelete) {
-      setShowDeleteConfirm(false);
-      onDelete(category);
-      onOpenChange(false);
-    }
-  }
-
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl select-none">
@@ -343,7 +323,7 @@ export function CategoryDialog({
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={() => setShowDeleteConfirm(true)}
+                    onClick={() => { onDelete!(category!); onOpenChange(false); }}
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
@@ -369,28 +349,5 @@ export function CategoryDialog({
           </FormProvider>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.categories.confirmDeletionTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.categories.confirmDeletionDescription} <span className="font-bold">{category?.name}</span>?
-              <br />
-              {t.categories.cannotUndo}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              variant="destructive"
-            >
-              {t.common.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 }

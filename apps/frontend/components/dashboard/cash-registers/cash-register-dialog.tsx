@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
@@ -16,16 +16,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -74,7 +64,6 @@ export function CashRegisterDialog({
   const { t } = useLocale();
   const { canDelete } = useRole();
   const isEditing = !!cashRegister;
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const cashRegisterSchema = z.object({
     name: z.string().min(1, t.cashRegisters.nameRequired),
@@ -129,17 +118,8 @@ export function CashRegisterDialog({
     }
   }
 
-  function handleDeleteConfirm() {
-    if (cashRegister && onDelete) {
-      setShowDeleteConfirm(false);
-      onDelete(cashRegister);
-      onOpenChange(false);
-    }
-  }
-
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl">
@@ -227,7 +207,7 @@ export function CashRegisterDialog({
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={() => setShowDeleteConfirm(true)}
+                    onClick={() => { onDelete!(cashRegister!); onOpenChange(false); }}
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
@@ -253,28 +233,5 @@ export function CashRegisterDialog({
           </FormProvider>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.cashRegisters.confirmDeletionTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.cashRegisters.confirmDeletionDescription} <span className="font-bold">{cashRegister?.name}</span>?
-              <br />
-              {t.cashRegisters.cannotUndo}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              variant="destructive"
-            >
-              {t.common.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 }
