@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
@@ -13,16 +13,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash2Icon } from "lucide-react";
@@ -59,7 +49,6 @@ export function IngredientDialog({
   const { t } = useLocale();
   const { canDelete } = useRole();
   const isEditing = !!ingredient;
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const ingredientSchema = z.object({
     name: z.string().min(1, t.ingredients.nameRequired),
@@ -102,17 +91,8 @@ export function IngredientDialog({
     }
   }
 
-  function handleDeleteConfirm() {
-    if (ingredient && onDelete) {
-      setShowDeleteConfirm(false);
-      onDelete(ingredient);
-      onOpenChange(false);
-    }
-  }
-
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl">
@@ -147,7 +127,7 @@ export function IngredientDialog({
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={() => setShowDeleteConfirm(true)}
+                    onClick={() => { onDelete!(ingredient!); onOpenChange(false); }}
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
@@ -173,28 +153,5 @@ export function IngredientDialog({
           </FormProvider>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.ingredients.confirmDeletionTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.ingredients.confirmDeletionDescription} <span className="font-bold">{ingredient?.name}</span>?
-              <br />
-              {t.ingredients.cannotUndo}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              variant="destructive"
-            >
-              {t.common.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 }

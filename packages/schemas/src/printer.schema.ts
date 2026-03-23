@@ -15,11 +15,11 @@ const PrinterBase = {
     ip: z.ipv4().meta({
         description: "IPv4 address of the printer",
         example: "192.168.1.100"
-    }).optional(),
+    }).optional().nullable(),
     mac: z.mac().meta({
         description: "MAC address of the printer",
         example: "AA:BB:00:F2:11:66"
-    }).optional(),
+    }).optional().nullable(),
     port: z.number().int().min(0).max(65535).default(9100).meta({
         description: "Port number for printer communication",
         example: 9100

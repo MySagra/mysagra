@@ -13,16 +13,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -81,7 +71,6 @@ export function FoodDialog({
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [selectedPrinterId, setSelectedPrinterId] = useState<string | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const foodSchema = z.object({
     name: z.string().min(1, t.foods.nameRequired),
@@ -166,17 +155,8 @@ export function FoodDialog({
     }
   }
 
-  function handleDeleteConfirm() {
-    if (food && onDelete) {
-      setShowDeleteConfirm(false);
-      onDelete(food);
-      onOpenChange(false);
-    }
-  }
-
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl">
@@ -367,7 +347,7 @@ export function FoodDialog({
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={() => setShowDeleteConfirm(true)}
+                    onClick={() => { onDelete!(food!); onOpenChange(false); }}
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
@@ -393,28 +373,5 @@ export function FoodDialog({
           </FormProvider>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.foods.confirmDeletionTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.foods.confirmDeletionDescription} <span className="font-bold">{food?.name}</span>?
-              <br />
-              {t.foods.cannotUndo}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              variant="destructive"
-            >
-              {t.common.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 }

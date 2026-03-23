@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm, FormProvider, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
@@ -13,16 +13,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { MacAddressInput } from "@/components/ui/mac-address-input";
 import { Button } from "@/components/ui/button";
@@ -57,7 +47,6 @@ export function PrinterDialog({
   const { t } = useLocale();
   const { canDelete } = useRole();
   const isEditing = !!printer;
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const printerSchema = z.object({
     name: z.string().min(1, t.printers.nameRequired),
@@ -113,14 +102,15 @@ export function PrinterDialog({
 
   async function onSubmit(values: PrinterFormValues) {
     try {
-      const ip = (values.ip as string | undefined)?.trim();
-      const mac = (values.mac as string | undefined)?.trim();
+      const ip = (values.ip as string | undefined)?.trim() || null;
+      const mac = (values.mac as string | undefined)?.trim() || null;
+      const description = (values.description as string | undefined)?.trim() || undefined;
       const data = {
         name: values.name.trim(),
-        ...(ip ? { ip } : {}),
-        ...(mac ? { mac } : {}),
+        ip,
+        mac,
         port: values.port as number,
-        description: (values.description as string | undefined)?.trim() ?? "",
+        description,
       };
 
       if (isEditing && printer) {
@@ -140,17 +130,8 @@ export function PrinterDialog({
     }
   }
 
-  function handleDeleteConfirm() {
-    if (printer && onDelete) {
-      setShowDeleteConfirm(false);
-      onDelete(printer);
-      onOpenChange(false);
-    }
-  }
-
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -255,7 +236,7 @@ export function PrinterDialog({
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={() => setShowDeleteConfirm(true)}
+                    onClick={() => { onDelete!(printer!); onOpenChange(false); }}
                     className="mr-auto"
                   >
                     <Trash2Icon className="h-4 w-4 mr-2" />
@@ -281,28 +262,5 @@ export function PrinterDialog({
           </FormProvider>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.printers.confirmDeletionTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.printers.confirmDeletionDescription} <span className="font-bold">{printer?.name}</span>?
-              <br />
-              {t.printers.cannotUndo}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              variant="destructive"
-            >
-              {t.common.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 }
