@@ -157,7 +157,7 @@ export function CashRegisterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.cashRegisters.nameLabel}</FieldLabel>
+                        <FieldLabel required>{t.cashRegisters.nameLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -198,7 +198,7 @@ export function CashRegisterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.cashRegisters.cashPrinterLabel}</FieldLabel>
+                        <FieldLabel required>{t.cashRegisters.cashPrinterLabel}</FieldLabel>
                         <FormControl>
                           <Select
                             value={field.value}

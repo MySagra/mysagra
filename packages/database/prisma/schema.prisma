@@ -155,7 +155,8 @@ enum PrinterStatus {
 model Printer {
   id          String        @id @default(cuid())
   name        String        @unique
-  ip          String
+  ip          String?
+  mac         String?
   port        Int           @default(9100)
   description String?
   status      PrinterStatus @default(ONLINE)

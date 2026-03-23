@@ -38,6 +38,7 @@ export type PrinterMinAggregateOutputType = {
   id: string | null
   name: string | null
   ip: string | null
+  mac: string | null
   port: number | null
   description: string | null
   status: $Enums.PrinterStatus | null
@@ -47,6 +48,7 @@ export type PrinterMaxAggregateOutputType = {
   id: string | null
   name: string | null
   ip: string | null
+  mac: string | null
   port: number | null
   description: string | null
   status: $Enums.PrinterStatus | null
@@ -56,6 +58,7 @@ export type PrinterCountAggregateOutputType = {
   id: number
   name: number
   ip: number
+  mac: number
   port: number
   description: number
   status: number
@@ -75,6 +78,7 @@ export type PrinterMinAggregateInputType = {
   id?: true
   name?: true
   ip?: true
+  mac?: true
   port?: true
   description?: true
   status?: true
@@ -84,6 +88,7 @@ export type PrinterMaxAggregateInputType = {
   id?: true
   name?: true
   ip?: true
+  mac?: true
   port?: true
   description?: true
   status?: true
@@ -93,6 +98,7 @@ export type PrinterCountAggregateInputType = {
   id?: true
   name?: true
   ip?: true
+  mac?: true
   port?: true
   description?: true
   status?: true
@@ -188,7 +194,8 @@ export type PrinterGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type PrinterGroupByOutputType = {
   id: string
   name: string
-  ip: string
+  ip: string | null
+  mac: string | null
   port: number
   description: string | null
   status: $Enums.PrinterStatus
@@ -220,7 +227,8 @@ export type PrinterWhereInput = {
   NOT?: Prisma.PrinterWhereInput | Prisma.PrinterWhereInput[]
   id?: Prisma.StringFilter<"Printer"> | string
   name?: Prisma.StringFilter<"Printer"> | string
-  ip?: Prisma.StringFilter<"Printer"> | string
+  ip?: Prisma.StringNullableFilter<"Printer"> | string | null
+  mac?: Prisma.StringNullableFilter<"Printer"> | string | null
   port?: Prisma.IntFilter<"Printer"> | number
   description?: Prisma.StringNullableFilter<"Printer"> | string | null
   status?: Prisma.EnumPrinterStatusFilter<"Printer"> | $Enums.PrinterStatus
@@ -232,7 +240,8 @@ export type PrinterWhereInput = {
 export type PrinterOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  ip?: Prisma.SortOrder
+  ip?: Prisma.SortOrderInput | Prisma.SortOrder
+  mac?: Prisma.SortOrderInput | Prisma.SortOrder
   port?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -248,7 +257,8 @@ export type PrinterWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PrinterWhereInput | Prisma.PrinterWhereInput[]
   OR?: Prisma.PrinterWhereInput[]
   NOT?: Prisma.PrinterWhereInput | Prisma.PrinterWhereInput[]
-  ip?: Prisma.StringFilter<"Printer"> | string
+  ip?: Prisma.StringNullableFilter<"Printer"> | string | null
+  mac?: Prisma.StringNullableFilter<"Printer"> | string | null
   port?: Prisma.IntFilter<"Printer"> | number
   description?: Prisma.StringNullableFilter<"Printer"> | string | null
   status?: Prisma.EnumPrinterStatusFilter<"Printer"> | $Enums.PrinterStatus
@@ -260,7 +270,8 @@ export type PrinterWhereUniqueInput = Prisma.AtLeast<{
 export type PrinterOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  ip?: Prisma.SortOrder
+  ip?: Prisma.SortOrderInput | Prisma.SortOrder
+  mac?: Prisma.SortOrderInput | Prisma.SortOrder
   port?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -277,7 +288,8 @@ export type PrinterScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PrinterScalarWhereWithAggregatesInput | Prisma.PrinterScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Printer"> | string
   name?: Prisma.StringWithAggregatesFilter<"Printer"> | string
-  ip?: Prisma.StringWithAggregatesFilter<"Printer"> | string
+  ip?: Prisma.StringNullableWithAggregatesFilter<"Printer"> | string | null
+  mac?: Prisma.StringNullableWithAggregatesFilter<"Printer"> | string | null
   port?: Prisma.IntWithAggregatesFilter<"Printer"> | number
   description?: Prisma.StringNullableWithAggregatesFilter<"Printer"> | string | null
   status?: Prisma.EnumPrinterStatusWithAggregatesFilter<"Printer"> | $Enums.PrinterStatus
@@ -286,7 +298,8 @@ export type PrinterScalarWhereWithAggregatesInput = {
 export type PrinterCreateInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -298,7 +311,8 @@ export type PrinterCreateInput = {
 export type PrinterUncheckedCreateInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -310,7 +324,8 @@ export type PrinterUncheckedCreateInput = {
 export type PrinterUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -322,7 +337,8 @@ export type PrinterUpdateInput = {
 export type PrinterUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -334,7 +350,8 @@ export type PrinterUncheckedUpdateInput = {
 export type PrinterCreateManyInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -343,7 +360,8 @@ export type PrinterCreateManyInput = {
 export type PrinterUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -352,7 +370,8 @@ export type PrinterUpdateManyMutationInput = {
 export type PrinterUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -373,6 +392,7 @@ export type PrinterCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ip?: Prisma.SortOrder
+  mac?: Prisma.SortOrder
   port?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -386,6 +406,7 @@ export type PrinterMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ip?: Prisma.SortOrder
+  mac?: Prisma.SortOrder
   port?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -395,6 +416,7 @@ export type PrinterMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ip?: Prisma.SortOrder
+  mac?: Prisma.SortOrder
   port?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -459,7 +481,8 @@ export type PrinterUpdateOneWithoutCashRegistersNestedInput = {
 export type PrinterCreateWithoutCategoriesInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -470,7 +493,8 @@ export type PrinterCreateWithoutCategoriesInput = {
 export type PrinterUncheckedCreateWithoutCategoriesInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -497,7 +521,8 @@ export type PrinterUpdateToOneWithWhereWithoutCategoriesInput = {
 export type PrinterUpdateWithoutCategoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -508,7 +533,8 @@ export type PrinterUpdateWithoutCategoriesInput = {
 export type PrinterUncheckedUpdateWithoutCategoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -519,7 +545,8 @@ export type PrinterUncheckedUpdateWithoutCategoriesInput = {
 export type PrinterCreateWithoutFoodsInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -530,7 +557,8 @@ export type PrinterCreateWithoutFoodsInput = {
 export type PrinterUncheckedCreateWithoutFoodsInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -557,7 +585,8 @@ export type PrinterUpdateToOneWithWhereWithoutFoodsInput = {
 export type PrinterUpdateWithoutFoodsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -568,7 +597,8 @@ export type PrinterUpdateWithoutFoodsInput = {
 export type PrinterUncheckedUpdateWithoutFoodsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -579,7 +609,8 @@ export type PrinterUncheckedUpdateWithoutFoodsInput = {
 export type PrinterCreateWithoutCashRegistersInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -590,7 +621,8 @@ export type PrinterCreateWithoutCashRegistersInput = {
 export type PrinterUncheckedCreateWithoutCashRegistersInput = {
   id?: string
   name: string
-  ip: string
+  ip?: string | null
+  mac?: string | null
   port?: number
   description?: string | null
   status?: $Enums.PrinterStatus
@@ -617,7 +649,8 @@ export type PrinterUpdateToOneWithWhereWithoutCashRegistersInput = {
 export type PrinterUpdateWithoutCashRegistersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -628,7 +661,8 @@ export type PrinterUpdateWithoutCashRegistersInput = {
 export type PrinterUncheckedUpdateWithoutCashRegistersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ip?: Prisma.StringFieldUpdateOperationsInput | string
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   port?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPrinterStatusFieldUpdateOperationsInput | $Enums.PrinterStatus
@@ -689,6 +723,7 @@ export type PrinterSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   name?: boolean
   ip?: boolean
+  mac?: boolean
   port?: boolean
   description?: boolean
   status?: boolean
@@ -704,12 +739,13 @@ export type PrinterSelectScalar = {
   id?: boolean
   name?: boolean
   ip?: boolean
+  mac?: boolean
   port?: boolean
   description?: boolean
   status?: boolean
 }
 
-export type PrinterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "ip" | "port" | "description" | "status", ExtArgs["result"]["printer"]>
+export type PrinterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "ip" | "mac" | "port" | "description" | "status", ExtArgs["result"]["printer"]>
 export type PrinterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cashRegisters?: boolean | Prisma.Printer$cashRegistersArgs<ExtArgs>
   foods?: boolean | Prisma.Printer$foodsArgs<ExtArgs>
@@ -727,7 +763,8 @@ export type $PrinterPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    ip: string
+    ip: string | null
+    mac: string | null
     port: number
     description: string | null
     status: $Enums.PrinterStatus
@@ -1106,6 +1143,7 @@ export interface PrinterFieldRefs {
   readonly id: Prisma.FieldRef<"Printer", 'String'>
   readonly name: Prisma.FieldRef<"Printer", 'String'>
   readonly ip: Prisma.FieldRef<"Printer", 'String'>
+  readonly mac: Prisma.FieldRef<"Printer", 'String'>
   readonly port: Prisma.FieldRef<"Printer", 'Int'>
   readonly description: Prisma.FieldRef<"Printer", 'String'>
   readonly status: Prisma.FieldRef<"Printer", 'PrinterStatus'>

@@ -214,7 +214,7 @@ export function CategoryDialog({
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <FieldGroup className="py-2">
                 <Field>
-                  <FieldLabel htmlFor="name">{t.categories.nameLabel}</FieldLabel>
+                  <FieldLabel htmlFor="name" required>{t.categories.nameLabel}</FieldLabel>
                   <FormField
                     control={form.control}
                     name="name"

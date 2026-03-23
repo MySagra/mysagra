@@ -192,7 +192,7 @@ export function FoodDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.foods.nameLabel}</FieldLabel>
+                        <FieldLabel required>{t.foods.nameLabel}</FieldLabel>
                         <FormControl>
                           <Input {...field} placeholder={t.foods.namePlaceholder} autoFocus />
                         </FormControl>
@@ -250,7 +250,7 @@ export function FoodDialog({
                     render={({ field }) => (
                       <FormItem>
                         <Field>
-                          <FieldLabel>{t.foods.priceLabel}</FieldLabel>
+                          <FieldLabel required>{t.foods.priceLabel}</FieldLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -273,7 +273,7 @@ export function FoodDialog({
                     render={({ field }) => (
                       <FormItem>
                         <Field>
-                          <FieldLabel>{t.foods.categoryLabel}</FieldLabel>
+                          <FieldLabel required>{t.foods.categoryLabel}</FieldLabel>
                           <FormControl>
                             <Select
                               value={field.value}

@@ -128,7 +128,7 @@ export function IngredientDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel>{t.ingredients.nameLabel}</FieldLabel>
+                        <FieldLabel required>{t.ingredients.nameLabel}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}
