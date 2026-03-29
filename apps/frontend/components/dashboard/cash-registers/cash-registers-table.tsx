@@ -194,7 +194,9 @@ export function CashRegistersTable({
                   <PencilIcon className="h-4 w-4" />
                 </Button>
               </TableCell>
-              <TableCell className="font-medium">{cr.name}</TableCell>
+              <TableCell className="font-medium max-w-48">
+                <span className="block truncate" title={cr.name}>{cr.name}</span>
+              </TableCell>
               <TableCell>
                 <Badge variant="outline">
                   {cr.defaultPrinter

@@ -249,12 +249,14 @@ export function PrintersTable({
                   </Button>
                 )}
               </TableCell>
-              <TableCell className="font-medium">{printer.name}</TableCell>
+              <TableCell className="font-medium max-w-48">
+                <span className="block truncate" title={printer.name}>{printer.name}</span>
+              </TableCell>
               <TableCell className="font-mono text-sm hidden md:table-cell">{printer.ip || "-"}</TableCell>
               <TableCell className="font-mono text-sm hidden lg:table-cell">{printer.mac || "-"}</TableCell>
               <TableCell className="text-center hidden md:table-cell">{printer.port}</TableCell>
-              <TableCell className="text-muted-foreground text-sm hidden md:table-cell">
-                {printer.description || "-"}
+              <TableCell className="text-muted-foreground text-sm hidden md:table-cell max-w-48">
+                <span className="block truncate" title={printer.description ?? undefined}>{printer.description || "-"}</span>
               </TableCell>
               <TableCell className="text-center">
                 <Select

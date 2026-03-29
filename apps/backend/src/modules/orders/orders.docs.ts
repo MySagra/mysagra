@@ -3,6 +3,7 @@ import { registry } from "@/config/swagger";
 import {
     OrderResponseSchema,
     OrderItemResponseSchema,
+    OrderDetailResponseSchema,
     CreateOrderSchema,
     ConfirmOrderSchema,
     PatchOrderSchema,
@@ -15,6 +16,7 @@ import {
 
 const OrderResponse = registry.register("OrderResponse", OrderResponseSchema);
 registry.register("OrderItemResponse", OrderItemResponseSchema);
+const OrderDetailResponse = registry.register("OrderDetailResponse", OrderDetailResponseSchema);
 const CreateOrderRequest = registry.register("CreateOrderRequest", CreateOrderSchema);
 const ConfirmOrderRequest = registry.register("ConfirmOrderRequest", ConfirmOrderSchema);
 const PatchOrderRequest = registry.register("PatchOrderRequest", PatchOrderSchema);
@@ -70,15 +72,15 @@ registry.registerPath({
     path: "/v1/orders/{id}",
     summary: "Get order details by ID",
     description:
-        "Returns the complete order with items grouped by category, including full food and ingredient details.",
+        "Returns the complete order with items grouped by food category. Each category group contains the full food details (name, price, description, ingredients) and per-item pricing.",
     tags: ["Orders"],
     security: [{ cookieAuth: [] }],
     request: { params: OrderIdParam },
     responses: {
         200: {
-            description: "Full order details",
+            description: "Full order details with categorized items",
             content: {
-                "application/json": { schema: OrderResponse },
+                "application/json": { schema: OrderDetailResponse },
             },
         },
         400: { description: "Invalid order ID" },

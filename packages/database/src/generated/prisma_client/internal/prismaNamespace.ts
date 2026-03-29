@@ -1227,6 +1227,7 @@ export const OrderScalarFieldEnum = {
   customer: 'customer',
   createdAt: 'createdAt',
   confirmedAt: 'confirmedAt',
+  completedAt: 'completedAt',
   ticketNumber: 'ticketNumber',
   status: 'status',
   paymentMethod: 'paymentMethod',
@@ -1365,6 +1366,7 @@ export type FoodIngredientOrderByRelevanceFieldEnum = (typeof FoodIngredientOrde
 
 
 export const OrderOrderByRelevanceFieldEnum = {
+  id: 'id',
   displayCode: 'displayCode',
   table: 'table',
   customer: 'customer',
@@ -1377,6 +1379,7 @@ export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldE
 
 export const OrderItemOrderByRelevanceFieldEnum = {
   id: 'id',
+  orderId: 'orderId',
   foodId: 'foodId',
   notes: 'notes'
 } as const

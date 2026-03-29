@@ -25,7 +25,7 @@ export function OrdersContent({ initialData, dateFrom, dateTo }: OrdersContentPr
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -72,7 +72,7 @@ export function OrdersContent({ initialData, dateFrom, dateTo }: OrdersContentPr
   }
 
   function handleViewDetail(order: OrderListResponse) {
-    setSelectedOrderId(parseInt(order.id));
+    setSelectedOrderId(order.id);
     setDetailOpen(true);
   }
 

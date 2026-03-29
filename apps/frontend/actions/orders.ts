@@ -9,13 +9,23 @@ import {
 } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { OrderResponseSchema } from "@mysagra/schemas";
 
-// The API response shape differs from the schema (displayCode is a string in API,
-// and the paginated wrapper and categorizedItems are not in the schema).
-// We cast to allow safeParse to validate what it can.
+const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"]);
+
+// Frontend-specific schemas matching the actual API response shapes
+const OrderListItemSchema = z.object({
+  id: z.coerce.string(),
+  displayCode: z.string(),
+  table: z.string(),
+  customer: z.string(),
+  subTotal: z.coerce.string(),
+  status: OrderStatusSchema,
+  createdAt: z.string(),
+  updatedAt: z.string().optional(),
+}).passthrough();
+
 const PaginatedOrdersSchema = z.object({
-  data: z.array(OrderResponseSchema),
+  data: z.array(OrderListItemSchema),
   pagination: z.object({
     currentPage: z.number(),
     totalPages: z.number(),
@@ -23,7 +33,23 @@ const PaginatedOrdersSchema = z.object({
   }),
 }) as unknown as z.ZodType<PaginatedOrders>;
 
-const OrderDetailSchema = OrderResponseSchema as unknown as z.ZodType<OrderDetailResponse>;
+const OrderDetailSchema = z.object({
+  id: z.coerce.string(),
+  displayCode: z.string(),
+  table: z.string(),
+  customer: z.string(),
+  subTotal: z.coerce.string(),
+  total: z.coerce.string().optional(),
+  status: OrderStatusSchema,
+  paymentMethod: z.enum(["CASH", "CARD"]).nullish(),
+  discount: z.coerce.number().optional(),
+  surcharge: z.coerce.number().optional(),
+  ticketNumber: z.number().int().nullish(),
+  confirmedAt: z.string().nullish(),
+  createdAt: z.string(),
+  updatedAt: z.string().optional(),
+  categorizedItems: z.array(z.any()).optional(),
+}).passthrough() as unknown as z.ZodType<OrderDetailResponse>;
 
 export async function getOrders(params?: {
   search?: string;
@@ -51,12 +77,12 @@ export async function getOrders(params?: {
   return fetchApi<PaginatedOrders>(endpoint, {}, PaginatedOrdersSchema);
 }
 
-export async function getOrderById(id: number): Promise<OrderDetailResponse> {
+export async function getOrderById(id: string): Promise<OrderDetailResponse> {
   return fetchApi<OrderDetailResponse>(API_ENDPOINTS.ORDERS.BY_ID(id), {}, OrderDetailSchema);
 }
 
 export async function updateOrderStatus(
-  id: number,
+  id: string,
   status: OrderStatus
 ): Promise<void> {
   await fetchApi(API_ENDPOINTS.ORDERS.BY_ID(id), {
@@ -66,7 +92,20 @@ export async function updateOrderStatus(
   revalidatePath("/dashboard/orders");
 }
 
-export async function deleteOrder(id: number): Promise<void> {
+export async function reprintOrder(
+  id: string,
+  params: { orderItems?: string[]; reprintReceipt: boolean }
+): Promise<void> {
+  await fetchApi(
+    `${API_ENDPOINTS.ORDERS.BY_ID(id)}/reprint`,
+    {
+      method: "POST",
+      body: JSON.stringify(params),
+    }
+  );
+}
+
+export async function deleteOrder(id: string): Promise<void> {
   await fetchApi(API_ENDPOINTS.ORDERS.BY_ID(id), {
     method: "DELETE",
   });

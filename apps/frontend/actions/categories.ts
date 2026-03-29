@@ -58,15 +58,15 @@ export async function updateCategory(
 }
 
 export async function reorderCategories(
-  positions: { id: string; position: number }[]
+  categories: { id: string; name: string; available: boolean; position: number; printerId?: string | null }[]
 ): Promise<Category[]> {
   const results: Category[] = [];
-  for (const { id, position } of positions) {
+  for (const { id, name, available, position, printerId } of categories) {
     const result = await fetchApi<Category>(
       API_ENDPOINTS.CATEGORIES.BY_ID(id),
       {
-        method: "PATCH",
-        body: JSON.stringify({ position }),
+        method: "PUT",
+        body: JSON.stringify({ name, available, position, printerId: printerId ?? undefined }),
       },
       CategoryResponseSchema
     );

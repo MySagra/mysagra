@@ -87,7 +87,9 @@ function SortableRow({
           <PencilIcon className="h-4 w-4" />
         </Button>
       </TableCell>
-      <TableCell className="font-medium">{category.name}</TableCell>
+      <TableCell className="font-medium max-w-48">
+        <span className="block truncate" title={category.name}>{category.name}</span>
+      </TableCell>
       <TableCell className="hidden md:table-cell text-muted-foreground">
         {printers.find((p) => p.id === category.printerId)?.name || "-"}
       </TableCell>
@@ -219,7 +221,9 @@ export function CategoriesTable({
                     <PencilIcon className="h-4 w-4" />
                   </Button>
                 </TableCell>
-                <TableCell className="font-medium">{category.name}</TableCell>
+                <TableCell className="font-medium max-w-48">
+        <span className="block truncate" title={category.name}>{category.name}</span>
+      </TableCell>
                 <TableCell className="hidden md:table-cell text-muted-foreground">
                   {printers.find((p) => p.id === category.printerId)?.name || "-"}
                 </TableCell>

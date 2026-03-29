@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { EyeIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
+import { EyeIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon, Clock, CircleCheck, PackageCheck, ShoppingBag } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface OrdersTableProps {
   orders: OrderListResponse[];
@@ -30,11 +31,11 @@ interface OrdersTableProps {
 type SortColumn = "displayCode" | "customer" | "table" | "subTotal" | "status" | "createdAt" | null;
 type SortDirection = "asc" | "desc";
 
-const statusVariants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  PENDING: "outline",
-  CONFIRMED: "default",
-  COMPLETED: "secondary",
-  PICKED_UP: "secondary",
+const statusIcons: Record<string, React.ReactNode> = {
+  PENDING: <Clock className="h-4 w-4 text-muted-foreground" />,
+  CONFIRMED: <CircleCheck className="h-4 w-4 text-primary" />,
+  COMPLETED: <PackageCheck className="h-4 w-4 text-green-500" />,
+  PICKED_UP: <ShoppingBag className="h-4 w-4 text-green-600" />,
 };
 
 export function OrdersTable({
@@ -141,6 +142,15 @@ export function OrdersTable({
     });
   }
 
+  function formatDateShort(dateStr: string): string {
+    return new Date(dateStr).toLocaleString("it-IT", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
   function SortIcon({ column }: { column: SortColumn }) {
     if (sortColumn !== column) {
       return <ArrowUpDownIcon className="h-4 w-4 ml-1 opacity-30" />;
@@ -168,6 +178,14 @@ export function OrdersTable({
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
+              <TableHead className="w-10">
+                <button
+                  onClick={() => handleSort("status")}
+                  className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
+                >
+                  <SortIcon column="status" />
+                </button>
+              </TableHead>
               <TableHead className="w-20">
                 <button
                   onClick={() => handleSort("displayCode")}
@@ -177,7 +195,7 @@ export function OrdersTable({
                   <SortIcon column="displayCode" />
                 </button>
               </TableHead>
-              <TableHead>
+              <TableHead className="hidden sm:table-cell">
                 <button
                   onClick={() => handleSort("customer")}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -186,7 +204,7 @@ export function OrdersTable({
                   <SortIcon column="customer" />
                 </button>
               </TableHead>
-              <TableHead className="w-20">
+              <TableHead className="w-20 hidden sm:table-cell">
                 <button
                   onClick={() => handleSort("table")}
                   className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
@@ -195,7 +213,7 @@ export function OrdersTable({
                   <SortIcon column="table" />
                 </button>
               </TableHead>
-              <TableHead className="w-28">
+              <TableHead className="w-24 sm:w-28">
                 <button
                   onClick={() => handleSort("subTotal")}
                   className="flex items-center ml-auto hover:text-foreground transition-colors font-medium"
@@ -204,16 +222,7 @@ export function OrdersTable({
                   <SortIcon column="subTotal" />
                 </button>
               </TableHead>
-              <TableHead className="w-32">
-                <button
-                  onClick={() => handleSort("status")}
-                  className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
-                >
-                  {t.orders.columnStatus}
-                  <SortIcon column="status" />
-                </button>
-              </TableHead>
-              <TableHead className="w-40">
+              <TableHead className="w-16 sm:w-40">
                 <button
                   onClick={() => handleSort("createdAt")}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -235,25 +244,35 @@ export function OrdersTable({
             ) : (
               sortedOrders.map((order) => (
                 <TableRow key={order.id}>
+                  <TableCell className="text-center">
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="flex justify-center cursor-default">
+                            {statusIcons[order.status]}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {statusLabels[order.status] || order.status}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="font-mono">
                       {order.displayCode}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {order.customer}
+                  <TableCell className="font-medium max-w-48 hidden sm:table-cell">
+                    <span className="block truncate" title={order.customer}>{order.customer}</span>
                   </TableCell>
-                  <TableCell className="text-center">{order.table}</TableCell>
+                  <TableCell className="text-center hidden sm:table-cell">{order.table === 'NO_TABLE_PRESET' ? '--' : order.table}</TableCell>
                   <TableCell className="text-right font-medium">
                     €{order.subTotal}
                   </TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant={statusVariants[order.status] || "outline"}>
-                      {statusLabels[order.status] || order.status}
-                    </Badge>
-                  </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {formatDate(order.createdAt)}
+                    <span className="hidden sm:inline">{formatDate(order.createdAt)}</span>
+                    <span className="sm:hidden">{formatDateShort(order.createdAt)}</span>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button

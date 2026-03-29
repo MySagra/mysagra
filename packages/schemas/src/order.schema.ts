@@ -24,21 +24,15 @@ export const OrderItemInputSchema = z.object({
     notes: z.string().optional().meta({
         description: "Special instructions for this item"
     }),
-    unitPrice: z.number().optional().meta({
-        description: "Price per unit at order time"
-    }),
     surcharge: z.number().default(0).meta({
         description: "Additional charge for this item"
-    }),
-    total: z.number().optional().meta({
-        description: "Total price for this item"
     })
 }).meta({
     id: "OrderItemInput",
     description: "Food item included in an order"
 })
 
-export const OrderItemResponseSchema = z.object({
+export const OrderItemSchema = z.object({
     id: z.cuid().meta({
         description: "Unique identifier for order item"
     }),
@@ -48,19 +42,7 @@ export const OrderItemResponseSchema = z.object({
     notes: z.string().nullish().meta({
         description: "Special instructions"
     }),
-    food: z.object({
-        id: z.string().meta({
-            description: "Food item identifier"
-        }),
-        name: z.string().meta({
-            description: "Food item name"
-        }),
-        price: z.number().meta({
-            description: "Food item base price"
-        })
-    }).optional().meta({
-        description: "Food item details"
-    }),
+    foodId: z.cuid(),
     unitPrice: z.number().meta({
         description: "Price per unit at order time"
     }),
@@ -71,8 +53,19 @@ export const OrderItemResponseSchema = z.object({
         description: "Total price for this item"
     })
 }).meta({
+    id: "OrderItem",
+    description: "Order item entity with food reference"
+})
+
+export const OrderItemResponseSchema = OrderItemSchema.omit({ foodId: true }).extend({
+    food: z.object({
+        id: z.string().meta({ description: "Food item identifier" }),
+        name: z.string().meta({ description: "Food item name" }),
+        price: z.number().meta({ description: "Food item base price" })
+    }).optional().meta({ description: "Food item details" })
+}).meta({
     id: "OrderItemResponse",
-    description: "Food item in confirmed order with pricing"
+    description: "Order item in confirmed order with food details and pricing"
 })
 
 const ConfirmationDataSchema = z.object({
@@ -169,8 +162,8 @@ export const GetOrdersQuerySchema = z.object({
 })
 
 export const OrderIdParamSchema = z.object({
-    id: z.coerce.number().int().positive().meta({
-        description: "Numeric order identifier"
+    id: z.cuid().meta({
+        description: "Unique orderId cuid"
     })
 }).meta({
     id: "OrderIdParam",
@@ -188,7 +181,7 @@ export const OrderCodeSchema = z.object({
 })
 
 export const OrderResponseSchema = z.object({
-    id: z.number().int().meta({
+    id: z.cuid().meta({
         description: "Unique order identifier"
     }),
     displayCode: OrderCodeSchema.meta({
@@ -235,6 +228,73 @@ export const OrderResponseSchema = z.object({
     description: "Complete order entity with items and pricing"
 })
 
+export const IngredientSchema = z.object({
+    id: z.cuid().meta({ description: "Ingredient identifier" }),
+    name: z.string().meta({ description: "Ingredient name" })
+}).meta({
+    id: "Ingredient",
+    description: "Food ingredient"
+})
+
+export const FoodDetailSchema = z.object({
+    id: z.cuid().meta({ description: "Food item identifier" }),
+    name: z.string().meta({ description: "Food item name" }),
+    description: z.string().nullish().meta({ description: "Food item description" }),
+    price: z.number().meta({ description: "Food item base price" }),
+    printerId: z.string().nullish().meta({ description: "Printer assigned to this food item" }),
+    ingredients: z.array(IngredientSchema).meta({ description: "List of ingredients" })
+}).meta({
+    id: "FoodDetail",
+    description: "Food item with full details and ingredients"
+})
+
+export const CategorizedOrderItemSchema = z.object({
+    id: z.cuid().meta({ description: "Order item identifier" }),
+    quantity: z.number().int().meta({ description: "Quantity ordered" }),
+    notes: z.string().nullish().meta({ description: "Special instructions for this item" }),
+    total: z.number().meta({ description: "Total price for this item" }),
+    unitPrice: z.number().meta({ description: "Price per unit at order time" }),
+    unitSurcharge: z.number().meta({ description: "Surcharge per unit at order time" }),
+    food: FoodDetailSchema
+}).meta({
+    id: "CategorizedOrderItem",
+    description: "Order item with full food and ingredient details"
+})
+
+export const CategoryItemGroupSchema = z.object({
+    category: z.object({
+        id: z.cuid().meta({ description: "Category identifier" }),
+        name: z.string().meta({ description: "Category name" })
+    }).meta({ description: "Food category" }),
+    items: z.array(CategorizedOrderItemSchema).meta({ description: "Items belonging to this category" })
+}).meta({
+    id: "CategoryItemGroup",
+    description: "Group of order items belonging to the same food category"
+})
+
+export const OrderDetailResponseSchema = z.object({
+    id: z.cuid().meta({ description: "Unique order identifier" }),
+    displayCode: z.string().meta({ description: "Customer-facing display code", example: "A1B" }),
+    ticketNumber: z.number().int().nullish().meta({ description: "Kitchen printer ticket number" }),
+    table: z.string().meta({ description: "Table/location identifier" }),
+    customer: z.string().meta({ description: "Customer name" }),
+    status: OrderStatusSchema.meta({ description: "Current order status" }),
+    createdAt: z.date().meta({ description: "Order creation timestamp" }),
+    confirmedAt: z.date().nullish().meta({ description: "Timestamp when order was confirmed" }),
+    completedAt: z.date().nullish().meta({ description: "Timestamp when order was completed" }),
+    subTotal: z.number().meta({ description: "Sub-total before discounts/surcharges" }),
+    total: z.number().meta({ description: "Final total amount" }),
+    discount: z.number().meta({ description: "Total discount applied" }),
+    surcharge: z.number().meta({ description: "Total surcharge applied" }),
+    paymentMethod: PaymentMethodSchema.nullish().meta({ description: "Payment method used" }),
+    userId: z.string().nullish().meta({ description: "ID of the user who confirmed the order" }),
+    cashRegisterId: z.string().nullish().meta({ description: "Cash register that processed the order" }),
+    categorizedItems: z.array(CategoryItemGroupSchema).meta({ description: "Order items grouped by food category" })
+}).meta({
+    id: "OrderDetailResponse",
+    description: "Full order details with items grouped by food category, including food and ingredient info"
+})
+
 export const ReprintOrderSchema = z.object({
     orderItems: z.array(z.cuid()).optional().meta({
         description: "Specific order items to reprint"
@@ -259,7 +319,15 @@ export type PatchOrderInput = z.infer<typeof PatchOrderSchema>
 export type GetOrdersQueryParams = z.infer<typeof GetOrdersQuerySchema>
 export type OrderIdParam = z.infer<typeof OrderIdParamSchema>
 export type OrderResponse = z.infer<typeof OrderResponseSchema>
-export type OrderItem = z.infer<typeof OrderItemInputSchema>
+export type OrderItemInput = z.infer<typeof OrderItemInputSchema>
+export type OrderItem = z.infer<typeof OrderItemSchema>
+export type OrderItemResponse = z.infer<typeof OrderItemResponseSchema>
 export type ConfirmationData = z.infer<typeof ConfirmationDataSchema>
 
 export type ReprintOrder = z.infer<typeof ReprintOrderSchema>
+
+export type Ingredient = z.infer<typeof IngredientSchema>
+export type FoodDetail = z.infer<typeof FoodDetailSchema>
+export type CategorizedOrderItem = z.infer<typeof CategorizedOrderItemSchema>
+export type CategoryItemGroup = z.infer<typeof CategoryItemGroupSchema>
+export type OrderDetailResponse = z.infer<typeof OrderDetailResponseSchema>
