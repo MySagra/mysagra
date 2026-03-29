@@ -8,8 +8,7 @@ import {
     CreateOrder, 
     OrderIdParam, 
     PatchOrderInput, 
-    ReprintOrder,
-    NumberIdParam
+    ReprintOrder
 } from "@mysagra/schemas";
 
 export class OrdersController {
@@ -60,7 +59,7 @@ export class OrdersController {
     });
 
     confirmOrder = asyncHandler(async (
-        req: TypedRequest<{params: NumberIdParam, body: ConfirmOrderInput}>,
+        req: TypedRequest<{params: OrderIdParam, body: ConfirmOrderInput}>,
         res: Response, 
     ): Promise<void> => {
         const { id } = req.validated.params;
@@ -70,7 +69,7 @@ export class OrdersController {
     });
 
     patchOrder = asyncHandler(async (
-        req: TypedRequest<{params: NumberIdParam, body: PatchOrderInput}>,
+        req: TypedRequest<{params: OrderIdParam, body: PatchOrderInput}>,
         res: Response, 
     ): Promise<void> => {
         const { status } = req.validated.body;

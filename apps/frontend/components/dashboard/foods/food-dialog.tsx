@@ -75,7 +75,7 @@ export function FoodDialog({
   const foodSchema = z.object({
     name: z.string().min(1, t.foods.nameRequired),
     description: z.string().optional(),
-    price: z.coerce.number().min(0, t.foods.priceMin),
+    price: z.coerce.number().min(0.01, t.foods.priceMin),
     categoryId: z.string().min(1, t.foods.categoryRequired),
     available: z.boolean(),
   });
@@ -86,7 +86,7 @@ export function FoodDialog({
     defaultValues: {
       name: "",
       description: "",
-      price: 0,
+      price: 0.01,
       categoryId: categories[0]?.id || "",
       available: true,
     },
@@ -107,7 +107,7 @@ export function FoodDialog({
       form.reset({
         name: "",
         description: "",
-        price: 0,
+        price: 0.01,
         categoryId: categories[0]?.id || "",
         available: true,
       });
@@ -238,8 +238,8 @@ export function FoodDialog({
                               type="number"
                               autoComplete="off"
                               step="0.01"
-                              min="0"
-                              placeholder="0.00"
+                              min="0.01"
+                              placeholder="0.01"
                             />
                           </FormControl>
                           <FormMessage />

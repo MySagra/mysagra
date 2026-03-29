@@ -4,9 +4,6 @@ import Link from "next/link";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   UtensilsCrossed,
@@ -100,17 +97,17 @@ export default function DashboardPage() {
   const userName = formatName(session?.user?.name);
 
   return (
-    <><DashboardHeader title={t.nav.home} /><div className="space-y-8 p-8">
+    <><DashboardHeader title={t.nav.home} /><div className="space-y-6 p-4 md:p-8">
       {/* Welcome Section */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4">
         <div className="shrink-0">
-          <Logo width={80} height={80} />
+          <Logo width={56} height={56} />
         </div>
         <div>
-          <h1 className="text-4xl font-bold mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold leading-tight">
             {t.dashboard.welcomeTitle} {userName}!
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-sm md:text-base">
             {t.dashboard.welcomeSubtitle}
           </p>
         </div>
@@ -118,72 +115,28 @@ export default function DashboardPage() {
 
       {/* Navigation Cards */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4">{t.dashboard.sectionsTitle}</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <h2 className="text-lg font-semibold mb-3">{t.dashboard.sectionsTitle}</h2>
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {navigationCards.map((card) => {
             const Icon = card.icon;
             return (
               <Link key={card.href} href={card.href}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                  <CardHeader>
+                <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+                  <CardContent className="p-3 sm:p-4">
                     <div
-                      className={`w-12 h-12 rounded-lg ${card.bgColor} flex items-center justify-center mb-2`}
+                      className={`w-9 h-9 rounded-lg ${card.bgColor} flex items-center justify-center mb-2`}
                     >
-                      <Icon className={`h-6 w-6 ${card.color}`} />
+                      <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${card.color}`} />
                     </div>
-                    <CardTitle>{card.title}</CardTitle>
-                    <CardDescription>{card.description}</CardDescription>
-                  </CardHeader>
+                    <p className="font-semibold text-sm leading-tight">{card.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{card.description}</p>
+                  </CardContent>
                 </Card>
               </Link>
             );
           })}
         </div>
       </div>
-
-      {/* Quick Tips */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.dashboard.quickTipsTitle}</CardTitle>
-          <CardDescription>
-            {t.dashboard.quickTipsSubtitle}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <span className="text-primary">1.</span>
-              <span>
-                {t.dashboard.tip1} <strong>{t.dashboard.tip1Categories}</strong>
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary">2.</span>
-              <span>
-                {t.dashboard.tip2} <strong>{t.dashboard.tip2Foods}</strong> {t.dashboard.tip2Suffix}
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary">3.</span>
-              <span>
-                {t.dashboard.tip3} <strong>{t.dashboard.tip3Printers}</strong> {t.dashboard.tip3Suffix}
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary">4.</span>
-              <span>
-                {t.dashboard.tip4} <strong>{t.dashboard.tip4Users}</strong> {t.dashboard.tip4Suffix}
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary">5.</span>
-              <span>
-                {t.dashboard.tip5} <strong>{t.dashboard.tip5CashRegisters}</strong> {t.dashboard.tip5Suffix}
-              </span>
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
     </div></>
   );
 }

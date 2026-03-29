@@ -14,7 +14,7 @@ export class OrderItemsService {
         })
     }
 
-    async getOrderItemsByOrderId(orderId: number, tx?: Prisma.TransactionClient) {
+    async getOrderItemsByOrderId(orderId: string, tx?: Prisma.TransactionClient) {
         const client = tx || prisma;
         return await client.orderItem.findMany({
             where: {
@@ -26,7 +26,7 @@ export class OrderItemsService {
         })
     }
 
-    async createOrderItem(item: OrderItem, orderId: number) {
+    async createOrderItem(item: OrderItem, orderId: string) {
         return await prisma.orderItem.create({
             data: {
                 orderId,
@@ -42,7 +42,7 @@ export class OrderItemsService {
 
     async createManyOrderItem(
         items: OrderItem[], 
-        orderId: number,
+        orderId: string,
         tx?: Prisma.TransactionClient
     ) {
         const client = tx || prisma;
@@ -80,7 +80,7 @@ export class OrderItemsService {
         })
     }
 
-    async deleteItemsFromOrder(orderId: number, tx?: Prisma.TransactionClient) {
+    async deleteItemsFromOrder(orderId: string, tx?: Prisma.TransactionClient) {
         const client = tx || prisma;
         return await client.orderItem.deleteMany({
             where: {

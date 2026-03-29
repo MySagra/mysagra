@@ -48,7 +48,7 @@ router.post(
     "/:id/confirm",
     authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
-        params: idParamSchema,
+        params: OrderIdParamSchema,
         body: ConfirmOrderSchema
     }),
     orderController.confirmOrder
@@ -58,7 +58,7 @@ router.patch(
     "/:id",
     authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
-        params: idParamSchema,
+        params: OrderIdParamSchema,
         body: PatchOrderSchema
     }),
     orderController.patchOrder
@@ -68,7 +68,7 @@ router.delete(
     "/:id",
     authenticate(["admin"]),
     validateRequest({
-        params: idParamSchema
+        params: OrderIdParamSchema
     }),
     orderController.deleteOrder
 );
@@ -77,7 +77,7 @@ router.post(
     "/:id/reprint",
     authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     validateRequest({
-        params: idParamSchema,
+        params: OrderIdParamSchema,
         body: ReprintOrderSchema
     }),
     orderController.reprintOrder

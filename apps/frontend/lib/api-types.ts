@@ -103,11 +103,11 @@ export interface OrderListResponse {
   subTotal: string;
   status: OrderStatus;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface OrderDetailResponse {
-  id: number;
+  id: string;
   displayCode: string;
   table: string;
   customer: string;
@@ -126,7 +126,7 @@ export interface OrderDetailResponse {
 
 export interface CategorizedItems {
   category: {
-    id: number;
+    id: string;
     name: string;
   };
   items: OrderItemDetailed[];
@@ -244,8 +244,8 @@ export const API_ENDPOINTS = {
   },
   ORDERS: {
     ALL: "/v1/orders",
-    BY_ID: (id: number) => `/v1/orders/${id}`,
-    CONFIRM: (id: number) => `/v1/orders/${id}/confirm`,
+    BY_ID: (id: string) => `/v1/orders/${id}`,
+    CONFIRM: (id: string) => `/v1/orders/${id}/confirm`,
   },
   PRINTERS: {
     ALL: "/v1/printers",

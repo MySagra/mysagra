@@ -73,8 +73,8 @@ enum PaymentMethod {
 }
 
 model Order {
-  id          Int     @id @default(autoincrement())
-  displayCode String? @unique
+  id          String     @id @default(cuid())
+  displayCode String @unique
 
   // user data
   table    String
@@ -82,6 +82,7 @@ model Order {
 
   createdAt   DateTime  @default(now())
   confirmedAt DateTime?
+  completedAt DateTime?
 
   ticketNumber Int?
   status       OrderStatus @default(PENDING)
@@ -108,7 +109,7 @@ model OrderItem {
   quantity Int
 
   order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId Int
+  orderId String
 
   food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
   foodId String

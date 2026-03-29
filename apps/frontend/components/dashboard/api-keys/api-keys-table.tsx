@@ -43,7 +43,7 @@ export function ApiKeysTable({ apiKeys, onRevoke }: ApiKeysTableProps) {
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead>{t.apiKeys.columnName}</TableHead>
-            <TableHead className="w-28">{t.apiKeys.columnType}</TableHead>
+            <TableHead className="w-28 hidden sm:table-cell">{t.apiKeys.columnType}</TableHead>
             <TableHead className="w-40 hidden md:table-cell">{t.apiKeys.columnKey}</TableHead>
             <TableHead className="w-40 hidden md:table-cell">{t.apiKeys.columnCreatedAt}</TableHead>
             <TableHead className="w-40 hidden md:table-cell">{t.apiKeys.columnLastUsed}</TableHead>
@@ -54,8 +54,10 @@ export function ApiKeysTable({ apiKeys, onRevoke }: ApiKeysTableProps) {
         <TableBody>
           {apiKeys.map((key) => (
             <TableRow key={key.id} className={key.revokedAt ? "opacity-50" : undefined}>
-              <TableCell className="font-medium">{key.name}</TableCell>
-              <TableCell>
+              <TableCell className="font-medium max-w-48">
+                <span className="block truncate" title={key.name}>{key.name}</span>
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">
                 <Badge variant={typeVariants[key.type]}>
                   {key.type === "PRINTER" ? t.apiKeys.typePrinter : t.apiKeys.typeWebapp}
                 </Badge>

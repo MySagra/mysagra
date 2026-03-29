@@ -1,11 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
     Field,
-    FieldGroup,
     FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -43,9 +41,7 @@ export function LoginForm() {
         try {
             const result = await loginAction(values.username, values.password);
             if (result.success) {
-                // Wait a bit for session to be fully set
                 await new Promise((resolve) => setTimeout(resolve, 100));
-                // Redirect to setup if logging in with default admin credentials
                 window.location.href = isDefaultAdmin ? "/setup" : "/dashboard";
             } else {
                 const errorMsg =
@@ -80,98 +76,105 @@ export function LoginForm() {
 
     return (
         <FormProvider {...form}>
-            <div className={cn("flex flex-col gap-6")}>
-                <Card className="overflow-hidden p-0">
-                    <CardContent className="grid p-0 md:grid-cols-2">
-                        <form
-                            className="p-6 md:p-8 place-content-center"
-                            onSubmit={form.handleSubmit(onSubmit, onError)}
-                        >
-                            <FieldGroup>
-                                <img
-                                    src="/logo.svg"
-                                    alt="Logo"
-                                    className="mx-auto h-36 w-auto select-none"
+            <Card className="overflow-hidden p-0 shadow-lg">
+                <CardContent className="grid p-0 md:grid-cols-2">
+                    {/* Form side */}
+                    <form
+                        className="flex flex-col justify-center gap-6 p-8 md:p-10"
+                        onSubmit={form.handleSubmit(onSubmit, onError)}
+                    >
+                        <img
+                            src="/logo.svg"
+                            alt="Logo"
+                            className="mx-auto h-20 sm:h-24 md:h-28 w-auto select-none"
+                        />
+
+                        <div className="flex flex-col items-center gap-1.5 text-center">
+                            <h1 className="text-2xl font-bold select-none">
+                                {t.login.title}
+                            </h1>
+                            <p className="text-muted-foreground text-sm text-balance select-none">
+                                {t.login.subtitle}
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            <Field>
+                                <FieldLabel htmlFor="username">{t.login.username}</FieldLabel>
+                                <FormField
+                                    control={form.control}
+                                    name="username"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Input
+                                                    autoComplete="off"
+                                                    placeholder={t.login.usernamePlaceholder}
+                                                    className="h-10"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
                                 />
-                                <div className="flex flex-col items-center gap-2 text-center">
-                                    <h1 className="text-2xl font-bold select-none">
-                                        {t.login.title}
-                                    </h1>
-                                    <p className="text-muted-foreground text-balance select-none">
-                                        {t.login.subtitle}
-                                    </p>
-                                </div>
-                                <Field>
-                                    <FieldLabel htmlFor="username">{t.login.username}</FieldLabel>
-                                    <FormField
-                                        control={form.control}
-                                        name="username"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
+                            </Field>
+
+                            <Field>
+                                <FieldLabel htmlFor="password">{t.login.password}</FieldLabel>
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <div className="relative">
                                                     <Input
                                                         autoComplete="off"
-                                                        placeholder={t.login.usernamePlaceholder}
-                                                        className="h-10"
+                                                        placeholder={t.login.passwordPlaceholder}
+                                                        type={showPassword ? "text" : "password"}
+                                                        className="h-10 pr-10"
                                                         {...field}
                                                     />
-                                                </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="password">{t.login.password}</FieldLabel>
-                                    <FormField
-                                        control={form.control}
-                                        name="password"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
-                                                    <div className="relative">
-                                                        <Input
-                                                            autoComplete="off"
-                                                            placeholder={t.login.passwordPlaceholder}
-                                                            type={showPassword ? "text" : "password"}
-                                                            className="h-10 pr-10"
-                                                            {...field}
-                                                        />
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
-                                                            onClick={() => setShowPassword((v) => !v)}
-                                                        >
-                                                            {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
-                                                        </Button>
-                                                    </div>
-                                                </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                </Field>
-                                <Field>
-                                    <Button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="w-full select-none h-10 text-base"
-                                    >
-                                        {isLoading ? t.login.submitting : t.login.submit}
-                                    </Button>
-                                </Field>
-                            </FieldGroup>
-                        </form>
-                        <div className="bg-white hidden md:flex items-center justify-center h-150 w-full">
-                            <img
-                                src="/placeholder.jpg"
-                                alt="Logo"
-                                className="object-contain select-none"
-                            />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                                        onClick={() => setShowPassword((v) => !v)}
+                                                    >
+                                                        {showPassword ? (
+                                                            <EyeOffIcon className="h-4 w-4" />
+                                                        ) : (
+                                                            <EyeIcon className="h-4 w-4" />
+                                                        )}
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </Field>
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
+
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full h-11 text-base select-none"
+                        >
+                            {isLoading ? t.login.submitting : t.login.submit}
+                        </Button>
+                    </form>
+
+                    {/* Image side — hidden on mobile, fills height of form on desktop */}
+                    <div className="relative hidden md:block">
+                        <img
+                            src="/placeholder.jpg"
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover select-none"
+                        />
+                    </div>
+                </CardContent>
+            </Card>
         </FormProvider>
     );
 }

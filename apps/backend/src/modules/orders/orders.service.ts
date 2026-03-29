@@ -3,6 +3,7 @@ import {
     CreateOrder,
     GetOrdersQueryParams,
     OrderItem,
+    OrderItemInput,
     OrderStatus,
     ReprintOrder
 } from "@mysagra/schemas";
@@ -16,7 +17,7 @@ export class OrdersService {
     private displayEvent = EventsService.getIstance('display');
     private printerEvent = EventsService.getIstance('printer');
 
-    private async _getNextTicketNumber(tx: Prisma.TransactionClient): Promise<number> {
+    private async _getNextTicketNumber(): Promise<number> {
         const today = new Date().toISOString().split('T')[0];
         const redisKey = `ticket_counter:${today}`;
 
@@ -32,6 +33,20 @@ export class OrdersService {
         }
 
         return ticketNumber;
+    }
+
+    private async _getOrderCount(): Promise<number> {
+        const redisKey = `order_count`;
+        let orderCount = await redisClient.incr(redisKey);
+        if(orderCount === 1) {
+            const dbCount = await prisma.order.count();
+
+            if(dbCount > 0) {
+                await redisClient.set(redisKey, dbCount);
+                orderCount = dbCount
+            }
+        }
+        return orderCount;
     }
 
     async getOrders(queryParams: GetOrdersQueryParams) {
@@ -96,45 +111,18 @@ export class OrdersService {
         }
     }
 
-    async getOrderById(id: number) {
+    async getOrderById(id: string) {
         const order = await prisma.order.findUnique({
-            where: {
-                id
-            },
+            where: { id },
             include: {
                 orderItems: {
-                    select: {
-                        id: true,
-                        quantity: true,
-                        notes: true,
-                        total: true,
-                        unitPrice: true,
-                        unitSurcharge: true,
+                    orderBy: { food: { categoryId: 'asc' } },
+                    include: {
                         food: {
-                            select: {
-                                id: true,
-                                name: true,
-                                description: true,
-                                price: true,
-                                printerId: true,
-
-                                category: {
-                                    select: {
-                                        id: true,
-                                        name: true
-                                    }
-                                },
-
-                                foodIngredients: {
-                                    select: {
-                                        ingredient: {
-                                            select: {
-                                                id: true,
-                                                name: true
-                                            }
-                                        }
-                                    }
-                                }
+                            omit: { available: true, categoryId: true },
+                            include: {
+                                category: { select: { id: true, name: true } },
+                                foodIngredients: { select: { ingredient: true } }
                             }
                         }
                     }
@@ -144,41 +132,30 @@ export class OrdersService {
 
         if (!order) return null;
 
-        const categoryMap = new Map<string, { category: { id: string, name: string }, items: any[] }>();
+        const categoryMap = new Map<string, { category: { id: string; name: string }; items: unknown[] }>();
 
-        for (const item of order.orderItems) {
-            const category = item.food.category;
+        for (const { id: itemId, quantity, notes, total, unitPrice, unitSurcharge, food } of order.orderItems) {
+            const { category, foodIngredients, ...foodData } = food;
 
-            if (!categoryMap.has(category.id)) {
-                categoryMap.set(category.id, {
-                    category: category,
-                    items: []
-                });
+            let group = categoryMap.get(category.id);
+            if (!group) {
+                group = { category, items: [] };
+                categoryMap.set(category.id, group);
             }
-            const group = categoryMap.get(category.id)!;
-            const ingredients = item.food.foodIngredients.map(fi => fi.ingredient);
-            const { category: _c, foodIngredients: _fi, ...foodData } = item.food;
 
             group.items.push({
-                id: item.id,
-                quantity: item.quantity,
-                notes: item.notes,
-                total: item.total,
-                unitPrice: item.unitPrice,
-                unitSurcharge: item.unitSurcharge,
-                food: {
-                    ...foodData,
-                    ingredients: ingredients
-                }
+                id: itemId,
+                quantity,
+                notes,
+                total,
+                unitPrice,
+                unitSurcharge,
+                food: { ...foodData, ingredients: foodIngredients.map(fi => fi.ingredient) }
             });
         }
 
-        const { orderItems, ...orderBaseData } = order;
-
-        return {
-            ...orderBaseData,
-            categorizedItems: Array.from(categoryMap.values())
-        };
+        const { orderItems: _, ...orderBaseData } = order;
+        return { ...orderBaseData, categorizedItems: Array.from(categoryMap.values()) };
     }
 
     async createOrder(order: CreateOrder) {
@@ -206,6 +183,7 @@ export class OrdersService {
                 const surcharge = confirm ? item.surcharge : 0
 
                 const createItem = {
+                    id: "",
                     foodId: item.foodId,
                     quantity: item.quantity,
                     notes: item.notes,
@@ -236,7 +214,7 @@ export class OrdersService {
                 finalStatus = 'CONFIRMED';
                 confirmedAt = new Date();
 
-                ticketNumber = await this._getNextTicketNumber(tx);
+                ticketNumber = await this._getNextTicketNumber();
 
                 userId = confirm.userId
                 cashRegisterId = confirm.cashRegisterId
@@ -247,6 +225,7 @@ export class OrdersService {
                     table: order.table.toString(),
                     customer: order.customer,
                     subTotal: subTotal,
+                    displayCode: generateDisplayId(await this._getOrderCount()),
 
                     status: finalStatus,
                     confirmedAt: confirmedAt,
@@ -262,12 +241,7 @@ export class OrdersService {
                 }
             });
 
-            const displayCode = generateDisplayId(createdOrder.id);
-            await tx.order.update({
-                where: { id: createdOrder.id },
-                data: { displayCode }
-            });
-
+            //create order items
             await tx.orderItem.createMany({
                 data: createOrderItems.map(item => ({
                     orderId: createdOrder.id,
@@ -339,7 +313,7 @@ export class OrdersService {
         };
     }
 
-    async confirmOrder(orderId: number, confirm: ConfirmOrderInput) {
+    async confirmOrder(orderId: string, confirm: ConfirmOrderInput) {
         const confirmedOrder = await prisma.$transaction(async (tx) => {
             const existingOrder = await tx.order.findUnique({
                 where: { id: orderId },
@@ -371,6 +345,7 @@ export class OrdersService {
                 confirm.orderItems.forEach(item => {
                     const price = foodMap.get(item.foodId)!;
                     const createItem = {
+                        id: "",
                         foodId: item.foodId,
                         quantity: item.quantity,
                         notes: item.notes,
@@ -407,7 +382,7 @@ export class OrdersService {
             let total = subTotal.add(totalSurcharge).sub(discount)
             if (total.isNegative()) total = new Prisma.Decimal(0);
 
-            const ticketNumber = await this._getNextTicketNumber(tx);
+            const ticketNumber = await this._getNextTicketNumber();
 
             const updatedOrder = await tx.order.update({
                 where: { id: orderId },
@@ -467,13 +442,14 @@ export class OrdersService {
         return confirmedOrder;
     }
 
-    async updateStatus(id: number, status: OrderStatus) {
+    async updateStatus(id: string, status: OrderStatus) {
         const patchedOrder = await prisma.order.update({
             where: {
                 id
             },
             data: {
-                status
+                status,
+                completedAt: status === "COMPLETED" ? new Date() : null
             }
         })
         EventsService.broadcastEvents(
@@ -490,7 +466,7 @@ export class OrdersService {
     }
 
 
-    async deleteOrder(id: number) {
+    async deleteOrder(id: string) {
         await prisma.order.delete({
             where: {
                 id
@@ -499,7 +475,7 @@ export class OrdersService {
         return null;
     }
 
-    async reprintOrder(id: number, reprint: ReprintOrder) {
+    async reprintOrder(id: string, reprint: ReprintOrder) {
         const order = await prisma.order.findUnique({
             where: {
                 id
