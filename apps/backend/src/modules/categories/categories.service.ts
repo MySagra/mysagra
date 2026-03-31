@@ -147,7 +147,7 @@ export class CategoriesService {
             return patchCategory;
         })
 
-        if (category.available) {
+        if (category.available !== undefined) {
             this.event.broadcastEvent(
                 {
                     id: patchedCategory.id,

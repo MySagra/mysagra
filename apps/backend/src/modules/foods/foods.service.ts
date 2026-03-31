@@ -193,7 +193,7 @@ export class FoodsService {
             }
         })
 
-        if (food.available) {
+        if (food.available !== undefined) {
             this.event.broadcastEvent(
                 {
                     id: patchedFood.id,
