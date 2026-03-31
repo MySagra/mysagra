@@ -16,6 +16,8 @@ export function useRole() {
     canDelete: role === "admin",
     // Full CRUD on master data — admin only
     canManageUsers: role === "admin",
+    canViewCategories: role === "admin" || role === "maintainer",
+    canEditCategories: role === "admin" || role === "maintainer",
     canManageCategories: role === "admin",
     // Create/delete printers — admin only
     canCreatePrinters: role === "admin",

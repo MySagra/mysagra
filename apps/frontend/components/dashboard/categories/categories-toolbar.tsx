@@ -13,6 +13,7 @@ interface CategoriesToolbarProps {
   onResetOrder: () => void;
   hasOrderChanged: boolean;
   isSavingOrder: boolean;
+  canCreate?: boolean;
 }
 
 export function CategoriesToolbar({
@@ -23,6 +24,7 @@ export function CategoriesToolbar({
   onResetOrder,
   hasOrderChanged,
   isSavingOrder,
+  canCreate = true,
 }: CategoriesToolbarProps) {
   const { t } = useLocale();
 
@@ -62,10 +64,12 @@ export function CategoriesToolbar({
             </Button>
           </>
         )}
-        <Button onClick={onCreateNew}>
-          <PlusIcon className="h-4 w-4 mr-2" />
-          {t.categories.newCategory}
-        </Button>
+        {canCreate && (
+          <Button onClick={onCreateNew}>
+            <PlusIcon className="h-4 w-4 mr-2" />
+            {t.categories.newCategory}
+          </Button>
+        )}
       </div>
     </div>
   );

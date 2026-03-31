@@ -8,9 +8,11 @@ import {
 import { prisma, Prisma } from "@mysagra/database";
 import { FoodsService } from "../foods/foods.service";
 import { ImagesService } from "../images/images.service";
+import { EventsService } from "../events/events.service";
 
 export class CategoriesService {
     public static imageService = new ImagesService('categories', 'category');
+    private event = EventsService.getIstance('cashier')
 
     async getCategories(queryParams?: GetCategoriesQuery) {
         const whereClause: Prisma.CategoryWhereInput = {}
@@ -90,7 +92,7 @@ export class CategoriesService {
     }
 
     async updateCategory(id: string, category: UpdateCategoryInput) {
-        return await prisma.$transaction(async (tx) => {
+        const updatedCategory = await prisma.$transaction(async (tx) => {
             const updateCategory = await tx.category.update({
                 where: {
                     id
@@ -110,10 +112,20 @@ export class CategoriesService {
             await tx.food.updateMany(foodUpdate)
             return updateCategory;
         })
+
+        this.event.broadcastEvent(
+            {
+                id: updatedCategory.id,
+                available: updatedCategory.available
+            },
+            "category-availability-changed"
+        )
+
+        return updatedCategory;
     }
 
     async patchCategory(id: string, category: PatchCategoryInput) {
-        return await prisma.$transaction(async (tx) => {
+        const patchedCategory = await prisma.$transaction(async (tx) => {
             const patchCategory = await tx.category.update({
                 where: {
                     id
@@ -134,6 +146,18 @@ export class CategoriesService {
             await tx.food.updateMany(foodUpdate)
             return patchCategory;
         })
+
+        if (category.available) {
+            this.event.broadcastEvent(
+                {
+                    id: patchedCategory.id,
+                    available: patchedCategory.available
+                },
+                "category-availability-changed"
+            )
+        }
+
+        return patchedCategory;
     }
 
     async deleteCategory(id: string) {
@@ -148,7 +172,7 @@ export class CategoriesService {
                 CategoriesService.imageService.delete(category.image)
             }
             return null;
-        }catch(error){
+        } catch (error) {
             return null;
         }
     }
