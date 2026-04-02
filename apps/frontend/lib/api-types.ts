@@ -236,7 +236,7 @@ export interface Banner {
   facebook?: string | null;
   instagram?: string | null;
   color?: string;
-  dateTime?: string | null;
+  dateTime?: Date | string | null;
   image: string | null;
 }
 

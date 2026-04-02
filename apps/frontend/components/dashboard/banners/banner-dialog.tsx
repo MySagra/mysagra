@@ -90,7 +90,7 @@ export function BannerDialog({
     website: z.string().optional(),
     facebook: z.string().optional(),
     instagram: z.string().optional(),
-    color: z.string().default("#fecc01"),
+    color: z.string(),
     dateTime: z.string().optional(),
   });
 
