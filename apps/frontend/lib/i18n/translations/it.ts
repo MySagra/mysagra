@@ -431,6 +431,8 @@ export const it = {
     imageLabel: "Immagine",
     imageUploadTitle: "Carica un'immagine",
     imageUploadDescription: "Trascina qui o clicca per selezionare un file",
+    cropTitle: "Ritaglia immagine",
+    cropConfirm: "Conferma ritaglio",
     noBannersFound: "Nessun banner trovato",
     columnLabel: "Etichetta",
     columnType: "Tipo",

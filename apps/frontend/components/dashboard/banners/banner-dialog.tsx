@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash2Icon, ImageIcon, UploadIcon } from "lucide-react";
+import { ImageCropDialog } from "./image-crop-dialog";
 import {
   Empty,
   EmptyHeader,
@@ -81,6 +82,8 @@ export function BannerDialog({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
 
   const bannerSchema = z.object({
     label: z.string().min(1, t.banners.labelRequired),
@@ -154,12 +157,24 @@ export function BannerDialog({
   }
 
   function processFile(file: File) {
-    setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result as string);
+      setRawImageUrl(reader.result as string);
+      setCropDialogOpen(true);
     };
     reader.readAsDataURL(file);
+  }
+
+  function handleCropComplete(croppedFile: File, previewUrl: string) {
+    setImageFile(croppedFile);
+    setImagePreview(previewUrl);
+    setCropDialogOpen(false);
+    setRawImageUrl(null);
+  }
+
+  function handleCropCancel() {
+    setCropDialogOpen(false);
+    setRawImageUrl(null);
   }
 
   function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
@@ -535,6 +550,12 @@ export function BannerDialog({
           </form>
         </FormProvider>
       </DialogContent>
+      <ImageCropDialog
+        open={cropDialogOpen}
+        imageSrc={rawImageUrl}
+        onCancel={handleCropCancel}
+        onCropComplete={handleCropComplete}
+      />
     </Dialog>
   );
 }

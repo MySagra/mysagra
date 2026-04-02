@@ -431,6 +431,8 @@ export const en = {
     imageLabel: "Image",
     imageUploadTitle: "Upload an image",
     imageUploadDescription: "Drag here or click to select a file",
+    cropTitle: "Crop image",
+    cropConfirm: "Confirm crop",
     noBannersFound: "No banners found",
     columnLabel: "Label",
     columnType: "Type",
