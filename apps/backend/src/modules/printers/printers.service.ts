@@ -24,15 +24,25 @@ export class PrintersService {
     }
 
     async updatePrinter(id: string, printer: UpdatePrinterInput) {
-        return await prisma.printer.update({
+        const updatedPrinter = await prisma.printer.update({
             where: {
                 id
             },
             data: printer
         })
+
+        this.cashierEvent.broadcastEvent(
+            {
+                id,
+                status: updatedPrinter.status
+            },
+            "printer-status-changed"
+        )
+
+        return updatedPrinter;
     }
 
-    async patchPrinter(id: string, printer: PatchPrinterInput){
+    async patchPrinter(id: string, printer: PatchPrinterInput) {
         const patchedPrinter = await prisma.printer.update({
             where: {
                 id
@@ -45,11 +55,11 @@ export class PrintersService {
         this.cashierEvent.broadcastEvent(
             {
                 id,
-                status: printer.status
+                status: patchedPrinter.status
             },
             "printer-status-changed"
         )
-        
+
         return patchedPrinter;
     }
 

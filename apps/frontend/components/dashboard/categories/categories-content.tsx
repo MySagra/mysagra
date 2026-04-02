@@ -8,6 +8,7 @@ import { CategoriesTable } from "./categories-table";
 import { CategoryDialog } from "./category-dialog";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import { toast } from "sonner";
+import { useRole } from "@/hooks/use-role";
 
 interface CategoriesContentProps {
   initialCategories: Category[];
@@ -15,6 +16,7 @@ interface CategoriesContentProps {
 }
 
 export function CategoriesContent({ initialCategories, printers }: CategoriesContentProps) {
+  const { canManageCategories } = useRole();
   const [categories, setCategories] = useState<Category[]>(
     [...initialCategories].sort((a, b) => a.position - b.position)
   );
@@ -114,6 +116,7 @@ export function CategoriesContent({ initialCategories, printers }: CategoriesCon
           onResetOrder={handleResetOrder}
           hasOrderChanged={hasOrderChanged}
           isSavingOrder={isSavingOrder}
+          canCreate={canManageCategories}
         />
         <CategoriesTable
           categories={filteredCategories}
@@ -128,7 +131,7 @@ export function CategoriesContent({ initialCategories, printers }: CategoriesCon
           category={editingCategory}
           printers={printers}
           onSaved={handleSaved}
-          onDelete={handleDelete}
+          onDelete={canManageCategories ? handleDelete : undefined}
           categoriesCount={categories.length}
         />
         <DeleteCategoryDialog

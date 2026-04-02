@@ -1,10 +1,10 @@
 import { prisma, Prisma } from "@mysagra/database";
-import { 
-    GetFoodsQueryParams, 
-    GetFoodQueryParams, 
-    CreateFoodInput, 
-    PatchFoodInput, 
-    UpdateFoodInput 
+import {
+    GetFoodsQueryParams,
+    GetFoodQueryParams,
+    CreateFoodInput,
+    PatchFoodInput,
+    UpdateFoodInput
 } from "@mysagra/schemas";
 import { EventsService } from "../events/events.service";
 
@@ -170,6 +170,15 @@ export class FoodsService {
             return FoodsService.formatFoodResponse(updatedFood);
         }
 
+        // broadcast new available status
+        this.event.broadcastEvent(
+            {
+                id: updatedFood.id,
+                available: updatedFood.available
+            },
+            "food-availability-changed"
+        )
+
         return updatedFood;
     }
 
@@ -184,7 +193,7 @@ export class FoodsService {
             }
         })
 
-        if (food.available) {
+        if (food.available !== undefined) {
             this.event.broadcastEvent(
                 {
                     id: patchedFood.id,

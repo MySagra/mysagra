@@ -58,9 +58,27 @@ const SSEReprintOrderSchema = SSEOrderSchema.extend({
         .meta({ description: "Items selected for reprint" }),
 });
 
+const SSEFoodAvailabilitySchema = z.object({
+    id: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy" }),
+    available: z.boolean().meta({ example: true }),
+}).meta({ id: "SSEFoodAvailability" });
+
+const SSECategoryAvailabilitySchema = z.object({
+    id: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy" }),
+    available: z.boolean().meta({ example: false }),
+}).meta({ id: "SSECategoryAvailability" });
+
+const SSEPrinterStatusSchema = z.object({
+    id: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy" }),
+    status: z.enum(["ONLINE", "OFFLINE", "ERROR"]).meta({ example: "OFFLINE" }),
+}).meta({ id: "SSEPrinterStatus" });
+
 registry.register("SSEOrder", SSEOrderSchema);
 registry.register("SSEConfirmedOrderSummary", SSEConfirmedOrderSummary);
 registry.register("SSEReprintOrder", SSEReprintOrderSchema);
+registry.register("SSEFoodAvailability", SSEFoodAvailabilitySchema);
+registry.register("SSECategoryAvailability", SSECategoryAvailabilitySchema);
+registry.register("SSEPrinterStatus", SSEPrinterStatusSchema);
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -78,6 +96,9 @@ registry.registerPath({
 ### \`cashier\` channel
 - **\`new-order\`** — Fired when a new order is placed. Payload: full order object (\`SSEOrder\`).
 - **\`confirmed-order\`** — Fired when an order is confirmed. Payload: \`SSEConfirmedOrderSummary\`.
+- **\`food-availability-changed\`** — Fired when a food item's availability changes. Payload: \`SSEFoodAvailability\`.
+- **\`category-availability-changed\`** — Fired when a category's availability changes. Payload: \`SSECategoryAvailability\`.
+- **\`printer-status-changed\`** — Fired when a printer's status changes. Payload: \`SSEPrinterStatus\`.
 
 ### \`display\` channel
 - **\`confirmed-order\`** — Fired when an order is confirmed. Payload: \`SSEConfirmedOrderSummary\`.

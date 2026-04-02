@@ -47,7 +47,7 @@ router.post(
 
 router.put(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer"]),
     validateRequest({
         params: cuidParamSchema,
         body: UpdateCategorySchema
@@ -57,7 +57,7 @@ router.put(
 
 router.patch(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer"]),
     validateRequest({
         params: cuidParamSchema,
         body: PatchCategorySchema
@@ -67,7 +67,7 @@ router.patch(
 
 router.patch(
     "/:id/image",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer"]),
     validateRequest({
         params: cuidParamSchema
     }),

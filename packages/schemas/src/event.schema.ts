@@ -10,6 +10,7 @@ const eventName = z.enum([
     "new-order",
     "confirmed-order",
     "food-availability-changed",
+    "category-availability-changed",
     "printer-status-changed",
     "reprint-order",
     "order-status-update"

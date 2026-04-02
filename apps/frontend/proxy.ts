@@ -18,10 +18,10 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
   }
 
-  // Maintainer non può accedere a utenti e categorie
+  // Maintainer non può accedere agli utenti
   const role = (req.auth as any)?.user?.role as string | undefined;
   if (isLoggedIn && role === "maintainer") {
-    const restricted = ["/dashboard/users", "/dashboard/categories"];
+    const restricted = ["/dashboard/users"];
     if (restricted.some((p) => pathname.startsWith(p))) {
       return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
     }

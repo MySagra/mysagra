@@ -42,6 +42,7 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
   const { t } = useLocale()
 
   const isAdmin = userRole === "admin"
+  const isMaintainer = userRole === "maintainer"
 
   const navItems = {
     home: [
@@ -52,7 +53,7 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
       },
     ],
     cucina: [
-      ...(isAdmin
+      ...(isAdmin || isMaintainer
         ? [{ title: t.nav.categories, url: "/dashboard/categories", icon: LayoutGridIcon }]
         : []),
       {
