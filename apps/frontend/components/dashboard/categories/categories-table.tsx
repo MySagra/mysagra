@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PencilIcon, GripVerticalIcon } from "lucide-react";
+import { PencilIcon, GripVerticalIcon, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -35,12 +35,46 @@ import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers";
 import { useLocale } from "@/contexts/locale-context";
 
+function getCategoryImageUrl(filename: string) {
+  return `/api/images/categories/${filename}`;
+}
+
 interface CategoriesTableProps {
   categories: Category[];
   printers: Printer[];
   onEdit: (category: Category) => void;
   onToggle: (updated: Category) => void;
   onReorder: (reordered: Category[]) => void;
+}
+
+function ImageCell({ image, name }: { image?: string | null; name: string }) {
+  if (image) {
+    return (
+      <img
+        src={getCategoryImageUrl(image)}
+        alt={name}
+        className="h-8 w-12 object-cover rounded border"
+      />
+    );
+  }
+  return (
+    <div className="h-8 w-12 rounded border bg-muted flex items-center justify-center">
+      <ImageIcon className="h-3 w-3 text-muted-foreground" />
+    </div>
+  );
+}
+
+function TableHeaders({ t }: { t: any }) {
+  return (
+    <TableRow className="bg-muted/50">
+      <TableHead className="w-10" />
+      <TableHead className="w-16 font-medium">{t.categories.columnImage}</TableHead>
+      <TableHead className="font-medium">{t.categories.columnName}</TableHead>
+      <TableHead className="hidden md:table-cell font-medium">{t.categories.columnPrinter}</TableHead>
+      <TableHead className="w-32 text-center font-medium">{t.categories.columnAvailable}</TableHead>
+      <TableHead className="w-10 text-right" />
+    </TableRow>
+  );
 }
 
 function SortableRow({
@@ -79,13 +113,12 @@ function SortableRow({
   return (
     <TableRow ref={setNodeRef} style={style}>
       <TableCell className="w-10">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onEdit(category)}
-        >
+        <Button variant="ghost" size="icon" onClick={() => onEdit(category)}>
           <PencilIcon className="h-4 w-4" />
         </Button>
+      </TableCell>
+      <TableCell className="w-16">
+        <ImageCell image={category.image} name={category.name} />
       </TableCell>
       <TableCell className="font-medium max-w-48">
         <span className="block truncate" title={category.name}>{category.name}</span>
@@ -136,25 +169,16 @@ export function CategoriesTable({
   }, []);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
   async function handleToggle(category: Category) {
     setTogglingId(category.id);
     try {
-      const updated = await toggleCategoryAvailability(
-        category.id,
-        !category.available
-      );
+      const updated = await toggleCategoryAvailability(category.id, !category.available);
       onToggle(updated);
-      toast.success(
-        `"${category.name}" ${updated.available ? t.categories.toastUpdated : t.categories.toastUpdated}`
-      );
-    } catch (error) {
+      toast.success(`"${category.name}" ${t.categories.toastUpdated}`);
+    } catch {
       toast.error(t.categories.toastErrorUpdate);
     } finally {
       setTogglingId(null);
@@ -173,12 +197,10 @@ export function CategoriesTable({
     const oldIndex = categories.findIndex((c) => c.id === active.id);
     const newIndex = categories.findIndex((c) => c.id === over.id);
 
-    const reordered = arrayMove(categories, oldIndex, newIndex).map(
-      (cat, index) => ({
-        ...cat,
-        position: index,
-      })
-    );
+    const reordered = arrayMove(categories, oldIndex, newIndex).map((cat, index) => ({
+      ...cat,
+      position: index,
+    }));
 
     onReorder(reordered);
   }
@@ -186,44 +208,33 @@ export function CategoriesTable({
   if (categories.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
-        <p className="text-muted-foreground text-sm">
-          {t.categories.noCategoriesFound}
-        </p>
+        <p className="text-muted-foreground text-sm">{t.categories.noCategoriesFound}</p>
       </div>
     );
   }
 
-  // Render simple table during SSR to avoid hydration mismatch
+  // SSR version — no DnD to avoid hydration mismatch
   if (!mounted) {
     return (
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-10" />
-              <TableHead className="font-medium">{t.categories.columnName}</TableHead>
-              <TableHead className="hidden md:table-cell font-medium">{t.categories.columnPrinter}</TableHead>
-              <TableHead className="w-32 text-center font-medium">
-                {t.categories.columnAvailable}
-              </TableHead>
-              <TableHead className="w-10 text-right" />
-            </TableRow>
+            <TableHeaders t={t} />
           </TableHeader>
           <TableBody>
             {categories.map((category) => (
               <TableRow key={category.id}>
                 <TableCell className="w-10">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(category)}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => onEdit(category)}>
                     <PencilIcon className="h-4 w-4" />
                   </Button>
                 </TableCell>
+                <TableCell className="w-16">
+                  <ImageCell image={category.image} name={category.name} />
+                </TableCell>
                 <TableCell className="font-medium max-w-48">
-        <span className="block truncate" title={category.name}>{category.name}</span>
-      </TableCell>
+                  <span className="block truncate" title={category.name}>{category.name}</span>
+                </TableCell>
                 <TableCell className="hidden md:table-cell text-muted-foreground">
                   {printers.find((p) => p.id === category.printerId)?.name || "-"}
                 </TableCell>
@@ -252,6 +263,7 @@ export function CategoriesTable({
   return (
     <div className="rounded-md border overflow-hidden relative">
       <DndContext
+        id="categories-dnd"
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
@@ -260,15 +272,7 @@ export function CategoriesTable({
       >
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-10" />
-              <TableHead className="font-medium">{t.categories.columnName}</TableHead>
-              <TableHead className="hidden md:table-cell font-medium">{t.categories.columnPrinter}</TableHead>
-              <TableHead className="w-32 text-center font-medium">
-                {t.categories.columnAvailable}
-              </TableHead>
-              <TableHead className="w-10 text-right" />
-            </TableRow>
+            <TableHeaders t={t} />
           </TableHeader>
           <SortableContext
             items={categories.map((c) => c.id)}

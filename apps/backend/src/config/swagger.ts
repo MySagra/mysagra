@@ -42,6 +42,7 @@ export function generateOpenApiDocument() {
             { name: 'Printers' },
             { name: 'CashRegisters' },
             { name: 'Events (SSE)' },
+            { name: 'Banners' },
         ],
     })
 }

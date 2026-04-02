@@ -72,3 +72,8 @@ export type CashRegister = Prisma.CashRegisterModel
  * 
  */
 export type ApiKey = Prisma.ApiKeyModel
+/**
+ * Model Banner
+ * 
+ */
+export type Banner = Prisma.BannerModel

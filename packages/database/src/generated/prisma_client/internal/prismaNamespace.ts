@@ -394,7 +394,8 @@ export const ModelName = {
   User: 'User',
   Printer: 'Printer',
   CashRegister: 'CashRegister',
-  ApiKey: 'ApiKey'
+  ApiKey: 'ApiKey',
+  Banner: 'Banner'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey"
+    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1140,6 +1141,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Banner: {
+      payload: Prisma.$BannerPayload<ExtArgs>
+      fields: Prisma.BannerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BannerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BannerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        findFirst: {
+          args: Prisma.BannerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BannerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        findMany: {
+          args: Prisma.BannerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>[]
+        }
+        create: {
+          args: Prisma.BannerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        createMany: {
+          args: Prisma.BannerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BannerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        update: {
+          args: Prisma.BannerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        deleteMany: {
+          args: Prisma.BannerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BannerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BannerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        aggregate: {
+          args: Prisma.BannerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBanner>
+        }
+        groupBy: {
+          args: Prisma.BannerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BannerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BannerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BannerCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1312,6 +1379,23 @@ export const ApiKeyScalarFieldEnum = {
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
 
 
+export const BannerScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  type: 'type',
+  title: 'title',
+  description: 'description',
+  website: 'website',
+  instagram: 'instagram',
+  facebook: 'facebook',
+  image: 'image',
+  color: 'color',
+  dateTime: 'dateTime'
+} as const
+
+export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1436,6 +1520,21 @@ export const ApiKeyOrderByRelevanceFieldEnum = {
 export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
 
 
+export const BannerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  label: 'label',
+  title: 'title',
+  description: 'description',
+  website: 'website',
+  instagram: 'instagram',
+  facebook: 'facebook',
+  image: 'image',
+  color: 'color'
+} as const
+
+export type BannerOrderByRelevanceFieldEnum = (typeof BannerOrderByRelevanceFieldEnum)[keyof typeof BannerOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -1502,6 +1601,13 @@ export type EnumPrinterStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'KeyTypes'
  */
 export type EnumKeyTypesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KeyTypes'>
+    
+
+
+/**
+ * Reference to a field of type 'BannerType'
+ */
+export type EnumBannerTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BannerType'>
     
 
 
@@ -1617,6 +1723,7 @@ export type GlobalOmitConfig = {
   printer?: Prisma.PrinterOmit
   cashRegister?: Prisma.CashRegisterOmit
   apiKey?: Prisma.ApiKeyOmit
+  banner?: Prisma.BannerOmit
 }
 
 /* Types for Logging */

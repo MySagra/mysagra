@@ -51,6 +51,7 @@ export interface Category {
   available: boolean;
   position: number;
   printerId?: string | null;
+  image?: string | null;
 }
 
 export interface CategoryWithFoods extends Category {
@@ -222,6 +223,23 @@ export interface CreateApiKeyResponse {
   createdAt: string;
 }
 
+// Banners
+export type BannerType = "EVENT" | "SPONSOR";
+
+export interface Banner {
+  id: string;
+  label: string;
+  type: BannerType;
+  title?: string | null;
+  description?: string | null;
+  website?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  color?: string;
+  dateTime?: string | null;
+  image: string | null;
+}
+
 // API Endpoints
 export const API_ENDPOINTS = {
   AUTH: {
@@ -266,5 +284,10 @@ export const API_ENDPOINTS = {
   API_KEYS: {
     ALL: "/v1/api-keys",
     BY_ID: (id: string) => `/v1/api-keys/${id}`,
+  },
+  BANNERS: {
+    ALL: "/v1/banners",
+    BY_ID: (id: string) => `/v1/banners/${id}`,
+    IMAGE: (id: string) => `/v1/banners/${id}/image`,
   },
 } as const;

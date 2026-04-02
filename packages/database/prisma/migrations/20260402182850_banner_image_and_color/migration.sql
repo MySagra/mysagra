@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `banner` ADD COLUMN `badge` VARCHAR(191) NULL,
+    ADD COLUMN `color` VARCHAR(191) NOT NULL DEFAULT '#fecc01',
+    ADD COLUMN `image` VARCHAR(191) NULL;

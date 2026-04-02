@@ -13,6 +13,7 @@ import {
   Users,
   Landmark,
   ShoppingBag,
+  ImageIcon,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useSession } from "next-auth/react";
@@ -23,7 +24,7 @@ import { useRole } from "@/hooks/use-role";
 export default function DashboardPage() {
   const { data: session } = useSession();
   const { t } = useLocale();
-  const { canManageUsers, canManageCategories } = useRole();
+  const { canManageUsers, canManageCategories, canManageBanners } = useRole();
 
   const navigationCards = [
     ...(canManageCategories
@@ -86,6 +87,16 @@ export default function DashboardPage() {
       color: "text-pink-600",
       bgColor: "bg-pink-50 dark:bg-pink-950/20",
     },
+    ...(canManageBanners
+      ? [{
+          title: t.dashboard.cardBannersTitle,
+          description: t.dashboard.cardBannersDescription,
+          icon: ImageIcon,
+          href: "/dashboard/banners",
+          color: "text-yellow-600",
+          bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+        }]
+      : []),
   ];
 
   const formatName = (name: string | null | undefined) => {

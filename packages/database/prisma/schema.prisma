@@ -73,7 +73,7 @@ enum PaymentMethod {
 }
 
 model Order {
-  id          String     @id @default(cuid())
+  id          String @id @default(cuid())
   displayCode String @unique
 
   // user data
@@ -108,7 +108,7 @@ model OrderItem {
   id       String @id @default(cuid())
   quantity Int
 
-  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId String
 
   food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
@@ -200,4 +200,26 @@ model ApiKey {
   revokedAt  DateTime?
 
   @@map("api_keys")
+}
+
+enum BannerType {
+  EVENT
+  SPONSOR
+}
+
+model Banner {
+  id    String     @id @default(cuid())
+  label String
+  type  BannerType
+
+  title       String?
+  description String?
+
+  website   String?
+  instagram String?
+  facebook  String?
+
+  image    String?
+  color    String    @default("fecc01")
+  dateTime DateTime?
 }

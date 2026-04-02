@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
+function getCategoryImageUrl(filename: string) {
+  return `/api/images/categories/${filename}`;
+}
 import { Category, Printer } from "@/lib/api-types";
 import { createCategory, updateCategory, uploadCategoryImage } from "@/actions/categories";
 import {
@@ -107,7 +111,7 @@ export function CategoryDialog({
           printerId: "none",
         });
       }
-      setImagePreview(null);
+      setImagePreview(category?.image ? getCategoryImageUrl(category.image) : null);
       setImageFile(null);
     }
   }, [category, open, form]);

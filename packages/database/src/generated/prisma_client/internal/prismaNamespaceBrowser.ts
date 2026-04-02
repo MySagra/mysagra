@@ -61,7 +61,8 @@ export const ModelName = {
   User: 'User',
   Printer: 'Printer',
   CashRegister: 'CashRegister',
-  ApiKey: 'ApiKey'
+  ApiKey: 'ApiKey',
+  Banner: 'Banner'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -213,6 +214,23 @@ export const ApiKeyScalarFieldEnum = {
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
 
 
+export const BannerScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  type: 'type',
+  title: 'title',
+  description: 'description',
+  website: 'website',
+  instagram: 'instagram',
+  facebook: 'facebook',
+  image: 'image',
+  color: 'color',
+  dateTime: 'dateTime'
+} as const
+
+export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -335,4 +353,19 @@ export const ApiKeyOrderByRelevanceFieldEnum = {
 } as const
 
 export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
+
+
+export const BannerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  label: 'label',
+  title: 'title',
+  description: 'description',
+  website: 'website',
+  instagram: 'instagram',
+  facebook: 'facebook',
+  image: 'image',
+  color: 'color'
+} as const
+
+export type BannerOrderByRelevanceFieldEnum = (typeof BannerOrderByRelevanceFieldEnum)[keyof typeof BannerOrderByRelevanceFieldEnum]
 
