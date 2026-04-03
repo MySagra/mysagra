@@ -433,6 +433,8 @@ export const en = {
     imageUploadDescription: "Drag here or click to select a file",
     cropTitle: "Crop image",
     cropConfirm: "Confirm crop",
+    recrop: "Re-crop",
+    compressing: "Compressing...",
     noBannersFound: "No banners found",
     columnLabel: "Label",
     columnType: "Type",

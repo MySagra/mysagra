@@ -433,6 +433,8 @@ export const it = {
     imageUploadDescription: "Trascina qui o clicca per selezionare un file",
     cropTitle: "Ritaglia immagine",
     cropConfirm: "Conferma ritaglio",
+    recrop: "Ritaglia",
+    compressing: "Compressione...",
     noBannersFound: "Nessun banner trovato",
     columnLabel: "Etichetta",
     columnType: "Tipo",

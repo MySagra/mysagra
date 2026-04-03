@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Banner } from "@/lib/api-types";
-import { createBanner, updateBanner, uploadBannerImage } from "@/actions/banners";
+import { createBanner, updateBanner, uploadBannerImage, getBannerById } from "@/actions/banners";
 import {
   Select,
   SelectContent,
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Trash2Icon, ImageIcon, UploadIcon } from "lucide-react";
+import { Trash2Icon, ImageIcon, UploadIcon, CropIcon } from "lucide-react";
 import { ImageCropDialog } from "./image-crop-dialog";
 import {
   Empty,
@@ -146,6 +146,7 @@ export function BannerDialog({
         setImagePreview(null);
       }
       setImageFile(null);
+      setRawImageUrl(null);
     }
   }, [banner, open, form]);
 
@@ -154,12 +155,17 @@ export function BannerDialog({
     if (file && file.type.startsWith("image/")) {
       processFile(file);
     }
+    // Reset file input so the same file can be re-selected
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }
 
   function processFile(file: File) {
     const reader = new FileReader();
     reader.onloadend = () => {
-      setRawImageUrl(reader.result as string);
+      const dataUrl = reader.result as string;
+      setRawImageUrl(dataUrl);
       setCropDialogOpen(true);
     };
     reader.readAsDataURL(file);
@@ -169,12 +175,18 @@ export function BannerDialog({
     setImageFile(croppedFile);
     setImagePreview(previewUrl);
     setCropDialogOpen(false);
-    setRawImageUrl(null);
+    // Keep rawImageUrl so the user can re-crop from the original image
   }
 
   function handleCropCancel() {
     setCropDialogOpen(false);
-    setRawImageUrl(null);
+    // Don't clear rawImageUrl — preserve it for potential re-crop
+  }
+
+  function handleRecrop() {
+    if (rawImageUrl) {
+      setCropDialogOpen(true);
+    }
   }
 
   function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
@@ -229,6 +241,8 @@ export function BannerDialog({
         const formData = new FormData();
         formData.append("image", imageFile);
         await uploadBannerImage(savedBanner.id, formData);
+        // Re-fetch to get updated image filename for immediate preview
+        savedBanner = await getBannerById(savedBanner.id);
       }
 
       onSaved(savedBanner);
@@ -481,7 +495,6 @@ export function BannerDialog({
                 {imagePreview ? (
                   <div
                     className="relative cursor-pointer rounded-xl border overflow-hidden"
-                    onClick={() => fileInputRef.current?.click()}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
@@ -491,8 +504,25 @@ export function BannerDialog({
                       alt="Preview"
                       className="w-full h-40 object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <UploadIcon className="h-6 w-6 text-white" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-1.5 rounded-lg bg-white/20 backdrop-blur-sm px-3 py-2 text-white text-sm font-medium hover:bg-white/30 transition-colors"
+                      >
+                        <UploadIcon className="h-4 w-4" />
+                        {t.banners.imageUploadTitle}
+                      </button>
+                      {rawImageUrl && (
+                        <button
+                          type="button"
+                          onClick={handleRecrop}
+                          className="flex items-center gap-1.5 rounded-lg bg-white/20 backdrop-blur-sm px-3 py-2 text-white text-sm font-medium hover:bg-white/30 transition-colors"
+                        >
+                          <CropIcon className="h-4 w-4" />
+                          {t.banners.recrop}
+                        </button>
+                      )}
                     </div>
                   </div>
                 ) : (
