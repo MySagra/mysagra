@@ -55,7 +55,7 @@ router.patch(
 )
 
 router.delete(
-    "/",
+    "/:id",
     authenticate(["admin", "maintainer"]),
     validateRequest({
         params: cuidParamSchema
