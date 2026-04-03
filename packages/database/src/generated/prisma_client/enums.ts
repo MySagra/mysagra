@@ -42,3 +42,11 @@ export const KeyTypes = {
 } as const
 
 export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]
+
+
+export const BannerType = {
+  EVENT: 'EVENT',
+  SPONSOR: 'SPONSOR'
+} as const
+
+export type BannerType = (typeof BannerType)[keyof typeof BannerType]

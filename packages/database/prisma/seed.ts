@@ -88,6 +88,24 @@ async function main() {
                 printerId: printer.id
             }
         })
+
+        await prisma.cashRegister.create({
+            data: {
+                name: "Main Cashier",
+                defaultPrinterId: printer.id
+            }
+        })
+
+        await prisma.banner.create({
+            data: {
+                label: "MySagra",
+                title: "MySagra",
+                description: "Thank you for choosing us!",
+                website: "https://mysagra.com",
+                type: "EVENT",
+                image: "banner-mysagra-default.png"
+            }
+        })
     }
 
 

@@ -297,6 +297,23 @@ export type EnumKeyTypesWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel>
 }
 
+export type EnumBannerTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.BannerType | Prisma.EnumBannerTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BannerType[]
+  notIn?: $Enums.BannerType[]
+  not?: Prisma.NestedEnumBannerTypeFilter<$PrismaModel> | $Enums.BannerType
+}
+
+export type EnumBannerTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BannerType | Prisma.EnumBannerTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BannerType[]
+  notIn?: $Enums.BannerType[]
+  not?: Prisma.NestedEnumBannerTypeWithAggregatesFilter<$PrismaModel> | $Enums.BannerType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBannerTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBannerTypeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[]
@@ -595,6 +612,23 @@ export type NestedEnumKeyTypesWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel>
   _max?: Prisma.NestedEnumKeyTypesFilter<$PrismaModel>
+}
+
+export type NestedEnumBannerTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.BannerType | Prisma.EnumBannerTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BannerType[]
+  notIn?: $Enums.BannerType[]
+  not?: Prisma.NestedEnumBannerTypeFilter<$PrismaModel> | $Enums.BannerType
+}
+
+export type NestedEnumBannerTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BannerType | Prisma.EnumBannerTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BannerType[]
+  notIn?: $Enums.BannerType[]
+  not?: Prisma.NestedEnumBannerTypeWithAggregatesFilter<$PrismaModel> | $Enums.BannerType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBannerTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBannerTypeFilter<$PrismaModel>
 }
 
 

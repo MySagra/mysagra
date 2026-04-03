@@ -25,8 +25,8 @@ export const validateRequest = (schemas: {
         next();
     } catch (error) {
         if (error instanceof ZodError) {
-            logger.error(JSON.stringify({ type: "validation_error", errors: error.message }))
-            return res.status(400).json({ errors: error.flatten })
+            logger.error(JSON.stringify({ type: "validation_error", errors: JSON.stringify(error.issues) }))
+            return res.status(400).json({ errors: error.issues })
         }
         logger.error(JSON.stringify({ type: "validation_error", errors: error }))
         return res.status(500).json({ error: 'Server Error' })

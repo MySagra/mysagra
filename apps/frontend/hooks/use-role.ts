@@ -26,5 +26,7 @@ export function useRole() {
     canEditPrinters: role === "admin",
     // API Keys management — admin only
     canManageApiKeys: role === "admin",
+    // Banners — admin and maintainer can create/edit/delete
+    canManageBanners: role === "admin" || role === "maintainer",
   };
 }

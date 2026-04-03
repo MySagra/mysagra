@@ -165,7 +165,7 @@ registry.registerPath({
             content: {
                 "multipart/form-data": {
                     schema: z.object({
-                        image: z.any().meta({ description: "Image file (binary)", format: "binary" }),
+                        image: z.string().meta({ description: "Image file (binary)", format: "binary" }),
                     }),
                 },
             },

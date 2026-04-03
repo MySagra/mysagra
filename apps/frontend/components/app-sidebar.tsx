@@ -28,6 +28,7 @@ import {
   LifeBuoyIcon,
   Github,
   KeyRoundIcon,
+  ImageIcon,
 } from "lucide-react"
 import { useLocale } from "@/contexts/locale-context"
 
@@ -85,6 +86,9 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         url: "/dashboard/printers",
         icon: PrinterIcon,
       },
+      ...(isAdmin || isMaintainer
+        ? [{ title: t.nav.banners, url: "/dashboard/banners", icon: ImageIcon }]
+        : []),
       ...(isAdmin
         ? [{ title: t.nav.users, url: "/dashboard/users", icon: UsersIcon }]
         : []),

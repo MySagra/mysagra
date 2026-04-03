@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
+function getCategoryImageUrl(filename: string) {
+  return `/api/images/categories/${filename}`;
+}
 import { Category, Printer } from "@/lib/api-types";
-import { createCategory, updateCategory, uploadCategoryImage } from "@/actions/categories";
+import { createCategory, updateCategory, uploadCategoryImage, getCategoryById } from "@/actions/categories";
 import {
   Select,
   SelectContent,
@@ -107,7 +111,7 @@ export function CategoryDialog({
           printerId: "none",
         });
       }
-      setImagePreview(null);
+      setImagePreview(category?.image ? getCategoryImageUrl(category.image) : null);
       setImageFile(null);
     }
   }, [category, open, form]);
@@ -159,7 +163,7 @@ export function CategoryDialog({
         printerId: values.printerId === "none" ? null : values.printerId,
       };
 
-      let savedCategory;
+      let savedCategory: Category;
 
       if (isEditing && category) {
         savedCategory = await updateCategory(category.id, data);
@@ -173,6 +177,8 @@ export function CategoryDialog({
         const formData = new FormData();
         formData.append("image", imageFile);
         await uploadCategoryImage(savedCategory.id, formData);
+        // Re-fetch to get updated image filename for immediate preview
+        savedCategory = await getCategoryById(savedCategory.id);
       }
 
       onSaved(savedCategory);

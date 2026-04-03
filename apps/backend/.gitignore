@@ -1,3 +1,7 @@
 generated/
-public/uploads/
+
 logs/
+public/uploads/*
+!public/uploads/banners/
+public/uploads/banners/*
+!public/uploads/banners/banner-mysagra-default.png
