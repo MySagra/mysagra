@@ -3,6 +3,7 @@ import fs from "fs"
 import multer from "multer";
 import { Request, RequestHandler } from "express";
 import { logger } from "@/config/logger";
+import { env } from "@/config/env";
 
 const fileFilter = (
     req: Request,
@@ -26,7 +27,7 @@ export class ImagesService {
     private resource: string
 
     private folderPath: string
-    public static rootPath = process.cwd();
+    public static rootPath = env.FILE_BASE_PATH;
     public static uploadsPath = path.join(ImagesService.rootPath, "public/uploads");
 
     constructor(folderName: string, resource: string) {

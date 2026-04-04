@@ -72,10 +72,11 @@ if (env.NODE_ENV !== "production") {
     });
 }
 
-// static routes
-app.use(express.static(path.join(__dirname, '../public')));
-app.use('/images', express.static(path.join(__dirname, '../public/images')));
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+// static routes — use the same base path as the file services (volume-backed in production)
+const publicDir = path.join(env.FILE_BASE_PATH, 'public');
+app.use(express.static(publicDir));
+app.use('/images', express.static(path.join(publicDir, 'images')));
+app.use('/uploads', express.static(path.join(publicDir, 'uploads')));
 
 // health endpoint
 app.get("/health", (req, res) => {
