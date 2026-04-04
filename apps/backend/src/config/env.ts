@@ -22,7 +22,8 @@ const envSchema = z.object({
         z.number().int().min(0).optional()
     ),
     REDIS_URL: z.url(),
-    REDIS_CACHE_TTL: z.number().default(60 * 60 * 24)
+    REDIS_CACHE_TTL: z.number().default(60 * 60 * 24),
+    FILE_BASE_PATH: z.string().optional()
 }).strip()
 
 const { error, data } = envSchema.safeParse(process.env)
@@ -41,5 +42,6 @@ export const env = {
     ALLOWED_ORIGINS: data.ALLOWED_ORIGINS,
     TRUST_PROXY_LEVEL: data.TRUST_PROXY_LEVEL,
     REDIS_URL: data.REDIS_URL,
-    REDIS_CACHE_TTL: data.REDIS_CACHE_TTL
+    REDIS_CACHE_TTL: data.REDIS_CACHE_TTL,
+    FILE_BASE_PATH: data.FILE_BASE_PATH ? data.FILE_BASE_PATH : data.NODE_ENV === "production" ? "/app" : process.cwd()
 }

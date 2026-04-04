@@ -3,7 +3,7 @@ set -e
 
 echo "Starting application..."
 
-mkdir -p /app/apps/backend/logs
+mkdir -p /app/logs /app/public && chmod 755 /app/logs /app/public
 
 if [ "$MIGRATE_ON_START" = "true" ]; then
   echo "Running Prisma migrations..."

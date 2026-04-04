@@ -51,7 +51,9 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=installer --chown=express:nodejs /app/apps/backend/src           ./apps/backend/src
 COPY --from=installer --chown=express:nodejs /app/apps/backend/tsconfig.json ./apps/backend/tsconfig.json
 COPY --from=installer --chown=express:nodejs /app/apps/backend/package.json  ./apps/backend/package.json
-RUN mkdir -p ./apps/backend/public && chown express:nodejs ./apps/backend/public
+RUN mkdir -p ./apps/backend/public /app/logs /app/public \
+  && chown -R express:nodejs ./apps/backend/public /app/logs /app/public \
+  && chmod 755 ./apps/backend/public /app/logs /app/public
 
 # ── @mysagra/database (source + generated Prisma client) ─────────────────
 COPY --from=installer --chown=express:nodejs /app/packages/database/src          ./packages/database/src
