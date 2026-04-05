@@ -51,9 +51,13 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=installer --chown=express:nodejs /app/apps/backend/src           ./apps/backend/src
 COPY --from=installer --chown=express:nodejs /app/apps/backend/tsconfig.json ./apps/backend/tsconfig.json
 COPY --from=installer --chown=express:nodejs /app/apps/backend/package.json  ./apps/backend/package.json
-RUN mkdir -p ./apps/backend/public /app/logs /app/public \
-  && chown -R express:nodejs ./apps/backend/public /app/logs /app/public \
-  && chmod 755 ./apps/backend/public /app/logs /app/public
+RUN mkdir -p ./apps/backend/public /app/logs /app/public /app/public/uploads/banners /app/.defaults/banners \
+  && chown -R express:nodejs ./apps/backend/public /app/logs /app/public /app/.defaults \
+  && chmod 755 ./apps/backend/public /app/logs /app/public /app/.defaults
+
+# ── Default sponsor banner (staged for volume seeding via entrypoint) ──────────
+# Glob makes this a no-op when the file is absent (avoids build failure)
+COPY --from=builder --chown=express:nodejs /app/apps/backend/public/uploads/banners/banner-mysagra-default* /app/.defaults/banners/
 
 # ── @mysagra/database (source + generated Prisma client) ─────────────────
 COPY --from=installer --chown=express:nodejs /app/packages/database/src          ./packages/database/src
