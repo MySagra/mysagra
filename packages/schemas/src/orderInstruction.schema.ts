@@ -3,7 +3,7 @@ import { z } from "zod"
 const OrderInstructionBaseSchema = z.object({
     text: z.string().meta({
         description: "The instruction text to be displayed to customers. Contains special preparation or serving instructions for the order.",
-        example: "Cook pasta al dente, add fresh basil before serving"
+        example: "Communicate your order code to the cashier and pay the order"
     }),
     position: z.number().int().optional().meta({
         description: "Display order position for the instruction. Lower numbers appear first. Optional - if omitted during creation, will be automatically assigned as the next available position.",
@@ -16,7 +16,7 @@ export const CreateOrderInstructionSchema = OrderInstructionBaseSchema
 export const UpdateOrderInstructionSchema = OrderInstructionBaseSchema.extend({
     text: z.string().meta({
         description: "The instruction text to be displayed to customers. Contains special preparation or serving instructions for the order.",
-        example: "Cook pasta al dente, add fresh basil before serving"
+        example: "Communicate your order code to the cashier and pay the order"
     }),
     position: z.number().int().meta({
         description: "Display order position for the instruction. Lower numbers appear first. Required when updating an instruction.",

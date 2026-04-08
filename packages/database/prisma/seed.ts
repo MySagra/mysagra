@@ -47,12 +47,7 @@ async function main() {
         });
 
         console.log("Production seeding completed", adminUser);
-    }
-    else {
-        console.log("Production seeding skipped");
-    }
 
-    if (!(await prisma.category.findFirst())) {
         const category = await prisma.category.create({
             data: {
                 name: "Pizzeria"
@@ -102,10 +97,26 @@ async function main() {
                 title: "MySagra",
                 description: "Thank you for choosing us!",
                 website: "https://mysagra.com",
-                type: "EVENT",
+                type: "SPONSOR",
                 image: "banner-mysagra-default.png"
             }
         })
+
+        await prisma.orderInstruction.createMany({
+            data: [
+                {
+                    position: 1,
+                    text: "**Communicate your order code** to the cashier"
+                },
+                {
+                    position: 2,
+                    text: "**Pay the order** and mention any special requests if you have any"
+                }
+            ]
+        })
+    }
+    else {
+        console.log("Production seeding skipped");
     }
 
 
