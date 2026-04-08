@@ -28,5 +28,7 @@ export function useRole() {
     canManageApiKeys: role === "admin",
     // Banners — admin and maintainer can create/edit/delete
     canManageBanners: role === "admin" || role === "maintainer",
+    // Order Instructions — admin and maintainer can create/edit/delete/reorder
+    canManageOrderInstructions: role === "admin" || role === "maintainer",
   };
 }

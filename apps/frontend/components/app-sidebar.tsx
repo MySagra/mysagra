@@ -29,6 +29,7 @@ import {
   Github,
   KeyRoundIcon,
   ImageIcon,
+  ListOrderedIcon,
 } from "lucide-react"
 import { useLocale } from "@/contexts/locale-context"
 
@@ -75,6 +76,14 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         icon: ClipboardListIcon,
       },
     ],
+    customerExperience: [
+      ...(isAdmin || isMaintainer
+        ? [{ title: t.nav.banners, url: "/dashboard/banners", icon: ImageIcon }]
+        : []),
+      ...(isAdmin || isMaintainer
+        ? [{ title: t.nav.orderInstructions, url: "/dashboard/order-instructions", icon: ListOrderedIcon }]
+        : []),
+    ],
     gestione: [
       {
         title: t.nav.cashRegisters,
@@ -86,9 +95,6 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         url: "/dashboard/printers",
         icon: PrinterIcon,
       },
-      ...(isAdmin || isMaintainer
-        ? [{ title: t.nav.banners, url: "/dashboard/banners", icon: ImageIcon }]
-        : []),
       ...(isAdmin
         ? [{ title: t.nav.users, url: "/dashboard/users", icon: UsersIcon }]
         : []),
@@ -135,6 +141,9 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         <div className="my-2">
           <NavMain items={navItems.ordini} />
         </div>
+        {navItems.customerExperience.length > 0 && (
+          <NavMain items={navItems.customerExperience} label={t.nav.customerExperience} />
+        )}
         <NavMain items={navItems.gestione} label={t.nav.management} />
         <NavSecondary items={navItems.navSecondary} className="mt-auto" />
       </SidebarContent>
