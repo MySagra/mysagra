@@ -105,11 +105,11 @@ async function main() {
         await prisma.orderInstruction.createMany({
             data: [
                 {
-                    position: 1,
+                    position: 0,
                     text: "**Communicate your order code** to the cashier"
                 },
                 {
-                    position: 2,
+                    position: 1,
                     text: "**Pay the order** and mention any special requests if you have any"
                 }
             ]
