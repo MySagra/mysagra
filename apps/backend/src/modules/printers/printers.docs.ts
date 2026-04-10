@@ -33,7 +33,8 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -51,8 +52,9 @@ registry.registerPath({
                 "application/json": { schema: PrinterResponse },
             },
         },
-        404: { description: "Printer not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Printer not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -77,8 +79,9 @@ registry.registerPath({
                 "application/json": { schema: PrinterResponse },
             },
         },
-        400: { description: "Invalid input" },
-        401: { description: "Unauthorized" },
+        400: { description: "Bad Request - Invalid input or validation error" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -104,8 +107,9 @@ registry.registerPath({
                 "application/json": { schema: PrinterResponse },
             },
         },
-        404: { description: "Printer not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Printer not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -132,8 +136,9 @@ registry.registerPath({
                 "application/json": { schema: PrinterResponse },
             },
         },
-        404: { description: "Printer not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Printer not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -146,7 +151,8 @@ registry.registerPath({
     request: { params: CUIDParam },
     responses: {
         200: { description: "Printer deleted" },
-        404: { description: "Printer not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Printer not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });

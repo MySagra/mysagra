@@ -9,6 +9,7 @@ import { prisma, Prisma } from "@mysagra/database";
 import { FoodsService } from "../foods/foods.service";
 import { ImagesService } from "../images/images.service";
 import { EventsService } from "../events/events.service";
+import { NotFoundError } from "@/common/errors";
 
 export class CategoriesService {
     public static imageService = new ImagesService('categories', 'category');
@@ -86,7 +87,9 @@ export class CategoriesService {
             include: categoryInclude
         })
 
-        if (!category) return null;
+        if (!category) {
+            throw new NotFoundError("Category not found");
+        }
 
         if (include !== undefined) {
             return {

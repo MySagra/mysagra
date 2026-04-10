@@ -1,6 +1,7 @@
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { env } from "@/config/env";
+import { TooManyRequestsError } from "@/common/errors";
 
 const hybridKeyGenerator = (req: Request, _res: Response): string => {
     if (req.user) {
@@ -22,7 +23,10 @@ export const authLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: true, // count only failed attempts
-    skip: () => env.NODE_ENV !== 'production'
+    skip: () => env.NODE_ENV !== 'production',
+    handler: (_req: Request, _res: Response, next: NextFunction) => {
+        next(new TooManyRequestsError("Too many login attempts, please try again later"));
+    }
 });
 
 export const apiLimiter = rateLimit({
@@ -39,10 +43,8 @@ export const apiLimiter = rateLimit({
         return 25;
     },
     keyGenerator: hybridKeyGenerator,
-    handler: (_req, res, next, options) => {
-        res.status(options.statusCode).json({
-            message: options.message.message || "Too many requests"
-        });
+    handler: (_req: Request, _res: Response, next: NextFunction) => {
+        next(new TooManyRequestsError("Too many requests"));
     },
     skip: (req) => {
         if (env.NODE_ENV !== 'production') return true;

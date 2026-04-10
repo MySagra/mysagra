@@ -62,8 +62,9 @@ registry.registerPath({
             },
         },
         400: { description: "Invalid query parameters" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
+        403: { description: "Forbidden - API key cannot confirm orders" },
     },
 });
 
@@ -84,9 +85,10 @@ registry.registerPath({
             },
         },
         400: { description: "Invalid order ID" },
-        404: { description: "Order not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        404: { description: "Not Found - Order not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
+        403: { description: "Forbidden - API key cannot confirm orders" },
     },
 });
 
@@ -114,9 +116,10 @@ registry.registerPath({
                 "application/json": { schema: OrderResponse },
             },
         },
-        400: { description: "Invalid input" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        400: { description: "Bad Request - Invalid input or validation error" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
+        403: { description: "Forbidden - API key cannot confirm orders" },
     },
 });
 
@@ -145,9 +148,10 @@ registry.registerPath({
             },
         },
         400: { description: "Invalid input or order already confirmed" },
-        404: { description: "Order not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        404: { description: "Not Found - Order not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
+        403: { description: "Forbidden - API key cannot confirm orders" },
     },
 });
 
@@ -173,9 +177,10 @@ registry.registerPath({
                 "application/json": { schema: OrderResponse },
             },
         },
-        404: { description: "Order not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        404: { description: "Not Found - Order not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
+        403: { description: "Forbidden - API key cannot confirm orders" },
     },
 });
 
@@ -196,10 +201,11 @@ registry.registerPath({
     },
     responses: {
         200: { description: "Reprint triggered" },
-        400: { description: "Invalid input" },
-        404: { description: "Order not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        400: { description: "Bad Request - Invalid input or validation error" },
+        404: { description: "Not Found - Order not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
+        403: { description: "Forbidden - API key cannot confirm orders" },
     },
 });
 
@@ -212,8 +218,9 @@ registry.registerPath({
     request: { params: OrderIdParam },
     responses: {
         200: { description: "Order deleted" },
-        404: { description: "Order not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        404: { description: "Not Found - Order not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
+        403: { description: "Forbidden - API key cannot confirm orders" },
     },
 });

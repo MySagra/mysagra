@@ -2,14 +2,15 @@ import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { TypedRequest } from "@/types/request";
 import { OrdersService } from "@/modules/orders/orders.service";
-import { 
-    ConfirmOrderInput, 
-    GetOrdersQueryParams, 
-    CreateOrder, 
-    OrderIdParam, 
-    PatchOrderInput, 
+import {
+    ConfirmOrderInput,
+    GetOrdersQueryParams,
+    CreateOrder,
+    OrderIdParam,
+    PatchOrderInput,
     ReprintOrder
 } from "@mysagra/schemas";
+import { ForbiddenError } from "@/common/errors";
 
 export class OrdersController {
     constructor(private orderService: OrdersService) { }
@@ -19,12 +20,6 @@ export class OrdersController {
         res: Response, 
     ): Promise<void> => {
         const orders = await this.orderService.getOrders(req.validated.query);
-
-        if (!orders) {
-            res.status(404).json({ message: "No orders found" });
-            return;
-        }
-
         res.status(200).json(orders);
     });
 
@@ -34,24 +29,17 @@ export class OrdersController {
     ): Promise<void> => {
         const { id } = req.validated.params;
         const order = await this.orderService.getOrderById(id);
-
-        if (!order) {
-            res.status(404).json({ message: "Order not found" });
-            return;
-        }
-
         res.status(200).json(order);
     });
 
     createOrder = asyncHandler(async (
         req: TypedRequest<{body: CreateOrder}>,
-        res: Response, 
+        res: Response,
     ): Promise<void> => {
         const { confirm } = req.validated.body;
 
         if((confirm && (req.apiKey && !req.user))){
-            res.status(401).json({ message: "Unauthorized" });
-            return;
+            throw new ForbiddenError("API key cannot confirm orders");
         }
 
         const newOrder = await this.orderService.createOrder(req.validated.body);
@@ -95,10 +83,6 @@ export class OrdersController {
     ): Promise<void> => {
         const { id } = req.validated.params;
         const order = await this.orderService.reprintOrder(id, req.body)
-        if(order == undefined){
-            res.status(400).json({ message: "Order not found" })
-            return;
-        }
         res.status(201).json(order)
     })
 }

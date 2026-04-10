@@ -21,14 +21,6 @@ export class OrderInstructionsController {
     ): Promise<void> => {
         const { id } = req.validated.params
         const orderInstructions = await this.orderInstructionService.getOrderInstruction(id);
-        if (!orderInstructions) {
-            res.status(404).json({
-                status: "error",
-                message: "Not Found"
-            })
-            return;
-        }
-
         res.status(200).json(orderInstructions)
     })
 

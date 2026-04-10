@@ -36,8 +36,9 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Operators can only access enabled cash registers" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -60,7 +61,7 @@ registry.registerPath({
                 },
             },
         },
-        404: { description: "Cash register not found" },
+        404: { description: "Not Found - Cash register not found" },
         401: { description: "Unauthorized" },
     },
 });
@@ -113,7 +114,7 @@ registry.registerPath({
                 "application/json": { schema: CashRegisterResponse },
             },
         },
-        404: { description: "Cash register not found" },
+        404: { description: "Not Found - Cash register not found" },
         401: { description: "Unauthorized" },
     },
 });
@@ -140,7 +141,7 @@ registry.registerPath({
                 "application/json": { schema: CashRegisterResponse },
             },
         },
-        404: { description: "Cash register not found" },
+        404: { description: "Not Found - Cash register not found" },
         401: { description: "Unauthorized" },
     },
 });
@@ -154,7 +155,7 @@ registry.registerPath({
     request: { params: CUIDParam },
     responses: {
         200: { description: "Cash register deleted" },
-        404: { description: "Cash register not found" },
+        404: { description: "Not Found - Cash register not found" },
         401: { description: "Unauthorized" },
     },
 });

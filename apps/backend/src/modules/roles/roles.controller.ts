@@ -8,22 +8,12 @@ export class RolesController {
 
     getRoles = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const roles = await this.roleService.getRoles();
-
-        if (!Array.isArray(roles)) {
-            res.status(404).json({ message: "Roles not found" })
-            return;
-        }
-
         res.status(200).json(roles);
     });
 
     getRoleById = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const id = req.params.id as string;
         const role = await this.roleService.getRoleById(id);
-        if (!role) {
-            res.status(404).json({ message: "Role not found" });
-            return;
-        }
         res.status(200).json(role);
     })
 

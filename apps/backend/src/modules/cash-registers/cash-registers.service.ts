@@ -1,10 +1,12 @@
 import { prisma, Prisma } from "@mysagra/database";
-import { 
-    CreateCashRegisterInput, 
-    GetCashRegisterQueryParams, 
-    PatchCashRegister, 
-    UpdateCashRegisterInput 
+import {
+    CreateCashRegisterInput,
+    GetCashRegisterQueryParams,
+    PatchCashRegister,
+    UpdateCashRegisterInput
 } from "@mysagra/schemas";
+import { NotFoundError } from "@/common/errors";
+
 export class CashRegistersService {
     async getCashRegisters(queryParams?: GetCashRegisterQueryParams) {
         const where: Prisma.CashRegisterWhereInput = {};
@@ -31,12 +33,18 @@ export class CashRegistersService {
             include.defaultPrinter = true
         }
 
-        return await prisma.cashRegister.findUnique({
+        const cashRegister = await prisma.cashRegister.findUnique({
             where: {
                 id
             },
             include
-        })
+        });
+
+        if (!cashRegister) {
+            throw new NotFoundError("Cash register not found");
+        }
+
+        return cashRegister;
     }
 
     async createCashRegister(cashRegister: CreateCashRegisterInput) {

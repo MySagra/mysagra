@@ -41,7 +41,8 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -62,8 +63,9 @@ registry.registerPath({
                 "application/json": { schema: FoodResponse },
             },
         },
-        404: { description: "Food item not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Food item not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -88,9 +90,11 @@ registry.registerPath({
                 "application/json": { schema: FoodResponse },
             },
         },
-        400: { description: "Invalid input" },
-        409: { description: "Food name already exists" },
-        401: { description: "Unauthorized" },
+        400: { description: "Bad Request - Invalid input or validation error" },
+        409: { description: "Conflict - Food name already exists" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions (requires admin or maintainer)" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -116,9 +120,11 @@ registry.registerPath({
                 "application/json": { schema: FoodResponse },
             },
         },
-        404: { description: "Food item not found" },
-        409: { description: "Food name already exists" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Food item not found" },
+        409: { description: "Conflict - Food name already exists" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions (requires admin or maintainer)" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -144,8 +150,10 @@ registry.registerPath({
                 "application/json": { schema: FoodResponse },
             },
         },
-        404: { description: "Food item not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Food item not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions (requires admin or maintainer)" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -158,7 +166,9 @@ registry.registerPath({
     request: { params: CUIDParam },
     responses: {
         204: { description: "Food item deleted" },
-        404: { description: "Food item not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Food item not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions (requires admin)" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });

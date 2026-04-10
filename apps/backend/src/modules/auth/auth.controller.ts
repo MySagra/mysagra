@@ -14,22 +14,7 @@ export class AuthController {
     ): Promise<void> => {
         const { username, password } = req.validated.body;
         const user = await this.authService.getUser(username);
-
-        if (!user) {
-            res.status(401).json({
-                message: "Invalid Credentials"
-            })
-            return;
-        }
-
         const token = await this.authService.login(user, password);
-
-        if (!token) {
-            res.status(401).json({
-                message: "Invalid Credentials"
-            });
-            return;
-        }
 
         res.cookie('mysagra_token', token, {
             httpOnly: true,

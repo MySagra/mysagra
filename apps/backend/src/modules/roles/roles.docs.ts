@@ -27,7 +27,8 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -45,7 +46,8 @@ registry.registerPath({
                 "application/json": { schema: RoleResponse },
             },
         },
-        404: { description: "Role not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Role not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });

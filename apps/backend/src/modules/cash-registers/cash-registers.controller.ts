@@ -2,14 +2,15 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { CashRegistersService } from "@/modules/cash-registers/cash-registers.service";
-import { 
-    CreateCashRegisterInput, 
-    GetCashRegisterQueryParams, 
-    PatchCashRegister, 
+import {
+    CreateCashRegisterInput,
+    GetCashRegisterQueryParams,
+    PatchCashRegister,
     UpdateCashRegisterInput,
     CUIDParam
 } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
+import { ForbiddenError } from "@/common/errors";
 
 export class CashRegistersController {
     constructor(private cashRegisterService: CashRegistersService) { }
@@ -19,16 +20,10 @@ export class CashRegistersController {
         res: Response,
     ): Promise<void> => {
         if(req.user?.role === "operator" && req.validated.query.enabled !== true){
-            res.status(403).json({ message: "Forbidden" });
-            return;
+            throw new ForbiddenError("Operators can only access enabled cash registers");
         }
-        
-        const cashRegisters = await this.cashRegisterService.getCashRegisters(req.validated.query)
 
-        if (!Array.isArray(cashRegisters)) {
-            res.status(404).json({ message: "CashRegisters not found" })
-            return;
-        }
+        const cashRegisters = await this.cashRegisterService.getCashRegisters(req.validated.query)
         res.status(200).json(cashRegisters);
     });
 
@@ -38,11 +33,6 @@ export class CashRegistersController {
     ): Promise<void> => {
         const { id } = req.validated.params;
         const cashRegister = await this.cashRegisterService.getCashRegisterById(id, req.validated.query)
-
-        if (!cashRegister) {
-            res.status(404).json({ message: "CashRegisters not found" })
-            return;
-        }
         res.status(200).json(cashRegister);
     });
 

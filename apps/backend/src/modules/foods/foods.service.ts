@@ -7,6 +7,7 @@ import {
     UpdateFoodInput
 } from "@mysagra/schemas";
 import { EventsService } from "../events/events.service";
+import { NotFoundError } from "@/common/errors";
 
 const foodWithIngredientsInclude = {
     category: true,
@@ -64,8 +65,6 @@ export class FoodsService {
             }
         });
 
-        if (!foods) return null;
-
         if (queryParams.include === 'ingredients') {
             return foods.map(food => FoodsService.formatFoodResponse(food as FoodWithIngredients));
         }
@@ -91,7 +90,9 @@ export class FoodsService {
             }
         });
 
-        if (!food) return null;
+        if (!food) {
+            throw new NotFoundError("Food not found");
+        }
 
         if (include === 'ingredients') {
             return FoodsService.formatFoodResponse(food as FoodWithIngredients);

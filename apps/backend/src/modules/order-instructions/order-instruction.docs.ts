@@ -39,7 +39,8 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -59,8 +60,9 @@ registry.registerPath({
                 "application/json": { schema: OrderInstructionResponse },
             },
         },
-        404: { description: "Order instruction not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Order instruction not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -86,7 +88,8 @@ registry.registerPath({
             },
         },
         400: { description: "Invalid input" },
-        401: { description: "Unauthorized" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -112,9 +115,10 @@ registry.registerPath({
                 "application/json": { schema: OrderInstructionResponse },
             },
         },
-        404: { description: "Order instruction not found" },
+        404: { description: "Not Found - Order instruction not found" },
         400: { description: "Invalid input" },
-        401: { description: "Unauthorized" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -132,7 +136,8 @@ registry.registerPath({
                 "application/json": { schema: OrderInstructionResponse },
             },
         },
-        404: { description: "Order instruction not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Order instruction not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });

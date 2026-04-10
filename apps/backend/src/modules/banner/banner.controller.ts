@@ -3,6 +3,7 @@ import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { BannerService } from "./banner.service";
 import { BannerInput, CUIDParam } from "@mysagra/schemas";
+import { BadRequestError } from "@/common/errors";
 
 export class BannerController {
     constructor(private bannerService: BannerService) { }
@@ -21,14 +22,6 @@ export class BannerController {
     ): Promise<void> => {
         const { id } = req.validated.params
         const banner = await this.bannerService.getBanner(id);
-        if (!banner) {
-            res.status(404).json({
-                status: "error",
-                message: "Not Found"
-            })
-            return;
-        }
-
         res.status(200).json(banner)
     })
 
@@ -57,8 +50,7 @@ export class BannerController {
         const file = req.file
 
         if (!file) {
-            res.status(400).json({ message: "Failed to upload image" });
-            return;
+            throw new BadRequestError("No file provided for upload");
         }
 
         const category = await this.bannerService.uploadImage(id, file);

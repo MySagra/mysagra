@@ -34,8 +34,9 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -53,9 +54,10 @@ registry.registerPath({
                 "application/json": { schema: UserResponse },
             },
         },
-        404: { description: "User not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        404: { description: "Not Found - User not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -80,10 +82,11 @@ registry.registerPath({
                 "application/json": { schema: UserResponse },
             },
         },
-        400: { description: "Invalid input" },
-        409: { description: "Username already exists" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        400: { description: "Bad Request - Invalid input or validation error" },
+        409: { description: "Conflict - Username already exists" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -121,10 +124,11 @@ registry.registerPath({
                 "application/json": { schema: UserResponse },
             },
         },
-        404: { description: "User not found" },
-        400: { description: "Invalid role ID" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        404: { description: "Not Found - User not found" },
+        400: { description: "Bad Request - Invalid role ID" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -137,8 +141,9 @@ registry.registerPath({
     request: { params: CUIDParam },
     responses: {
         204: { description: "User deleted" },
-        404: { description: "User not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        404: { description: "Not Found - User not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });

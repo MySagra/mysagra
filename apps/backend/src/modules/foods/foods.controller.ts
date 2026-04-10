@@ -25,14 +25,10 @@ export class FoodsController {
 
     getFoodById = asyncHandler(async (
         req: TypedRequest<{params: CUIDParam, query: GetFoodQueryParams}>,
-        res: Response, 
+        res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
         const food = await this.foodService.getFoodById(id, req.validated.query)
-        if (!food) {
-            res.status(404).json({ message: "Food not found" });
-            return;
-        }
         res.status(200).json(food);
     });
 

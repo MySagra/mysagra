@@ -1,5 +1,6 @@
 import { prisma } from "@mysagra/database";
 import { CreateOrderInstruction, UpdateOrderInstruction } from "@mysagra/schemas"
+import { NotFoundError } from "@/common/errors";
 
 export class OrderInstructionsService {
     async getOrderInstructions() {
@@ -11,11 +12,17 @@ export class OrderInstructionsService {
     }
 
     async getOrderInstruction(id: string) {
-        return await prisma.orderInstruction.findUnique({
+        const orderInstruction = await prisma.orderInstruction.findUnique({
             where: {
                 id
             }
         });
+
+        if (!orderInstruction) {
+            throw new NotFoundError("Order instruction not found");
+        }
+
+        return orderInstruction;
     }
 
     async createOrderInstruction(orderInstruction: CreateOrderInstruction) {

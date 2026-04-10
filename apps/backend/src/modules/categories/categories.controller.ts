@@ -2,15 +2,16 @@ import { Response } from "express";
 
 import { asyncHandler } from "@/utils/asyncHandler";
 import { CategoriesService } from "@/modules/categories/categories.service";
-import { 
-    CreateCategoryInput, 
-    GetCategoriesQuery, 
-    GetCategoryQuery, 
-    PatchCategoryInput, 
+import {
+    CreateCategoryInput,
+    GetCategoriesQuery,
+    GetCategoryQuery,
+    PatchCategoryInput,
     UpdateCategoryInput,
     CUIDParam
 } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
+import { ForbiddenError, BadRequestError } from "@/common/errors";
 
 export class CategoriesController {
     constructor(private categoryService: CategoriesService) { }
@@ -22,17 +23,10 @@ export class CategoriesController {
         const { available, foodsAvailable } = req.validated.query
 
         if ((req.apiKey && !req.user) && (available !== true || foodsAvailable !== true )) {
-            res.status(401).json({ message: "Unauthorized" });
-            return;
+            throw new ForbiddenError("API key can only access available categories with available foods");
         }
 
         const categories = await this.categoryService.getCategories(req.validated.query);
-
-        if (!Array.isArray(categories)) {
-            res.status(404).json({ message: "Users not found" })
-            return;
-        }
-
         res.status(200).json(categories);
     });
 
@@ -42,12 +36,6 @@ export class CategoriesController {
     ): Promise<void> => {
         const { id } = req.validated.params;
         const category = await this.categoryService.getCategoryById(id, req.validated.query)
-
-        if (!category) {
-            res.status(404).json({ message: "Category not found" });
-            return;
-        }
-
         res.status(200).json(category);
     });
 
@@ -85,8 +73,7 @@ export class CategoriesController {
         const file = req.file
 
         if (!file) {
-            res.status(400).json({ message: "Failed to upload image" });
-            return;
+            throw new BadRequestError("No file provided for upload");
         }
 
         const category = await this.categoryService.uploadImage(id, file);

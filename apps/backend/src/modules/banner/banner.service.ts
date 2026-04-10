@@ -1,6 +1,7 @@
 import { prisma } from "@mysagra/database"
 import { BannerInput } from "@mysagra/schemas";
 import { ImagesService } from "../images/images.service";
+import { NotFoundError, BadRequestError } from "@/common/errors";
 
 export class BannerService {
     public static imageService = new ImagesService('banners', 'banner');
@@ -10,11 +11,17 @@ export class BannerService {
     }
 
     async getBanner(id: string) {
-        return await prisma.banner.findUnique({
+        const banner = await prisma.banner.findUnique({
             where: {
                 id
             }
-        })
+        });
+
+        if (!banner) {
+            throw new NotFoundError("Banner not found");
+        }
+
+        return banner;
     }
 
     async createBanner(banner: BannerInput) {

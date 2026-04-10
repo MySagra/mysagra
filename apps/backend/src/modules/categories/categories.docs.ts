@@ -43,7 +43,9 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - API key can only access available categories with available foods" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -64,8 +66,9 @@ registry.registerPath({
                 "application/json": { schema: CategoryResponse },
             },
         },
-        404: { description: "Category not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Category not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -90,8 +93,9 @@ registry.registerPath({
                 "application/json": { schema: CategoryResponse },
             },
         },
-        400: { description: "Invalid input" },
-        401: { description: "Unauthorized" },
+        400: { description: "Bad Request - Invalid input or validation error" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -120,9 +124,10 @@ registry.registerPath({
                 "application/json": { schema: CategoryResponse },
             },
         },
-        404: { description: "Category not found" },
-        409: { description: "Conflict" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Category not found" },
+        409: { description: "Conflict - Duplicate category name or constraint violation" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -150,8 +155,9 @@ registry.registerPath({
                 "application/json": { schema: CategoryResponse },
             },
         },
-        404: { description: "Category not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Category not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -181,9 +187,10 @@ registry.registerPath({
                 "application/json": { schema: CategoryResponse },
             },
         },
-        400: { description: "Invalid image file" },
-        404: { description: "Category not found" },
-        401: { description: "Unauthorized" },
+        400: { description: "Bad Request - No file provided for upload" },
+        404: { description: "Not Found - Category not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -196,7 +203,8 @@ registry.registerPath({
     request: { params: CUIDParam },
     responses: {
         204: { description: "Category deleted" },
-        404: { description: "Category not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Category not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });

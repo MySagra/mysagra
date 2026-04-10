@@ -14,11 +14,6 @@ export class PrintersController {
         res: Response,
     ): Promise<void> => {
         const printers = await this.printerService.getPrinters()
-
-        if (!Array.isArray(printers)) {
-            res.status(404).json({ message: "Printers not found" })
-            return;
-        }
         res.status(200).json(printers);
     });
 
@@ -28,11 +23,6 @@ export class PrintersController {
     ): Promise<void> => {
         const { id } = req.validated.params;
         const printer = await this.printerService.getPrinterById(id)
-
-        if (!printer) {
-            res.status(404).json({ message: "Printers not found" })
-            return;
-        }
         res.status(200).json(printer);
     });
 
@@ -41,7 +31,6 @@ export class PrintersController {
         res: Response,
     ): Promise<void> => {
         const printer = await this.printerService.createPrinter(req.validated.body)
-
         res.status(201).json(printer);
     });
 
@@ -51,7 +40,6 @@ export class PrintersController {
     ): Promise<void> => {
         const { id } = req.validated.params;
         const printer = await this.printerService.updatePrinter(id, req.validated.body)
-
         res.status(200).json(printer);
     });
 
@@ -71,7 +59,6 @@ export class PrintersController {
     ): Promise<void> => {
         const { id } = req.validated.params;
         await this.printerService.deletePrinter(id)
-
         res.status(204).send();
     });
 }

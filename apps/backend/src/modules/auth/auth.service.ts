@@ -3,6 +3,7 @@ import { prisma } from "@mysagra/database";
 import { Role, User } from "@mysagra/database";
 import { TokenService } from "./token.service";
 import { redisClient } from "@/lib/redis";
+import { UnauthorizedError, NotFoundError } from "@/common/errors";
 
 export class AuthService {
     private tokenService = new TokenService();
@@ -17,11 +18,18 @@ export class AuthService {
             }
         });
 
+        if (!user) {
+            throw new NotFoundError("User not found");
+        }
+
         return user;
     }
 
     async login(user: User & { role: Role }, password: string) {
-        if (!await checkHashPassword(password, user.password)) return null;
+        const isPasswordValid = await checkHashPassword(password, user.password);
+        if (!isPasswordValid) {
+            throw new UnauthorizedError("Invalid credentials");
+        }
         const accessToken = await this.tokenService.generateToken(user)
         return accessToken
     }

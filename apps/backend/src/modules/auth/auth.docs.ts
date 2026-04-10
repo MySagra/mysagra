@@ -77,7 +77,7 @@ registry.registerPath({
             },
         },
         401: {
-            description: "Unauthorized — invalid password",
+            description: "Unauthorized — Invalid credentials (user not found or invalid password)",
             content: {
                 "application/json": {
                     schema: ErrorResponseSchema,
@@ -85,7 +85,15 @@ registry.registerPath({
             },
         },
         404: {
-            description: "User not found",
+            description: "Not Found — User not found",
+            content: {
+                "application/json": {
+                    schema: ErrorResponseSchema,
+                },
+            },
+        },
+        429: {
+            description: "Too Many Requests — Too many login attempts, please try again later",
             content: {
                 "application/json": {
                     schema: ErrorResponseSchema,

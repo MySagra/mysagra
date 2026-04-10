@@ -32,7 +32,8 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -52,8 +53,9 @@ registry.registerPath({
                 "application/json": { schema: BannerResponse },
             },
         },
-        404: { description: "Banner not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Banner not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -78,8 +80,9 @@ registry.registerPath({
                 "application/json": { schema: BannerResponse },
             },
         },
-        400: { description: "Invalid input" },
-        401: { description: "Unauthorized" },
+        400: { description: "Bad Request - Invalid input or validation error" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -105,9 +108,10 @@ registry.registerPath({
                 "application/json": { schema: BannerResponse },
             },
         },
-        404: { description: "Banner not found" },
-        400: { description: "Invalid input" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Banner not found" },
+        400: { description: "Bad Request - Invalid input or validation error" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -137,9 +141,10 @@ registry.registerPath({
                 "application/json": { schema: BannerResponse },
             },
         },
-        400: { description: "Invalid image file" },
-        404: { description: "Banner not found" },
-        401: { description: "Unauthorized" },
+        400: { description: "Bad Request - No file provided for upload" },
+        404: { description: "Not Found - Banner not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -157,7 +162,8 @@ registry.registerPath({
                 "application/json": { schema: BannerResponse },
             },
         },
-        404: { description: "Banner not found" },
-        401: { description: "Unauthorized" },
+        404: { description: "Not Found - Banner not found" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });

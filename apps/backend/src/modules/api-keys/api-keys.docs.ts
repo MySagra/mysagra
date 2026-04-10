@@ -31,8 +31,9 @@ registry.registerPath({
                 },
             },
         },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -51,8 +52,9 @@ registry.registerPath({
             },
         },
         404: { description: "API key not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -79,8 +81,9 @@ registry.registerPath({
             },
         },
         400: { description: "Invalid input" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
 
@@ -94,7 +97,8 @@ registry.registerPath({
     responses: {
         204: { description: "API key revoked" },
         404: { description: "API key not found" },
-        401: { description: "Unauthorized" },
-        403: { description: "Forbidden" },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });

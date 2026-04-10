@@ -5,6 +5,7 @@ import { redisClient } from "@/lib/redis";
 import { prisma } from "@mysagra/database";
 import { logger } from "@/config/logger";
 import { env } from "@/config/env";
+import { BadRequestError, UnauthorizedError, ForbiddenError, InternalServerError } from "@/common/errors";
 
 const apiKeyService = new ApiKeysService();
 const LAST_USED_THROTTLE_SECONDS = 60 * 5;
@@ -18,16 +19,14 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
 
     try {
         if (typeof rawKey !== 'string') {
-            res.status(400).json({ message: "Malformed X-API-KEY header" });
-            return;
+            throw new BadRequestError("Malformed X-API-KEY header");
         }
 
         const prefix = rawKey.substring(0, 6);
         const parsed = ApiKeyPrefixSchema.safeParse(prefix);
 
         if (!parsed.success) {
-            res.status(400).json({ message: "Invalid API key" });
-            return;
+            throw new BadRequestError("Invalid API key");
         }
 
         //check redis
@@ -44,14 +43,12 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
             });
 
             if (!dbKey) {
-                res.status(401).json({ message: "Invalid API Key." });
-                return;
+                throw new UnauthorizedError("Invalid API Key");
             }
 
             if (dbKey.revokedAt) {
                 await redisClient.setEx(redisKey, env.REDIS_CACHE_TTL, JSON.stringify({ status: 'REVOKED' }));
-                res.status(403).json({ message: "API Key has been revoked." });
-                return;
+                throw new ForbiddenError("API Key has been revoked");
             }
 
             const now = new Date();
@@ -65,8 +62,7 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
             const keyData = JSON.parse(cachedKey);
 
             if (keyData.status === 'REVOKED') {
-                res.status(403).json({ message: "API Key has been revoked." });
-                return;
+                throw new ForbiddenError("API Key has been revoked");
             }
 
             const lastUpdated: number = keyData.lastUsedUpdatedAt ?? 0;
@@ -90,7 +86,10 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
         }
         next();
     } catch (error) {
+        if (error instanceof BadRequestError || error instanceof UnauthorizedError || error instanceof ForbiddenError) {
+            throw error;
+        }
         logger.error("Error during API Key validation:", error);
-        res.status(500).json({ message: "Internal server error during authentication." });
+        throw new InternalServerError();
     }
 }

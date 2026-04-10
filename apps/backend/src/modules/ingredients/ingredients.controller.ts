@@ -10,29 +10,19 @@ export class IngredientsController {
     constructor(private ingredientService: IngredientsService) { }
 
     getIngredients = asyncHandler(async (
-        req: TypedRequest<{}>, 
-        res: Response, 
+        req: TypedRequest<{}>,
+        res: Response,
     ): Promise<void> => {
         const ingredients = await this.ingredientService.getIngredients()
-
-        if (!Array.isArray(ingredients)) {
-            res.status(404).json({ message: "Ingredients not found" })
-            return;
-        }
         res.status(200).json(ingredients);
     });
 
     getIngredientById = asyncHandler(async (
-        req: TypedRequest<{params: CUIDParam}>, 
-        res: Response, 
+        req: TypedRequest<{params: CUIDParam}>,
+        res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
         const ingredient = await this.ingredientService.getIngredientById(id)
-
-        if (!ingredient) {
-            res.status(404).json({ message: "Ingredients not found" })
-            return;
-        }
         res.status(200).json(ingredient);
     });
 

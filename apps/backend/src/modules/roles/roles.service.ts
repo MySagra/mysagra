@@ -1,4 +1,5 @@
 import { prisma } from "@mysagra/database";
+import { NotFoundError } from "@/common/errors";
 
 export class RolesService {
     async getRoles() {
@@ -6,11 +7,17 @@ export class RolesService {
     }
 
     async getRoleById(id: string) {
-        return await prisma.role.findUnique({
+        const role = await prisma.role.findUnique({
             where: {
                 id
             }
-        })
+        });
+
+        if (!role) {
+            throw new NotFoundError("Role not found");
+        }
+
+        return role;
     }
 
     async getRoleByName(name: string) {

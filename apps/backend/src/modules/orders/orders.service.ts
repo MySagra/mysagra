@@ -12,6 +12,7 @@ import { generateDisplayId } from "@/lib/idGenerator";
 import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
 import { redisClient } from "@/lib/redis";
+import { BadRequestError, NotFoundError } from "@/common/errors";
 export class OrdersService {
     private cashierEvent = EventsService.getIstance('cashier');
     private displayEvent = EventsService.getIstance('display');
@@ -130,7 +131,7 @@ export class OrdersService {
             }
         });
 
-        if (!order) return null;
+        if (!order) throw new NotFoundError("Order not found")
 
         const categoryMap = new Map<string, { category: { id: string; name: string }; items: unknown[] }>();
 
@@ -496,7 +497,11 @@ export class OrdersService {
         })
 
         if (!order) {
-            return undefined;
+            throw new NotFoundError("Order not found")
+        }
+
+        if(order.status === "PENDING"){
+            throw new BadRequestError("Pending orders can't be reprinted");
         }
 
         let reprintOrderItems: typeof order.orderItems = []

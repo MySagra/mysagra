@@ -14,12 +14,6 @@ export class UsersController {
         res: Response,
     ): Promise<void> => {
         const users = await this.userService.getUsers();
-
-        if (!Array.isArray(users)) {
-            res.status(404).json({ message: "Users not found" })
-            return;
-        }
-
         res.status(200).json(users);
     });
 
@@ -29,11 +23,6 @@ export class UsersController {
     ): Promise<void> => {
         const { id } = req.validated.params;
         const user = await this.userService.getUserById(id);
-
-        if (!user) {
-            res.status(404).json({ message: "User not found" });
-            return;
-        }
         res.status(200).json(user);
     })
 

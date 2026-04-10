@@ -1,6 +1,7 @@
 import { prisma } from "@mysagra/database";
 import { createHashPassword } from "@/lib/hashPassword";
 import { CreateUserInput, PatchUserInput, UpdateUserInput } from "@mysagra/schemas";
+import { NotFoundError } from "@/common/errors";
 
 export class UsersService {
     async getUsers() {
@@ -15,7 +16,7 @@ export class UsersService {
     }
 
     async getUserById(id: string) {
-        return await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: {
                 id
             },
@@ -25,7 +26,13 @@ export class UsersService {
             include: {
                 role: true
             }
-        })
+        });
+
+        if (!user) {
+            throw new NotFoundError("User not found");
+        }
+
+        return user;
     }
 
     async getUserByUsername(username: string) {

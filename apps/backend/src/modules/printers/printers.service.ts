@@ -1,6 +1,7 @@
 import { PatchPrinterInput, CreatePrinterInput, UpdatePrinterInput } from "@mysagra/schemas";
 import { prisma } from "@mysagra/database";
 import { EventsService } from "../events/events.service";
+import { NotFoundError } from "@/common/errors";
 
 export class PrintersService {
     private cashierEvent = EventsService.getIstance('cashier');
@@ -10,11 +11,17 @@ export class PrintersService {
     }
 
     async getPrinterById(id: string) {
-        return await prisma.printer.findUnique({
+        const printers = await prisma.printer.findUnique({
             where: {
                 id
             }
         })
+
+        if(!printers){
+            throw new NotFoundError("Printer not found")
+        }
+        
+        return printers;
     }
 
     async createPrinter(printer: CreatePrinterInput) {
