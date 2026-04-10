@@ -43,7 +43,14 @@ export class CategoriesService {
         if (include !== undefined) {
             return categories.map(category => ({
                 ...category,
-                foods: (category as any).foods.map((food: any) => FoodsService.formatFoodResponse(food))
+                foods: (category as any).foods.map((food: any) => {
+                    if (include === "foods.ingredients") {
+                        return FoodsService.formatFoodResponse(food);
+                    }
+                    // Escludi foodIngredients dal response se non richiesto
+                    const { foodIngredients, ...foodData } = food;
+                    return foodData;
+                })
             }))
         }
 
@@ -52,7 +59,7 @@ export class CategoriesService {
 
     async getCategoryById(id: string, queryParams?: GetCategoryQuery, tx?: Prisma.TransactionClient) {
         const client = tx || prisma;
-        
+
         if (!queryParams) {
             return await client.category.findUnique({
                 where: { id }
@@ -65,11 +72,9 @@ export class CategoriesService {
         if (include !== undefined) {
             categoryInclude.foods = {
                 include: {
-                    foodIngredients: {
-                        include: {
-                            ingredient: true
-                        }
-                    }
+                    foodIngredients: include === "foods.ingredients" ? {
+                        include: { ingredient: true }
+                    } : false
                 }
             }
         }
@@ -86,7 +91,14 @@ export class CategoriesService {
         if (include !== undefined) {
             return {
                 ...category,
-                foods: (category as any).foods.map((food: any) => FoodsService.formatFoodResponse(food))
+                foods: (category as any).foods.map((food: any) => {
+                    if (include === "foods.ingredients") {
+                        return FoodsService.formatFoodResponse(food);
+                    }
+                    // Escludi foodIngredients dal response se non richiesto
+                    const { foodIngredients, ...foodData } = food;
+                    return foodData;
+                })
             }
         }
 

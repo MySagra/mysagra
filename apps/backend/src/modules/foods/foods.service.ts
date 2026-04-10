@@ -28,7 +28,7 @@ export class FoodsService {
         const { foodIngredients, ...restOfFood } = food;
         const ingredients = foodIngredients
             .map(fi => fi.ingredient)
-            .filter(ingredient => ingredient !== null);
+            .filter(ingredient => ingredient != null);
         return {
             ...restOfFood,
             ingredients
