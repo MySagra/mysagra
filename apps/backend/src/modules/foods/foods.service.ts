@@ -26,7 +26,9 @@ export class FoodsService {
 
     public static formatFoodResponse(food: FoodWithIngredients) {
         const { foodIngredients, ...restOfFood } = food;
-        const ingredients = foodIngredients.map(fi => fi.ingredient);
+        const ingredients = foodIngredients
+            .map(fi => fi.ingredient)
+            .filter(ingredient => ingredient !== null);
         return {
             ...restOfFood,
             ingredients
@@ -100,74 +102,140 @@ export class FoodsService {
 
     async createFood(food: CreateFoodInput) {
         const { ingredients, ...foodData } = food;
-        const newFood = await prisma.food.create({
-            data: {
-                ...foodData,
-                ...(ingredients && ingredients.length > 0 && {
+
+        const res = await prisma.$transaction(async (tx) => {
+            const newFood = await prisma.food.create({
+                data: {
+                    ...foodData,
+                    ...(ingredients && ingredients.length > 0 && {
+                        foodIngredients: {
+                            create: ingredients.map(ingredient => ({
+                                ingredientId: ingredient.id
+                            }))
+                        }
+                    })
+                },
+                include: {
+                    category: true,
                     foodIngredients: {
-                        create: ingredients.map(ingredient => ({
-                            ingredientId: ingredient.id
-                        }))
-                    }
-                })
-            },
-            include: {
-                category: true,
-                foodIngredients: {
-                    include: {
-                        ingredient: true
+                        include: {
+                            ingredient: true
+                        }
                     }
                 }
+            });
+
+            let categoryUpdated = null;
+
+            if (newFood.available === true) {
+                const updateBatch = await tx.category.updateMany({
+                    where: {
+                        id: newFood.categoryId,
+                        available: false
+                    },
+                    data: { available: true }
+                });
+
+                if (updateBatch.count > 0) {
+                    categoryUpdated = {
+                        id: newFood.categoryId,
+                        available: true
+                    };
+                }
             }
-        });
+
+            return { newFood, categoryUpdated };
+        })
+
+        const { newFood, categoryUpdated } = res;
 
         if (ingredients && ingredients.length > 0) {
             return FoodsService.formatFoodResponse(newFood);
+        }
+
+        if (categoryUpdated) {
+            this.event.broadcastEvent(
+                {
+                    id: categoryUpdated.id,
+                    available: categoryUpdated.available
+                },
+                "category-availability-changed"
+            )
         }
 
         return newFood;
     }
 
     async updateFood(id: string, food: UpdateFoodInput) {
-        // First delete existing ingredient relations
-        await prisma.foodIngredient.deleteMany({
-            where: {
-                foodId: id
-            }
-        });
+        const res = await prisma.$transaction(async (tx) => {
+            // First delete existing ingredient relations
+            await tx.foodIngredient.deleteMany({
+                where: {
+                    foodId: id
+                }
+            });
 
-        // Then update the food and create new relations
-        const updatedFood = await prisma.food.update({
-            where: {
-                id
-            },
-            data: {
-                name: food.name,
-                description: food.description,
-                price: food.price,
-                categoryId: food.categoryId,
-                available: food.available,
-                printerId: food.printerId,
-                ...(food.ingredients && food.ingredients.length > 0 && {
+            // Then update the food and create new relations
+            const updatedFood = await prisma.food.update({
+                where: {
+                    id
+                },
+                data: {
+                    ...food,
+                    ...(food.ingredients && food.ingredients.length > 0 && {
+                        foodIngredients: {
+                            create: food.ingredients.map(ingredient => ({
+                                ingredientId: ingredient.id
+                            }))
+                        }
+                    })
+                },
+                include: {
+                    category: true,
                     foodIngredients: {
-                        create: food.ingredients.map(ingredient => ({
-                            ingredientId: ingredient.id
-                        }))
-                    }
-                })
-            },
-            include: {
-                category: true,
-                foodIngredients: {
-                    include: {
-                        ingredient: true
+                        include: {
+                            ingredient: true
+                        }
                     }
                 }
+            });
+
+            let categoryUpdated = null;
+
+            if (updatedFood.available === true) {
+                const updateBatch = await tx.category.updateMany({
+                    where: {
+                        id: updatedFood.categoryId,
+                        available: false
+                    },
+                    data: { available: true }
+                });
+
+                if (updateBatch.count > 0) {
+                    categoryUpdated = {
+                        id: updatedFood.categoryId,
+                        available: true
+                    };
+                }
             }
-        });
+
+            return { updatedFood, categoryUpdated };
+        })
+
+        const { updatedFood, categoryUpdated } = res;
 
         if (food.ingredients && food.ingredients.length > 0) {
             return FoodsService.formatFoodResponse(updatedFood);
+        }
+
+        if (categoryUpdated) {
+            this.event.broadcastEvent(
+                {
+                    id: categoryUpdated.id,
+                    available: categoryUpdated.available
+                },
+                "category-availability-changed"
+            )
         }
 
         // broadcast new available status
@@ -183,15 +251,50 @@ export class FoodsService {
     }
 
     async patchFood(id: string, food: PatchFoodInput) {
-        const patchedFood = await prisma.food.update({
-            where: {
-                id
-            },
-            data: {
-                printerId: food.printerId,
-                available: food.available
+        const res = await prisma.$transaction(async (tx) => {
+            const patchedFood = await tx.food.update({
+                where: {
+                    id
+                },
+                data: {
+                    printerId: food.printerId,
+                    available: food.available,
+                }
+            })
+
+            let categoryUpdated = null;
+
+            if (patchedFood.available === true) {
+                const updateBatch = await tx.category.updateMany({
+                    where: {
+                        id: patchedFood.categoryId,
+                        available: false
+                    },
+                    data: { available: true }
+                });
+
+                if (updateBatch.count > 0) {
+                    categoryUpdated = {
+                        id: patchedFood.categoryId,
+                        available: true
+                    };
+                }
             }
+
+            return { patchedFood, categoryUpdated };
         })
+
+        const { patchedFood, categoryUpdated } = res
+
+        if (categoryUpdated) {
+            this.event.broadcastEvent(
+                {
+                    id: categoryUpdated.id,
+                    available: categoryUpdated.available
+                },
+                "category-availability-changed"
+            )
+        }
 
         if (food.available !== undefined) {
             this.event.broadcastEvent(
@@ -203,7 +306,7 @@ export class FoodsService {
             )
         }
 
-        return patchedFood;
+        return res;
     }
 
     async deleteFood(id: string) {

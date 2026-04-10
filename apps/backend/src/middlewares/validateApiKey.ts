@@ -75,7 +75,12 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
                 const updatedData = { ...keyData, lastUsedUpdatedAt: now.getTime() };
                 redisClient.setEx(redisKey, env.REDIS_CACHE_TTL, JSON.stringify(updatedData))
                     .then(() => prisma.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } }))
-                    .catch(err => logger.error("Error updating lastUsedAt:", err));
+                    .catch(err => {
+                        // Ignore P2025 (record not found) - can occur if key was deleted between Redis read and DB update
+                        if (err.code !== 'P2025') {
+                            logger.error("Error updating lastUsedAt:", err);
+                        }
+                    });
             }
         }
 

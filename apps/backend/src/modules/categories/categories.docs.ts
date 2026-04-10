@@ -6,6 +6,7 @@ import {
     UpdateCategorySchema,
     PatchCategorySchema,
     GetCategoriesQuerySchema,
+    GetCategoryQuerySchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
 
@@ -16,6 +17,7 @@ const CreateCategoryRequest = registry.register("CreateCategoryRequest", CreateC
 const UpdateCategoryRequest = registry.register("UpdateCategoryRequest", UpdateCategorySchema);
 const PatchCategoryRequest = registry.register("PatchCategoryRequest", PatchCategorySchema);
 const GetCategoriesQuery = registry.register("GetCategoriesQuery", GetCategoriesQuerySchema);
+const GetCategoryQuery = registry.register("GetCategoryQuery", GetCategoryQuerySchema);
 const CUIDParam = registry.register("CUIDParam", cuidParamSchema);
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
@@ -26,6 +28,7 @@ registry.registerPath({
     summary: "Get all categories",
     description:
         "Returns all categories with optional filtering by availability and optional inclusion of foods. " +
+        "Query parameters: `available` (true/false), `include` (foods, foods.ingredients), `foodsAvailable` (true/false/all). " +
         "If `available=true` is specified the endpoint is public; otherwise admin authentication is required. " +
         "Also accessible via WEBAPP API key (`ms_wb_`).",
     tags: ["Categories"],
@@ -52,7 +55,7 @@ registry.registerPath({
     security: [{ cookieAuth: [] }],
     request: {
         params: CUIDParam,
-        query: GetCategoriesQuery,
+        query: GetCategoryQuery,
     },
     responses: {
         200: {

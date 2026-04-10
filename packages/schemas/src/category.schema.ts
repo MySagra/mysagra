@@ -62,18 +62,30 @@ export const GetCategoriesQuerySchema = z.object({
     available: z.enum(['true', 'false']).transform(val => val === 'true').optional().meta({
         description: "Filter by availability"
     }),
-    include: z.enum(['foods']).optional().meta({
-        description: "Relations to include"
-    })
+    include: z.enum(['foods', 'foods.ingredients'])
+        .optional()
+        .meta({
+            description: "Relations to include. 'foods.ingredients' includes both levels."
+        }),
+    foodsAvailable: z.enum(['true', 'false', 'all'])
+        .optional()
+        .default('all')
+        .transform((val) => {
+            if (val === 'all') return undefined; // 'undefined' tells Prisma not to filter
+            return val === 'true';
+        })
+        .meta({ description: "Filter included foods: true (available), false (unavailable), all" })
 }).meta({
     id: "GetCategoriesQuery",
     description: "Query parameters for listing categories"
 })
 
 export const GetCategoryQuerySchema = z.object({
-    include: z.enum(['foods']).meta({
-        description: "Relations to include"
-    })
+    include: z.enum(['foods', 'foods.ingredients'])
+        .optional()
+        .meta({
+            description: "Relations to include. 'foods.ingredients' includes both levels."
+        })
 }).meta({
     id: "GetCategoryQuery",
     description: "Query parameters for retrieving a single category"

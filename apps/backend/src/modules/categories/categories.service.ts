@@ -15,31 +15,32 @@ export class CategoriesService {
     private event = EventsService.getIstance('cashier')
 
     async getCategories(queryParams?: GetCategoriesQuery) {
-        const whereClause: Prisma.CategoryWhereInput = {}
-        const include: Prisma.CategoryInclude = {}
-
-        if (queryParams?.available !== undefined) {
-            whereClause.available = queryParams.available
+        if (!queryParams) {
+            return await prisma.category.findMany();
         }
 
-        if (queryParams?.include === "foods") {
-            include.foods = {
+        const { available, include, foodsAvailable } = queryParams;
+
+        const whereClause: Prisma.CategoryWhereInput = { available }
+        const categoriesInclude: Prisma.CategoryInclude = {};
+
+        if (include !== undefined) {
+            categoriesInclude.foods = {
+                where: { available: foodsAvailable },
                 include: {
-                    foodIngredients: {
-                        include: {
-                            ingredient: true
-                        }
-                    }
+                    foodIngredients: include === "foods.ingredients" ? {
+                        include: { ingredient: true }
+                    } : false
                 }
             }
         }
 
         const categories = await prisma.category.findMany({
             where: whereClause,
-            include
+            include: categoriesInclude
         });
 
-        if (queryParams?.include === "foods") {
+        if (include !== undefined) {
             return categories.map(category => ({
                 ...category,
                 foods: (category as any).foods.map((food: any) => FoodsService.formatFoodResponse(food))
@@ -51,10 +52,18 @@ export class CategoriesService {
 
     async getCategoryById(id: string, queryParams?: GetCategoryQuery, tx?: Prisma.TransactionClient) {
         const client = tx || prisma;
-        const include: Prisma.CategoryInclude = {}
+        
+        if (!queryParams) {
+            return await client.category.findUnique({
+                where: { id }
+            })
+        }
 
-        if (queryParams?.include === "foods") {
-            include.foods = {
+        const { include } = queryParams
+        const categoryInclude: Prisma.CategoryInclude = {}
+
+        if (include !== undefined) {
+            categoryInclude.foods = {
                 include: {
                     foodIngredients: {
                         include: {
@@ -65,17 +74,16 @@ export class CategoriesService {
             }
         }
 
-
         const category = await client.category.findUnique({
             where: {
                 id,
             },
-            include
+            include: categoryInclude
         })
 
         if (!category) return null;
 
-        if (queryParams?.include === "foods") {
+        if (include !== undefined) {
             return {
                 ...category,
                 foods: (category as any).foods.map((food: any) => FoodsService.formatFoodResponse(food))

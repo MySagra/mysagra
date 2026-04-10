@@ -19,9 +19,9 @@ export class CategoriesController {
         req: TypedRequest<{ query: GetCategoriesQuery }>,
         res: Response,
     ): Promise<void> => {
-        const { available } = req.validated.query
+        const { available, foodsAvailable } = req.validated.query
 
-        if ((req.apiKey && !req.user) && !available) {
+        if ((req.apiKey && !req.user) && (available !== true || foodsAvailable !== true )) {
             res.status(401).json({ message: "Unauthorized" });
             return;
         }
