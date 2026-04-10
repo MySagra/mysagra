@@ -395,7 +395,8 @@ export const ModelName = {
   Printer: 'Printer',
   CashRegister: 'CashRegister',
   ApiKey: 'ApiKey',
-  Banner: 'Banner'
+  Banner: 'Banner',
+  OrderInstruction: 'OrderInstruction'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner"
+    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner" | "orderInstruction"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1207,6 +1208,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OrderInstruction: {
+      payload: Prisma.$OrderInstructionPayload<ExtArgs>
+      fields: Prisma.OrderInstructionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OrderInstructionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OrderInstructionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload>
+        }
+        findFirst: {
+          args: Prisma.OrderInstructionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OrderInstructionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload>
+        }
+        findMany: {
+          args: Prisma.OrderInstructionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload>[]
+        }
+        create: {
+          args: Prisma.OrderInstructionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload>
+        }
+        createMany: {
+          args: Prisma.OrderInstructionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.OrderInstructionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload>
+        }
+        update: {
+          args: Prisma.OrderInstructionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload>
+        }
+        deleteMany: {
+          args: Prisma.OrderInstructionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OrderInstructionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.OrderInstructionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderInstructionPayload>
+        }
+        aggregate: {
+          args: Prisma.OrderInstructionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOrderInstruction>
+        }
+        groupBy: {
+          args: Prisma.OrderInstructionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrderInstructionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OrderInstructionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrderInstructionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1396,6 +1463,15 @@ export const BannerScalarFieldEnum = {
 export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
 
 
+export const OrderInstructionScalarFieldEnum = {
+  id: 'id',
+  text: 'text',
+  position: 'position'
+} as const
+
+export type OrderInstructionScalarFieldEnum = (typeof OrderInstructionScalarFieldEnum)[keyof typeof OrderInstructionScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1533,6 +1609,14 @@ export const BannerOrderByRelevanceFieldEnum = {
 } as const
 
 export type BannerOrderByRelevanceFieldEnum = (typeof BannerOrderByRelevanceFieldEnum)[keyof typeof BannerOrderByRelevanceFieldEnum]
+
+
+export const OrderInstructionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  text: 'text'
+} as const
+
+export type OrderInstructionOrderByRelevanceFieldEnum = (typeof OrderInstructionOrderByRelevanceFieldEnum)[keyof typeof OrderInstructionOrderByRelevanceFieldEnum]
 
 
 
@@ -1724,6 +1808,7 @@ export type GlobalOmitConfig = {
   cashRegister?: Prisma.CashRegisterOmit
   apiKey?: Prisma.ApiKeyOmit
   banner?: Prisma.BannerOmit
+  orderInstruction?: Prisma.OrderInstructionOmit
 }
 
 /* Types for Logging */

@@ -222,4 +222,14 @@ model Banner {
   image    String?
   color    String    @default("fecc01")
   dateTime DateTime?
+
+  @@map("banners")
+}
+
+model OrderInstruction {
+  id       String @id @default(cuid())
+  text     String @db.Text
+  position Int
+
+  @@map("order_instructions")
 }

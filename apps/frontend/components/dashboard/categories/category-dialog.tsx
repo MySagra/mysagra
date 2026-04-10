@@ -24,7 +24,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2Icon, ImageIcon, UploadIcon } from "lucide-react";
+import { Trash2Icon, ImageIcon, UploadIcon, CropIcon } from "lucide-react";
+import { ImageCropDialog } from "./image-crop-dialog";
 import {
   Empty,
   EmptyHeader,
@@ -80,6 +81,8 @@ export function CategoryDialog({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
 
   const categorySchema = z.object({
     name: z.string().min(1, t.categories.nameRequired),
@@ -124,12 +127,29 @@ export function CategoryDialog({
   }
 
   function processFile(file: File) {
-    setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result as string);
+      const dataUrl = reader.result as string;
+      setRawImageUrl(dataUrl);
+      setCropDialogOpen(true);
     };
     reader.readAsDataURL(file);
+  }
+
+  function handleCropComplete(croppedFile: File, previewUrl: string) {
+    setImageFile(croppedFile);
+    setImagePreview(previewUrl);
+    setCropDialogOpen(false);
+  }
+
+  function handleCropCancel() {
+    setCropDialogOpen(false);
+  }
+
+  function handleRecrop() {
+    if (rawImageUrl) {
+      setCropDialogOpen(true);
+    }
   }
 
   function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
@@ -189,7 +209,8 @@ export function CategoryDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl select-none">
@@ -286,7 +307,6 @@ export function CategoryDialog({
                   {imagePreview ? (
                     <div
                       className="relative cursor-pointer rounded-xl border overflow-hidden"
-                      onClick={() => fileInputRef.current?.click()}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
@@ -296,8 +316,25 @@ export function CategoryDialog({
                         alt="Preview"
                         className="w-full h-40 object-cover"
                       />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <UploadIcon className="h-6 w-6 text-white" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex items-center gap-1.5 rounded-lg bg-white/20 backdrop-blur-sm px-3 py-2 text-white text-sm font-medium hover:bg-white/30 transition-colors"
+                        >
+                          <UploadIcon className="h-4 w-4" />
+                          {t.categories.imageUploadTitle}
+                        </button>
+                        {rawImageUrl && (
+                          <button
+                            type="button"
+                            onClick={handleRecrop}
+                            className="flex items-center gap-1.5 rounded-lg bg-white/20 backdrop-blur-sm px-3 py-2 text-white text-sm font-medium hover:bg-white/30 transition-colors"
+                          >
+                            <CropIcon className="h-4 w-4" />
+                            {t.categories.recrop}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -355,5 +392,12 @@ export function CategoryDialog({
           </FormProvider>
         </DialogContent>
       </Dialog>
+      <ImageCropDialog
+        open={cropDialogOpen}
+        imageSrc={rawImageUrl}
+        onCancel={handleCropCancel}
+        onCropComplete={handleCropComplete}
+      />
+    </>
   );
 }

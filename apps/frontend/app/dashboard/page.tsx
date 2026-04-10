@@ -14,6 +14,7 @@ import {
   Landmark,
   ShoppingBag,
   ImageIcon,
+  ListOrderedIcon,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useSession } from "next-auth/react";
@@ -24,7 +25,7 @@ import { useRole } from "@/hooks/use-role";
 export default function DashboardPage() {
   const { data: session } = useSession();
   const { t } = useLocale();
-  const { canManageUsers, canManageCategories, canManageBanners } = useRole();
+  const { canManageUsers, canManageCategories, canManageBanners, canManageOrderInstructions } = useRole();
 
   const navigationCards = [
     ...(canManageCategories
@@ -95,6 +96,16 @@ export default function DashboardPage() {
           href: "/dashboard/banners",
           color: "text-yellow-600",
           bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+        }]
+      : []),
+    ...(canManageOrderInstructions
+      ? [{
+          title: t.dashboard.cardOrderInstructionsTitle,
+          description: t.dashboard.cardOrderInstructionsDescription,
+          icon: ListOrderedIcon,
+          href: "/dashboard/order-instructions",
+          color: "text-teal-600",
+          bgColor: "bg-teal-50 dark:bg-teal-950/20",
         }]
       : []),
   ];

@@ -240,6 +240,13 @@ export interface Banner {
   image: string | null;
 }
 
+// Order Instructions
+export interface OrderInstruction {
+  id: string;
+  text: string;
+  position: number;
+}
+
 // API Endpoints
 export const API_ENDPOINTS = {
   AUTH: {
@@ -289,5 +296,9 @@ export const API_ENDPOINTS = {
     ALL: "/v1/banners",
     BY_ID: (id: string) => `/v1/banners/${id}`,
     IMAGE: (id: string) => `/v1/banners/${id}/image`,
+  },
+  ORDER_INSTRUCTIONS: {
+    ALL: "/v1/order-instructions",
+    BY_ID: (id: string) => `/v1/order-instructions/${id}`,
   },
 } as const;

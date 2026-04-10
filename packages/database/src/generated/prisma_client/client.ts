@@ -101,3 +101,8 @@ export type ApiKey = Prisma.ApiKeyModel
  * 
  */
 export type Banner = Prisma.BannerModel
+/**
+ * Model OrderInstruction
+ * 
+ */
+export type OrderInstruction = Prisma.OrderInstructionModel

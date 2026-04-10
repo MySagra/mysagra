@@ -102,9 +102,11 @@ export function PrinterDialog({
 
   async function onSubmit(values: PrinterFormValues) {
     try {
-      const ip = (values.ip as string | undefined)?.trim() || null;
-      const mac = (values.mac as string | undefined)?.trim() || null;
-      const description = (values.description as string | undefined)?.trim() || undefined;
+      const ipTrimmed = (values.ip as string | undefined)?.trim();
+      const macTrimmed = (values.mac as string | undefined)?.trim();
+      const ip = ipTrimmed ? ipTrimmed : null;
+      const mac = macTrimmed ? macTrimmed : null;
+      const description = (values.description as string | undefined)?.trim() ?? "";
       const data = {
         name: values.name.trim(),
         ip,
