@@ -11,7 +11,7 @@ import {
 import { generateDisplayId } from "@/lib/idGenerator";
 import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
-import { redisClient } from "@/lib/redis";
+import { redisConnection } from "@/lib/redis";
 import { BadRequestError, NotFoundError } from "@/common/errors";
 export class OrdersService {
     private cashierEvent = EventsService.getIstance('cashier');
@@ -22,7 +22,7 @@ export class OrdersService {
         const today = new Date().toISOString().split('T')[0];
         const redisKey = `ticket_counter:${today}`;
 
-        const ticketNumber = await redisClient.incr(redisKey);
+        const ticketNumber = await redisConnection.incr(redisKey);
 
         if (ticketNumber === 1) {
             const now = new Date();
@@ -30,7 +30,7 @@ export class OrdersService {
             expireAt.setDate(expireAt.getDate() + 1);
             expireAt.setHours(6, 0, 0, 0);
             const secondsUntilExpiry = Math.floor((expireAt.getTime() - now.getTime()) / 1000);
-            await redisClient.expire(redisKey, secondsUntilExpiry);
+            await redisConnection.expire(redisKey, secondsUntilExpiry);
         }
 
         return ticketNumber;
@@ -38,12 +38,12 @@ export class OrdersService {
 
     private async _getOrderCount(): Promise<number> {
         const redisKey = `order_count`;
-        let orderCount = await redisClient.incr(redisKey);
+        let orderCount = await redisConnection.incr(redisKey);
         if(orderCount === 1) {
             const dbCount = await prisma.order.count();
 
             if(dbCount > 0) {
-                await redisClient.set(redisKey, dbCount);
+                await redisConnection.set(redisKey, dbCount);
                 orderCount = dbCount
             }
         }

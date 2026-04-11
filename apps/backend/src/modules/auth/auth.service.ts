@@ -2,7 +2,6 @@ import { checkHashPassword } from "@/lib/hashPassword";
 import { prisma } from "@mysagra/database";
 import { Role, User } from "@mysagra/database";
 import { TokenService } from "./token.service";
-import { redisClient } from "@/lib/redis";
 import { UnauthorizedError, NotFoundError } from "@/common/errors";
 
 export class AuthService {

@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import { prisma } from "@mysagra/database";
 import { User, Role } from "@mysagra/database";
 import { TokenPayloadSchema } from "@mysagra/schemas";
-import { redisClient } from "@/lib/redis";
+import { redisConnection } from "@/lib/redis";
 
 export class TokenService {
     private secret = env.JWT_SECRET;
@@ -28,7 +28,7 @@ export class TokenService {
             const timeRemaining = payload.exp - nowInSeconds;
 
             if (timeRemaining > 0) {
-                await redisClient.setEx(`blacklist:${token}`, timeRemaining, "REVOKED");
+                await redisConnection.setex(`blacklist:${token}`, timeRemaining, "REVOKED");
             }
             return true;
         }

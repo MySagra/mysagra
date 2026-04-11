@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Categories
- * const categories = await prisma.category.findMany()
+ * // Fetch zero or more Sagras
+ * const sagras = await prisma.sagra.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -41,6 +41,11 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
+/**
+ * Model Sagra
+ * 
+ */
+export type Sagra = Prisma.SagraModel
 /**
  * Model Category
  * 
@@ -106,3 +111,18 @@ export type Banner = Prisma.BannerModel
  * 
  */
 export type OrderInstruction = Prisma.OrderInstructionModel
+/**
+ * Model Report
+ * 
+ */
+export type Report = Prisma.ReportModel
+/**
+ * Model CategoryStats
+ * 
+ */
+export type CategoryStats = Prisma.CategoryStatsModel
+/**
+ * Model FoodStats
+ * 
+ */
+export type FoodStats = Prisma.FoodStatsModel

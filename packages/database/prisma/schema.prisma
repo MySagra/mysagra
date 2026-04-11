@@ -7,6 +7,18 @@ datasource db {
   provider = "mysql"
 }
 
+//TODO: implement tenancy settings in future
+model Sagra {
+  id   String @id @default(cuid())
+  name String @default("MySagra")
+
+  // stats settings and data
+  lastClosingAt        DateTime @default(now())
+  statsIntervalMinutes Int      @default(60)
+
+  @@map("sagra")
+}
+
 model Category {
   id        String  @id @default(cuid())
   name      String  @unique
@@ -232,4 +244,46 @@ model OrderInstruction {
   position Int
 
   @@map("order_instructions")
+}
+
+// stats
+model Report {
+  id                String   @id @default(cuid())
+  timestamp         DateTime
+  intervalInMinutes Int      @default(60) // explain the duration of this report
+
+  totalRevenue Decimal
+  totalOrders  Int
+
+  averageCompletitionTime Int? @default(0) // in ms
+
+  categoryStats CategoryStats[]
+  foodStats     FoodStats[]
+}
+
+model CategoryStats {
+  id       String @id @default(cuid())
+  reportId String
+
+  categoryId   String
+  categoryName String // use the category denormalized for mantain the original name in this period
+  revenue      Decimal
+  quantity     Int
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  @@map("category_stats")
+}
+
+model FoodStats {
+  id       String @id @default(cuid())
+  reportId String
+
+  foodId   String
+  foodName String // use the food denormalized for mantain the original name in this period
+
+  revenue  Decimal
+  quantity Int
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  @@map("food_stats")
 }

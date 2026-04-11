@@ -2,7 +2,7 @@ import { prisma } from "@mysagra/database"
 import { CreateApiKeyInput, ApiKeyPrefixSchema, CreateApiKeyResponse } from "@mysagra/schemas"
 import { randomBytes, createHmac } from 'node:crypto'
 import { env } from '@/config/env'
-import { redisClient } from "@/lib/redis"
+import { redisConnection } from "@/lib/redis"
 export class ApiKeysService {
 
     async getAPIKeys() {
@@ -50,7 +50,7 @@ export class ApiKeysService {
             }
         })
         const redisKey = `apiKey:${key.hash_key}`;
-        await redisClient.setEx(redisKey, env.REDIS_CACHE_TTL, JSON.stringify({ status: 'REVOKED' }));
+        await redisConnection.setex(redisKey, env.REDIS_CACHE_TTL, JSON.stringify({ status: 'REVOKED' }));
         return key;
     }
 
