@@ -163,8 +163,6 @@ export class ReportService {
             orderBy: { timestamp: 'asc' }
         })
 
-        if (query.groupBy === '1h') return reports;
-
         const grouped = reports.reduce((acc: any, report) => {
             // Generate a bucket key based on the interval
             const bucketKey = this._getBucketKey(report.timestamp, query.groupBy);
@@ -173,6 +171,8 @@ export class ReportService {
                 acc[bucketKey] = {
                     timestamp: bucketKey,
                     totalRevenue: 0,
+                    totalCashRevenue: 0,
+                    totalCardRevenue: 0,
                     totalOrders: 0,
                     totalCompletionTimeWeight: 0, // Used for weighted average
                     categoryStats: {}
@@ -182,6 +182,8 @@ export class ReportService {
             const b = acc[bucketKey];
             b.totalRevenue += Number(report.totalRevenue);
             b.totalOrders += Number(report.totalOrders);
+            b.totalCashRevenue += Number(report.totalCashRevenue)
+            b.totalCardRevenue += Number(report.totalCardRevenue)
 
             // Weighted average for completion time: (avg1 * count1 + avg2 * count2) / totalCount
             b.totalCompletionTimeWeight += (Number(report.averageCompletitionTime) * Number(report.totalOrders));

@@ -51,8 +51,7 @@ registry.registerPath({
     tags: ["Reports"],
     security: [{ cookieAuth: [] }],
     request: {
-        params: CUIDParam,
-        query: GetReportsQuery,
+        params: CUIDParam
     },
     responses: {
         200: {
