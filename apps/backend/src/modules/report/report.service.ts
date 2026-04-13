@@ -10,14 +10,44 @@ export class ReportService {
 
     static getInstance(): ReportService {
         if (!ReportService.instance) {
-            ReportService.instance = new ReportService()
+            const instance = new ReportService()
+            ReportService.instance = instance
+            instance.initReports();
         }
         return ReportService.instance
     }
 
-    async generateReport() {
-        const now = new Date()
+    private async initReports() {
+        const lastReport = await prisma.report.findFirst({
+            orderBy: { timestamp: "desc" }
+        })
 
+        let from;
+        const to = new Date();
+
+        if (!lastReport) {
+            from = await prisma.order.findFirst({
+                where: { NOT: { confirmedAt: null }},
+                orderBy: { confirmedAt: "asc" }
+            }).then(async (order) => {
+                return order?.completedAt
+            })
+            if (!from) return; // no orders for report generation
+        }
+        else {
+            from = lastReport.timestamp
+        }
+
+        const interval = (sagraService.getConfig()?.statsIntervalMinutes || 60) * 60 * 1000
+        let currentStep = new Date(from.getTime() + interval);
+
+        while (currentStep <= to) {
+            await this.generateReport(new Date(currentStep));
+            currentStep = new Date(currentStep.getTime() + interval);
+        }
+    }
+
+    async generateReport(to = new Date()) {
         return await prisma.$transaction(async (tx) => {
             const lastReport = await tx.report.findFirst({
                 orderBy: {
@@ -34,24 +64,24 @@ export class ReportService {
             if (lastReport) {
                 // Generate stats from last report to now
                 startTime = lastReport.timestamp
-                actualInterval = Math.round((now.getTime() - lastReport.timestamp.getTime()) / 60000)
+                actualInterval = Math.round((to.getTime() - lastReport.timestamp.getTime()) / 60000)
             } else {
                 // Generate stats from defaultInterval minutes ago to now
-                startTime = new Date(now.getTime() - defaultInterval * 60000)
+                startTime = new Date(to.getTime() - defaultInterval * 60000)
                 actualInterval = defaultInterval
             }
 
             const [orderStatsRaw, categoryStatsRaw, foodStatsRaw] = await Promise.all([
-                this._generateOrderStats(tx, startTime, now),
-                this._generateCategoryStats(tx, startTime, now),
-                this._generateFoodStats(tx, startTime, now),
+                this._generateOrderStats(tx, startTime, to),
+                this._generateCategoryStats(tx, startTime, to),
+                this._generateFoodStats(tx, startTime, to),
             ])
 
             const orderStats: OrderStats = orderStatsRaw[0];
 
             const report = await tx.report.create({
                 data: {
-                    timestamp: now,
+                    timestamp: to,
                     intervalInMinutes: actualInterval,
                     totalRevenue: this._round(Number(orderStats.totalRevenue)),
                     totalCashRevenue: this._round(Number(orderStats.totalCashRevenue)),
@@ -145,6 +175,7 @@ export class ReportService {
             `
     }
 
+    /** 
     async getReports(query: GetReportsQuery) {
         const reports = await prisma.report.findMany({
             where: {
@@ -240,6 +271,26 @@ export class ReportService {
             default:
                 return d.toISOString();
         }
+    }*/
+
+    // TODO: create bucket with groupBy
+    async getReports(query: GetReportsQuery) {
+        return await prisma.report.findMany({
+            where: {
+                timestamp: {
+                    gte: query.from,
+                    lte: query.to
+                }
+            },
+            include: {
+                categoryStats: {
+                    include: {
+                        foodStats: true
+                    }
+                }
+            },
+            orderBy: { timestamp: 'asc' }
+        })
     }
 
     async getReport(id: string) {
