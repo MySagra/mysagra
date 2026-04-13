@@ -24,10 +24,11 @@ export function KpiCards({ stats }: KpiCardsProps) {
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(val);
 
-  const formatTime = (seconds: number | null) => {
-    if (seconds === null) return "—";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.round(seconds % 60);
+  const formatTime = (ms: number | null) => {
+    if (ms === null) return "—";
+    const totalSeconds = Math.round(ms / 1000);
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
     return `${mins}m ${secs}s`;
   };
 
@@ -73,7 +74,7 @@ export function KpiCards({ stats }: KpiCardsProps) {
         return (
           <Card
             key={card.title}
-            className={`relative overflow-hidden border ${card.borderColor} bg-gradient-to-br ${card.gradient} transition-all hover:shadow-lg hover:scale-[1.02]`}
+            className={`relative overflow-hidden border ${card.borderColor} bg-gradient-to-br ${card.gradient} transition-all hover:shadow-lg`}
           >
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between">

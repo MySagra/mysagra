@@ -570,5 +570,13 @@ export const it = {
     drillDownDetail: "Andamento nel tempo",
     quantityOverTime: "Quantità nel Tempo",
     clickToExplore: "Clicca su un elemento per vederne l'andamento",
+    activeFilter: "Filtro attivo",
+    clearFilter: "Rimuovi filtro",
+    clickToFilter: "Clicca per filtrare",
+    sidebarCategories: "Categorie",
+    sidebarFoods: "Top Pietanze",
+    allData: "Tutti i dati",
+    categoryBreakdown: "Categorie",
+    exportExcel: "Esporta in Excel",
   },
 } as const;

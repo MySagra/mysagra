@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarIcon, RefreshCw } from "lucide-react";
+import { CalendarIcon, RefreshCw, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import type { GroupInterval } from "@mysagra/schemas/src/report.schema";
@@ -20,6 +20,8 @@ interface AnalyticsFiltersProps {
   onGroupByChange: (g: GroupInterval) => void;
   onRefresh: () => void;
   loading: boolean;
+  onExport?: () => void;
+  canExport?: boolean;
 }
 
 export function AnalyticsFilters({
@@ -31,6 +33,8 @@ export function AnalyticsFilters({
   onGroupByChange,
   onRefresh,
   loading,
+  onExport,
+  canExport,
 }: AnalyticsFiltersProps) {
   const { t, locale } = useLocale();
   const dateLocale = locale === "it" ? itLocale : undefined;
@@ -191,6 +195,19 @@ export function AnalyticsFilters({
         >
           <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
         </Button>
+
+        {/* Export */}
+        {onExport && (
+          <Button
+            size="sm"
+            onClick={onExport}
+            disabled={!canExport}
+            className="h-9 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            {t.analytics.exportExcel}
+          </Button>
+        )}
       </div>
     </div>
   );

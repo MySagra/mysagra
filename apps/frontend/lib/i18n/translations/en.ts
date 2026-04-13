@@ -570,5 +570,13 @@ export const en = {
     drillDownDetail: "Trend over time",
     quantityOverTime: "Quantity Over Time",
     clickToExplore: "Click an item to explore its trend",
+    activeFilter: "Active filter",
+    clearFilter: "Clear filter",
+    clickToFilter: "Click to filter",
+    sidebarCategories: "Categories",
+    sidebarFoods: "Top Foods",
+    allData: "All data",
+    categoryBreakdown: "Categories",
+    exportExcel: "Export to Excel",
   },
 } as const;

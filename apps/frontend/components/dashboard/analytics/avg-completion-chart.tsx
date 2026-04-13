@@ -33,7 +33,7 @@ export function AvgCompletionChart({ reports }: AvgCompletionChartProps) {
     .filter((r) => r.averageCompletitionTime != null)
     .map((r) => ({
       time: format(new Date(r.timestamp), "HH:mm dd/MM", { locale: dateLocale }),
-      avgTime: Math.round((r.averageCompletitionTime ?? 0) / 60 * 10) / 10, // Convert to minutes
+      avgTime: Math.round((r.averageCompletitionTime ?? 0) / 60000 * 10) / 10, // Convert ms to minutes
     }));
 
   if (data.length === 0) {
