@@ -1755,6 +1755,8 @@ export const ReportScalarFieldEnum = {
   timestamp: 'timestamp',
   intervalInMinutes: 'intervalInMinutes',
   totalRevenue: 'totalRevenue',
+  totalCashRevenue: 'totalCashRevenue',
+  totalCardRevenue: 'totalCardRevenue',
   totalOrders: 'totalOrders',
   averageCompletitionTime: 'averageCompletitionTime'
 } as const
@@ -1776,7 +1778,7 @@ export type CategoryStatsScalarFieldEnum = (typeof CategoryStatsScalarFieldEnum)
 
 export const FoodStatsScalarFieldEnum = {
   id: 'id',
-  reportId: 'reportId',
+  categoryStatsId: 'categoryStatsId',
   foodId: 'foodId',
   foodName: 'foodName',
   revenue: 'revenue',
@@ -1960,7 +1962,7 @@ export type CategoryStatsOrderByRelevanceFieldEnum = (typeof CategoryStatsOrderB
 
 export const FoodStatsOrderByRelevanceFieldEnum = {
   id: 'id',
-  reportId: 'reportId',
+  categoryStatsId: 'categoryStatsId',
   foodId: 'foodId',
   foodName: 'foodName'
 } as const

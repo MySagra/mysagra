@@ -229,6 +229,7 @@ export type CategoryStatsWhereInput = {
   revenue?: Prisma.DecimalFilter<"CategoryStats"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFilter<"CategoryStats"> | number
   report?: Prisma.XOR<Prisma.ReportScalarRelationFilter, Prisma.ReportWhereInput>
+  foodStats?: Prisma.FoodStatsListRelationFilter
 }
 
 export type CategoryStatsOrderByWithRelationInput = {
@@ -239,6 +240,7 @@ export type CategoryStatsOrderByWithRelationInput = {
   revenue?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   report?: Prisma.ReportOrderByWithRelationInput
+  foodStats?: Prisma.FoodStatsOrderByRelationAggregateInput
   _relevance?: Prisma.CategoryStatsOrderByRelevanceInput
 }
 
@@ -253,6 +255,7 @@ export type CategoryStatsWhereUniqueInput = Prisma.AtLeast<{
   revenue?: Prisma.DecimalFilter<"CategoryStats"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFilter<"CategoryStats"> | number
   report?: Prisma.XOR<Prisma.ReportScalarRelationFilter, Prisma.ReportWhereInput>
+  foodStats?: Prisma.FoodStatsListRelationFilter
 }, "id">
 
 export type CategoryStatsOrderByWithAggregationInput = {
@@ -288,6 +291,7 @@ export type CategoryStatsCreateInput = {
   revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity: number
   report: Prisma.ReportCreateNestedOneWithoutCategoryStatsInput
+  foodStats?: Prisma.FoodStatsCreateNestedManyWithoutCategoryStatsInput
 }
 
 export type CategoryStatsUncheckedCreateInput = {
@@ -297,6 +301,7 @@ export type CategoryStatsUncheckedCreateInput = {
   categoryName: string
   revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity: number
+  foodStats?: Prisma.FoodStatsUncheckedCreateNestedManyWithoutCategoryStatsInput
 }
 
 export type CategoryStatsUpdateInput = {
@@ -306,6 +311,7 @@ export type CategoryStatsUpdateInput = {
   revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   report?: Prisma.ReportUpdateOneRequiredWithoutCategoryStatsNestedInput
+  foodStats?: Prisma.FoodStatsUpdateManyWithoutCategoryStatsNestedInput
 }
 
 export type CategoryStatsUncheckedUpdateInput = {
@@ -315,6 +321,7 @@ export type CategoryStatsUncheckedUpdateInput = {
   categoryName?: Prisma.StringFieldUpdateOperationsInput | string
   revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  foodStats?: Prisma.FoodStatsUncheckedUpdateManyWithoutCategoryStatsNestedInput
 }
 
 export type CategoryStatsCreateManyInput = {
@@ -396,6 +403,11 @@ export type CategoryStatsSumOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
 }
 
+export type CategoryStatsScalarRelationFilter = {
+  is?: Prisma.CategoryStatsWhereInput
+  isNot?: Prisma.CategoryStatsWhereInput
+}
+
 export type CategoryStatsCreateNestedManyWithoutReportInput = {
   create?: Prisma.XOR<Prisma.CategoryStatsCreateWithoutReportInput, Prisma.CategoryStatsUncheckedCreateWithoutReportInput> | Prisma.CategoryStatsCreateWithoutReportInput[] | Prisma.CategoryStatsUncheckedCreateWithoutReportInput[]
   connectOrCreate?: Prisma.CategoryStatsCreateOrConnectWithoutReportInput | Prisma.CategoryStatsCreateOrConnectWithoutReportInput[]
@@ -438,12 +450,27 @@ export type CategoryStatsUncheckedUpdateManyWithoutReportNestedInput = {
   deleteMany?: Prisma.CategoryStatsScalarWhereInput | Prisma.CategoryStatsScalarWhereInput[]
 }
 
+export type CategoryStatsCreateNestedOneWithoutFoodStatsInput = {
+  create?: Prisma.XOR<Prisma.CategoryStatsCreateWithoutFoodStatsInput, Prisma.CategoryStatsUncheckedCreateWithoutFoodStatsInput>
+  connectOrCreate?: Prisma.CategoryStatsCreateOrConnectWithoutFoodStatsInput
+  connect?: Prisma.CategoryStatsWhereUniqueInput
+}
+
+export type CategoryStatsUpdateOneRequiredWithoutFoodStatsNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryStatsCreateWithoutFoodStatsInput, Prisma.CategoryStatsUncheckedCreateWithoutFoodStatsInput>
+  connectOrCreate?: Prisma.CategoryStatsCreateOrConnectWithoutFoodStatsInput
+  upsert?: Prisma.CategoryStatsUpsertWithoutFoodStatsInput
+  connect?: Prisma.CategoryStatsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryStatsUpdateToOneWithWhereWithoutFoodStatsInput, Prisma.CategoryStatsUpdateWithoutFoodStatsInput>, Prisma.CategoryStatsUncheckedUpdateWithoutFoodStatsInput>
+}
+
 export type CategoryStatsCreateWithoutReportInput = {
   id?: string
   categoryId: string
   categoryName: string
   revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity: number
+  foodStats?: Prisma.FoodStatsCreateNestedManyWithoutCategoryStatsInput
 }
 
 export type CategoryStatsUncheckedCreateWithoutReportInput = {
@@ -452,6 +479,7 @@ export type CategoryStatsUncheckedCreateWithoutReportInput = {
   categoryName: string
   revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity: number
+  foodStats?: Prisma.FoodStatsUncheckedCreateNestedManyWithoutCategoryStatsInput
 }
 
 export type CategoryStatsCreateOrConnectWithoutReportInput = {
@@ -492,6 +520,58 @@ export type CategoryStatsScalarWhereInput = {
   quantity?: Prisma.IntFilter<"CategoryStats"> | number
 }
 
+export type CategoryStatsCreateWithoutFoodStatsInput = {
+  id?: string
+  categoryId: string
+  categoryName: string
+  revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity: number
+  report: Prisma.ReportCreateNestedOneWithoutCategoryStatsInput
+}
+
+export type CategoryStatsUncheckedCreateWithoutFoodStatsInput = {
+  id?: string
+  reportId: string
+  categoryId: string
+  categoryName: string
+  revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity: number
+}
+
+export type CategoryStatsCreateOrConnectWithoutFoodStatsInput = {
+  where: Prisma.CategoryStatsWhereUniqueInput
+  create: Prisma.XOR<Prisma.CategoryStatsCreateWithoutFoodStatsInput, Prisma.CategoryStatsUncheckedCreateWithoutFoodStatsInput>
+}
+
+export type CategoryStatsUpsertWithoutFoodStatsInput = {
+  update: Prisma.XOR<Prisma.CategoryStatsUpdateWithoutFoodStatsInput, Prisma.CategoryStatsUncheckedUpdateWithoutFoodStatsInput>
+  create: Prisma.XOR<Prisma.CategoryStatsCreateWithoutFoodStatsInput, Prisma.CategoryStatsUncheckedCreateWithoutFoodStatsInput>
+  where?: Prisma.CategoryStatsWhereInput
+}
+
+export type CategoryStatsUpdateToOneWithWhereWithoutFoodStatsInput = {
+  where?: Prisma.CategoryStatsWhereInput
+  data: Prisma.XOR<Prisma.CategoryStatsUpdateWithoutFoodStatsInput, Prisma.CategoryStatsUncheckedUpdateWithoutFoodStatsInput>
+}
+
+export type CategoryStatsUpdateWithoutFoodStatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryName?: Prisma.StringFieldUpdateOperationsInput | string
+  revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  report?: Prisma.ReportUpdateOneRequiredWithoutCategoryStatsNestedInput
+}
+
+export type CategoryStatsUncheckedUpdateWithoutFoodStatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reportId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryName?: Prisma.StringFieldUpdateOperationsInput | string
+  revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
 export type CategoryStatsCreateManyReportInput = {
   id?: string
   categoryId: string
@@ -506,6 +586,7 @@ export type CategoryStatsUpdateWithoutReportInput = {
   categoryName?: Prisma.StringFieldUpdateOperationsInput | string
   revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  foodStats?: Prisma.FoodStatsUpdateManyWithoutCategoryStatsNestedInput
 }
 
 export type CategoryStatsUncheckedUpdateWithoutReportInput = {
@@ -514,6 +595,7 @@ export type CategoryStatsUncheckedUpdateWithoutReportInput = {
   categoryName?: Prisma.StringFieldUpdateOperationsInput | string
   revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  foodStats?: Prisma.FoodStatsUncheckedUpdateManyWithoutCategoryStatsNestedInput
 }
 
 export type CategoryStatsUncheckedUpdateManyWithoutReportInput = {
@@ -525,6 +607,35 @@ export type CategoryStatsUncheckedUpdateManyWithoutReportInput = {
 }
 
 
+/**
+ * Count Type CategoryStatsCountOutputType
+ */
+
+export type CategoryStatsCountOutputType = {
+  foodStats: number
+}
+
+export type CategoryStatsCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  foodStats?: boolean | CategoryStatsCountOutputTypeCountFoodStatsArgs
+}
+
+/**
+ * CategoryStatsCountOutputType without action
+ */
+export type CategoryStatsCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CategoryStatsCountOutputType
+   */
+  select?: Prisma.CategoryStatsCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CategoryStatsCountOutputType without action
+ */
+export type CategoryStatsCountOutputTypeCountFoodStatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FoodStatsWhereInput
+}
+
 
 export type CategoryStatsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -534,6 +645,8 @@ export type CategoryStatsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   revenue?: boolean
   quantity?: boolean
   report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  foodStats?: boolean | Prisma.CategoryStats$foodStatsArgs<ExtArgs>
+  _count?: boolean | Prisma.CategoryStatsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["categoryStats"]>
 
 
@@ -550,12 +663,15 @@ export type CategoryStatsSelectScalar = {
 export type CategoryStatsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reportId" | "categoryId" | "categoryName" | "revenue" | "quantity", ExtArgs["result"]["categoryStats"]>
 export type CategoryStatsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  foodStats?: boolean | Prisma.CategoryStats$foodStatsArgs<ExtArgs>
+  _count?: boolean | Prisma.CategoryStatsCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $CategoryStatsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CategoryStats"
   objects: {
     report: Prisma.$ReportPayload<ExtArgs>
+    foodStats: Prisma.$FoodStatsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -905,6 +1021,7 @@ readonly fields: CategoryStatsFieldRefs;
 export interface Prisma__CategoryStatsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   report<T extends Prisma.ReportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReportDefaultArgs<ExtArgs>>): Prisma.Prisma__ReportClient<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  foodStats<T extends Prisma.CategoryStats$foodStatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CategoryStats$foodStatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FoodStatsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1280,6 +1397,30 @@ export type CategoryStatsDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many CategoryStats to delete.
    */
   limit?: number
+}
+
+/**
+ * CategoryStats.foodStats
+ */
+export type CategoryStats$foodStatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FoodStats
+   */
+  select?: Prisma.FoodStatsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FoodStats
+   */
+  omit?: Prisma.FoodStatsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FoodStatsInclude<ExtArgs> | null
+  where?: Prisma.FoodStatsWhereInput
+  orderBy?: Prisma.FoodStatsOrderByWithRelationInput | Prisma.FoodStatsOrderByWithRelationInput[]
+  cursor?: Prisma.FoodStatsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FoodStatsScalarFieldEnum | Prisma.FoodStatsScalarFieldEnum[]
 }
 
 /**

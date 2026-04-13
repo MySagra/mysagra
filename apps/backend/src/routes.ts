@@ -12,6 +12,7 @@ import rolesRouter from "@/modules/roles/roles.route";
 import usersRouter from "@/modules/users/users.route";
 import apiKeysRouter from "@/modules/api-keys/api-keys.route"
 import bannerRouter from "@/modules/banner/banner.route"
+import reportRouter from "@/modules/report/report.route"
 import orderInstructionsRoute from "@/modules/order-instructions/order-instruction.route"
 import { apiLimiter, authLimiter } from "./middlewares/rateLimiter.middleware";
 
@@ -30,6 +31,7 @@ router.use("/v1/roles", apiLimiter, rolesRouter);
 router.use("/v1/users", apiLimiter, usersRouter);
 router.use("/v1/api-keys", apiLimiter, apiKeysRouter)
 router.use("/v1/banners", apiLimiter, bannerRouter)
+router.use("/v1/reports", apiLimiter, reportRouter)
 router.use("/v1/order-instructions", apiLimiter, orderInstructionsRoute)
 
 export default router;

@@ -38,7 +38,7 @@ export type FoodStatsSumAggregateOutputType = {
 
 export type FoodStatsMinAggregateOutputType = {
   id: string | null
-  reportId: string | null
+  categoryStatsId: string | null
   foodId: string | null
   foodName: string | null
   revenue: runtime.Decimal | null
@@ -47,7 +47,7 @@ export type FoodStatsMinAggregateOutputType = {
 
 export type FoodStatsMaxAggregateOutputType = {
   id: string | null
-  reportId: string | null
+  categoryStatsId: string | null
   foodId: string | null
   foodName: string | null
   revenue: runtime.Decimal | null
@@ -56,7 +56,7 @@ export type FoodStatsMaxAggregateOutputType = {
 
 export type FoodStatsCountAggregateOutputType = {
   id: number
-  reportId: number
+  categoryStatsId: number
   foodId: number
   foodName: number
   revenue: number
@@ -77,7 +77,7 @@ export type FoodStatsSumAggregateInputType = {
 
 export type FoodStatsMinAggregateInputType = {
   id?: true
-  reportId?: true
+  categoryStatsId?: true
   foodId?: true
   foodName?: true
   revenue?: true
@@ -86,7 +86,7 @@ export type FoodStatsMinAggregateInputType = {
 
 export type FoodStatsMaxAggregateInputType = {
   id?: true
-  reportId?: true
+  categoryStatsId?: true
   foodId?: true
   foodName?: true
   revenue?: true
@@ -95,7 +95,7 @@ export type FoodStatsMaxAggregateInputType = {
 
 export type FoodStatsCountAggregateInputType = {
   id?: true
-  reportId?: true
+  categoryStatsId?: true
   foodId?: true
   foodName?: true
   revenue?: true
@@ -191,7 +191,7 @@ export type FoodStatsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 
 export type FoodStatsGroupByOutputType = {
   id: string
-  reportId: string
+  categoryStatsId: string
   foodId: string
   foodName: string
   revenue: runtime.Decimal
@@ -223,22 +223,22 @@ export type FoodStatsWhereInput = {
   OR?: Prisma.FoodStatsWhereInput[]
   NOT?: Prisma.FoodStatsWhereInput | Prisma.FoodStatsWhereInput[]
   id?: Prisma.StringFilter<"FoodStats"> | string
-  reportId?: Prisma.StringFilter<"FoodStats"> | string
+  categoryStatsId?: Prisma.StringFilter<"FoodStats"> | string
   foodId?: Prisma.StringFilter<"FoodStats"> | string
   foodName?: Prisma.StringFilter<"FoodStats"> | string
   revenue?: Prisma.DecimalFilter<"FoodStats"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFilter<"FoodStats"> | number
-  report?: Prisma.XOR<Prisma.ReportScalarRelationFilter, Prisma.ReportWhereInput>
+  categoryStats?: Prisma.XOR<Prisma.CategoryStatsScalarRelationFilter, Prisma.CategoryStatsWhereInput>
 }
 
 export type FoodStatsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  reportId?: Prisma.SortOrder
+  categoryStatsId?: Prisma.SortOrder
   foodId?: Prisma.SortOrder
   foodName?: Prisma.SortOrder
   revenue?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
-  report?: Prisma.ReportOrderByWithRelationInput
+  categoryStats?: Prisma.CategoryStatsOrderByWithRelationInput
   _relevance?: Prisma.FoodStatsOrderByRelevanceInput
 }
 
@@ -247,17 +247,17 @@ export type FoodStatsWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.FoodStatsWhereInput | Prisma.FoodStatsWhereInput[]
   OR?: Prisma.FoodStatsWhereInput[]
   NOT?: Prisma.FoodStatsWhereInput | Prisma.FoodStatsWhereInput[]
-  reportId?: Prisma.StringFilter<"FoodStats"> | string
+  categoryStatsId?: Prisma.StringFilter<"FoodStats"> | string
   foodId?: Prisma.StringFilter<"FoodStats"> | string
   foodName?: Prisma.StringFilter<"FoodStats"> | string
   revenue?: Prisma.DecimalFilter<"FoodStats"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFilter<"FoodStats"> | number
-  report?: Prisma.XOR<Prisma.ReportScalarRelationFilter, Prisma.ReportWhereInput>
+  categoryStats?: Prisma.XOR<Prisma.CategoryStatsScalarRelationFilter, Prisma.CategoryStatsWhereInput>
 }, "id">
 
 export type FoodStatsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  reportId?: Prisma.SortOrder
+  categoryStatsId?: Prisma.SortOrder
   foodId?: Prisma.SortOrder
   foodName?: Prisma.SortOrder
   revenue?: Prisma.SortOrder
@@ -274,7 +274,7 @@ export type FoodStatsScalarWhereWithAggregatesInput = {
   OR?: Prisma.FoodStatsScalarWhereWithAggregatesInput[]
   NOT?: Prisma.FoodStatsScalarWhereWithAggregatesInput | Prisma.FoodStatsScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"FoodStats"> | string
-  reportId?: Prisma.StringWithAggregatesFilter<"FoodStats"> | string
+  categoryStatsId?: Prisma.StringWithAggregatesFilter<"FoodStats"> | string
   foodId?: Prisma.StringWithAggregatesFilter<"FoodStats"> | string
   foodName?: Prisma.StringWithAggregatesFilter<"FoodStats"> | string
   revenue?: Prisma.DecimalWithAggregatesFilter<"FoodStats"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -287,12 +287,12 @@ export type FoodStatsCreateInput = {
   foodName: string
   revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity: number
-  report: Prisma.ReportCreateNestedOneWithoutFoodStatsInput
+  categoryStats: Prisma.CategoryStatsCreateNestedOneWithoutFoodStatsInput
 }
 
 export type FoodStatsUncheckedCreateInput = {
   id?: string
-  reportId: string
+  categoryStatsId: string
   foodId: string
   foodName: string
   revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -305,12 +305,12 @@ export type FoodStatsUpdateInput = {
   foodName?: Prisma.StringFieldUpdateOperationsInput | string
   revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  report?: Prisma.ReportUpdateOneRequiredWithoutFoodStatsNestedInput
+  categoryStats?: Prisma.CategoryStatsUpdateOneRequiredWithoutFoodStatsNestedInput
 }
 
 export type FoodStatsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  reportId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryStatsId?: Prisma.StringFieldUpdateOperationsInput | string
   foodId?: Prisma.StringFieldUpdateOperationsInput | string
   foodName?: Prisma.StringFieldUpdateOperationsInput | string
   revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -319,7 +319,7 @@ export type FoodStatsUncheckedUpdateInput = {
 
 export type FoodStatsCreateManyInput = {
   id?: string
-  reportId: string
+  categoryStatsId: string
   foodId: string
   foodName: string
   revenue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -336,7 +336,7 @@ export type FoodStatsUpdateManyMutationInput = {
 
 export type FoodStatsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  reportId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryStatsId?: Prisma.StringFieldUpdateOperationsInput | string
   foodId?: Prisma.StringFieldUpdateOperationsInput | string
   foodName?: Prisma.StringFieldUpdateOperationsInput | string
   revenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -361,7 +361,7 @@ export type FoodStatsOrderByRelevanceInput = {
 
 export type FoodStatsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  reportId?: Prisma.SortOrder
+  categoryStatsId?: Prisma.SortOrder
   foodId?: Prisma.SortOrder
   foodName?: Prisma.SortOrder
   revenue?: Prisma.SortOrder
@@ -375,7 +375,7 @@ export type FoodStatsAvgOrderByAggregateInput = {
 
 export type FoodStatsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  reportId?: Prisma.SortOrder
+  categoryStatsId?: Prisma.SortOrder
   foodId?: Prisma.SortOrder
   foodName?: Prisma.SortOrder
   revenue?: Prisma.SortOrder
@@ -384,7 +384,7 @@ export type FoodStatsMaxOrderByAggregateInput = {
 
 export type FoodStatsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  reportId?: Prisma.SortOrder
+  categoryStatsId?: Prisma.SortOrder
   foodId?: Prisma.SortOrder
   foodName?: Prisma.SortOrder
   revenue?: Prisma.SortOrder
@@ -396,49 +396,49 @@ export type FoodStatsSumOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
 }
 
-export type FoodStatsCreateNestedManyWithoutReportInput = {
-  create?: Prisma.XOR<Prisma.FoodStatsCreateWithoutReportInput, Prisma.FoodStatsUncheckedCreateWithoutReportInput> | Prisma.FoodStatsCreateWithoutReportInput[] | Prisma.FoodStatsUncheckedCreateWithoutReportInput[]
-  connectOrCreate?: Prisma.FoodStatsCreateOrConnectWithoutReportInput | Prisma.FoodStatsCreateOrConnectWithoutReportInput[]
-  createMany?: Prisma.FoodStatsCreateManyReportInputEnvelope
+export type FoodStatsCreateNestedManyWithoutCategoryStatsInput = {
+  create?: Prisma.XOR<Prisma.FoodStatsCreateWithoutCategoryStatsInput, Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput> | Prisma.FoodStatsCreateWithoutCategoryStatsInput[] | Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput[]
+  connectOrCreate?: Prisma.FoodStatsCreateOrConnectWithoutCategoryStatsInput | Prisma.FoodStatsCreateOrConnectWithoutCategoryStatsInput[]
+  createMany?: Prisma.FoodStatsCreateManyCategoryStatsInputEnvelope
   connect?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
 }
 
-export type FoodStatsUncheckedCreateNestedManyWithoutReportInput = {
-  create?: Prisma.XOR<Prisma.FoodStatsCreateWithoutReportInput, Prisma.FoodStatsUncheckedCreateWithoutReportInput> | Prisma.FoodStatsCreateWithoutReportInput[] | Prisma.FoodStatsUncheckedCreateWithoutReportInput[]
-  connectOrCreate?: Prisma.FoodStatsCreateOrConnectWithoutReportInput | Prisma.FoodStatsCreateOrConnectWithoutReportInput[]
-  createMany?: Prisma.FoodStatsCreateManyReportInputEnvelope
+export type FoodStatsUncheckedCreateNestedManyWithoutCategoryStatsInput = {
+  create?: Prisma.XOR<Prisma.FoodStatsCreateWithoutCategoryStatsInput, Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput> | Prisma.FoodStatsCreateWithoutCategoryStatsInput[] | Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput[]
+  connectOrCreate?: Prisma.FoodStatsCreateOrConnectWithoutCategoryStatsInput | Prisma.FoodStatsCreateOrConnectWithoutCategoryStatsInput[]
+  createMany?: Prisma.FoodStatsCreateManyCategoryStatsInputEnvelope
   connect?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
 }
 
-export type FoodStatsUpdateManyWithoutReportNestedInput = {
-  create?: Prisma.XOR<Prisma.FoodStatsCreateWithoutReportInput, Prisma.FoodStatsUncheckedCreateWithoutReportInput> | Prisma.FoodStatsCreateWithoutReportInput[] | Prisma.FoodStatsUncheckedCreateWithoutReportInput[]
-  connectOrCreate?: Prisma.FoodStatsCreateOrConnectWithoutReportInput | Prisma.FoodStatsCreateOrConnectWithoutReportInput[]
-  upsert?: Prisma.FoodStatsUpsertWithWhereUniqueWithoutReportInput | Prisma.FoodStatsUpsertWithWhereUniqueWithoutReportInput[]
-  createMany?: Prisma.FoodStatsCreateManyReportInputEnvelope
+export type FoodStatsUpdateManyWithoutCategoryStatsNestedInput = {
+  create?: Prisma.XOR<Prisma.FoodStatsCreateWithoutCategoryStatsInput, Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput> | Prisma.FoodStatsCreateWithoutCategoryStatsInput[] | Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput[]
+  connectOrCreate?: Prisma.FoodStatsCreateOrConnectWithoutCategoryStatsInput | Prisma.FoodStatsCreateOrConnectWithoutCategoryStatsInput[]
+  upsert?: Prisma.FoodStatsUpsertWithWhereUniqueWithoutCategoryStatsInput | Prisma.FoodStatsUpsertWithWhereUniqueWithoutCategoryStatsInput[]
+  createMany?: Prisma.FoodStatsCreateManyCategoryStatsInputEnvelope
   set?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
   disconnect?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
   delete?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
   connect?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
-  update?: Prisma.FoodStatsUpdateWithWhereUniqueWithoutReportInput | Prisma.FoodStatsUpdateWithWhereUniqueWithoutReportInput[]
-  updateMany?: Prisma.FoodStatsUpdateManyWithWhereWithoutReportInput | Prisma.FoodStatsUpdateManyWithWhereWithoutReportInput[]
+  update?: Prisma.FoodStatsUpdateWithWhereUniqueWithoutCategoryStatsInput | Prisma.FoodStatsUpdateWithWhereUniqueWithoutCategoryStatsInput[]
+  updateMany?: Prisma.FoodStatsUpdateManyWithWhereWithoutCategoryStatsInput | Prisma.FoodStatsUpdateManyWithWhereWithoutCategoryStatsInput[]
   deleteMany?: Prisma.FoodStatsScalarWhereInput | Prisma.FoodStatsScalarWhereInput[]
 }
 
-export type FoodStatsUncheckedUpdateManyWithoutReportNestedInput = {
-  create?: Prisma.XOR<Prisma.FoodStatsCreateWithoutReportInput, Prisma.FoodStatsUncheckedCreateWithoutReportInput> | Prisma.FoodStatsCreateWithoutReportInput[] | Prisma.FoodStatsUncheckedCreateWithoutReportInput[]
-  connectOrCreate?: Prisma.FoodStatsCreateOrConnectWithoutReportInput | Prisma.FoodStatsCreateOrConnectWithoutReportInput[]
-  upsert?: Prisma.FoodStatsUpsertWithWhereUniqueWithoutReportInput | Prisma.FoodStatsUpsertWithWhereUniqueWithoutReportInput[]
-  createMany?: Prisma.FoodStatsCreateManyReportInputEnvelope
+export type FoodStatsUncheckedUpdateManyWithoutCategoryStatsNestedInput = {
+  create?: Prisma.XOR<Prisma.FoodStatsCreateWithoutCategoryStatsInput, Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput> | Prisma.FoodStatsCreateWithoutCategoryStatsInput[] | Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput[]
+  connectOrCreate?: Prisma.FoodStatsCreateOrConnectWithoutCategoryStatsInput | Prisma.FoodStatsCreateOrConnectWithoutCategoryStatsInput[]
+  upsert?: Prisma.FoodStatsUpsertWithWhereUniqueWithoutCategoryStatsInput | Prisma.FoodStatsUpsertWithWhereUniqueWithoutCategoryStatsInput[]
+  createMany?: Prisma.FoodStatsCreateManyCategoryStatsInputEnvelope
   set?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
   disconnect?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
   delete?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
   connect?: Prisma.FoodStatsWhereUniqueInput | Prisma.FoodStatsWhereUniqueInput[]
-  update?: Prisma.FoodStatsUpdateWithWhereUniqueWithoutReportInput | Prisma.FoodStatsUpdateWithWhereUniqueWithoutReportInput[]
-  updateMany?: Prisma.FoodStatsUpdateManyWithWhereWithoutReportInput | Prisma.FoodStatsUpdateManyWithWhereWithoutReportInput[]
+  update?: Prisma.FoodStatsUpdateWithWhereUniqueWithoutCategoryStatsInput | Prisma.FoodStatsUpdateWithWhereUniqueWithoutCategoryStatsInput[]
+  updateMany?: Prisma.FoodStatsUpdateManyWithWhereWithoutCategoryStatsInput | Prisma.FoodStatsUpdateManyWithWhereWithoutCategoryStatsInput[]
   deleteMany?: Prisma.FoodStatsScalarWhereInput | Prisma.FoodStatsScalarWhereInput[]
 }
 
-export type FoodStatsCreateWithoutReportInput = {
+export type FoodStatsCreateWithoutCategoryStatsInput = {
   id?: string
   foodId: string
   foodName: string
@@ -446,7 +446,7 @@ export type FoodStatsCreateWithoutReportInput = {
   quantity: number
 }
 
-export type FoodStatsUncheckedCreateWithoutReportInput = {
+export type FoodStatsUncheckedCreateWithoutCategoryStatsInput = {
   id?: string
   foodId: string
   foodName: string
@@ -454,30 +454,30 @@ export type FoodStatsUncheckedCreateWithoutReportInput = {
   quantity: number
 }
 
-export type FoodStatsCreateOrConnectWithoutReportInput = {
+export type FoodStatsCreateOrConnectWithoutCategoryStatsInput = {
   where: Prisma.FoodStatsWhereUniqueInput
-  create: Prisma.XOR<Prisma.FoodStatsCreateWithoutReportInput, Prisma.FoodStatsUncheckedCreateWithoutReportInput>
+  create: Prisma.XOR<Prisma.FoodStatsCreateWithoutCategoryStatsInput, Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput>
 }
 
-export type FoodStatsCreateManyReportInputEnvelope = {
-  data: Prisma.FoodStatsCreateManyReportInput | Prisma.FoodStatsCreateManyReportInput[]
+export type FoodStatsCreateManyCategoryStatsInputEnvelope = {
+  data: Prisma.FoodStatsCreateManyCategoryStatsInput | Prisma.FoodStatsCreateManyCategoryStatsInput[]
   skipDuplicates?: boolean
 }
 
-export type FoodStatsUpsertWithWhereUniqueWithoutReportInput = {
+export type FoodStatsUpsertWithWhereUniqueWithoutCategoryStatsInput = {
   where: Prisma.FoodStatsWhereUniqueInput
-  update: Prisma.XOR<Prisma.FoodStatsUpdateWithoutReportInput, Prisma.FoodStatsUncheckedUpdateWithoutReportInput>
-  create: Prisma.XOR<Prisma.FoodStatsCreateWithoutReportInput, Prisma.FoodStatsUncheckedCreateWithoutReportInput>
+  update: Prisma.XOR<Prisma.FoodStatsUpdateWithoutCategoryStatsInput, Prisma.FoodStatsUncheckedUpdateWithoutCategoryStatsInput>
+  create: Prisma.XOR<Prisma.FoodStatsCreateWithoutCategoryStatsInput, Prisma.FoodStatsUncheckedCreateWithoutCategoryStatsInput>
 }
 
-export type FoodStatsUpdateWithWhereUniqueWithoutReportInput = {
+export type FoodStatsUpdateWithWhereUniqueWithoutCategoryStatsInput = {
   where: Prisma.FoodStatsWhereUniqueInput
-  data: Prisma.XOR<Prisma.FoodStatsUpdateWithoutReportInput, Prisma.FoodStatsUncheckedUpdateWithoutReportInput>
+  data: Prisma.XOR<Prisma.FoodStatsUpdateWithoutCategoryStatsInput, Prisma.FoodStatsUncheckedUpdateWithoutCategoryStatsInput>
 }
 
-export type FoodStatsUpdateManyWithWhereWithoutReportInput = {
+export type FoodStatsUpdateManyWithWhereWithoutCategoryStatsInput = {
   where: Prisma.FoodStatsScalarWhereInput
-  data: Prisma.XOR<Prisma.FoodStatsUpdateManyMutationInput, Prisma.FoodStatsUncheckedUpdateManyWithoutReportInput>
+  data: Prisma.XOR<Prisma.FoodStatsUpdateManyMutationInput, Prisma.FoodStatsUncheckedUpdateManyWithoutCategoryStatsInput>
 }
 
 export type FoodStatsScalarWhereInput = {
@@ -485,14 +485,14 @@ export type FoodStatsScalarWhereInput = {
   OR?: Prisma.FoodStatsScalarWhereInput[]
   NOT?: Prisma.FoodStatsScalarWhereInput | Prisma.FoodStatsScalarWhereInput[]
   id?: Prisma.StringFilter<"FoodStats"> | string
-  reportId?: Prisma.StringFilter<"FoodStats"> | string
+  categoryStatsId?: Prisma.StringFilter<"FoodStats"> | string
   foodId?: Prisma.StringFilter<"FoodStats"> | string
   foodName?: Prisma.StringFilter<"FoodStats"> | string
   revenue?: Prisma.DecimalFilter<"FoodStats"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   quantity?: Prisma.IntFilter<"FoodStats"> | number
 }
 
-export type FoodStatsCreateManyReportInput = {
+export type FoodStatsCreateManyCategoryStatsInput = {
   id?: string
   foodId: string
   foodName: string
@@ -500,7 +500,7 @@ export type FoodStatsCreateManyReportInput = {
   quantity: number
 }
 
-export type FoodStatsUpdateWithoutReportInput = {
+export type FoodStatsUpdateWithoutCategoryStatsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   foodId?: Prisma.StringFieldUpdateOperationsInput | string
   foodName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -508,7 +508,7 @@ export type FoodStatsUpdateWithoutReportInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type FoodStatsUncheckedUpdateWithoutReportInput = {
+export type FoodStatsUncheckedUpdateWithoutCategoryStatsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   foodId?: Prisma.StringFieldUpdateOperationsInput | string
   foodName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -516,7 +516,7 @@ export type FoodStatsUncheckedUpdateWithoutReportInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type FoodStatsUncheckedUpdateManyWithoutReportInput = {
+export type FoodStatsUncheckedUpdateManyWithoutCategoryStatsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   foodId?: Prisma.StringFieldUpdateOperationsInput | string
   foodName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -528,38 +528,38 @@ export type FoodStatsUncheckedUpdateManyWithoutReportInput = {
 
 export type FoodStatsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  reportId?: boolean
+  categoryStatsId?: boolean
   foodId?: boolean
   foodName?: boolean
   revenue?: boolean
   quantity?: boolean
-  report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  categoryStats?: boolean | Prisma.CategoryStatsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["foodStats"]>
 
 
 
 export type FoodStatsSelectScalar = {
   id?: boolean
-  reportId?: boolean
+  categoryStatsId?: boolean
   foodId?: boolean
   foodName?: boolean
   revenue?: boolean
   quantity?: boolean
 }
 
-export type FoodStatsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reportId" | "foodId" | "foodName" | "revenue" | "quantity", ExtArgs["result"]["foodStats"]>
+export type FoodStatsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryStatsId" | "foodId" | "foodName" | "revenue" | "quantity", ExtArgs["result"]["foodStats"]>
 export type FoodStatsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  categoryStats?: boolean | Prisma.CategoryStatsDefaultArgs<ExtArgs>
 }
 
 export type $FoodStatsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FoodStats"
   objects: {
-    report: Prisma.$ReportPayload<ExtArgs>
+    categoryStats: Prisma.$CategoryStatsPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    reportId: string
+    categoryStatsId: string
     foodId: string
     foodName: string
     revenue: runtime.Decimal
@@ -904,7 +904,7 @@ readonly fields: FoodStatsFieldRefs;
  */
 export interface Prisma__FoodStatsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  report<T extends Prisma.ReportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReportDefaultArgs<ExtArgs>>): Prisma.Prisma__ReportClient<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  categoryStats<T extends Prisma.CategoryStatsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CategoryStatsDefaultArgs<ExtArgs>>): Prisma.Prisma__CategoryStatsClient<runtime.Types.Result.GetResult<Prisma.$CategoryStatsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -935,7 +935,7 @@ export interface Prisma__FoodStatsClient<T, Null = never, ExtArgs extends runtim
  */
 export interface FoodStatsFieldRefs {
   readonly id: Prisma.FieldRef<"FoodStats", 'String'>
-  readonly reportId: Prisma.FieldRef<"FoodStats", 'String'>
+  readonly categoryStatsId: Prisma.FieldRef<"FoodStats", 'String'>
   readonly foodId: Prisma.FieldRef<"FoodStats", 'String'>
   readonly foodName: Prisma.FieldRef<"FoodStats", 'String'>
   readonly revenue: Prisma.FieldRef<"FoodStats", 'Decimal'>

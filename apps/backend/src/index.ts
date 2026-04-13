@@ -3,6 +3,7 @@ import { logger } from "./config/logger";
 import { connectRedis, redisConnection } from "./lib/redis";
 import { sagraService } from "./modules/sagra/sagra.service";
 import app from "./app";
+import { initReportWorker } from "./jobs/report-automation.job";
 
 let server: ReturnType<typeof app.listen>
 
@@ -13,6 +14,10 @@ async function startServer() {
 
     //load configuration
     sagraService.loadConfig();
+
+    // start bullMQ worker
+    initReportWorker()
+    await sagraService.scheduleAutomation()
 
     server = app.listen(env.PORT, () => {
       logger.info(`Server is listening on http://localhost:${env.PORT}`);

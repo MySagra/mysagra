@@ -49,8 +49,8 @@ model Food {
   price       Decimal
   available   Boolean @default(true)
 
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   orderItems      OrderItem[]
   foodIngredients FoodIngredient[]
@@ -252,13 +252,14 @@ model Report {
   timestamp         DateTime
   intervalInMinutes Int      @default(60) // explain the duration of this report
 
-  totalRevenue Decimal
-  totalOrders  Int
+  totalRevenue     Decimal
+  totalCashRevenue Decimal
+  totalCardRevenue Decimal
+  totalOrders      Int
 
   averageCompletitionTime Int? @default(0) // in ms
 
   categoryStats CategoryStats[]
-  foodStats     FoodStats[]
 }
 
 model CategoryStats {
@@ -270,13 +271,15 @@ model CategoryStats {
   revenue      Decimal
   quantity     Int
 
-  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  report    Report      @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  foodStats FoodStats[]
+
   @@map("category_stats")
 }
 
 model FoodStats {
-  id       String @id @default(cuid())
-  reportId String
+  id              String @id @default(cuid())
+  categoryStatsId String
 
   foodId   String
   foodName String // use the food denormalized for mantain the original name in this period
@@ -284,6 +287,7 @@ model FoodStats {
   revenue  Decimal
   quantity Int
 
-  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  categoryStats CategoryStats @relation(fields: [categoryStatsId], references: [id], onDelete: Cascade)
+
   @@map("food_stats")
 }

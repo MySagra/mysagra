@@ -1,10 +1,13 @@
 import { NotFoundError } from "@/common/errors";
 import { prisma } from "@mysagra/database";
 import { Sagra } from "@mysagra/schemas";
+import { Queue } from "bullmq"
+import { redisConnection } from "@/lib/redis"
 
 export class SagraService {
     private static instance: SagraService
     private config: Sagra | null = null
+    private reportQueue = new Queue('report-queue', { connection: redisConnection })
 
     private constructor() {
         this.loadConfig()
@@ -25,6 +28,11 @@ export class SagraService {
             })
         }
         this.config = config
+        return config;
+    }
+
+    getConfig() {
+        return this.config
     }
 
     async updateSagra(data: Sagra) {
@@ -40,7 +48,11 @@ export class SagraService {
 
             this.config = updatedConfig;
             return updatedConfig;
+        }).then(async (config) => {
+            await this.scheduleAutomation();
+            return config;
         })
+
     }
 
     async updateLastClosing(date: Date) {
@@ -56,7 +68,36 @@ export class SagraService {
 
             this.config = updatedConfig
             return updatedConfig;
+        }).then(async (config) => {
+            await this.scheduleAutomation();
+            return config;
         })
+    }
+
+    public async scheduleAutomation() {
+        if (!this.config) return;
+
+        const schedulerId = `report-automation-${this.config.id}`;
+        const intervalMs = this.config.statsIntervalMinutes * 60 * 1000;
+
+        // upsertJobScheduler is the modern V5 way to handle repeatable jobs.
+        // It automatically manages the lifecycle: if the interval changes, 
+        // it updates the existing scheduler instead of creating duplicates.
+        await this.reportQueue.upsertJobScheduler(
+            schedulerId,
+            {
+                every: intervalMs,
+            },
+            {
+                name: 'auto-generate-report',
+                data: { sagraId: this.config.id },
+                // You can still pass job-specific options here
+                opts: {
+                    attempts: 3,
+                    backoff: { type: 'exponential', delay: 1000 }
+                }
+            }
+        );
     }
 }
 

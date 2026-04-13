@@ -5,7 +5,7 @@ export const SagraSchema = z.object({
     name: z.string(),
 
     lastClosingAt: z.date().optional(),
-    statsIntervalMinutes: z.int().min(1).default(60).optional()
+    statsIntervalMinutes: z.int().min(1).default(60)
 })
 
 export type Sagra = z.infer<typeof SagraSchema>
