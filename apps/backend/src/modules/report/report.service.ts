@@ -28,8 +28,8 @@ export class ReportService {
 
         if (!lastReport) {
             from = await prisma.order.findFirst({
-                where: { NOT: { confirmedAt: null } },
-                orderBy: { confirmedAt: "asc" }
+                where: { NOT: { completedAt: null } },
+                orderBy: { completedAt: "asc" }
             }).then(async (order) => {
                 return order?.completedAt
             })

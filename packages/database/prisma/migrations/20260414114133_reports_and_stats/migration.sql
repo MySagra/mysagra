@@ -14,6 +14,8 @@ CREATE TABLE `Report` (
     `timestamp` DATETIME(3) NOT NULL,
     `intervalInMinutes` INTEGER NOT NULL DEFAULT 60,
     `totalRevenue` DECIMAL(65, 30) NOT NULL,
+    `totalCashRevenue` DECIMAL(65, 30) NOT NULL,
+    `totalCardRevenue` DECIMAL(65, 30) NOT NULL,
     `totalOrders` INTEGER NOT NULL,
     `averageCompletitionTime` INTEGER NULL DEFAULT 0,
 
@@ -35,7 +37,7 @@ CREATE TABLE `category_stats` (
 -- CreateTable
 CREATE TABLE `food_stats` (
     `id` VARCHAR(191) NOT NULL,
-    `reportId` VARCHAR(191) NOT NULL,
+    `categoryStatsId` VARCHAR(191) NOT NULL,
     `foodId` VARCHAR(191) NOT NULL,
     `foodName` VARCHAR(191) NOT NULL,
     `revenue` DECIMAL(65, 30) NOT NULL,
@@ -48,4 +50,4 @@ CREATE TABLE `food_stats` (
 ALTER TABLE `category_stats` ADD CONSTRAINT `category_stats_reportId_fkey` FOREIGN KEY (`reportId`) REFERENCES `Report`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `food_stats` ADD CONSTRAINT `food_stats_reportId_fkey` FOREIGN KEY (`reportId`) REFERENCES `Report`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `food_stats` ADD CONSTRAINT `food_stats_categoryStatsId_fkey` FOREIGN KEY (`categoryStatsId`) REFERENCES `category_stats`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
