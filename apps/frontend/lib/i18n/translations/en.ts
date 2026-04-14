@@ -576,7 +576,6 @@ export const en = {
     sidebarCategories: "Categories",
     sidebarFoods: "Top Foods",
     allData: "All data",
-    categoryBreakdown: "Categories",
     exportExcel: "Export to Excel",
   },
 } as const;
