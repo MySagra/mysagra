@@ -561,7 +561,6 @@ export const it = {
     total: "Totale",
     topFoods: "Top Pietanze",
     quantity: "Quantità",
-    categoryBreakdown: "Categorie",
     categoryTreemap: "Mappa Categorie per Ricavo",
     avgCompletionTime: "Tempo Medio Completamento",
     // Drill-down
