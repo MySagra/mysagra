@@ -9,8 +9,9 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
-    "studio": "prisma studio",
-    "db:seed:test": "tsx src/tests/seed.test.ts"
+    "db:seed:test": "tsx src/tests/seed.test.ts",
+    "db:seed:orders": "tsx src/tests/seed.orders.ts",
+    "studio": "prisma studio"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",

@@ -23,7 +23,7 @@ import {
   createBanner,
   createOrderInstruction,
   createApiKey,
-  resetDisplayCodeCounter,
+  initializeDisplayCodeCounterFromDb,
 } from "../factories";
 
 // ── Setup ─────────────────────────────────────────────────────────
@@ -40,8 +40,9 @@ const NUM_USERS = 5;
 const NUM_BANNERS = 4;
 const NUM_ORDER_INSTRUCTIONS = 3;
 const NUM_API_KEYS = 2;
-const NUM_ORDERS = 250;
+const NUM_ORDERS = 500;
 const MAX_ITEMS_PER_ORDER = 6;
+const TIME_WINDOW_HOURS = 2; // 2 hours before and after
 
 // ── Helpers ───────────────────────────────────────────────────────
 function pick<T>(arr: T[]): T {
@@ -51,6 +52,23 @@ function pick<T>(arr: T[]): T {
 function pickN<T>(arr: T[], min: number, max: number): T[] {
   const count = faker.number.int({ min, max: Math.min(max, arr.length) });
   return faker.helpers.arrayElements(arr, count);
+}
+
+/**
+ * Generate a random date within the time window
+ * @param now Current time
+ * @param hoursOffset Number of hours before/after to distribute
+ * @returns Random date within the window
+ */
+function generateRandomDateInWindow(now: Date, hoursOffset: number): Date {
+  const beforeMs = hoursOffset * 60 * 60 * 1000;
+  const afterMs = hoursOffset * 60 * 60 * 1000;
+
+  const minTime = now.getTime() - beforeMs;
+  const maxTime = now.getTime() + afterMs;
+  const randomTime = faker.number.int({ min: minTime, max: maxTime });
+
+  return new Date(randomTime);
 }
 
 // ── Main Seed Function ────────────────────────────────────────────
@@ -304,10 +322,17 @@ async function seed() {
   console.log(`[DONE] ${apiKeys.length} API keys created\n`);
 
   // ----------------------------------------------------------------
-  // 11. Orders (250) with OrderItems
+  // 11. Orders (500) with OrderItems
   // ----------------------------------------------------------------
   console.log(`[INFO] Creating ${NUM_ORDERS} orders with items...`);
-  resetDisplayCodeCounter();
+  console.log(`[INFO] Time window for orders:`);
+  const now = new Date();
+  const timeWindowStart = new Date(now.getTime() - TIME_WINDOW_HOURS * 60 * 60 * 1000);
+  const timeWindowEnd = new Date(now.getTime() + TIME_WINDOW_HOURS * 60 * 60 * 1000);
+  console.log(`  From: ${timeWindowStart.toISOString()}`);
+  console.log(`  To:   ${timeWindowEnd.toISOString()}\n`);
+
+  await initializeDisplayCodeCounterFromDb(prisma);
 
   const statuses = ["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"] as const;
   let createdOrders = 0;
@@ -362,6 +387,9 @@ async function seed() {
     const total = Math.round(Math.max(subTotal - discount + surcharge, 0) * 100) / 100;
     const status = faker.helpers.arrayElement(statuses);
 
+    // Generate random date within the time window
+    const orderCreatedAt = generateRandomDateInWindow(now, TIME_WINDOW_HOURS);
+
     const order = await createOrder(prisma, {
       status,
       subTotal,
@@ -370,6 +398,7 @@ async function seed() {
       total,
       userId: status !== "PENDING" ? pick(users).id : null,
       cashRegisterId: status !== "PENDING" ? pick(cashRegisters).id : null,
+      createdAt: orderCreatedAt,
     });
 
     // Create order items

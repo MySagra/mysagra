@@ -35,6 +35,15 @@ export function resetDisplayCodeCounter() {
 }
 
 /**
+ * Initialize display code counter from the total count of orders in database
+ * This ensures unique display codes across multiple seed runs
+ */
+export async function initializeDisplayCodeCounterFromDb(prisma: PrismaClient) {
+  const totalOrders = await prisma.order.count();
+  displayCodeCounter = totalOrders;
+}
+
+/**
  * Helper function to create orders for a specific day (baseDate).
  * All generated orders will have createdAt and confirmedAt on the same day.
  *

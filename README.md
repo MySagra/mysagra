@@ -46,7 +46,25 @@ This project uses [pnpm](https://pnpm.io/) as package manager and [TurboRepo](ht
 ```bash
     pnpm prisma migrate dev
 ```
-6. Start the development server with the command
+6. **[Optional] Seed the database with test data:**
+   
+   There are two seed commands available in the `@packages/database` package:
+   
+   - **Complete Test Seed** – Populates the database with all resources (categories, foods, ingredients, users, printers, cash registers, banners, etc.) and generates 500 orders distributed across a 4-hour time window (2 hours before to 2 hours after execution):
+   ```bash
+       cd packages/database
+       pnpm db:seed:test
+   ```
+   
+   - **Orders-Only Seed** – Generates 500 orders using existing foods in the database. Useful if you already have your menu and infrastructure set up:
+   ```bash
+       cd packages/database
+       pnpm db:seed:orders
+   ```
+   
+   Both commands automatically continue from the last generated display code in the database, ensuring no duplicates.
+
+7. Start the development server with the command
 ```bash
     pnpm run dev
 ```

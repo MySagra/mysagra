@@ -2,6 +2,7 @@ import { Prisma, prisma } from "@mysagra/database"
 import { sagraService } from "../sagra/sagra.service"
 import { OrderStats, CategoryStats, FoodStats } from "@mysagra/schemas"
 import { GetReportsQuery, GroupInterval } from "@mysagra/schemas"
+import { Report } from "@mysagra/schemas"
 
 export class ReportService {
     private static instance: ReportService
@@ -27,7 +28,7 @@ export class ReportService {
 
         if (!lastReport) {
             from = await prisma.order.findFirst({
-                where: { NOT: { confirmedAt: null }},
+                where: { NOT: { confirmedAt: null } },
                 orderBy: { confirmedAt: "asc" }
             }).then(async (order) => {
                 return order?.completedAt
@@ -65,6 +66,12 @@ export class ReportService {
                 // Generate stats from last report to now
                 startTime = lastReport.timestamp
                 actualInterval = Math.round((to.getTime() - lastReport.timestamp.getTime()) / 60000)
+
+                if (lastReport.totalOrders === 0) {
+                    await tx.report.delete({
+                        where: { id: lastReport.id }
+                    })
+                }
             } else {
                 // Generate stats from defaultInterval minutes ago to now
                 startTime = new Date(to.getTime() - defaultInterval * 60000)
@@ -252,30 +259,37 @@ export class ReportService {
                 foodStats: Object.values(c.foodStats)
             }))
         }));
-    }
+    }*/
 
-    private _getBucketKey(date: Date, interval: GroupInterval): string {
+    private getBucketTimestamp(date: Date, interval: GroupInterval): number {
         const d = new Date(date);
-        d.setMinutes(0, 0, 0); // Reset minutes/seconds
+        d.setMinutes(0, 0, 0);
 
         switch (interval) {
-            case 'day':
-                d.setHours(0);
-                return d.toISOString();
+            case '1h':
+                d.setMinutes(0, 0, 0);
+                break;
             case '4h':
-                const hour4 = Math.floor(d.getHours() / 4) * 4;
-                d.setHours(hour4);
-                return d.toISOString();
+                const hours4 = Math.floor(d.getHours() / 4) * 4;
+                d.setHours(hours4, 0, 0, 0);
+                break;
+            case '12h':
+                const hours12 = Math.floor(d.getHours() / 12) * 12;
+                d.setHours(hours12, 0, 0, 0);
+                break;
+            case 'day':
+                d.setHours(0, 0, 0, 0);
+                break;
             case 'all':
-                return "summary";
-            default:
-                return d.toISOString();
+                return 0; // Everything goes into a single bucket
         }
-    }*/
+
+        return d.getTime();
+    }
 
     // TODO: create bucket with groupBy
     async getReports(query: GetReportsQuery) {
-        return await prisma.report.findMany({
+        const rawReports = await prisma.report.findMany({
             where: {
                 timestamp: {
                     gte: query.from,
@@ -290,7 +304,39 @@ export class ReportService {
                 }
             },
             orderBy: { timestamp: 'asc' }
-        })
+        });
+
+        if (query.groupBy === '1h') {
+            return rawReports;
+        }
+
+        const buckets = new Map<number, Report>();
+
+        for (const report of rawReports) {
+            const bucketKey = this.getBucketTimestamp(report.timestamp, query.groupBy);
+
+            if (!buckets.has(bucketKey)) {
+                buckets.set(bucketKey, {
+                    id: bucketKey.toString(),
+                    timestamp: new Date(bucketKey),
+                    totalRevenue: 0,
+                    totalCashRevenue: 0,
+                    totalCardRevenue: 0,
+                    totalOrders: 0,
+                    categoryStats: [],
+                    intervalInMinutes: bucketKey
+                })
+            }
+
+            const currentBucket = buckets.get(bucketKey);
+
+            if(!currentBucket) continue;
+
+            currentBucket.totalRevenue += Number(report.totalRevenue);
+            currentBucket.totalOrders += report.totalOrders;
+        }
+
+        return Array.from(buckets.values()).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
     }
 
     async getReport(id: string) {

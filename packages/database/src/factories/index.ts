@@ -5,7 +5,7 @@ export { createCashRegister } from "./cash-register.factory";
 export { createCategory } from "./category.factory";
 export { createIngredient } from "./ingredient.factory";
 export { createFood } from "./food.factory";
-export { createOrder, resetDisplayCodeCounter } from "./order.factory";
+export { createOrder, resetDisplayCodeCounter, initializeDisplayCodeCounterFromDb } from "./order.factory";
 export { createOrderItem } from "./order-item.factory";
 export { createBanner } from "./banner.factory";
 export { createOrderInstruction } from "./order-instruction.factory";
