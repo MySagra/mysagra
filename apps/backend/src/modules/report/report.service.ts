@@ -182,85 +182,6 @@ export class ReportService {
             `
     }
 
-    /** 
-    async getReports(query: GetReportsQuery) {
-        const reports = await prisma.report.findMany({
-            where: {
-                timestamp: {
-                    gte: query.from,
-                    lte: query.to
-                }
-            },
-            include: {
-                categoryStats: {
-                    include: {
-                        foodStats: true
-                    }
-                }
-            },
-            orderBy: { timestamp: 'asc' }
-        })
-
-        const grouped = reports.reduce((acc: any, report) => {
-            // Generate a bucket key based on the interval
-            const bucketKey = this._getBucketKey(report.timestamp, query.groupBy);
-
-            if (!acc[bucketKey]) {
-                acc[bucketKey] = {
-                    timestamp: bucketKey,
-                    totalRevenue: 0,
-                    totalCashRevenue: 0,
-                    totalCardRevenue: 0,
-                    totalOrders: 0,
-                    totalCompletionTimeWeight: 0, // Used for weighted average
-                    categoryStats: {}
-                };
-            }
-
-            const b = acc[bucketKey];
-            b.totalRevenue += Number(report.totalRevenue);
-            b.totalOrders += Number(report.totalOrders);
-            b.totalCashRevenue += Number(report.totalCashRevenue)
-            b.totalCardRevenue += Number(report.totalCardRevenue)
-
-            // Weighted average for completion time: (avg1 * count1 + avg2 * count2) / totalCount
-            b.totalCompletionTimeWeight += (Number(report.averageCompletitionTime) * Number(report.totalOrders));
-
-            // Group nested categories
-            report.categoryStats.forEach(cat => {
-                if (!b.categoryStats[cat.categoryId]) {
-                    b.categoryStats[cat.categoryId] = { ...cat, foodStats: {} };
-                } else {
-                    b.categoryStats[cat.categoryId].revenue += Number(cat.revenue);
-                    b.categoryStats[cat.categoryId].quantity += cat.quantity;
-                }
-
-                // Group nested foods
-                cat.foodStats.forEach(food => {
-                    const foodMap = b.categoryStats[cat.categoryId].foodStats;
-                    if (!foodMap[food.foodId]) {
-                        foodMap[food.foodId] = { ...food };
-                    } else {
-                        foodMap[food.foodId].revenue += Number(food.revenue);
-                        foodMap[food.foodId].quantity += food.quantity;
-                    }
-                });
-            });
-
-            return acc;
-        }, {});
-
-        // 3. Finalize and format (convert maps back to arrays)
-        return Object.values(grouped).map((b: any) => ({
-            ...b,
-            averageCompletitionTime: b.totalOrders > 0 ? Math.round(b.totalCompletionTimeWeight / b.totalOrders) : 0,
-            categoryStats: Object.values(b.categoryStats).map((c: any) => ({
-                ...c,
-                foodStats: Object.values(c.foodStats)
-            }))
-        }));
-    }*/
-
     private getBucketTimestamp(date: Date, interval: GroupInterval): number {
         const d = new Date(date);
         d.setMinutes(0, 0, 0);
@@ -287,7 +208,6 @@ export class ReportService {
         return d.getTime();
     }
 
-    // TODO: create bucket with groupBy
     async getReports(query: GetReportsQuery) {
         const rawReports = await prisma.report.findMany({
             where: {
@@ -311,6 +231,7 @@ export class ReportService {
         }
 
         const buckets = new Map<number, Report>();
+        const bucketCompletitionTimeWeighted = new Map<number, number>();
 
         for (const report of rawReports) {
             const bucketKey = this.getBucketTimestamp(report.timestamp, query.groupBy);
@@ -326,17 +247,107 @@ export class ReportService {
                     categoryStats: [],
                     intervalInMinutes: bucketKey
                 })
+                bucketCompletitionTimeWeighted.set(bucketKey, 0);
             }
 
             const currentBucket = buckets.get(bucketKey);
 
             if(!currentBucket) continue;
 
+            // Sum all totals
             currentBucket.totalRevenue += Number(report.totalRevenue);
+            currentBucket.totalCashRevenue += Number(report.totalCashRevenue);
+            currentBucket.totalCardRevenue += Number(report.totalCardRevenue);
             currentBucket.totalOrders += report.totalOrders;
+
+            // Weighted average for completion time
+            bucketCompletitionTimeWeighted.set(
+                bucketKey,
+                (bucketCompletitionTimeWeighted.get(bucketKey) || 0) + ((report.averageCompletitionTime || 0) * report.totalOrders)
+            );
+
+            // Aggregate categoryStats
+            const categoryStatsMap = new Map<string, any>();
+
+            // Initialize with existing categoryStats from bucket
+            for (const catStat of currentBucket.categoryStats) {
+                categoryStatsMap.set(catStat.categoryId, {
+                    id: catStat.id,
+                    reportId: catStat.reportId,
+                    categoryId: catStat.categoryId,
+                    categoryName: catStat.categoryName,
+                    revenue: Number(catStat.revenue),
+                    quantity: catStat.quantity,
+                    foodStats: [...catStat.foodStats]
+                });
+            }
+
+            // Aggregate from current report
+            for (const catStat of report.categoryStats) {
+                if (!categoryStatsMap.has(catStat.categoryId)) {
+                    categoryStatsMap.set(catStat.categoryId, {
+                        id: catStat.id,
+                        reportId: catStat.reportId,
+                        categoryId: catStat.categoryId,
+                        categoryName: catStat.categoryName,
+                        revenue: 0,
+                        quantity: 0,
+                        foodStats: []
+                    });
+                }
+
+                const aggregatedCategory = categoryStatsMap.get(catStat.categoryId)!;
+                aggregatedCategory.revenue += Number(catStat.revenue);
+                aggregatedCategory.quantity += catStat.quantity;
+
+                // Aggregate foodStats within category
+                const foodStatsMap = new Map<string, any>();
+
+                for (const foodStat of aggregatedCategory.foodStats) {
+                    foodStatsMap.set(foodStat.foodId, {
+                        id: foodStat.id,
+                        categoryStatsId: foodStat.categoryStatsId,
+                        foodId: foodStat.foodId,
+                        foodName: foodStat.foodName,
+                        revenue: Number(foodStat.revenue),
+                        quantity: foodStat.quantity
+                    });
+                }
+
+                for (const foodStat of catStat.foodStats) {
+                    if (!foodStatsMap.has(foodStat.foodId)) {
+                        foodStatsMap.set(foodStat.foodId, {
+                            id: foodStat.id,
+                            categoryStatsId: foodStat.categoryStatsId,
+                            foodId: foodStat.foodId,
+                            foodName: foodStat.foodName,
+                            revenue: 0,
+                            quantity: 0
+                        });
+                    }
+
+                    const aggregatedFood = foodStatsMap.get(foodStat.foodId)!;
+                    aggregatedFood.revenue += Number(foodStat.revenue);
+                    aggregatedFood.quantity += foodStat.quantity;
+                }
+
+                aggregatedCategory.foodStats = Array.from(foodStatsMap.values());
+            }
+
+            currentBucket.categoryStats = Array.from(categoryStatsMap.values());
         }
 
-        return Array.from(buckets.values()).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+        return Array.from(buckets.values())
+            .map(bucket => {
+                if (bucket.totalOrders > 0) {
+                    const weightedTotal = bucketCompletitionTimeWeighted.get(bucket.timestamp.getTime());
+                    bucket.averageCompletitionTime = weightedTotal ? Math.round(weightedTotal / bucket.totalOrders) : undefined;
+                } else {
+                    bucket.averageCompletitionTime = undefined;
+                }
+                return bucket;
+            })
+            .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
     }
 
     async getReport(id: string) {
