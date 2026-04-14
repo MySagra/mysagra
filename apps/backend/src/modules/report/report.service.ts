@@ -28,10 +28,10 @@ export class ReportService {
 
         if (!lastReport) {
             from = await prisma.order.findFirst({
-                where: { NOT: { completedAt: null } },
-                orderBy: { completedAt: "asc" }
+                where: { NOT: { confirmedAt: null } },
+                orderBy: { confirmedAt: "asc" }
             }).then(async (order) => {
-                return order?.completedAt
+                return order?.confirmedAt
             })
             if (!from) return; // no orders for report generation
         }
@@ -134,12 +134,12 @@ export class ReportService {
                 IFNULL(SUM(IF(o.paymentMethod = 'CASH', oi.total, 0)), 0) as totalCashRevenue,
                 IFNULL(SUM(IF(o.paymentMethod = 'CARD', oi.total, 0)), 0) as totalCardRevenue,
                 COUNT(DISTINCT o.id) as totalOrders,
-                IFNULL(AVG((UNIX_TIMESTAMP(o.completedAt) - UNIX_TIMESTAMP(o.createdAt)) * 1000), 0) as averageCompletitionTime
+                IFNULL(AVG(IF(o.completedAt IS NOT NULL, (UNIX_TIMESTAMP(o.completedAt) - UNIX_TIMESTAMP(o.createdAt)) * 1000, NULL)), 0) as averageCompletitionTime
                 FROM orders o
                 INNER JOIN order_items oi ON o.id = oi.orderId
-                WHERE o.status = 'COMPLETED'
-                AND o.completedAt >= ${from}
-                AND o.completedAt < ${to};
+                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
+                AND o.confirmedAt >= ${from}
+                AND o.confirmedAt < ${to};
             `
     }
 
@@ -155,9 +155,9 @@ export class ReportService {
                 INNER JOIN foods f ON c.id = f.categoryId
                 INNER JOIN order_items oi ON f.id = oi.foodId
                 INNER JOIN orders o ON oi.orderId = o.id
-                WHERE o.status = 'COMPLETED'
-                AND o.completedAt >= ${from}
-                AND o.completedAt < ${to}
+                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
+                AND o.confirmedAt >= ${from}
+                AND o.confirmedAt < ${to}
                 GROUP BY c.id, c.name;
             `
     }
@@ -175,9 +175,9 @@ export class ReportService {
                 INNER JOIN order_items oi ON f.id = oi.foodId
                 INNER JOIN orders o ON oi.orderId = o.id
                 INNER JOIN categories c ON f.categoryId = c.id
-                WHERE o.status = 'COMPLETED'
-                AND o.completedAt >= ${from}
-                AND o.completedAt < ${to}
+                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
+                AND o.confirmedAt >= ${from}
+                AND o.confirmedAt < ${to}
                 GROUP BY f.id, f.name;
             `
     }
