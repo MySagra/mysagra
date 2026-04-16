@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  Sagra: 'Sagra',
   Category: 'Category',
   Ingredient: 'Ingredient',
   Food: 'Food',
@@ -396,7 +397,11 @@ export const ModelName = {
   CashRegister: 'CashRegister',
   ApiKey: 'ApiKey',
   Banner: 'Banner',
-  OrderInstruction: 'OrderInstruction'
+  OrderInstruction: 'OrderInstruction',
+  Report: 'Report',
+  CashRegisterStats: 'CashRegisterStats',
+  CategoryStats: 'CategoryStats',
+  FoodStats: 'FoodStats'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,10 +417,76 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner" | "orderInstruction"
+    modelProps: "sagra" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner" | "orderInstruction" | "report" | "cashRegisterStats" | "categoryStats" | "foodStats"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    Sagra: {
+      payload: Prisma.$SagraPayload<ExtArgs>
+      fields: Prisma.SagraFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SagraFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SagraFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload>
+        }
+        findFirst: {
+          args: Prisma.SagraFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SagraFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload>
+        }
+        findMany: {
+          args: Prisma.SagraFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload>[]
+        }
+        create: {
+          args: Prisma.SagraCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload>
+        }
+        createMany: {
+          args: Prisma.SagraCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SagraDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload>
+        }
+        update: {
+          args: Prisma.SagraUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload>
+        }
+        deleteMany: {
+          args: Prisma.SagraDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SagraUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SagraUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SagraPayload>
+        }
+        aggregate: {
+          args: Prisma.SagraAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSagra>
+        }
+        groupBy: {
+          args: Prisma.SagraGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SagraGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SagraCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SagraCountAggregateOutputType> | number
+        }
+      }
+    }
     Category: {
       payload: Prisma.$CategoryPayload<ExtArgs>
       fields: Prisma.CategoryFieldRefs
@@ -1274,6 +1345,270 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Report: {
+      payload: Prisma.$ReportPayload<ExtArgs>
+      fields: Prisma.ReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload>
+        }
+        findFirst: {
+          args: Prisma.ReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload>
+        }
+        findMany: {
+          args: Prisma.ReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload>[]
+        }
+        create: {
+          args: Prisma.ReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload>
+        }
+        createMany: {
+          args: Prisma.ReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload>
+        }
+        update: {
+          args: Prisma.ReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReportPayload>
+        }
+        aggregate: {
+          args: Prisma.ReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReport>
+        }
+        groupBy: {
+          args: Prisma.ReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReportCountAggregateOutputType> | number
+        }
+      }
+    }
+    CashRegisterStats: {
+      payload: Prisma.$CashRegisterStatsPayload<ExtArgs>
+      fields: Prisma.CashRegisterStatsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CashRegisterStatsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CashRegisterStatsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        findFirst: {
+          args: Prisma.CashRegisterStatsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CashRegisterStatsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        findMany: {
+          args: Prisma.CashRegisterStatsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>[]
+        }
+        create: {
+          args: Prisma.CashRegisterStatsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        createMany: {
+          args: Prisma.CashRegisterStatsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CashRegisterStatsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        update: {
+          args: Prisma.CashRegisterStatsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        deleteMany: {
+          args: Prisma.CashRegisterStatsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CashRegisterStatsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CashRegisterStatsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        aggregate: {
+          args: Prisma.CashRegisterStatsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCashRegisterStats>
+        }
+        groupBy: {
+          args: Prisma.CashRegisterStatsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashRegisterStatsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CashRegisterStatsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashRegisterStatsCountAggregateOutputType> | number
+        }
+      }
+    }
+    CategoryStats: {
+      payload: Prisma.$CategoryStatsPayload<ExtArgs>
+      fields: Prisma.CategoryStatsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CategoryStatsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CategoryStatsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload>
+        }
+        findFirst: {
+          args: Prisma.CategoryStatsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CategoryStatsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload>
+        }
+        findMany: {
+          args: Prisma.CategoryStatsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload>[]
+        }
+        create: {
+          args: Prisma.CategoryStatsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload>
+        }
+        createMany: {
+          args: Prisma.CategoryStatsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CategoryStatsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload>
+        }
+        update: {
+          args: Prisma.CategoryStatsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload>
+        }
+        deleteMany: {
+          args: Prisma.CategoryStatsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CategoryStatsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CategoryStatsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryStatsPayload>
+        }
+        aggregate: {
+          args: Prisma.CategoryStatsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCategoryStats>
+        }
+        groupBy: {
+          args: Prisma.CategoryStatsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategoryStatsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CategoryStatsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategoryStatsCountAggregateOutputType> | number
+        }
+      }
+    }
+    FoodStats: {
+      payload: Prisma.$FoodStatsPayload<ExtArgs>
+      fields: Prisma.FoodStatsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FoodStatsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FoodStatsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload>
+        }
+        findFirst: {
+          args: Prisma.FoodStatsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FoodStatsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload>
+        }
+        findMany: {
+          args: Prisma.FoodStatsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload>[]
+        }
+        create: {
+          args: Prisma.FoodStatsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload>
+        }
+        createMany: {
+          args: Prisma.FoodStatsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FoodStatsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload>
+        }
+        update: {
+          args: Prisma.FoodStatsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload>
+        }
+        deleteMany: {
+          args: Prisma.FoodStatsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FoodStatsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FoodStatsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FoodStatsPayload>
+        }
+        aggregate: {
+          args: Prisma.FoodStatsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFoodStats>
+        }
+        groupBy: {
+          args: Prisma.FoodStatsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FoodStatsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FoodStatsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FoodStatsCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1311,6 +1646,16 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const SagraScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  lastClosingAt: 'lastClosingAt',
+  statsIntervalMinutes: 'statsIntervalMinutes'
+} as const
+
+export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {
@@ -1472,12 +1817,71 @@ export const OrderInstructionScalarFieldEnum = {
 export type OrderInstructionScalarFieldEnum = (typeof OrderInstructionScalarFieldEnum)[keyof typeof OrderInstructionScalarFieldEnum]
 
 
+export const ReportScalarFieldEnum = {
+  id: 'id',
+  timestamp: 'timestamp',
+  intervalInMinutes: 'intervalInMinutes',
+  totalRevenue: 'totalRevenue',
+  totalCashRevenue: 'totalCashRevenue',
+  totalCardRevenue: 'totalCardRevenue',
+  totalOrders: 'totalOrders',
+  averageCompletitionTime: 'averageCompletitionTime'
+} as const
+
+export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
+
+
+export const CashRegisterStatsScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  cashRegisterId: 'cashRegisterId',
+  cashRegisterName: 'cashRegisterName',
+  totalRevenue: 'totalRevenue',
+  totalCardRevenue: 'totalCardRevenue',
+  totalCashRevenue: 'totalCashRevenue'
+} as const
+
+export type CashRegisterStatsScalarFieldEnum = (typeof CashRegisterStatsScalarFieldEnum)[keyof typeof CashRegisterStatsScalarFieldEnum]
+
+
+export const CategoryStatsScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  categoryId: 'categoryId',
+  categoryName: 'categoryName',
+  revenue: 'revenue',
+  quantity: 'quantity'
+} as const
+
+export type CategoryStatsScalarFieldEnum = (typeof CategoryStatsScalarFieldEnum)[keyof typeof CategoryStatsScalarFieldEnum]
+
+
+export const FoodStatsScalarFieldEnum = {
+  id: 'id',
+  categoryStatsId: 'categoryStatsId',
+  foodId: 'foodId',
+  foodName: 'foodName',
+  revenue: 'revenue',
+  quantity: 'quantity'
+} as const
+
+export type FoodStatsScalarFieldEnum = (typeof FoodStatsScalarFieldEnum)[keyof typeof FoodStatsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const SagraOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
 
 
 export const NullsOrder = {
@@ -1619,6 +2023,43 @@ export const OrderInstructionOrderByRelevanceFieldEnum = {
 export type OrderInstructionOrderByRelevanceFieldEnum = (typeof OrderInstructionOrderByRelevanceFieldEnum)[keyof typeof OrderInstructionOrderByRelevanceFieldEnum]
 
 
+export const ReportOrderByRelevanceFieldEnum = {
+  id: 'id'
+} as const
+
+export type ReportOrderByRelevanceFieldEnum = (typeof ReportOrderByRelevanceFieldEnum)[keyof typeof ReportOrderByRelevanceFieldEnum]
+
+
+export const CashRegisterStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  cashRegisterId: 'cashRegisterId',
+  cashRegisterName: 'cashRegisterName'
+} as const
+
+export type CashRegisterStatsOrderByRelevanceFieldEnum = (typeof CashRegisterStatsOrderByRelevanceFieldEnum)[keyof typeof CashRegisterStatsOrderByRelevanceFieldEnum]
+
+
+export const CategoryStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  categoryId: 'categoryId',
+  categoryName: 'categoryName'
+} as const
+
+export type CategoryStatsOrderByRelevanceFieldEnum = (typeof CategoryStatsOrderByRelevanceFieldEnum)[keyof typeof CategoryStatsOrderByRelevanceFieldEnum]
+
+
+export const FoodStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  categoryStatsId: 'categoryStatsId',
+  foodId: 'foodId',
+  foodName: 'foodName'
+} as const
+
+export type FoodStatsOrderByRelevanceFieldEnum = (typeof FoodStatsOrderByRelevanceFieldEnum)[keyof typeof FoodStatsOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -1633,9 +2074,9 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
 
 
 /**
- * Reference to a field of type 'Boolean'
+ * Reference to a field of type 'DateTime'
  */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
     
 
 
@@ -1647,16 +2088,16 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 
 
 /**
- * Reference to a field of type 'Decimal'
+ * Reference to a field of type 'Boolean'
  */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
 /**
- * Reference to a field of type 'DateTime'
+ * Reference to a field of type 'Decimal'
  */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
     
 
 
@@ -1796,6 +2237,7 @@ export type PrismaClientOptions = ({
   comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
+  sagra?: Prisma.SagraOmit
   category?: Prisma.CategoryOmit
   ingredient?: Prisma.IngredientOmit
   food?: Prisma.FoodOmit
@@ -1809,6 +2251,10 @@ export type GlobalOmitConfig = {
   apiKey?: Prisma.ApiKeyOmit
   banner?: Prisma.BannerOmit
   orderInstruction?: Prisma.OrderInstructionOmit
+  report?: Prisma.ReportOmit
+  cashRegisterStats?: Prisma.CashRegisterStatsOmit
+  categoryStats?: Prisma.CategoryStatsOmit
+  foodStats?: Prisma.FoodStatsOmit
 }
 
 /* Types for Logging */

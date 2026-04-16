@@ -1,8 +1,9 @@
 import { env } from "./config/env"; // load the .env before prisma
 import { logger } from "./config/logger";
-import { connectRedis, redisClient } from "./lib/redis";
-import { prisma } from "@mysagra/database";
+import { connectRedis, redisConnection } from "./lib/redis";
+import { sagraService } from "./modules/sagra/sagra.service";
 import app from "./app";
+import { initReportWorker } from "./jobs/report-automation.job";
 
 let server: ReturnType<typeof app.listen>
 
@@ -10,6 +11,13 @@ async function startServer() {
   try {
     await connectRedis();
     logger.info('Connection to Redis successful')
+
+    //load configuration
+    sagraService.loadConfig();
+
+    // start bullMQ worker
+    initReportWorker()
+    await sagraService.scheduleAutomation()
 
     server = app.listen(env.PORT, () => {
       logger.info(`Server is listening on http://localhost:${env.PORT}`);
@@ -25,8 +33,8 @@ async function shutdown() {
   try {
     logger.info('Shutting down server...');
 
-    if (redisClient.isOpen) {
-      await redisClient.quit();
+    if (redisConnection.status === 'ready') {
+      await redisConnection.quit();
       logger.info('Redis connection closed.');
     }
 

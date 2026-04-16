@@ -30,6 +30,7 @@ import {
   KeyRoundIcon,
   ImageIcon,
   ListOrderedIcon,
+  BarChart3,
 } from "lucide-react"
 import { useLocale } from "@/contexts/locale-context"
 
@@ -53,6 +54,13 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         url: "/dashboard",
         icon: HomeIcon,
       },
+      ...(isAdmin || isMaintainer
+        ? [{
+            title: t.nav.analytics,
+            url: "/dashboard/analytics",
+            icon: BarChart3,
+          }]
+        : []),
     ],
     cucina: [
       ...(isAdmin || isMaintainer

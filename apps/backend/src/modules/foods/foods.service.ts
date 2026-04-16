@@ -168,24 +168,33 @@ export class FoodsService {
     }
 
     async updateFood(id: string, food: UpdateFoodInput) {
-        const res = await prisma.$transaction(async (tx) => {
-            // First delete existing ingredient relations
-            await tx.foodIngredient.deleteMany({
-                where: {
-                    foodId: id
-                }
-            });
+        // Delete existing ingredient relations outside transaction to avoid MariaDB conflicts
+        await prisma.foodIngredient.deleteMany({
+            where: {
+                foodId: id
+            }
+        });
 
-            // Then update the food and create new relations
-            const updatedFood = await prisma.food.update({
+        const res = await prisma.$transaction(async (tx) => {
+            // Update the food and create new relations
+            const { categoryId, printerId, ingredients, ...foodData } = food;
+            const updatedFood = await tx.food.update({
                 where: {
                     id
                 },
                 data: {
-                    ...food,
-                    ...(food.ingredients && food.ingredients.length > 0 && {
+                    ...foodData,
+                    category: {
+                        connect: {
+                            id: categoryId
+                        }
+                    },
+                    ...(printerId !== undefined && {
+                        printer: printerId ? { connect: { id: printerId } } : { disconnect: true }
+                    }),
+                    ...(ingredients && ingredients.length > 0 && {
                         foodIngredients: {
-                            create: food.ingredients.map(ingredient => ({
+                            create: ingredients.map(ingredient => ({
                                 ingredientId: ingredient.id
                             }))
                         }

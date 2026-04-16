@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Sagra: 'Sagra',
   Category: 'Category',
   Ingredient: 'Ingredient',
   Food: 'Food',
@@ -63,7 +64,11 @@ export const ModelName = {
   CashRegister: 'CashRegister',
   ApiKey: 'ApiKey',
   Banner: 'Banner',
-  OrderInstruction: 'OrderInstruction'
+  OrderInstruction: 'OrderInstruction',
+  Report: 'Report',
+  CashRegisterStats: 'CashRegisterStats',
+  CategoryStats: 'CategoryStats',
+  FoodStats: 'FoodStats'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -80,6 +85,16 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const SagraScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  lastClosingAt: 'lastClosingAt',
+  statsIntervalMinutes: 'statsIntervalMinutes'
+} as const
+
+export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {
@@ -241,12 +256,71 @@ export const OrderInstructionScalarFieldEnum = {
 export type OrderInstructionScalarFieldEnum = (typeof OrderInstructionScalarFieldEnum)[keyof typeof OrderInstructionScalarFieldEnum]
 
 
+export const ReportScalarFieldEnum = {
+  id: 'id',
+  timestamp: 'timestamp',
+  intervalInMinutes: 'intervalInMinutes',
+  totalRevenue: 'totalRevenue',
+  totalCashRevenue: 'totalCashRevenue',
+  totalCardRevenue: 'totalCardRevenue',
+  totalOrders: 'totalOrders',
+  averageCompletitionTime: 'averageCompletitionTime'
+} as const
+
+export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
+
+
+export const CashRegisterStatsScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  cashRegisterId: 'cashRegisterId',
+  cashRegisterName: 'cashRegisterName',
+  totalRevenue: 'totalRevenue',
+  totalCardRevenue: 'totalCardRevenue',
+  totalCashRevenue: 'totalCashRevenue'
+} as const
+
+export type CashRegisterStatsScalarFieldEnum = (typeof CashRegisterStatsScalarFieldEnum)[keyof typeof CashRegisterStatsScalarFieldEnum]
+
+
+export const CategoryStatsScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  categoryId: 'categoryId',
+  categoryName: 'categoryName',
+  revenue: 'revenue',
+  quantity: 'quantity'
+} as const
+
+export type CategoryStatsScalarFieldEnum = (typeof CategoryStatsScalarFieldEnum)[keyof typeof CategoryStatsScalarFieldEnum]
+
+
+export const FoodStatsScalarFieldEnum = {
+  id: 'id',
+  categoryStatsId: 'categoryStatsId',
+  foodId: 'foodId',
+  foodName: 'foodName',
+  revenue: 'revenue',
+  quantity: 'quantity'
+} as const
+
+export type FoodStatsScalarFieldEnum = (typeof FoodStatsScalarFieldEnum)[keyof typeof FoodStatsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const SagraOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
 
 
 export const NullsOrder = {
@@ -386,4 +460,41 @@ export const OrderInstructionOrderByRelevanceFieldEnum = {
 } as const
 
 export type OrderInstructionOrderByRelevanceFieldEnum = (typeof OrderInstructionOrderByRelevanceFieldEnum)[keyof typeof OrderInstructionOrderByRelevanceFieldEnum]
+
+
+export const ReportOrderByRelevanceFieldEnum = {
+  id: 'id'
+} as const
+
+export type ReportOrderByRelevanceFieldEnum = (typeof ReportOrderByRelevanceFieldEnum)[keyof typeof ReportOrderByRelevanceFieldEnum]
+
+
+export const CashRegisterStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  cashRegisterId: 'cashRegisterId',
+  cashRegisterName: 'cashRegisterName'
+} as const
+
+export type CashRegisterStatsOrderByRelevanceFieldEnum = (typeof CashRegisterStatsOrderByRelevanceFieldEnum)[keyof typeof CashRegisterStatsOrderByRelevanceFieldEnum]
+
+
+export const CategoryStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  categoryId: 'categoryId',
+  categoryName: 'categoryName'
+} as const
+
+export type CategoryStatsOrderByRelevanceFieldEnum = (typeof CategoryStatsOrderByRelevanceFieldEnum)[keyof typeof CategoryStatsOrderByRelevanceFieldEnum]
+
+
+export const FoodStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  categoryStatsId: 'categoryStatsId',
+  foodId: 'foodId',
+  foodName: 'foodName'
+} as const
+
+export type FoodStatsOrderByRelevanceFieldEnum = (typeof FoodStatsOrderByRelevanceFieldEnum)[keyof typeof FoodStatsOrderByRelevanceFieldEnum]
 

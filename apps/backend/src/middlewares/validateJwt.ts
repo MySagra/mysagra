@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 import { TokenService } from "@/modules/auth/token.service";
-import { redisClient } from "@/lib/redis";
+import { redisConnection } from "@/lib/redis";
 import { logger } from "@/config/logger";
 import { UnauthorizedError, InternalServerError } from "@/common/errors";
 
@@ -16,7 +16,7 @@ export async function validateJwt(req: Request, res: Response, next: NextFunctio
     }
 
     try {
-        const isBlackListed = await redisClient.get(`blacklist:${cookie}`);
+        const isBlackListed = await redisConnection.get(`blacklist:${cookie}`);
 
         if (isBlackListed) {
             throw new UnauthorizedError("Session expired or logged out");

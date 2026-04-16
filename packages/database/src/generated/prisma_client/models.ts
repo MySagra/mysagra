@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/Sagra'
 export type * from './models/Category'
 export type * from './models/Ingredient'
 export type * from './models/Food'
@@ -21,4 +22,8 @@ export type * from './models/CashRegister'
 export type * from './models/ApiKey'
 export type * from './models/Banner'
 export type * from './models/OrderInstruction'
+export type * from './models/Report'
+export type * from './models/CashRegisterStats'
+export type * from './models/CategoryStats'
+export type * from './models/FoodStats'
 export type * from './commonInputTypes'

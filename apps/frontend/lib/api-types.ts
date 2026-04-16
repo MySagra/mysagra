@@ -301,4 +301,7 @@ export const API_ENDPOINTS = {
     ALL: "/v1/order-instructions",
     BY_ID: (id: string) => `/v1/order-instructions/${id}`,
   },
+  REPORTS: {
+    ALL: "/v1/reports",
+  },
 } as const;
