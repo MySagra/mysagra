@@ -4,7 +4,7 @@ export const GroupIntervalSchema = z.enum(["1h", "4h", "12h", "day", "all"])
 
 export const GetReportsQuerySchema = z.object({
   from: z.coerce.date().describe("Start date and time (ISO 8601 format)"),
-  to: z.coerce.date().describe("End date and time (ISO 8601 format)"),
+  to: z.coerce.date().describe("End date and time (ISO 8601 format)").optional(),
   groupBy: GroupIntervalSchema
 })
 
@@ -25,9 +25,9 @@ export type OrderStats = z.infer<typeof OrderStatsSchema>
 
 
 export const FoodStatsSchema = z.object({
-  id: z.string(),
-  categoryStatsId: z.string(),
-  foodId: z.string(),
+  id: z.cuid(),
+  categoryStatsId: z.cuid(),
+  foodId: z.cuid(),
   foodName: z.string(),
   revenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
   quantity: z.number()
@@ -36,9 +36,9 @@ export const FoodStatsSchema = z.object({
 export type FoodStats = z.infer<typeof FoodStatsSchema>
 
 export const CategoryStatsSchema = z.object({
-  id: z.string(),
-  reportId: z.string(),
-  categoryId: z.string(),
+  id: z.cuid(),
+  reportId: z.cuid(),
+  categoryId: z.cuid(),
   categoryName: z.string(),
   revenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
   quantity: z.number(),
@@ -47,8 +47,20 @@ export const CategoryStatsSchema = z.object({
 
 export type CategoryStats = z.infer<typeof CategoryStatsSchema>
 
+export const CashRegisterStatsSchema = z.object({
+  id: z.cuid(),
+  reportId: z.cuid(),
+  cashRegisterId: z.cuid(),
+  cashRegisterName: z.string(),
+  totalRevenue: z.number(),
+  totalCardRevenue: z.number(),
+  totalCashRevenue: z.number()
+})
+
+export type CashRegisterStats = z.infer<typeof CashRegisterStatsSchema>
+
 export const ReportSchema = z.object({
-  id: z.string(),
+  id: z.cuid(),
   timestamp: z.date(),
   intervalInMinutes: z.number(),
   totalRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
@@ -56,7 +68,8 @@ export const ReportSchema = z.object({
   totalCardRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
   totalOrders: z.number(),
   averageCompletitionTime: z.number().nullable().optional(),
-  categoryStats: z.array(CategoryStatsSchema)
+  categoryStats: z.array(CategoryStatsSchema),
+  cashRegisterStats: z.array(CashRegisterStatsSchema)
 })
 
 export type Report = z.infer<typeof ReportSchema>

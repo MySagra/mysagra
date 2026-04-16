@@ -117,6 +117,11 @@ export type OrderInstruction = Prisma.OrderInstructionModel
  */
 export type Report = Prisma.ReportModel
 /**
+ * Model CashRegisterStats
+ * 
+ */
+export type CashRegisterStats = Prisma.CashRegisterStatsModel
+/**
  * Model CategoryStats
  * 
  */

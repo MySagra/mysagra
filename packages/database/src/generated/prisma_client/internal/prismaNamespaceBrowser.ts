@@ -66,6 +66,7 @@ export const ModelName = {
   Banner: 'Banner',
   OrderInstruction: 'OrderInstruction',
   Report: 'Report',
+  CashRegisterStats: 'CashRegisterStats',
   CategoryStats: 'CategoryStats',
   FoodStats: 'FoodStats'
 } as const
@@ -269,6 +270,19 @@ export const ReportScalarFieldEnum = {
 export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
 
 
+export const CashRegisterStatsScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  cashRegisterId: 'cashRegisterId',
+  cashRegisterName: 'cashRegisterName',
+  totalRevenue: 'totalRevenue',
+  totalCardRevenue: 'totalCardRevenue',
+  totalCashRevenue: 'totalCashRevenue'
+} as const
+
+export type CashRegisterStatsScalarFieldEnum = (typeof CashRegisterStatsScalarFieldEnum)[keyof typeof CashRegisterStatsScalarFieldEnum]
+
+
 export const CategoryStatsScalarFieldEnum = {
   id: 'id',
   reportId: 'reportId',
@@ -453,6 +467,16 @@ export const ReportOrderByRelevanceFieldEnum = {
 } as const
 
 export type ReportOrderByRelevanceFieldEnum = (typeof ReportOrderByRelevanceFieldEnum)[keyof typeof ReportOrderByRelevanceFieldEnum]
+
+
+export const CashRegisterStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  cashRegisterId: 'cashRegisterId',
+  cashRegisterName: 'cashRegisterName'
+} as const
+
+export type CashRegisterStatsOrderByRelevanceFieldEnum = (typeof CashRegisterStatsOrderByRelevanceFieldEnum)[keyof typeof CashRegisterStatsOrderByRelevanceFieldEnum]
 
 
 export const CategoryStatsOrderByRelevanceFieldEnum = {

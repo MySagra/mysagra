@@ -399,6 +399,7 @@ export const ModelName = {
   Banner: 'Banner',
   OrderInstruction: 'OrderInstruction',
   Report: 'Report',
+  CashRegisterStats: 'CashRegisterStats',
   CategoryStats: 'CategoryStats',
   FoodStats: 'FoodStats'
 } as const
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "sagra" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner" | "orderInstruction" | "report" | "categoryStats" | "foodStats"
+    modelProps: "sagra" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner" | "orderInstruction" | "report" | "cashRegisterStats" | "categoryStats" | "foodStats"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1410,6 +1411,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CashRegisterStats: {
+      payload: Prisma.$CashRegisterStatsPayload<ExtArgs>
+      fields: Prisma.CashRegisterStatsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CashRegisterStatsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CashRegisterStatsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        findFirst: {
+          args: Prisma.CashRegisterStatsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CashRegisterStatsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        findMany: {
+          args: Prisma.CashRegisterStatsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>[]
+        }
+        create: {
+          args: Prisma.CashRegisterStatsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        createMany: {
+          args: Prisma.CashRegisterStatsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CashRegisterStatsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        update: {
+          args: Prisma.CashRegisterStatsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        deleteMany: {
+          args: Prisma.CashRegisterStatsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CashRegisterStatsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CashRegisterStatsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashRegisterStatsPayload>
+        }
+        aggregate: {
+          args: Prisma.CashRegisterStatsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCashRegisterStats>
+        }
+        groupBy: {
+          args: Prisma.CashRegisterStatsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashRegisterStatsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CashRegisterStatsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashRegisterStatsCountAggregateOutputType> | number
+        }
+      }
+    }
     CategoryStats: {
       payload: Prisma.$CategoryStatsPayload<ExtArgs>
       fields: Prisma.CategoryStatsFieldRefs
@@ -1764,6 +1831,19 @@ export const ReportScalarFieldEnum = {
 export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
 
 
+export const CashRegisterStatsScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  cashRegisterId: 'cashRegisterId',
+  cashRegisterName: 'cashRegisterName',
+  totalRevenue: 'totalRevenue',
+  totalCardRevenue: 'totalCardRevenue',
+  totalCashRevenue: 'totalCashRevenue'
+} as const
+
+export type CashRegisterStatsScalarFieldEnum = (typeof CashRegisterStatsScalarFieldEnum)[keyof typeof CashRegisterStatsScalarFieldEnum]
+
+
 export const CategoryStatsScalarFieldEnum = {
   id: 'id',
   reportId: 'reportId',
@@ -1948,6 +2028,16 @@ export const ReportOrderByRelevanceFieldEnum = {
 } as const
 
 export type ReportOrderByRelevanceFieldEnum = (typeof ReportOrderByRelevanceFieldEnum)[keyof typeof ReportOrderByRelevanceFieldEnum]
+
+
+export const CashRegisterStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  cashRegisterId: 'cashRegisterId',
+  cashRegisterName: 'cashRegisterName'
+} as const
+
+export type CashRegisterStatsOrderByRelevanceFieldEnum = (typeof CashRegisterStatsOrderByRelevanceFieldEnum)[keyof typeof CashRegisterStatsOrderByRelevanceFieldEnum]
 
 
 export const CategoryStatsOrderByRelevanceFieldEnum = {
@@ -2162,6 +2252,7 @@ export type GlobalOmitConfig = {
   banner?: Prisma.BannerOmit
   orderInstruction?: Prisma.OrderInstructionOmit
   report?: Prisma.ReportOmit
+  cashRegisterStats?: Prisma.CashRegisterStatsOmit
   categoryStats?: Prisma.CategoryStatsOmit
   foodStats?: Prisma.FoodStatsOmit
 }

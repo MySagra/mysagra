@@ -259,7 +259,23 @@ model Report {
 
   averageCompletitionTime Int? @default(0) // in ms
 
-  categoryStats CategoryStats[]
+  categoryStats     CategoryStats[]
+  cashRegisterStats CashRegisterStats[]
+}
+
+model CashRegisterStats {
+  id       String @id @default(cuid())
+  reportId String
+
+  cashRegisterId   String
+  cashRegisterName String
+
+  totalRevenue     Decimal
+  totalCardRevenue Decimal
+  totalCashRevenue Decimal
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  @@map("cash_register_stats")
 }
 
 model CategoryStats {

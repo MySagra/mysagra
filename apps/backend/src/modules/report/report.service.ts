@@ -3,6 +3,7 @@ import { sagraService } from "../sagra/sagra.service"
 import { OrderStats, CategoryStats, FoodStats } from "@mysagra/schemas"
 import { GetReportsQuery, GroupInterval } from "@mysagra/schemas"
 import { Report } from "@mysagra/schemas"
+import { logger } from "@/config/logger"
 
 export class ReportService {
     private static instance: ReportService
@@ -42,13 +43,17 @@ export class ReportService {
         const interval = (sagraService.getConfig()?.statsIntervalMinutes || 60) * 60 * 1000
         let currentStep = new Date(from.getTime() + interval);
 
+        logger.info(`Started report generation from: ${from}`)
+
         while (currentStep <= to) {
             await this.generateReport(new Date(currentStep));
             currentStep = new Date(currentStep.getTime() + interval);
         }
+
+        logger.info("Finished report generation")
     }
 
-    async generateReport(to = new Date()) {
+    async generateReport(to = new Date(), saveData = true) {
         return await prisma.$transaction(async (tx) => {
             const lastReport = await tx.report.findFirst({
                 orderBy: {
@@ -78,11 +83,21 @@ export class ReportService {
                 actualInterval = defaultInterval
             }
 
-            const [orderStatsRaw, categoryStatsRaw, foodStatsRaw] = await Promise.all([
+            const [orderStatsRaw, categoryStatsRaw, foodStatsRaw, cashRegisterStatsRaw] = await Promise.all([
                 this._generateOrderStats(tx, startTime, to),
                 this._generateCategoryStats(tx, startTime, to),
                 this._generateFoodStats(tx, startTime, to),
+                this._generateCashRegisterStats(tx, startTime, to),
             ])
+
+            if(!saveData) {
+                return {
+                    orderStats: orderStatsRaw[0],
+                    categoryStatsRaw,
+                    foodStatsRaw,
+                    cashRegisterStatsRaw
+                }
+            }
 
             const orderStats: OrderStats = orderStatsRaw[0];
 
@@ -112,6 +127,15 @@ export class ReportService {
                                         quantity: Number(f.quantity)
                                     }))
                             }
+                        }))
+                    },
+                    cashRegisterStats: {
+                        create: cashRegisterStatsRaw.map((cr: any) => ({
+                            cashRegisterId: cr.cashRegisterId,
+                            cashRegisterName: cr.cashRegisterName,
+                            totalRevenue: this._round(Number(cr.totalRevenue)),
+                            totalCardRevenue: this._round(Number(cr.totalCardRevenue)),
+                            totalCashRevenue: this._round(Number(cr.totalCashRevenue))
                         }))
                     }
                 }
@@ -182,6 +206,24 @@ export class ReportService {
             `
     }
 
+    private async _generateCashRegisterStats(tx: Prisma.TransactionClient, from: Date, to: Date): Promise<any[]> {
+        return await tx.$queryRaw
+            `
+                SELECT
+                cr.id as cashRegisterId,
+                cr.name as cashRegisterName,
+                IFNULL(SUM(o.total), 0) as totalRevenue,
+                IFNULL(SUM(IF(o.paymentMethod = 'CARD', o.total, 0)), 0) as totalCardRevenue,
+                IFNULL(SUM(IF(o.paymentMethod = 'CASH', o.total, 0)), 0) as totalCashRevenue
+                FROM cash_registers cr
+                LEFT JOIN orders o ON cr.id = o.cashRegisterId
+                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
+                AND o.confirmedAt >= ${from}
+                AND o.confirmedAt < ${to}
+                GROUP BY cr.id, cr.name;
+            `
+    }
+
     private getBucketTimestamp(date: Date, interval: GroupInterval): number {
         const d = new Date(date);
         d.setMinutes(0, 0, 0);
@@ -208,7 +250,71 @@ export class ReportService {
         return d.getTime();
     }
 
+    private async _getRealTimeStats(from: Date, to: Date) {
+        const realtimeData = await this.generateReport(to, false) as any;
+
+        return {
+            orderStats: realtimeData.orderStats,
+            categoryStatsRaw: realtimeData.categoryStatsRaw,
+            foodStatsRaw: realtimeData.foodStatsRaw,
+            cashRegisterStatsRaw: realtimeData.cashRegisterStatsRaw
+        };
+    }
+
+    private _formatRealtimeReport(realtimeStats: any, timestamp: Date, interval: string): Report | null {
+        const orderStats = realtimeStats.orderStats;
+
+        // Only include real-time data if there are orders
+        if (!orderStats || Number(orderStats.totalOrders) === 0) {
+            return null;
+        }
+
+        const report: Report = {
+            id: `realtime-${timestamp.getTime()}`,
+            timestamp: timestamp,
+            intervalInMinutes: Number(orderStats.intervalInMinutes),
+            totalRevenue: this._round(Number(orderStats.totalRevenue)),
+            totalCashRevenue: this._round(Number(orderStats.totalCashRevenue)),
+            totalCardRevenue: this._round(Number(orderStats.totalCardRevenue)),
+            totalOrders: Number(orderStats.totalOrders),
+            averageCompletitionTime: orderStats.averageCompletitionTime ? Math.round(Number(orderStats.averageCompletitionTime)) : undefined,
+            categoryStats: realtimeStats.categoryStatsRaw.map((c: any) => ({
+                id: `realtime-cat-${c.categoryId}`,
+                reportId: `realtime-${timestamp.getTime()}`,
+                categoryId: c.categoryId,
+                categoryName: c.categoryName,
+                revenue: this._round(Number(c.revenue)),
+                quantity: Number(c.quantity),
+                foodStats: realtimeStats.foodStatsRaw
+                    .filter((f: any) => f.categoryId === c.categoryId)
+                    .map((f: any) => ({
+                        id: `realtime-food-${f.foodId}`,
+                        categoryStatsId: `realtime-cat-${c.categoryId}`,
+                        foodId: f.foodId,
+                        foodName: f.foodName,
+                        revenue: this._round(Number(f.revenue)),
+                        quantity: Number(f.quantity)
+                    }))
+            })),
+            cashRegisterStats: realtimeStats.cashRegisterStatsRaw.map((cr: any) => ({
+                id: `realtime-cr-${cr.cashRegisterId}`,
+                reportId: `realtime-${timestamp.getTime()}`,
+                cashRegisterId: cr.cashRegisterId,
+                cashRegisterName: cr.cashRegisterName,
+                totalRevenue: this._round(Number(cr.totalRevenue)),
+                totalCardRevenue: this._round(Number(cr.totalCardRevenue)),
+                totalCashRevenue: this._round(Number(cr.totalCashRevenue))
+            }))
+        };
+
+        return report;
+    }
+
     async getReports(query: GetReportsQuery) {
+        if(!query.to) {
+            query.to = new Date()
+        }
+
         const rawReports = await prisma.report.findMany({
             where: {
                 timestamp: {
@@ -221,19 +327,29 @@ export class ReportService {
                     include: {
                         foodStats: true
                     }
-                }
+                },
+                cashRegisterStats: true
             },
             orderBy: { timestamp: 'asc' }
         });
 
+        // Get real-time stats for current interval
+        const realtimeStats = await this._getRealTimeStats(query.from, query.to);
+
         if (query.groupBy === '1h') {
-            return rawReports;
+            // For 1h grouping, append real-time data
+            const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), '1h');
+            return realtimeBucket ? [...rawReports, realtimeBucket] : rawReports;
         }
 
         const buckets = new Map<number, Report>();
         const bucketCompletitionTimeWeighted = new Map<number, number>();
 
-        for (const report of rawReports) {
+        // Add real-time data to reports for processing
+        const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), query.groupBy);
+        const reportsToProcess = realtimeBucket ? [...rawReports, realtimeBucket] : rawReports;
+
+        for (const report of reportsToProcess) {
             const bucketKey = this.getBucketTimestamp(report.timestamp, query.groupBy);
 
             if (!buckets.has(bucketKey)) {
@@ -245,6 +361,7 @@ export class ReportService {
                     totalCardRevenue: 0,
                     totalOrders: 0,
                     categoryStats: [],
+                    cashRegisterStats: [],
                     intervalInMinutes: bucketKey
                 })
                 bucketCompletitionTimeWeighted.set(bucketKey, 0);
@@ -335,6 +452,44 @@ export class ReportService {
             }
 
             currentBucket.categoryStats = Array.from(categoryStatsMap.values());
+
+            // Aggregate cashRegisterStats
+            const cashRegisterStatsMap = new Map<string, any>();
+
+            // Initialize with existing cashRegisterStats from bucket
+            for (const crStat of currentBucket.cashRegisterStats) {
+                cashRegisterStatsMap.set(crStat.cashRegisterId, {
+                    id: crStat.id,
+                    reportId: crStat.reportId,
+                    cashRegisterId: crStat.cashRegisterId,
+                    cashRegisterName: crStat.cashRegisterName,
+                    totalRevenue: Number(crStat.totalRevenue),
+                    totalCardRevenue: Number(crStat.totalCardRevenue),
+                    totalCashRevenue: Number(crStat.totalCashRevenue)
+                });
+            }
+
+            // Aggregate from current report
+            for (const crStat of report.cashRegisterStats) {
+                if (!cashRegisterStatsMap.has(crStat.cashRegisterId)) {
+                    cashRegisterStatsMap.set(crStat.cashRegisterId, {
+                        id: crStat.id,
+                        reportId: crStat.reportId,
+                        cashRegisterId: crStat.cashRegisterId,
+                        cashRegisterName: crStat.cashRegisterName,
+                        totalRevenue: 0,
+                        totalCardRevenue: 0,
+                        totalCashRevenue: 0
+                    });
+                }
+
+                const aggregatedCR = cashRegisterStatsMap.get(crStat.cashRegisterId)!;
+                aggregatedCR.totalRevenue += Number(crStat.totalRevenue);
+                aggregatedCR.totalCardRevenue += Number(crStat.totalCardRevenue);
+                aggregatedCR.totalCashRevenue += Number(crStat.totalCashRevenue);
+            }
+
+            currentBucket.cashRegisterStats = Array.from(cashRegisterStatsMap.values());
         }
 
         return Array.from(buckets.values())
@@ -360,7 +515,8 @@ export class ReportService {
                     include: {
                         foodStats: true
                     }
-                }
+                },
+                cashRegisterStats: true
             }
         })
     }

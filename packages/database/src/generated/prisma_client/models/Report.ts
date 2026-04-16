@@ -261,6 +261,7 @@ export type ReportWhereInput = {
   totalOrders?: Prisma.IntFilter<"Report"> | number
   averageCompletitionTime?: Prisma.IntNullableFilter<"Report"> | number | null
   categoryStats?: Prisma.CategoryStatsListRelationFilter
+  cashRegisterStats?: Prisma.CashRegisterStatsListRelationFilter
 }
 
 export type ReportOrderByWithRelationInput = {
@@ -273,6 +274,7 @@ export type ReportOrderByWithRelationInput = {
   totalOrders?: Prisma.SortOrder
   averageCompletitionTime?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryStats?: Prisma.CategoryStatsOrderByRelationAggregateInput
+  cashRegisterStats?: Prisma.CashRegisterStatsOrderByRelationAggregateInput
   _relevance?: Prisma.ReportOrderByRelevanceInput
 }
 
@@ -289,6 +291,7 @@ export type ReportWhereUniqueInput = Prisma.AtLeast<{
   totalOrders?: Prisma.IntFilter<"Report"> | number
   averageCompletitionTime?: Prisma.IntNullableFilter<"Report"> | number | null
   categoryStats?: Prisma.CategoryStatsListRelationFilter
+  cashRegisterStats?: Prisma.CashRegisterStatsListRelationFilter
 }, "id">
 
 export type ReportOrderByWithAggregationInput = {
@@ -331,6 +334,7 @@ export type ReportCreateInput = {
   totalOrders: number
   averageCompletitionTime?: number | null
   categoryStats?: Prisma.CategoryStatsCreateNestedManyWithoutReportInput
+  cashRegisterStats?: Prisma.CashRegisterStatsCreateNestedManyWithoutReportInput
 }
 
 export type ReportUncheckedCreateInput = {
@@ -343,6 +347,7 @@ export type ReportUncheckedCreateInput = {
   totalOrders: number
   averageCompletitionTime?: number | null
   categoryStats?: Prisma.CategoryStatsUncheckedCreateNestedManyWithoutReportInput
+  cashRegisterStats?: Prisma.CashRegisterStatsUncheckedCreateNestedManyWithoutReportInput
 }
 
 export type ReportUpdateInput = {
@@ -355,6 +360,7 @@ export type ReportUpdateInput = {
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
   averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   categoryStats?: Prisma.CategoryStatsUpdateManyWithoutReportNestedInput
+  cashRegisterStats?: Prisma.CashRegisterStatsUpdateManyWithoutReportNestedInput
 }
 
 export type ReportUncheckedUpdateInput = {
@@ -367,6 +373,7 @@ export type ReportUncheckedUpdateInput = {
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
   averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   categoryStats?: Prisma.CategoryStatsUncheckedUpdateManyWithoutReportNestedInput
+  cashRegisterStats?: Prisma.CashRegisterStatsUncheckedUpdateManyWithoutReportNestedInput
 }
 
 export type ReportCreateManyInput = {
@@ -464,6 +471,20 @@ export type ReportScalarRelationFilter = {
   isNot?: Prisma.ReportWhereInput
 }
 
+export type ReportCreateNestedOneWithoutCashRegisterStatsInput = {
+  create?: Prisma.XOR<Prisma.ReportCreateWithoutCashRegisterStatsInput, Prisma.ReportUncheckedCreateWithoutCashRegisterStatsInput>
+  connectOrCreate?: Prisma.ReportCreateOrConnectWithoutCashRegisterStatsInput
+  connect?: Prisma.ReportWhereUniqueInput
+}
+
+export type ReportUpdateOneRequiredWithoutCashRegisterStatsNestedInput = {
+  create?: Prisma.XOR<Prisma.ReportCreateWithoutCashRegisterStatsInput, Prisma.ReportUncheckedCreateWithoutCashRegisterStatsInput>
+  connectOrCreate?: Prisma.ReportCreateOrConnectWithoutCashRegisterStatsInput
+  upsert?: Prisma.ReportUpsertWithoutCashRegisterStatsInput
+  connect?: Prisma.ReportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ReportUpdateToOneWithWhereWithoutCashRegisterStatsInput, Prisma.ReportUpdateWithoutCashRegisterStatsInput>, Prisma.ReportUncheckedUpdateWithoutCashRegisterStatsInput>
+}
+
 export type ReportCreateNestedOneWithoutCategoryStatsInput = {
   create?: Prisma.XOR<Prisma.ReportCreateWithoutCategoryStatsInput, Prisma.ReportUncheckedCreateWithoutCategoryStatsInput>
   connectOrCreate?: Prisma.ReportCreateOrConnectWithoutCategoryStatsInput
@@ -478,6 +499,70 @@ export type ReportUpdateOneRequiredWithoutCategoryStatsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ReportUpdateToOneWithWhereWithoutCategoryStatsInput, Prisma.ReportUpdateWithoutCategoryStatsInput>, Prisma.ReportUncheckedUpdateWithoutCategoryStatsInput>
 }
 
+export type ReportCreateWithoutCashRegisterStatsInput = {
+  id?: string
+  timestamp: Date | string
+  intervalInMinutes?: number
+  totalRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalOrders: number
+  averageCompletitionTime?: number | null
+  categoryStats?: Prisma.CategoryStatsCreateNestedManyWithoutReportInput
+}
+
+export type ReportUncheckedCreateWithoutCashRegisterStatsInput = {
+  id?: string
+  timestamp: Date | string
+  intervalInMinutes?: number
+  totalRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalOrders: number
+  averageCompletitionTime?: number | null
+  categoryStats?: Prisma.CategoryStatsUncheckedCreateNestedManyWithoutReportInput
+}
+
+export type ReportCreateOrConnectWithoutCashRegisterStatsInput = {
+  where: Prisma.ReportWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReportCreateWithoutCashRegisterStatsInput, Prisma.ReportUncheckedCreateWithoutCashRegisterStatsInput>
+}
+
+export type ReportUpsertWithoutCashRegisterStatsInput = {
+  update: Prisma.XOR<Prisma.ReportUpdateWithoutCashRegisterStatsInput, Prisma.ReportUncheckedUpdateWithoutCashRegisterStatsInput>
+  create: Prisma.XOR<Prisma.ReportCreateWithoutCashRegisterStatsInput, Prisma.ReportUncheckedCreateWithoutCashRegisterStatsInput>
+  where?: Prisma.ReportWhereInput
+}
+
+export type ReportUpdateToOneWithWhereWithoutCashRegisterStatsInput = {
+  where?: Prisma.ReportWhereInput
+  data: Prisma.XOR<Prisma.ReportUpdateWithoutCashRegisterStatsInput, Prisma.ReportUncheckedUpdateWithoutCashRegisterStatsInput>
+}
+
+export type ReportUpdateWithoutCashRegisterStatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  intervalInMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  totalRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
+  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  categoryStats?: Prisma.CategoryStatsUpdateManyWithoutReportNestedInput
+}
+
+export type ReportUncheckedUpdateWithoutCashRegisterStatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  intervalInMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  totalRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
+  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  categoryStats?: Prisma.CategoryStatsUncheckedUpdateManyWithoutReportNestedInput
+}
+
 export type ReportCreateWithoutCategoryStatsInput = {
   id?: string
   timestamp: Date | string
@@ -487,6 +572,7 @@ export type ReportCreateWithoutCategoryStatsInput = {
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
   averageCompletitionTime?: number | null
+  cashRegisterStats?: Prisma.CashRegisterStatsCreateNestedManyWithoutReportInput
 }
 
 export type ReportUncheckedCreateWithoutCategoryStatsInput = {
@@ -498,6 +584,7 @@ export type ReportUncheckedCreateWithoutCategoryStatsInput = {
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
   averageCompletitionTime?: number | null
+  cashRegisterStats?: Prisma.CashRegisterStatsUncheckedCreateNestedManyWithoutReportInput
 }
 
 export type ReportCreateOrConnectWithoutCategoryStatsInput = {
@@ -525,6 +612,7 @@ export type ReportUpdateWithoutCategoryStatsInput = {
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
   averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cashRegisterStats?: Prisma.CashRegisterStatsUpdateManyWithoutReportNestedInput
 }
 
 export type ReportUncheckedUpdateWithoutCategoryStatsInput = {
@@ -536,6 +624,7 @@ export type ReportUncheckedUpdateWithoutCategoryStatsInput = {
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
   averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cashRegisterStats?: Prisma.CashRegisterStatsUncheckedUpdateManyWithoutReportNestedInput
 }
 
 
@@ -545,10 +634,12 @@ export type ReportUncheckedUpdateWithoutCategoryStatsInput = {
 
 export type ReportCountOutputType = {
   categoryStats: number
+  cashRegisterStats: number
 }
 
 export type ReportCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categoryStats?: boolean | ReportCountOutputTypeCountCategoryStatsArgs
+  cashRegisterStats?: boolean | ReportCountOutputTypeCountCashRegisterStatsArgs
 }
 
 /**
@@ -568,6 +659,13 @@ export type ReportCountOutputTypeCountCategoryStatsArgs<ExtArgs extends runtime.
   where?: Prisma.CategoryStatsWhereInput
 }
 
+/**
+ * ReportCountOutputType without action
+ */
+export type ReportCountOutputTypeCountCashRegisterStatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CashRegisterStatsWhereInput
+}
+
 
 export type ReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -579,6 +677,7 @@ export type ReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   totalOrders?: boolean
   averageCompletitionTime?: boolean
   categoryStats?: boolean | Prisma.Report$categoryStatsArgs<ExtArgs>
+  cashRegisterStats?: boolean | Prisma.Report$cashRegisterStatsArgs<ExtArgs>
   _count?: boolean | Prisma.ReportCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["report"]>
 
@@ -598,6 +697,7 @@ export type ReportSelectScalar = {
 export type ReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "timestamp" | "intervalInMinutes" | "totalRevenue" | "totalCashRevenue" | "totalCardRevenue" | "totalOrders" | "averageCompletitionTime", ExtArgs["result"]["report"]>
 export type ReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categoryStats?: boolean | Prisma.Report$categoryStatsArgs<ExtArgs>
+  cashRegisterStats?: boolean | Prisma.Report$cashRegisterStatsArgs<ExtArgs>
   _count?: boolean | Prisma.ReportCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -605,6 +705,7 @@ export type $ReportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name: "Report"
   objects: {
     categoryStats: Prisma.$CategoryStatsPayload<ExtArgs>[]
+    cashRegisterStats: Prisma.$CashRegisterStatsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -956,6 +1057,7 @@ readonly fields: ReportFieldRefs;
 export interface Prisma__ReportClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   categoryStats<T extends Prisma.Report$categoryStatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Report$categoryStatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryStatsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cashRegisterStats<T extends Prisma.Report$cashRegisterStatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Report$cashRegisterStatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashRegisterStatsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1357,6 +1459,30 @@ export type Report$categoryStatsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.CategoryStatsScalarFieldEnum | Prisma.CategoryStatsScalarFieldEnum[]
+}
+
+/**
+ * Report.cashRegisterStats
+ */
+export type Report$cashRegisterStatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CashRegisterStats
+   */
+  select?: Prisma.CashRegisterStatsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CashRegisterStats
+   */
+  omit?: Prisma.CashRegisterStatsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CashRegisterStatsInclude<ExtArgs> | null
+  where?: Prisma.CashRegisterStatsWhereInput
+  orderBy?: Prisma.CashRegisterStatsOrderByWithRelationInput | Prisma.CashRegisterStatsOrderByWithRelationInput[]
+  cursor?: Prisma.CashRegisterStatsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CashRegisterStatsScalarFieldEnum | Prisma.CashRegisterStatsScalarFieldEnum[]
 }
 
 /**
