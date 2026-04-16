@@ -6,12 +6,14 @@ import { GetStatsResponseSchema, type GetStatsResponse, type GroupInterval } fro
 
 export async function getReports(params: {
   from: string;
-  to: string;
+  to?: string;
   groupBy: GroupInterval;
 }): Promise<GetStatsResponse> {
   const searchParams = new URLSearchParams();
   searchParams.set("from", params.from);
-  searchParams.set("to", params.to);
+  if (params.to) {
+    searchParams.set("to", params.to);
+  }
   searchParams.set("groupBy", params.groupBy);
 
   const endpoint = `${API_ENDPOINTS.REPORTS.ALL}?${searchParams.toString()}`;

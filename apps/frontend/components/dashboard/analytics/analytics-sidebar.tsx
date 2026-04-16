@@ -5,7 +5,7 @@ import { useLocale } from "@/contexts/locale-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LayoutGrid, UtensilsCrossed, Filter, X, Search } from "lucide-react";
+import { LayoutGrid, UtensilsCrossed, Filter, X, Search, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CategoryItem {
@@ -24,8 +24,16 @@ interface FoodItem {
   quantity: number;
 }
 
+interface CashRegisterItem {
+  id: string;
+  name: string;
+  totalRevenue: number;
+  totalCashRevenue: number;
+  totalCardRevenue: number;
+}
+
 export type FilterSelection = {
-  type: "food" | "category";
+  type: "food" | "category" | "cashRegister";
   id: string;
   name: string;
 } | null;
@@ -34,6 +42,7 @@ interface AnalyticsSidebarProps {
   categories: CategoryItem[];
   topFoods: FoodItem[];
   topFoodsByRevenue: FoodItem[];
+  cashRegisters: CashRegisterItem[];
   selection: FilterSelection;
   onSelectionChange: (selection: FilterSelection) => void;
 }
@@ -64,6 +73,17 @@ const FOOD_COLORS = [
   "hsl(47, 100%, 50%)",
 ];
 
+const CASH_REGISTER_COLORS = [
+  "hsl(199, 89%, 48%)",
+  "hsl(271, 76%, 53%)",
+  "hsl(160, 84%, 39%)",
+  "hsl(38, 92%, 50%)",
+  "hsl(354, 70%, 54%)",
+  "hsl(221, 83%, 53%)",
+  "hsl(142, 71%, 45%)",
+  "hsl(28, 80%, 52%)",
+];
+
 const MAX_VISIBLE_CATEGORIES = 5;
 const MAX_VISIBLE_FOODS = 4;
 
@@ -71,6 +91,7 @@ export function AnalyticsSidebar({
   categories,
   topFoods,
   topFoodsByRevenue,
+  cashRegisters,
   selection,
   onSelectionChange,
 }: AnalyticsSidebarProps) {
@@ -78,6 +99,7 @@ export function AnalyticsSidebar({
   const [foodViewMode, setFoodViewMode] = useState<"quantity" | "revenue">("quantity");
   const [categorySearch, setCategorySearch] = useState("");
   const [foodSearch, setFoodSearch] = useState("");
+  const [cashRegisterSearch, setCashRegisterSearch] = useState("");
 
   const totalRevenue = categories.reduce((sum, c) => sum + c.revenue, 0);
   const formatCurrency = (val: number) =>
@@ -114,6 +136,17 @@ export function AnalyticsSidebar({
     return items.slice(0, MAX_VISIBLE_FOODS);
   }, [foodViewMode, topFoods, topFoodsByRevenue, selection, foodSearch]);
 
+  // Filter cash registers by search
+  const displayedCashRegisters = useMemo(() => {
+    const query = cashRegisterSearch.toLowerCase().trim();
+    if (query) {
+      return cashRegisters.filter((cr) => cr.name.toLowerCase().includes(query));
+    }
+    return cashRegisters;
+  }, [cashRegisters, cashRegisterSearch]);
+
+  const totalCashRegisterRevenue = cashRegisters.reduce((sum, cr) => sum + cr.totalRevenue, 0);
+
   const handleCategoryClick = (cat: CategoryItem) => {
     if (selection?.type === "category" && selection.id === cat.id) {
       onSelectionChange(null);
@@ -127,6 +160,14 @@ export function AnalyticsSidebar({
       onSelectionChange(null);
     } else {
       onSelectionChange({ type: "food", id: food.id, name: food.name });
+    }
+  };
+
+  const handleCashRegisterClick = (cr: CashRegisterItem) => {
+    if (selection?.type === "cashRegister" && selection.id === cr.id) {
+      onSelectionChange(null);
+    } else {
+      onSelectionChange({ type: "cashRegister", id: cr.id, name: cr.name });
     }
   };
 
@@ -150,7 +191,11 @@ export function AnalyticsSidebar({
                 {selection.name}
               </span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider bg-muted px-1.5 py-0.5 rounded shrink-0">
-                {selection.type === "category" ? t.analytics.drillDownCategory : t.analytics.drillDownFood}
+                {selection.type === "category"
+                  ? t.analytics.drillDownCategory
+                  : selection.type === "food"
+                    ? t.analytics.drillDownFood
+                    : t.analytics.drillDownCashRegister}
               </span>
               <Button
                 variant="ghost"
@@ -166,6 +211,116 @@ export function AnalyticsSidebar({
           )}
         </div>
       </div>
+
+      {/* Divider */}
+      <div className="mx-3 border-b border-border/40" />
+
+      {/* Cash Registers section */}
+      <CardContent className="px-3 pb-1.5 pt-2">
+        <div className="flex items-center gap-2 mb-2 px-1">
+          <div className="rounded-md bg-sky-500/10 p-1">
+            <Landmark className="h-3.5 w-3.5 text-sky-500" />
+          </div>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            {t.analytics.sidebarCashRegisters}
+          </span>
+          <span className="text-[10px] text-muted-foreground ml-auto">{cashRegisters.length}</span>
+        </div>
+        {/* Search bar */}
+        {cashRegisters.length > 3 && (
+          <div className="relative mb-2 px-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground/50" />
+            <Input
+              placeholder={t.cashRegisters.searchPlaceholder}
+              value={cashRegisterSearch}
+              onChange={(e) => setCashRegisterSearch(e.target.value)}
+              className="h-7 text-xs pl-7 pr-2 bg-muted/30 border-border/30"
+            />
+          </div>
+        )}
+        <div className="space-y-0.5 max-h-[200px] overflow-y-auto p-1">
+          {displayedCashRegisters.map((cr, i) => {
+            const pct = totalCashRegisterRevenue > 0 ? (cr.totalRevenue / totalCashRegisterRevenue) * 100 : 0;
+            const isSelected = selection?.type === "cashRegister" && selection.id === cr.id;
+            const color = CASH_REGISTER_COLORS[i % CASH_REGISTER_COLORS.length];
+            const cashPct = cr.totalRevenue > 0 ? (cr.totalCashRevenue / cr.totalRevenue) * 100 : 0;
+            const cardPct = cr.totalRevenue > 0 ? (cr.totalCardRevenue / cr.totalRevenue) * 100 : 0;
+
+            return (
+              <button
+                key={cr.id}
+                onClick={() => handleCashRegisterClick(cr)}
+                title={t.analytics.clickToFilter}
+                className={cn(
+                  "relative flex items-center w-full rounded-lg px-3 py-2 text-left transition-all duration-200 group",
+                  "hover:bg-accent/60",
+                  isSelected
+                    ? "bg-primary/10 ring-1 ring-primary/40 shadow-sm"
+                    : "hover:shadow-sm"
+                )}
+              >
+                <div
+                  className="absolute inset-0 rounded-lg opacity-[0.07] transition-opacity group-hover:opacity-[0.12]"
+                  style={{
+                    background: `linear-gradient(90deg, ${color} ${pct}%, transparent ${pct}%)`,
+                  }}
+                />
+
+                <div className="relative flex items-center justify-between w-full gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div
+                      className={cn(
+                        "h-2.5 w-2.5 rounded-sm shrink-0 transition-transform",
+                        isSelected && "scale-125"
+                      )}
+                      style={{ backgroundColor: color }}
+                    />
+                    <span
+                      className={cn(
+                        "text-sm truncate max-w-[100px] transition-colors",
+                        isSelected ? "font-semibold text-primary" : "text-foreground group-hover:text-primary"
+                      )}
+                    >
+                      {cr.name}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-0.5">
+                      <span className="text-[9px] tabular-nums text-emerald-600 dark:text-emerald-400" title={t.analytics.cash}>
+                        {cashPct.toFixed(0)}%
+                      </span>
+                      <span className="text-[9px] text-muted-foreground">/</span>
+                      <span className="text-[9px] tabular-nums text-blue-600 dark:text-blue-400" title={t.analytics.card}>
+                        {cardPct.toFixed(0)}%
+                      </span>
+                    </div>
+                    <span className="text-[10px] tabular-nums font-medium text-foreground">
+                      {formatCurrency(cr.totalRevenue)}
+                    </span>
+                    <span
+                      className="text-[9px] tabular-nums font-medium rounded-full px-1.5 py-0.5"
+                      style={{ backgroundColor: `${color}22`, color }}
+                    >
+                      {pct.toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+
+                {isSelected && (
+                  <div
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full"
+                    style={{ backgroundColor: color }}
+                  />
+                )}
+              </button>
+            );
+          })}
+          {displayedCashRegisters.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-3">{t.analytics.noData}</p>
+          )}
+        </div>
+      </CardContent>
 
       {/* Divider */}
       <div className="mx-3 border-b border-border/40" />
@@ -191,7 +346,7 @@ export function AnalyticsSidebar({
             className="h-7 text-xs pl-7 pr-2 bg-muted/30 border-border/30"
           />
         </div>
-        <div className="space-y-0.5 max-h-[200px] overflow-y-auto pr-1">
+        <div className="space-y-0.5 max-h-[200px] overflow-y-auto p-1">
           {displayedCategories.map((cat, i) => {
             const pct = totalRevenue > 0 ? (cat.revenue / totalRevenue) * 100 : 0;
             const isSelected = selection?.type === "category" && selection.id === cat.id;
@@ -313,7 +468,7 @@ export function AnalyticsSidebar({
             className="h-7 text-xs pl-7 pr-2 bg-muted/30 border-border/30"
           />
         </div>
-        <div className="space-y-0.5 max-h-[250px] overflow-y-auto pr-1">
+        <div className="space-y-0.5 max-h-[250px] overflow-y-auto p-1">
           {filteredFoodItems.map((food, i) => {
             const isSelected = selection?.type === "food" && selection.id === food.id;
             const color = FOOD_COLORS[i % FOOD_COLORS.length];

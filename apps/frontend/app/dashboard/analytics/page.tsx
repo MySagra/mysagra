@@ -21,9 +21,91 @@ function num(v: unknown): number {
   return 0;
 }
 
+// Map GroupInterval to milliseconds
+function intervalToMs(groupBy: GroupInterval): number {
+  switch (groupBy) {
+    case "1h":  return 60 * 60 * 1000;
+    case "4h":  return 4 * 60 * 60 * 1000;
+    case "12h": return 12 * 60 * 60 * 1000;
+    case "day": return 24 * 60 * 60 * 1000;
+    case "all": return 0; // single bucket
+  }
+}
+
+// Floor a timestamp (ms) to the nearest interval boundary (local time)
+function floorToInterval(tsMs: number, groupBy: GroupInterval): number {
+  const d = new Date(tsMs);
+  switch (groupBy) {
+    case "1h":
+      d.setMinutes(0, 0, 0);
+      return d.getTime();
+    case "4h": {
+      const h = d.getHours();
+      d.setHours(h - (h % 4), 0, 0, 0);
+      return d.getTime();
+    }
+    case "12h": {
+      const h = d.getHours();
+      d.setHours(h - (h % 12), 0, 0, 0);
+      return d.getTime();
+    }
+    case "day":
+      d.setHours(0, 0, 0, 0);
+      return d.getTime();
+    case "all":
+      return tsMs;
+  }
+}
+
+// Fill in missing time slots with zero-value entries so charts show continuous time series
+function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: GroupInterval): Report[] {
+  const stepMs = intervalToMs(groupBy);
+  // "all" = single bucket, no gaps to fill
+  if (stepMs === 0 || reports.length === 0) return reports;
+
+  // Build a map of existing reports keyed by their timestamp floored to the interval grid
+  const reportMap = new Map<number, Report>();
+  for (const r of reports) {
+    const key = floorToInterval(new Date(r.timestamp).getTime(), groupBy);
+    reportMap.set(key, r);
+  }
+
+  // Get the intervalInMinutes from the first report
+  const intervalInMinutes = reports[0].intervalInMinutes;
+
+  // Start from the first actual report, not from dateFrom (skip leading empty slots)
+  const firstReportMs = floorToInterval(new Date(reports[0].timestamp).getTime(), groupBy);
+  const startMs = firstReportMs;
+  const endMs = floorToInterval(dateTo.getTime(), groupBy);
+
+  // Generate all expected slots
+  const result: Report[] = [];
+  for (let ts = startMs; ts <= endMs; ts += stepMs) {
+    const existing = reportMap.get(ts);
+    if (existing) {
+      result.push(existing);
+    } else {
+      result.push({
+        id: `empty-${ts}`,
+        timestamp: new Date(ts),
+        intervalInMinutes,
+        totalRevenue: 0,
+        totalCashRevenue: 0,
+        totalCardRevenue: 0,
+        totalOrders: 0,
+        averageCompletitionTime: null,
+        categoryStats: [],
+        cashRegisterStats: [],
+      } as Report);
+    }
+  }
+
+  return result;
+}
+
 
 export default function AnalyticsPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +118,7 @@ export default function AnalyticsPage() {
     d.setHours(0, 0, 0, 0);
     return d;
   });
-  const [dateTo, setDateTo] = useState<Date>(() => new Date());
+  const [dateTo, setDateTo] = useState<Date | null>(null); // null = now
   const [groupBy, setGroupBy] = useState<GroupInterval>("1h");
 
   const fetchData = useCallback(async () => {
@@ -45,7 +127,7 @@ export default function AnalyticsPage() {
     try {
       const data = await getReports({
         from: dateFrom.toISOString(),
-        to: dateTo.toISOString(),
+        to: dateTo?.toISOString(),
         groupBy,
       });
       setReports(data);
@@ -60,9 +142,17 @@ export default function AnalyticsPage() {
     fetchData();
   }, [fetchData]);
 
+  // Fill time gaps so charts show continuous time series
+  const effectiveDateTo = dateTo ?? new Date();
+  const filledReports = useMemo(
+    () => fillTimeGaps(reports, dateFrom, effectiveDateTo, groupBy),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [reports, dateFrom, dateTo, groupBy]
+  );
+
   // Calculate aggregated stats (unfiltered, for the sidebar)
   const aggregatedStats = useMemo(() => {
-    if (!reports.length) return null;
+    if (!filledReports.length) return null;
 
     const totalRevenue = reports.reduce((sum, r) => sum + num(r.totalRevenue), 0);
     const totalCashRevenue = reports.reduce((sum, r) => sum + num(r.totalCashRevenue), 0);
@@ -114,6 +204,29 @@ export default function AnalyticsPage() {
       }
     }
 
+    // Aggregate cash register stats
+    const cashRegisterMap = new Map<string, { id: string; name: string; totalRevenue: number; totalCashRevenue: number; totalCardRevenue: number }>();
+    for (const report of reports) {
+      if (report.cashRegisterStats) {
+        for (const cr of report.cashRegisterStats) {
+          const existing = cashRegisterMap.get(cr.cashRegisterId);
+          if (existing) {
+            existing.totalRevenue += num(cr.totalRevenue);
+            existing.totalCashRevenue += num(cr.totalCashRevenue);
+            existing.totalCardRevenue += num(cr.totalCardRevenue);
+          } else {
+            cashRegisterMap.set(cr.cashRegisterId, {
+              id: cr.cashRegisterId,
+              name: cr.cashRegisterName,
+              totalRevenue: num(cr.totalRevenue),
+              totalCashRevenue: num(cr.totalCashRevenue),
+              totalCardRevenue: num(cr.totalCardRevenue),
+            });
+          }
+        }
+      }
+    }
+
     const allFoods = Array.from(foodMap.values());
 
     const topFoods = allFoods
@@ -128,6 +241,10 @@ export default function AnalyticsPage() {
       (a, b) => b.revenue - a.revenue
     );
 
+    const cashRegisters = Array.from(cashRegisterMap.values()).sort(
+      (a, b) => b.totalRevenue - a.totalRevenue
+    );
+
     return {
       totalRevenue,
       totalCashRevenue,
@@ -139,14 +256,45 @@ export default function AnalyticsPage() {
       topFoods,
       topFoodsByRevenue,
       categories,
+      cashRegisters,
     };
   }, [reports]);
 
   // Filtered reports based on selection (Power BI cross-filtering)
   const filteredReports = useMemo((): Report[] => {
-    if (!filterSelection) return reports;
+    if (!filterSelection) return filledReports;
 
-    return reports.map((report) => {
+    if (filterSelection.type === "cashRegister") {
+      // For cash register filter, extract the per-report revenue from cashRegisterStats
+      return filledReports.map((report) => {
+        const crStats = report.cashRegisterStats?.find(
+          (cr) => cr.cashRegisterId === filterSelection.id
+        );
+
+        if (!crStats) {
+          return {
+            ...report,
+            totalRevenue: 0,
+            totalCashRevenue: 0,
+            totalCardRevenue: 0,
+            totalOrders: 0,
+            categoryStats: [],
+          } as Report;
+        }
+
+        return {
+          ...report,
+          totalRevenue: num(crStats.totalRevenue),
+          totalCashRevenue: num(crStats.totalCashRevenue),
+          totalCardRevenue: num(crStats.totalCardRevenue),
+          // We don't have per-register order count, keep original
+          totalOrders: report.totalOrders,
+          categoryStats: report.categoryStats,
+        } as Report;
+      });
+    }
+
+    return filledReports.map((report) => {
       if (filterSelection.type === "category") {
         const filteredCats = report.categoryStats.filter(
           (cat) => cat.categoryId === filterSelection.id
@@ -188,7 +336,7 @@ export default function AnalyticsPage() {
         } as Report;
       }
     });
-  }, [reports, filterSelection]);
+  }, [filledReports, filterSelection]);
 
   // Filtered KPI stats
   const filteredStats = useMemo(() => {
@@ -219,6 +367,7 @@ export default function AnalyticsPage() {
   }, [filterSelection, aggregatedStats, filteredReports]);
 
   const isFiltered = filterSelection !== null;
+  const isCashRegisterFilter = filterSelection?.type === "cashRegister";
 
   return (
     <>
@@ -234,7 +383,7 @@ export default function AnalyticsPage() {
           onGroupByChange={setGroupBy}
           onRefresh={fetchData}
           loading={loading}
-          onExport={() => exportAnalyticsToExcel(reports, `report_${dateFrom.toISOString().slice(0,10)}_${dateTo.toISOString().slice(0,10)}`)}
+          onExport={() => exportAnalyticsToExcel(reports, t, locale, `report_${dateFrom.toISOString().slice(0,10)}_${(dateTo ?? new Date()).toISOString().slice(0,10)}`)}
           canExport={reports.length > 0 && !loading}
         />
 
@@ -277,6 +426,7 @@ export default function AnalyticsPage() {
                   categories={aggregatedStats.categories}
                   topFoods={aggregatedStats.topFoods}
                   topFoodsByRevenue={aggregatedStats.topFoodsByRevenue}
+                  cashRegisters={aggregatedStats.cashRegisters}
                   selection={filterSelection}
                   onSelectionChange={setFilterSelection}
                 />
@@ -289,6 +439,7 @@ export default function AnalyticsPage() {
                   reports={filteredReports}
                   isFiltered={isFiltered}
                   filterName={filterSelection?.name}
+                  isCashRegisterFilter={isCashRegisterFilter}
                 />
 
                 {/* Category/Food Breakdown Pie + Avg Completion side by side */}

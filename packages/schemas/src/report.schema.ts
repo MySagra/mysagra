@@ -52,16 +52,16 @@ export const CashRegisterStatsSchema = z.object({
   reportId: z.cuid(),
   cashRegisterId: z.cuid(),
   cashRegisterName: z.string(),
-  totalRevenue: z.number(),
-  totalCardRevenue: z.number(),
-  totalCashRevenue: z.number()
+  totalRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
+  totalCardRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
+  totalCashRevenue: z.union([z.number(), z.string()]).transform(val => Number(val))
 })
 
 export type CashRegisterStats = z.infer<typeof CashRegisterStatsSchema>
 
 export const ReportSchema = z.object({
   id: z.cuid(),
-  timestamp: z.date(),
+  timestamp: z.coerce.date(),
   intervalInMinutes: z.number(),
   totalRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
   totalCashRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
