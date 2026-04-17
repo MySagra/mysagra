@@ -23,11 +23,24 @@ export interface CreateOrderInput {
 
 let displayCodeCounter = 0;
 
+function indexToLetters(idx: number): string {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = '';
+  idx = idx + 1; // 1-indexed
+  while (idx > 0) {
+    idx--;
+    result = letters[idx % 26] + result;
+    idx = Math.floor(idx / 26);
+  }
+  return result;
+}
+
 function generateDisplayCode(): string {
   displayCodeCounter++;
-  const letter = String.fromCharCode(65 + (displayCodeCounter % 26)); // A-Z
-  const num = String(displayCodeCounter % 100).padStart(2, "0");
-  return `${letter}${num}`;
+  const letterGroupIdx = Math.floor((displayCodeCounter - 1) / 999);
+  const letterPart = indexToLetters(letterGroupIdx);
+  const numberPart = ((displayCodeCounter - 1) % 999) + 1;
+  return `${letterPart}${numberPart}`;
 }
 
 export function resetDisplayCodeCounter() {

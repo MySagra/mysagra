@@ -4,9 +4,11 @@ import { OrderStats, CategoryStats, FoodStats } from "@mysagra/schemas"
 import { GetReportsQuery, GroupInterval } from "@mysagra/schemas"
 import { Report } from "@mysagra/schemas"
 import { logger } from "@/config/logger"
+import { EventsService } from "../events/events.service"
 
 export class ReportService {
     private static instance: ReportService
+    private printerEvent = EventsService.getIstance('printer');
 
     private constructor() { }
 
@@ -90,7 +92,7 @@ export class ReportService {
                 this._generateCashRegisterStats(tx, startTime, to),
             ])
 
-            if(!saveData) {
+            if (!saveData) {
                 return {
                     orderStats: orderStatsRaw[0],
                     categoryStatsRaw,
@@ -250,8 +252,8 @@ export class ReportService {
         return d.getTime();
     }
 
-    private async _getRealTimeStats(from: Date, to: Date) {
-        const realtimeData = await this.generateReport(to, false) as any;
+    private async _getRealTimeStats(from: Date, to: Date, saveLiveData = false) {
+        const realtimeData = await this.generateReport(to, saveLiveData) as any;
 
         return {
             orderStats: realtimeData.orderStats,
@@ -310,8 +312,8 @@ export class ReportService {
         return report;
     }
 
-    async getReports(query: GetReportsQuery) {
-        if(!query.to) {
+    async getReports(query: GetReportsQuery, saveLiveData = false) {
+        if (!query.to) {
             query.to = new Date()
         }
 
@@ -334,7 +336,7 @@ export class ReportService {
         });
 
         // Get real-time stats for current interval
-        const realtimeStats = await this._getRealTimeStats(query.from, query.to);
+        const realtimeStats = await this._getRealTimeStats(query.from, query.to, saveLiveData);
 
         if (query.groupBy === '1h') {
             // For 1h grouping, append real-time data
@@ -369,7 +371,7 @@ export class ReportService {
 
             const currentBucket = buckets.get(bucketKey);
 
-            if(!currentBucket) continue;
+            if (!currentBucket) continue;
 
             // Sum all totals
             currentBucket.totalRevenue += Number(report.totalRevenue);
@@ -521,6 +523,26 @@ export class ReportService {
         })
     }
 
+    async generalClosure() {
+        const now = new Date();
+        const from = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 7, 0, 0);
+
+        if (now.getHours() < 7) {
+            from.setDate(from.getDate() - 1);
+        }
+
+        const report = await this.getReports({
+            from,
+            groupBy: 'all'
+        }, true)
+
+        this.printerEvent.broadcastEvent(
+            report,
+            "general-closure"
+        )
+
+        return report;
+    }
 }
 
 export const reportService = ReportService.getInstance()

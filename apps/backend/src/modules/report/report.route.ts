@@ -26,4 +26,10 @@ router.get(
     reportController.getReport
 );
 
+router.post(
+    "/general-closure",
+    authenticate(["admin", "maintainer"]),
+    reportController.generalClosure
+)
+
 export default router;

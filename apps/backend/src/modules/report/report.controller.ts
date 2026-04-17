@@ -37,6 +37,14 @@ export class ReportController {
         res.status(200).json(report);
     });
 
+    generalClosure = asyncHandler(async (
+        req: TypedRequest<{}>,
+        res: Response,
+    ): Promise<void> => {
+        const report = await ReportController.service.generalClosure();
+        res.status(201).json(report);
+    })
+
 }
 
 export const reportController = ReportController.getInstance()

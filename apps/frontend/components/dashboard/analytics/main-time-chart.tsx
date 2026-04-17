@@ -23,15 +23,19 @@ interface MainTimeChartProps {
   reports: Report[];
   isFiltered: boolean;
   filterName?: string;
+  isCashRegisterFilter?: boolean;
 }
 
-export function MainTimeChart({ reports, isFiltered, filterName }: MainTimeChartProps) {
+export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterFilter }: MainTimeChartProps) {
   const { t, locale } = useLocale();
   const dateLocale = locale === "it" ? itLocale : undefined;
   const [mode, setMode] = useState<ChartMode>("revenue");
 
-  // If a filter is active and user was on "payment" mode, switch back
-  const effectiveMode = isFiltered && mode === "payment" ? "revenue" : mode;
+  // Payment breakdown is disabled for category/food filters, but allowed for cash register filters
+  const paymentDisabled = isFiltered && !isCashRegisterFilter;
+
+  // If a filter is active (non-cash-register) and user was on "payment" mode, switch back
+  const effectiveMode = paymentDisabled && mode === "payment" ? "revenue" : mode;
 
   const data = useMemo(
     () =>
@@ -80,7 +84,7 @@ export function MainTimeChart({ reports, isFiltered, filterName }: MainTimeChart
       value: "payment",
       label: t.analytics.revenueBreakdown,
       icon: <Layers className="h-3.5 w-3.5" />,
-      disabled: isFiltered,
+      disabled: paymentDisabled,
     },
   ];
 

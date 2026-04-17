@@ -67,3 +67,28 @@ registry.registerPath({
         429: { description: "Too Many Requests - Rate limit exceeded" },
     },
 });
+
+registry.registerPath({
+    method: "post",
+    path: "/v1/reports/general-closure",
+    summary: "Generate daily closure report",
+    description:
+        "Generates and broadcasts a daily closure report from 7:00 AM to current time. " +
+        "Report includes all order metrics, category and food statistics, and cash register breakdown. " +
+        "Automatically broadcasts to printer channel for receipt printing. Requires admin or maintainer role.",
+    tags: ["Reports"],
+    security: [{ cookieAuth: [] }],
+    responses: {
+        201: {
+            description: "Closure report generated and broadcasted to printers",
+            content: {
+                "application/json": {
+                    schema: ReportResponse,
+                },
+            },
+        },
+        401: { description: "Unauthorized - Invalid or missing authentication" },
+        403: { description: "Forbidden - Insufficient permissions (requires admin or maintainer)" },
+        429: { description: "Too Many Requests - Rate limit exceeded" },
+    },
+});
