@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { cuidParamSchema, GetReportsQuerySchema } from "@mysagra/schemas";
+import { cuidParamSchema, GeneralClosureInputSchema, GetReportsQuerySchema } from "@mysagra/schemas";
 import { reportController } from "./report.controller";
 import "./report.docs";
 
@@ -28,6 +28,9 @@ router.get(
 
 router.post(
     "/general-closure",
+    validateRequest({
+        body: GeneralClosureInputSchema
+    }),
     authenticate(["admin", "maintainer"]),
     reportController.generalClosure
 )

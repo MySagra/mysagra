@@ -4,6 +4,7 @@ import {
     GetReportsQuerySchema,
     ReportSchema,
     cuidParamSchema,
+    GeneralClosureInputSchema,
 } from "@mysagra/schemas";
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
@@ -11,6 +12,7 @@ import {
 const GetReportsQuery = registry.register("GetReportsQuery", GetReportsQuerySchema);
 const ReportResponse = registry.register("ReportResponse", ReportSchema);
 const CUIDParam = registry.register("CUIDParam", cuidParamSchema);
+const GeneralClosureInput = registry.register("GeneralClosureInput", GeneralClosureInputSchema);
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -78,12 +80,22 @@ registry.registerPath({
         "Automatically broadcasts to printer channel for receipt printing. Requires admin or maintainer role.",
     tags: ["Reports"],
     security: [{ cookieAuth: [] }],
+    request: {
+        body: {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: GeneralClosureInput,
+                },
+            },
+        },
+    },
     responses: {
         201: {
             description: "Closure report generated and broadcasted to printers",
             content: {
                 "application/json": {
-                    schema: ReportResponse,
+                    schema: z.array(ReportResponse),
                 },
             },
         },

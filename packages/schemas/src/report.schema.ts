@@ -72,6 +72,14 @@ export const ReportSchema = z.object({
   cashRegisterStats: z.array(CashRegisterStatsSchema)
 })
 
+export const GeneralClosureInputSchema = z.object({
+  cashRegister: z.cuid().meta({
+    description: "Cash register CUID that request the general closure"
+  })
+})
+
+export type GeneralClosureInput = z.infer<typeof GeneralClosureInputSchema>
+
 export type Report = z.infer<typeof ReportSchema>
 
 export const GetStatsResponseSchema = z.array(ReportSchema)

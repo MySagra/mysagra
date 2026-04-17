@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { TypedRequest } from "@/types/request";
-import { CUIDParam, GetReportsQuery } from "@mysagra/schemas";
+import { CUIDParam, GeneralClosureInput, GetReportsQuery } from "@mysagra/schemas";
 import { reportService } from "./report.service";
 import { NotFoundError } from "@/common/errors";
 
@@ -38,10 +38,10 @@ export class ReportController {
     });
 
     generalClosure = asyncHandler(async (
-        req: TypedRequest<{}>,
+        req: TypedRequest<{ body: GeneralClosureInput}>,
         res: Response,
     ): Promise<void> => {
-        const report = await ReportController.service.generalClosure();
+        const report = await ReportController.service.generalClosure(req.validated.body);
         res.status(201).json(report);
     })
 
