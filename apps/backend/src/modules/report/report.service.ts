@@ -1,10 +1,11 @@
 import { Prisma, prisma } from "@mysagra/database"
 import { sagraService } from "../sagra/sagra.service"
-import { OrderStats, CategoryStats, FoodStats } from "@mysagra/schemas"
+import { OrderStats, CategoryStats, FoodStats, GeneralClosureInput } from "@mysagra/schemas"
 import { GetReportsQuery, GroupInterval } from "@mysagra/schemas"
 import { Report } from "@mysagra/schemas"
 import { logger } from "@/config/logger"
 import { EventsService } from "../events/events.service"
+import { BadRequestError } from "@/common/errors"
 
 export class ReportService {
     private static instance: ReportService
@@ -523,12 +524,16 @@ export class ReportService {
         })
     }
 
-    async generalClosure() {
+    async generalClosure(data: GeneralClosureInput) {
         const now = new Date();
         const from = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 7, 0, 0);
 
         if (now.getHours() < 7) {
             from.setDate(from.getDate() - 1);
+        }
+
+        if(!await prisma.cashRegister.findUnique({ where: { id: data.cashRegister }})){
+            throw new BadRequestError(`Cash register with CUID: ${data.cashRegister} doesn't exists`)
         }
 
         const report = await this.getReports({
@@ -537,7 +542,10 @@ export class ReportService {
         }, true)
 
         this.printerEvent.broadcastEvent(
-            report,
+            {
+                cashRegister: data.cashRegister,
+                report: report[0]
+            },
             "general-closure"
         )
 
