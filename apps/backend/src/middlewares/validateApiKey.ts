@@ -55,7 +55,10 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
             const activeData = { status: 'ACTIVE', prefix: dbKey.prefix, type: dbKey.type, lastUsedUpdatedAt: now.getTime() };
             await Promise.all([
                 redisConnection.setex(redisKey, env.REDIS_CACHE_TTL, JSON.stringify(activeData)),
-                prisma.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } })
+                prisma.$transaction(async (tx) => {
+                    await tx.$queryRaw`SELECT * FROM api_key WHERE hash_key = ${hash} FOR UPDATE`;
+                    await tx.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } });
+                })
             ]);
         }
         else {
@@ -70,7 +73,10 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
                 const now = new Date();
                 const updatedData = { ...keyData, lastUsedUpdatedAt: now.getTime() };
                 redisConnection.setex(redisKey, env.REDIS_CACHE_TTL, JSON.stringify(updatedData))
-                    .then(() => prisma.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } }))
+                    .then(() => prisma.$transaction(async (tx) => {
+                        await tx.$queryRaw`SELECT * FROM api_key WHERE hash_key = ${hash} FOR UPDATE`;
+                        await tx.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } });
+                    }))
                     .catch(err => {
                         // Ignore P2025 (record not found) - can occur if key was deleted between Redis read and DB update
                         if (err.code !== 'P2025') {
