@@ -10,11 +10,13 @@ import {
     ReprintOrderSchema,
     GetOrdersQuerySchema,
     OrderIdParamSchema,
+    OrdersResponseSchema,
 } from "@mysagra/schemas";
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
 const OrderResponse = registry.register("OrderResponse", OrderResponseSchema);
+const OrdersResponse = registry.register("OrdersResponse", OrdersResponseSchema)
 registry.register("OrderItemResponse", OrderItemResponseSchema);
 const OrderDetailResponse = registry.register("OrderDetailResponse", OrderDetailResponseSchema);
 const CreateOrderRequest = registry.register("CreateOrderRequest", CreateOrderSchema);
@@ -25,7 +27,7 @@ const GetOrdersQuery = registry.register("GetOrdersQuery", GetOrdersQuerySchema)
 const OrderIdParam = registry.register("OrderIdParam", OrderIdParamSchema);
 
 const PaginatedOrdersResponse = z.object({
-    orders: z.array(OrderResponse),
+    orders: OrdersResponse,
     pagination: z.object({
         totalItems: z.number().int().min(20).max(100).meta({
             description: "Items per page",

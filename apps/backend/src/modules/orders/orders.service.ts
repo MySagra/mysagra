@@ -93,7 +93,7 @@ export class OrdersService {
                 skip: skip,
                 take: limit,
                 orderBy: {
-                    createdAt: 'desc'
+                    [queryParams.sortBy]: 'desc'
                 }
             })
             return {
