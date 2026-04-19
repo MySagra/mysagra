@@ -9,12 +9,11 @@ export class SagraService {
     private config: Sagra | null = null
     private reportQueue = new Queue('report-queue', { connection: redisConnection })
 
-    private constructor() {
-        this.loadConfig()
-    }
+    private constructor() { }
 
     static getInstance(): SagraService {
         if (!SagraService.instance) {
+            console.log("Generated")
             SagraService.instance = new SagraService()
         }
         return SagraService.instance

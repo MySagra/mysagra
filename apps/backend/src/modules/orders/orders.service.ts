@@ -384,7 +384,6 @@ export class OrdersService {
             if (total.isNegative()) total = new Prisma.Decimal(0);
 
             const ticketNumber = await this._getNextTicketNumber();
-
             const updatedOrder = await tx.order.update({
                 where: { id: orderId },
                 data: {
@@ -397,7 +396,8 @@ export class OrdersService {
                     subTotal: subTotal,
                     total: total,
                     userId: confirm.userId,
-                    cashRegisterId: confirm.cashRegisterId
+                    cashRegisterId: confirm.cashRegisterId,
+                    customer: confirm.customer
                 },
                 include: {
                     orderItems: {

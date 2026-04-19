@@ -8,7 +8,6 @@ export const initReportWorker = () => {
     const worker = new Worker(
         'report-queue',
         async (job: Job) => {
-            const config = sagraService.getConfig();
             const now = new Date();
 
             logger.info(`[Worker] Starting scheduled report for Sagra: ${job.data.sagraId}`);

@@ -13,7 +13,7 @@ async function startServer() {
     logger.info('Connection to Redis successful')
 
     //load configuration
-    sagraService.loadConfig();
+    await sagraService.loadConfig();
 
     // start bullMQ worker
     initReportWorker()

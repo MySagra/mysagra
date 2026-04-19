@@ -72,7 +72,7 @@ const ConfirmationDataSchema = z.object({
     paymentMethod: PaymentMethodSchema.meta({
         description: "How the order was/will be paid"
     }),
-    cashRegisterId: z.string().cuid().meta({
+    cashRegisterId: z.cuid().meta({
         description: "Cash register processing the order"
     }),
     userId: z.cuid().optional().meta({
@@ -80,6 +80,10 @@ const ConfirmationDataSchema = z.object({
     }),
     discount: z.number().min(0).default(0).meta({
         description: "Discount amount applied"
+    }),
+    customer: z.string().optional().meta({
+        description: "Updated customer name",
+        example: "John Doe"
     })
 }).meta({
     id: "ConfirmationData",
