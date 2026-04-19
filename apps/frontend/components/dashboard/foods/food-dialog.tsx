@@ -130,28 +130,26 @@ export function FoodDialog({
   }
 
   async function onSubmit(values: FoodFormValues) {
-    try {
-      const data = {
-        name: values.name.trim(),
-        description: (values.description as string | undefined)?.trim() ?? "",
-        price: values.price as number,
-        categoryId: values.categoryId,
-        available: values.available,
-        ingredients: selectedIngredients.map(id => ({ id })),
-        printerId: selectedPrinterId,
-      };
+    const data = {
+      name: values.name.trim(),
+      description: (values.description as string | undefined)?.trim() ?? "",
+      price: values.price as number,
+      categoryId: values.categoryId,
+      available: values.available,
+      ingredients: selectedIngredients.map(id => ({ id })),
+      printerId: selectedPrinterId,
+    };
 
-      if (isEditing && food) {
-        const updated = await updateFood(food.id, data);
-        onSaved(updated);
-        toast.success(t.foods.toastUpdated);
-      } else {
-        const created = await createFood(data);
-        onSaved(created);
-        toast.success(t.foods.toastCreated);
-      }
-    } catch (error: any) {
-      toast.error(error.message || t.foods.toastErrorSave);
+    if (isEditing && food) {
+      const result = await updateFood(food.id, data);
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.foods.toastUpdated);
+    } else {
+      const result = await createFood(data);
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.foods.toastCreated);
     }
   }
 

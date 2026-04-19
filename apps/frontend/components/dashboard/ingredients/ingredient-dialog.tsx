@@ -74,20 +74,16 @@ export function IngredientDialog({
   }, [ingredient, open, form]);
 
   async function onSubmit(values: IngredientFormValues) {
-    try {
-      if (isEditing && ingredient) {
-        const updated = await updateIngredient(ingredient.id, {
-          name: values.name.trim(),
-        });
-        onSaved(updated);
-        toast.success(t.ingredients.toastUpdated);
-      } else {
-        const created = await createIngredient({ name: values.name.trim() });
-        onSaved(created);
-        toast.success(t.ingredients.toastCreated);
-      }
-    } catch (error: any) {
-      toast.error(error.message || t.ingredients.toastErrorSave);
+    if (isEditing && ingredient) {
+      const result = await updateIngredient(ingredient.id, { name: values.name.trim() });
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.ingredients.toastUpdated);
+    } else {
+      const result = await createIngredient({ name: values.name.trim() });
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.ingredients.toastCreated);
     }
   }
 

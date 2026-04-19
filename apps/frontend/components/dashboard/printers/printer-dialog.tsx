@@ -101,34 +101,29 @@ export function PrinterDialog({
   }, [printer, open, form]);
 
   async function onSubmit(values: PrinterFormValues) {
-    try {
-      const ipTrimmed = (values.ip as string | undefined)?.trim();
-      const macTrimmed = (values.mac as string | undefined)?.trim();
-      const ip = ipTrimmed ? ipTrimmed : null;
-      const mac = macTrimmed ? macTrimmed : null;
-      const description = (values.description as string | undefined)?.trim() ?? "";
-      const data = {
-        name: values.name.trim(),
-        ip,
-        mac,
-        port: values.port as number,
-        description,
-      };
+    const ipTrimmed = (values.ip as string | undefined)?.trim();
+    const macTrimmed = (values.mac as string | undefined)?.trim();
+    const ip = ipTrimmed ? ipTrimmed : null;
+    const mac = macTrimmed ? macTrimmed : null;
+    const description = (values.description as string | undefined)?.trim() ?? "";
+    const data = {
+      name: values.name.trim(),
+      ip,
+      mac,
+      port: values.port as number,
+      description,
+    };
 
-      if (isEditing && printer) {
-        const updated = await updatePrinter(printer.id, {
-          ...data,
-          status: printer.status,
-        });
-        onSaved(updated);
-        toast.success(t.printers.toastUpdated);
-      } else {
-        const created = await createPrinter(data);
-        onSaved(created);
-        toast.success(t.printers.toastCreated);
-      }
-    } catch (error: any) {
-      toast.error(error.message || t.printers.toastErrorSave);
+    if (isEditing && printer) {
+      const result = await updatePrinter(printer.id, { ...data, status: printer.status });
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.printers.toastUpdated);
+    } else {
+      const result = await createPrinter(data);
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.printers.toastCreated);
     }
   }
 

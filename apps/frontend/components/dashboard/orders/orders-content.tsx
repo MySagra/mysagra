@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { OrderListResponse, OrderStatus, PaginatedOrders } from "@/lib/api-types";
+import { CashRegister, OrderListResponse, OrderStatus, PaginatedOrders } from "@/lib/api-types";
 import { OrdersToolbar } from "./orders-toolbar";
 import { OrdersTable } from "./orders-table";
 import { OrderDetailDialog } from "./order-detail-dialog";
@@ -10,11 +10,12 @@ import { toast } from "sonner";
 
 interface OrdersContentProps {
   initialData: PaginatedOrders;
+  cashRegisters?: CashRegister[];
   dateFrom?: Date;
   dateTo?: Date;
 }
 
-export function OrdersContent({ initialData, dateFrom, dateTo }: OrdersContentProps) {
+export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateTo }: OrdersContentProps) {
   const [orders, setOrders] = useState<OrderListResponse[]>(
     initialData?.data ?? []
   );
@@ -107,6 +108,7 @@ export function OrdersContent({ initialData, dateFrom, dateTo }: OrdersContentPr
         open={detailOpen}
         onOpenChange={setDetailOpen}
         orderId={selectedOrderId}
+        cashRegisters={cashRegisters}
         onOrderUpdated={handleOrderUpdated}
       />
     </div>

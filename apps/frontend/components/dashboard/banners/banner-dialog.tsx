@@ -212,44 +212,45 @@ export function BannerDialog({
   }
 
   async function onSubmit(values: BannerFormValues) {
-    try {
-      const data = {
-        label: values.label.trim(),
-        type: values.type,
-        title: values.title?.trim() || null,
-        description: values.description?.trim() || null,
-        website: values.website?.trim() || null,
-        facebook: values.facebook?.trim() || null,
-        instagram: values.instagram?.trim() || null,
-        color: values.color.replace(/^#/, ""),
-        dateTime: values.type === "EVENT" && values.dateTime
-          ? new Date(values.dateTime).toISOString()
-          : null,
-      };
+    const data = {
+      label: values.label.trim(),
+      type: values.type,
+      title: values.title?.trim() || null,
+      description: values.description?.trim() || null,
+      website: values.website?.trim() || null,
+      facebook: values.facebook?.trim() || null,
+      instagram: values.instagram?.trim() || null,
+      color: values.color.replace(/^#/, ""),
+      dateTime: values.type === "EVENT" && values.dateTime
+        ? new Date(values.dateTime).toISOString()
+        : null,
+    };
 
-      let savedBanner: Banner;
+    let savedBanner: Banner;
 
-      if (isEditing && banner) {
-        savedBanner = await updateBanner(banner.id, data);
-        toast.success(t.banners.toastUpdated);
-      } else {
-        savedBanner = await createBanner(data);
-        toast.success(t.banners.toastCreated);
-      }
-
-      if (imageFile && savedBanner) {
-        const formData = new FormData();
-        formData.append("image", imageFile);
-        await uploadBannerImage(savedBanner.id, formData);
-        // Re-fetch to get updated image filename for immediate preview
-        savedBanner = await getBannerById(savedBanner.id);
-      }
-
-      onSaved(savedBanner);
-      onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error.message || t.banners.toastErrorSave);
+    if (isEditing && banner) {
+      const result = await updateBanner(banner.id, data);
+      if (!result.ok) { toast.error(result.error); return; }
+      toast.success(t.banners.toastUpdated);
+      savedBanner = result.data;
+    } else {
+      const result = await createBanner(data);
+      if (!result.ok) { toast.error(result.error); return; }
+      toast.success(t.banners.toastCreated);
+      savedBanner = result.data;
     }
+
+    if (imageFile && savedBanner) {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const imgResult = await uploadBannerImage(savedBanner.id, formData);
+      if (!imgResult.ok) { toast.error(imgResult.error); return; }
+      // Re-fetch to get updated image filename for immediate preview
+      savedBanner = await getBannerById(savedBanner.id);
+    }
+
+    onSaved(savedBanner);
+    onOpenChange(false);
   }
 
   return (

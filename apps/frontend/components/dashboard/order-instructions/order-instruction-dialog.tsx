@@ -302,24 +302,20 @@ export function OrderInstructionDialog({
     setError("");
     setIsSubmitting(true);
 
-    try {
-      let saved: OrderInstruction;
-
-      if (isEditing && instruction) {
-        saved = await updateOrderInstruction(instruction.id, { text: trimmed });
-        toast.success(t.orderInstructions.toastUpdated);
-      } else {
-        saved = await createOrderInstruction({ text: trimmed, position: instructionsCount });
-        toast.success(t.orderInstructions.toastCreated);
-      }
-
-      onSaved(saved);
-      onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message || t.orderInstructions.toastErrorSave);
-    } finally {
+    if (isEditing && instruction) {
+      const result = await updateOrderInstruction(instruction.id, { text: trimmed });
       setIsSubmitting(false);
+      if (!result.ok) { toast.error(result.error); return; }
+      toast.success(t.orderInstructions.toastUpdated);
+      onSaved(result.data);
+    } else {
+      const result = await createOrderInstruction({ text: trimmed, position: instructionsCount });
+      setIsSubmitting(false);
+      if (!result.ok) { toast.error(result.error); return; }
+      toast.success(t.orderInstructions.toastCreated);
+      onSaved(result.data);
     }
+    onOpenChange(false);
   }
 
   return (

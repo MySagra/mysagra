@@ -33,15 +33,14 @@ export function DeleteUserDialog({
     if (!user) return;
 
     setIsLoading(true);
-    try {
-      await deleteUser(user.id);
-      onDeleted(user.id);
-      toast.success(`"${user.username}" ${t.users.toastDeleted}`);
-    } catch (error: any) {
-      toast.error(error.message || t.users.toastErrorDelete);
-    } finally {
-      setIsLoading(false);
+    const result = await deleteUser(user.id);
+    setIsLoading(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
     }
+    onDeleted(user.id);
+    toast.success(`"${user.username}" ${t.users.toastDeleted}`);
   }
 
   if (!open || !mounted) return null;

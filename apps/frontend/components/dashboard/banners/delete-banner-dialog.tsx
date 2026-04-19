@@ -34,17 +34,15 @@ export function DeleteBannerDialog({
 
   async function handleDelete() {
     if (!banner) return;
-
     setIsLoading(true);
-    try {
-      await deleteBanner(banner.id);
-      onDeleted(banner.id);
-      toast.success(`"${banner.label}" ${t.banners.toastDeleted}`);
-    } catch (error: any) {
-      toast.error(error.message || t.banners.toastErrorDelete);
-    } finally {
-      setIsLoading(false);
+    const result = await deleteBanner(banner.id);
+    setIsLoading(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
     }
+    onDeleted(banner.id);
+    toast.success(`"${banner.label}" ${t.banners.toastDeleted}`);
   }
 
   return (

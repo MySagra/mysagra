@@ -34,17 +34,12 @@ export function DeleteCashRegisterDialog({
 
   async function handleDelete() {
     if (!cashRegister) return;
-
     setIsLoading(true);
-    try {
-      await deleteCashRegister(cashRegister.id);
-      onDeleted(cashRegister.id);
-      toast.success(`"${cashRegister.name}" ${t.cashRegisters.toastDeleted}`);
-    } catch (error: any) {
-      toast.error(error.message || t.cashRegisters.toastErrorDelete);
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await deleteCashRegister(cashRegister.id);
+    setIsLoading(false);
+    if (!result.ok) { toast.error(result.error); return; }
+    onDeleted(cashRegister.id);
+    toast.success(`"${cashRegister.name}" ${t.cashRegisters.toastDeleted}`);
   }
 
   return (

@@ -176,36 +176,37 @@ export function CategoryDialog({
   }
 
   async function onSubmit(values: CategoryFormValues) {
-    try {
-      const data = {
-        name: values.name.trim(),
-        available: values.available,
-        printerId: values.printerId === "none" ? null : values.printerId,
-      };
+    const data = {
+      name: values.name.trim(),
+      available: values.available,
+      printerId: values.printerId === "none" ? null : values.printerId,
+    };
 
-      let savedCategory: Category;
+    let savedCategory: Category;
 
-      if (isEditing && category) {
-        savedCategory = await updateCategory(category.id, data);
-        toast.success(t.categories.toastUpdated);
-      } else {
-        savedCategory = await createCategory({ ...data, position: categoriesCount });
-        toast.success(t.categories.toastCreated);
-      }
-
-      if (imageFile && savedCategory) {
-        const formData = new FormData();
-        formData.append("image", imageFile);
-        await uploadCategoryImage(savedCategory.id, formData);
-        // Re-fetch to get updated image filename for immediate preview
-        savedCategory = await getCategoryById(savedCategory.id);
-      }
-
-      onSaved(savedCategory);
-      onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error.message || t.categories.toastErrorSave);
+    if (isEditing && category) {
+      const result = await updateCategory(category.id, data);
+      if (!result.ok) { toast.error(result.error); return; }
+      toast.success(t.categories.toastUpdated);
+      savedCategory = result.data;
+    } else {
+      const result = await createCategory({ ...data, position: categoriesCount });
+      if (!result.ok) { toast.error(result.error); return; }
+      toast.success(t.categories.toastCreated);
+      savedCategory = result.data;
     }
+
+    if (imageFile && savedCategory) {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const imgResult = await uploadCategoryImage(savedCategory.id, formData);
+      if (!imgResult.ok) { toast.error(imgResult.error); return; }
+      // Re-fetch to get updated image filename for immediate preview
+      savedCategory = await getCategoryById(savedCategory.id);
+    }
+
+    onSaved(savedCategory);
+    onOpenChange(false);
   }
 
   return (

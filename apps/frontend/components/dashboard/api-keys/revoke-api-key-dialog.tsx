@@ -34,17 +34,12 @@ export function RevokeApiKeyDialog({
 
   async function handleRevoke() {
     if (!apiKey) return;
-
     setIsLoading(true);
-    try {
-      await revokeApiKey(apiKey.id);
-      onRevoked(apiKey.id);
-      toast.success(`"${apiKey.name}" ${t.apiKeys.toastRevoked}`);
-    } catch (error: any) {
-      toast.error(error.message || t.apiKeys.toastErrorRevoke);
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await revokeApiKey(apiKey.id);
+    setIsLoading(false);
+    if (!result.ok) { toast.error(result.error); return; }
+    onRevoked(apiKey.id);
+    toast.success(`"${apiKey.name}" ${t.apiKeys.toastRevoked}`);
   }
 
   return (

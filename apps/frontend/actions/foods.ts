@@ -5,6 +5,7 @@ import { API_ENDPOINTS, Food, FoodRequest } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { FoodResponseSchema } from "@mysagra/schemas";
+import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 // Cast to ZodType<Food> since schema allows null for ingredients but interface uses undefined
 const FoodSchema = FoodResponseSchema as z.ZodType<Food>;
@@ -36,22 +37,30 @@ export async function getFoodById(
   return fetchApi<Food>(`${API_ENDPOINTS.FOODS.BY_ID(id)}${query}`, {}, FoodSchema);
 }
 
-export async function createFood(data: FoodRequest): Promise<Food> {
-  const result = await fetchApi<Food>(API_ENDPOINTS.FOODS.ALL, {
-    method: "POST",
-    body: JSON.stringify(data),
-  }, FoodSchema);
-  revalidatePath("/dashboard/foods");
-  return result;
+export async function createFood(data: FoodRequest): Promise<ActionResult<Food>> {
+  try {
+    const result = await fetchApi<Food>(API_ENDPOINTS.FOODS.ALL, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }, FoodSchema);
+    revalidatePath("/dashboard/foods");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nella creazione della pietanza") };
+  }
 }
 
-export async function updateFood(id: string, data: FoodRequest): Promise<Food> {
-  const result = await fetchApi<Food>(API_ENDPOINTS.FOODS.BY_ID(id), {
-    method: "PUT",
-    body: JSON.stringify(data),
-  }, FoodSchema);
-  revalidatePath("/dashboard/foods");
-  return result;
+export async function updateFood(id: string, data: FoodRequest): Promise<ActionResult<Food>> {
+  try {
+    const result = await fetchApi<Food>(API_ENDPOINTS.FOODS.BY_ID(id), {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }, FoodSchema);
+    revalidatePath("/dashboard/foods");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento della pietanza") };
+  }
 }
 
 export async function toggleFoodAvailability(
@@ -66,9 +75,14 @@ export async function toggleFoodAvailability(
   return result;
 }
 
-export async function deleteFood(id: string): Promise<void> {
-  await fetchApi(API_ENDPOINTS.FOODS.BY_ID(id), {
-    method: "DELETE",
-  });
-  revalidatePath("/dashboard/foods");
+export async function deleteFood(id: string): Promise<ActionResult<void>> {
+  try {
+    await fetchApi(API_ENDPOINTS.FOODS.BY_ID(id), {
+      method: "DELETE",
+    });
+    revalidatePath("/dashboard/foods");
+    return { ok: true, data: undefined };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione della pietanza") };
+  }
 }
