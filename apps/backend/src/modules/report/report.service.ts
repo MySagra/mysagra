@@ -338,19 +338,20 @@ export class ReportService {
 
         // Get real-time stats for current interval
         const realtimeStats = await this._getRealTimeStats(query.from, query.to, saveLiveData);
+        const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), query.groupBy);
+
+        console.log(realtimeStats, realtimeBucket)
 
         if (query.groupBy === '1h') {
             // For 1h grouping, append real-time data
-            const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), '1h');
             return realtimeBucket ? [...rawReports, realtimeBucket] : rawReports;
         }
 
         const buckets = new Map<number, Report>();
         const bucketCompletitionTimeWeighted = new Map<number, number>();
 
-        // Add real-time data to reports for processing
-        const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), query.groupBy);
-        const reportsToProcess = realtimeBucket ? [...rawReports, realtimeBucket] : rawReports;
+        // Process only raw reports for aggregation (exclude real-time from aggregation)
+        const reportsToProcess = rawReports;
 
         for (const report of reportsToProcess) {
             const bucketKey = this.getBucketTimestamp(report.timestamp, query.groupBy);
@@ -495,7 +496,7 @@ export class ReportService {
             currentBucket.cashRegisterStats = Array.from(cashRegisterStatsMap.values());
         }
 
-        return Array.from(buckets.values())
+        const aggregatedReports = Array.from(buckets.values())
             .map(bucket => {
                 if (bucket.totalOrders > 0) {
                     const weightedTotal = bucketCompletitionTimeWeighted.get(bucket.timestamp.getTime());
@@ -506,6 +507,9 @@ export class ReportService {
                 return bucket;
             })
             .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
+        // Append real-time data at the end
+        return realtimeBucket ? [...aggregatedReports, realtimeBucket] : aggregatedReports;
     }
 
     async getReport(id: string) {
@@ -536,10 +540,14 @@ export class ReportService {
             throw new BadRequestError(`Cash register with CUID: ${data.cashRegister} doesn't exists`)
         }
 
+        await this.generateReport(now);
+
         const report = await this.getReports({
             from,
             groupBy: 'all'
-        }, true)
+        }, false)
+
+        report[0].timestamp = now
 
         this.printerEvent.broadcastEvent(
             {
