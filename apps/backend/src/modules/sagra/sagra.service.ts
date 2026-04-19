@@ -13,7 +13,6 @@ export class SagraService {
 
     static getInstance(): SagraService {
         if (!SagraService.instance) {
-            console.log("Generated")
             SagraService.instance = new SagraService()
         }
         return SagraService.instance
