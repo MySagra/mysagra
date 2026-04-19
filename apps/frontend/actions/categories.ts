@@ -121,3 +121,12 @@ export async function uploadCategoryImage(id: string, formData: FormData): Promi
     return { ok: false, error: extractErrorMessage(error, "Errore nel caricamento dell'immagine") };
   }
 }
+
+export async function checkCategoryNameExists(name: string, excludeId?: string): Promise<boolean> {
+  try {
+    const categories = await getCategories();
+    return categories.some(c => c.name.toLowerCase() === name.toLowerCase() && c.id !== excludeId);
+  } catch {
+    return false;
+  }
+}

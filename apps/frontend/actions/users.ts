@@ -56,3 +56,12 @@ export async function deleteUser(id: string): Promise<ActionResult<void>> {
 export async function getRoles(): Promise<Role[]> {
   return fetchApi<Role[]>(API_ENDPOINTS.ROLES.ALL, {}, z.array(RoleResponseSchema));
 }
+
+export async function checkUsernameExists(username: string, excludeId?: string): Promise<boolean> {
+  try {
+    const users = await getUsers();
+    return users.some(u => u.username.toLowerCase() === username.toLowerCase() && u.id !== excludeId);
+  } catch {
+    return false;
+  }
+}

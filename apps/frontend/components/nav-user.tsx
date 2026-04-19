@@ -22,8 +22,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, LogOutIcon, LanguagesIcon, CheckIcon } from "lucide-react"
+import { ChevronsUpDownIcon, LogOutIcon, LanguagesIcon, CheckIcon, MoonIcon, SunIcon } from "lucide-react"
 import { useLocale } from "@/contexts/locale-context"
+import { useTheme } from "next-themes"
 import type { Locale } from "@/lib/i18n"
 
 const LOCALES: { value: Locale; flag: string }[] = [
@@ -42,6 +43,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const { locale, setLocale, t } = useLocale()
+  const { theme, setTheme } = useTheme()
 
   const initials = user.name
     .split(" ")
@@ -114,6 +116,11 @@ export function NavUser({
                 ))}
               </DropdownMenuSubContent>
             </DropdownMenuSub>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+              {theme === "dark" ? <SunIcon className="size-4" /> : <MoonIcon className="size-4" />}
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon />

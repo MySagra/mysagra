@@ -86,3 +86,12 @@ export async function deleteFood(id: string): Promise<ActionResult<void>> {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione della pietanza") };
   }
 }
+
+export async function checkFoodNameExists(name: string, excludeId?: string): Promise<boolean> {
+  try {
+    const foods = await getFoods();
+    return foods.some(f => f.name.toLowerCase() === name.toLowerCase() && f.id !== excludeId);
+  } catch {
+    return false;
+  }
+}

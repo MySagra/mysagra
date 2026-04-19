@@ -5,7 +5,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { User, Role } from "@/lib/api-types";
-import { createUser } from "@/actions/users";
+import { createUser, checkUsernameExists } from "@/actions/users";
 import {
   Dialog,
   DialogContent,
@@ -83,8 +83,16 @@ export function UserDialog({ open, onOpenChange, roles, onCreated }: UserDialogP
   }, [open, roles, form]);
 
   async function onSubmit(values: UserFormValues) {
+    const usernameTrimmed = values.username.trim();
+
+    const exists = await checkUsernameExists(usernameTrimmed);
+    if (exists) {
+      toast.error(t.users.usernameDuplicate);
+      return;
+    }
+
     const result = await createUser({
-      username: values.username.trim(),
+      username: usernameTrimmed,
       password: values.password,
       roleId: values.roleId,
     });

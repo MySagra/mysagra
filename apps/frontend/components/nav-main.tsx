@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { ChevronRight, type LucideIcon } from "lucide-react"
 
 import {
@@ -35,12 +36,34 @@ export function NavMain({
   }[]
   label?: string
 }) {
+  const [openItems, setOpenItems] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set()
+    const saved = localStorage.getItem('sidebar-open-items')
+    return saved ? new Set(JSON.parse(saved)) : new Set(items.filter(i => i.isActive).map(i => i.title))
+  })
+
+  useEffect(() => {
+    localStorage.setItem('sidebar-open-items', JSON.stringify(Array.from(openItems)))
+  }, [openItems])
+
+  const toggleItem = (title: string) => {
+    setOpenItems(prev => {
+      const next = new Set(prev)
+      if (next.has(title)) {
+        next.delete(title)
+      } else {
+        next.add(title)
+      }
+      return next
+    })
+  }
+
   return (
     <SidebarGroup>
       {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
       <SidebarMenu>
         {items.map((item) => (
-          <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
+          <Collapsible key={item.title} asChild open={openItems.has(item.title)} onOpenChange={() => toggleItem(item.title)}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title}>
                 <a href={item.url}>

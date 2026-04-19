@@ -1,8 +1,10 @@
-import { AppSidebar } from "@/components/app-sidebar";
+import { Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { auth } from "@/lib/auth";
 import { Metadata } from "next";
+import { DashboardLayoutSkeleton } from "@/components/dashboard/layout-skeleton";
+import { SidebarWrapper } from "@/components/dashboard/sidebar-wrapper";
 
 export const metadata: Metadata = {
   title: "MyAmministratore - Dashboard",
@@ -26,8 +28,12 @@ export default async function DashboardLayout({
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <AppSidebar user={user} userRole={role} />
-        <SidebarInset>{children}</SidebarInset>
+        <SidebarWrapper user={user} userRole={role} />
+        <SidebarInset>
+          <Suspense fallback={<DashboardLayoutSkeleton />}>
+            {children}
+          </Suspense>
+        </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>
   );

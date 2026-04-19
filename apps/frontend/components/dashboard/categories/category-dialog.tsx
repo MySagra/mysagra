@@ -6,7 +6,7 @@ function getCategoryImageUrl(filename: string) {
   return `/api/images/categories/${filename}`;
 }
 import { Category, Printer } from "@/lib/api-types";
-import { createCategory, updateCategory, uploadCategoryImage, getCategoryById } from "@/actions/categories";
+import { createCategory, updateCategory, uploadCategoryImage, getCategoryById, checkCategoryNameExists } from "@/actions/categories";
 import {
   Select,
   SelectContent,
@@ -176,8 +176,16 @@ export function CategoryDialog({
   }
 
   async function onSubmit(values: CategoryFormValues) {
+    const nameTrimmed = values.name.trim();
+
+    const exists = await checkCategoryNameExists(nameTrimmed, isEditing && category ? category.id : undefined);
+    if (exists) {
+      toast.error(t.categories.nameDuplicate);
+      return;
+    }
+
     const data = {
-      name: values.name.trim(),
+      name: nameTrimmed,
       available: values.available,
       printerId: values.printerId === "none" ? null : values.printerId,
     };
