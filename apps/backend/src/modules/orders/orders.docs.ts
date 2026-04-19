@@ -27,14 +27,18 @@ const OrderIdParam = registry.register("OrderIdParam", OrderIdParamSchema);
 const PaginatedOrdersResponse = z.object({
     orders: z.array(OrderResponse),
     pagination: z.object({
-        currentPage: z.number().int().meta({ example: 1 }),
-        totalOrdersPages: z.number().int().meta({ example: 5 }),
-        totalOrdersItems: z.number().int().meta({ example: 100 }),
-        itemsPerPage: z.number().int().meta({ example: 20 }),
-        hasNextPage: z.boolean(),
-        hasPrevPage: z.boolean(),
-        nextPage: z.number().int().nullable().meta({ example: 2 }),
-        prevPage: z.number().int().nullable(),
+        totalItems: z.number().int().min(20).max(100).meta({
+            description: "Items per page",
+            example: 20
+        }),
+        currentPage: z.number().int().positive().min(1).meta({
+            description: "Current page",
+            example: 1
+        }),
+        totalPages: z.number().int().positive().min(1).meta({
+            description: "Total number of page",
+            example: 5
+        })
     }),
 }).meta({
     id: "PaginatedOrdersResponse",

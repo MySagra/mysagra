@@ -139,7 +139,7 @@ export const GetOrdersQuerySchema = z.object({
     page: z.coerce.number().int().positive().default(1).meta({
         description: "Page number for pagination"
     }),
-    limit: z.coerce.number().int().positive().max(100).default(20).meta({
+    limit: z.coerce.number().int().min(20).positive().max(100).default(20).meta({
         description: "Items per page"
     }),
     sortBy: z.enum(['createdAt']).optional().default('createdAt').meta({
