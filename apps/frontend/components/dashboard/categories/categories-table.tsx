@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Category, Printer } from "@/lib/api-types";
 import { toggleCategoryAvailability } from "@/actions/categories";
 import {
@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PencilIcon, GripVerticalIcon, ImageIcon } from "lucide-react";
+import { ImageSkeleton } from "@/components/ui/image-skeleton";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -48,19 +49,34 @@ interface CategoriesTableProps {
 }
 
 function ImageCell({ image, name }: { image?: string | null; name: string }) {
-  if (image) {
+  const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (imgRef.current?.complete) {
+      setLoaded(true);
+    }
+  }, []);
+
+  if (!image) {
     return (
-      <img
-        src={getCategoryImageUrl(image)}
-        alt={name}
-        className="h-8 w-12 object-cover rounded border"
-      />
+      <div className="h-8 w-12 rounded border bg-muted flex items-center justify-center">
+        <ImageIcon className="h-3 w-3 text-muted-foreground" />
+      </div>
     );
   }
+
   return (
-    <div className="h-8 w-12 rounded border bg-muted flex items-center justify-center">
-      <ImageIcon className="h-3 w-3 text-muted-foreground" />
-    </div>
+    <>
+      {!loaded && <ImageSkeleton width={48} height={32} className="rounded border" />}
+      <img
+        ref={imgRef}
+        src={getCategoryImageUrl(image)}
+        alt={name}
+        className={`h-8 w-12 object-cover rounded border ${!loaded ? "hidden" : ""}`}
+        onLoad={() => setLoaded(true)}
+      />
+    </>
   );
 }
 

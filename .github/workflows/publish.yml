@@ -4,9 +4,10 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-
+    
 env:
   REGISTRY: ghcr.io
+  OWNER: mysagra 
   IMAGE_NAME_BACKEND: mysagra-backend
   IMAGE_NAME_FRONTEND: mysagra-myamministratore
 
@@ -32,20 +33,43 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # --- BACKEND METADATA & BUILD ---
+      - name: Extract Backend Metadata
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE_NAME_BACKEND }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=true
+
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/images/mysagra-backend/Dockerfile
           push: true
-          tags: ghcr.io/mysagra/${{ env.IMAGE_NAME_BACKEND }}:latest
+          # Usiamo l'output dinamico dei tag
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-      
+
+      # --- FRONTEND METADATA & BUILD ---
+      - name: Extract Frontend Metadata
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE_NAME_FRONTEND }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=true
+
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/images/mysagra-frontend/Dockerfile
           push: true
-          tags: ghcr.io/mysagra/${{ env.IMAGE_NAME_FRONTEND }}:latest
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
           platforms: linux/amd64,linux/arm64

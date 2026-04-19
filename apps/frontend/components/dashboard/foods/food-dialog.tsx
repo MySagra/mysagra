@@ -5,7 +5,7 @@ import { useForm, FormProvider, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Food, Category, Ingredient, Printer } from "@/lib/api-types";
-import { createFood, updateFood } from "@/actions/foods";
+import { createFood, updateFood, checkFoodNameExists } from "@/actions/foods";
 import {
   Dialog,
   DialogContent,
@@ -130,28 +130,34 @@ export function FoodDialog({
   }
 
   async function onSubmit(values: FoodFormValues) {
-    try {
-      const data = {
-        name: values.name.trim(),
-        description: (values.description as string | undefined)?.trim() ?? "",
-        price: values.price as number,
-        categoryId: values.categoryId,
-        available: values.available,
-        ingredients: selectedIngredients.map(id => ({ id })),
-        printerId: selectedPrinterId,
-      };
+    const nameTrimmed = values.name.trim();
 
-      if (isEditing && food) {
-        const updated = await updateFood(food.id, data);
-        onSaved(updated);
-        toast.success(t.foods.toastUpdated);
-      } else {
-        const created = await createFood(data);
-        onSaved(created);
-        toast.success(t.foods.toastCreated);
-      }
-    } catch (error: any) {
-      toast.error(error.message || t.foods.toastErrorSave);
+    const exists = await checkFoodNameExists(nameTrimmed, isEditing && food ? food.id : undefined);
+    if (exists) {
+      toast.error(t.foods.nameDuplicate);
+      return;
+    }
+
+    const data = {
+      name: nameTrimmed,
+      description: (values.description as string | undefined)?.trim() ?? "",
+      price: values.price as number,
+      categoryId: values.categoryId,
+      available: values.available,
+      ingredients: selectedIngredients.map(id => ({ id })),
+      printerId: selectedPrinterId,
+    };
+
+    if (isEditing && food) {
+      const result = await updateFood(food.id, data);
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.foods.toastUpdated);
+    } else {
+      const result = await createFood(data);
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.foods.toastCreated);
     }
   }
 

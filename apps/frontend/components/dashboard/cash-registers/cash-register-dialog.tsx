@@ -97,24 +97,22 @@ export function CashRegisterDialog({
   }, [cashRegister, open, printers, form]);
 
   async function onSubmit(values: CashRegisterFormValues) {
-    try {
-      const data = {
-        name: values.name.trim(),
-        defaultPrinterId: values.defaultPrinterId,
-        enabled: values.enabled,
-      };
+    const data = {
+      name: values.name.trim(),
+      defaultPrinterId: values.defaultPrinterId,
+      enabled: values.enabled,
+    };
 
-      if (isEditing && cashRegister) {
-        const updated = await updateCashRegister(cashRegister.id, data);
-        onSaved(updated);
-        toast.success(t.cashRegisters.toastUpdated);
-      } else {
-        const created = await createCashRegister(data);
-        onSaved(created);
-        toast.success(t.cashRegisters.toastCreated);
-      }
-    } catch (error: any) {
-      toast.error(error.message || t.cashRegisters.toastErrorSave);
+    if (isEditing && cashRegister) {
+      const result = await updateCashRegister(cashRegister.id, data);
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.cashRegisters.toastUpdated);
+    } else {
+      const result = await createCashRegister(data);
+      if (!result.ok) { toast.error(result.error); return; }
+      onSaved(result.data);
+      toast.success(t.cashRegisters.toastCreated);
     }
   }
 

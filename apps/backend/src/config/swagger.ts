@@ -32,7 +32,7 @@ export function generateOpenApiDocument() {
         },
         tags: [
             { name: 'Auth' },
-            { name: 'API Keys'},
+            { name: 'API Keys' },
             { name: 'Users' },
             { name: 'Roles' },
             { name: 'Categories' },
@@ -41,8 +41,10 @@ export function generateOpenApiDocument() {
             { name: 'Orders' },
             { name: 'Printers' },
             { name: 'CashRegisters' },
-            { name: 'Events (SSE)' },
+            { name: 'Reports' },
             { name: 'Banners' },
+            { name: 'Order Instructions' },
+            { name: 'Events (SSE)' }
         ],
     })
 }

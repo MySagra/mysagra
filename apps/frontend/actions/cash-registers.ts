@@ -9,6 +9,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { CashRegisterResponseSchema } from "@mysagra/schemas";
+import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 export async function getCashRegisters(
   include?: string
@@ -25,54 +26,71 @@ export async function getCashRegisterById(
 
 export async function createCashRegister(
   data: CashRegisterRequest
-): Promise<CashRegister> {
-  const result = await fetchApi<CashRegister>(
-    API_ENDPOINTS.CASH_REGISTERS.ALL,
-    {
-      method: "POST",
-      body: JSON.stringify(data),
-    },
-    CashRegisterResponseSchema
-  );
-  revalidatePath("/dashboard/cash-registers");
-  return result;
+): Promise<ActionResult<CashRegister>> {
+  try {
+    const result = await fetchApi<CashRegister>(
+      API_ENDPOINTS.CASH_REGISTERS.ALL,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      CashRegisterResponseSchema
+    );
+    revalidatePath("/dashboard/cash-registers");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nella creazione della cassa") };
+  }
 }
 
 export async function updateCashRegister(
   id: string,
   data: CashRegisterRequest
-): Promise<CashRegister> {
-  const result = await fetchApi<CashRegister>(
-    API_ENDPOINTS.CASH_REGISTERS.BY_ID(id),
-    {
-      method: "PUT",
-      body: JSON.stringify(data),
-    },
-    CashRegisterResponseSchema
-  );
-  revalidatePath("/dashboard/cash-registers");
-  return result;
+): Promise<ActionResult<CashRegister>> {
+  try {
+    const result = await fetchApi<CashRegister>(
+      API_ENDPOINTS.CASH_REGISTERS.BY_ID(id),
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      CashRegisterResponseSchema
+    );
+    revalidatePath("/dashboard/cash-registers");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento della cassa") };
+  }
 }
 
 export async function toggleCashRegisterEnabled(
   id: string,
   enabled: boolean
-): Promise<CashRegister> {
-  const result = await fetchApi<CashRegister>(
-    API_ENDPOINTS.CASH_REGISTERS.BY_ID(id),
-    {
-      method: "PATCH",
-      body: JSON.stringify({ enabled }),
-    },
-    CashRegisterResponseSchema
-  );
-  revalidatePath("/dashboard/cash-registers");
-  return result;
+): Promise<ActionResult<CashRegister>> {
+  try {
+    const result = await fetchApi<CashRegister>(
+      API_ENDPOINTS.CASH_REGISTERS.BY_ID(id),
+      {
+        method: "PATCH",
+        body: JSON.stringify({ enabled }),
+      },
+      CashRegisterResponseSchema
+    );
+    revalidatePath("/dashboard/cash-registers");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento della cassa") };
+  }
 }
 
-export async function deleteCashRegister(id: string): Promise<void> {
-  await fetchApi(API_ENDPOINTS.CASH_REGISTERS.BY_ID(id), {
-    method: "DELETE",
-  });
-  revalidatePath("/dashboard/cash-registers");
+export async function deleteCashRegister(id: string): Promise<ActionResult<void>> {
+  try {
+    await fetchApi(API_ENDPOINTS.CASH_REGISTERS.BY_ID(id), {
+      method: "DELETE",
+    });
+    revalidatePath("/dashboard/cash-registers");
+    return { ok: true, data: undefined };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione della cassa") };
+  }
 }

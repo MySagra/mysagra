@@ -110,20 +110,14 @@ export function CashRegistersTable({
 
   async function handleToggle(cashRegister: CashRegister) {
     setTogglingId(cashRegister.id);
-    try {
-      const updated = await toggleCashRegisterEnabled(
-        cashRegister.id,
-        !cashRegister.enabled
-      );
-      onToggle(updated);
-      toast.success(
-        `"${cashRegister.name}" ${t.cashRegisters.toastUpdated}`
-      );
-    } catch (error) {
-      toast.error(t.cashRegisters.toastErrorUpdate);
-    } finally {
-      setTogglingId(null);
+    const result = await toggleCashRegisterEnabled(cashRegister.id, !cashRegister.enabled);
+    setTogglingId(null);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
     }
+    onToggle(result.data);
+    toast.success(`"${cashRegister.name}" ${t.cashRegisters.toastUpdated}`);
   }
 
   function SortIcon({ column }: { column: SortColumn }) {

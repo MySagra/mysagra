@@ -30,15 +30,14 @@ export function UsersContent({ initialUsers, roles }: UsersContentProps) {
 
   async function handleRoleChange(user: User, roleId: string) {
     setUpdatingId(user.id);
-    try {
-      const updated = await patchUserRole(user.id, roleId);
-      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
-      toast.success(t.users.toastUpdated);
-    } catch (error: any) {
-      toast.error(error.message || t.users.toastErrorSave);
-    } finally {
-      setUpdatingId(null);
+    const result = await patchUserRole(user.id, roleId);
+    setUpdatingId(null);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
     }
+    setUsers((prev) => prev.map((u) => (u.id === result.data.id ? result.data : u)));
+    toast.success(t.users.toastUpdated);
   }
 
   function handleDelete(user: User) {

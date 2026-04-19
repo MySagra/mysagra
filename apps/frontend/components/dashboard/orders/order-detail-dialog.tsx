@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { CategorizedItems, OrderDetailResponse } from '@/lib/api-types';
+import { useState, useEffect, useMemo } from 'react';
+import { CashRegister, CategorizedItems, OrderDetailResponse } from '@/lib/api-types';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
@@ -73,19 +73,18 @@ function ReprintDialog({ open, onOpenChange, orderId, categorizedItems, onSucces
 
   async function handleConfirm() {
     setLoading(true);
-    try {
-      await reprintOrder(orderId, {
-        orderItems: selectedItemIds.length > 0 ? selectedItemIds : undefined,
-        reprintReceipt,
-      });
-      toast.success(t.orders.toastReprinted);
-      onOpenChange(false);
-      onSuccess();
-    } catch {
-      toast.error(t.orders.toastErrorReprint);
-    } finally {
-      setLoading(false);
+    const result = await reprintOrder(orderId, {
+      orderItems: selectedItemIds.length > 0 ? selectedItemIds : undefined,
+      reprintReceipt,
+    });
+    setLoading(false);
+    if (!result.ok) {
+      toast.error(result.error || t.orders.toastErrorReprint);
+      return;
     }
+    toast.success(t.orders.toastReprinted);
+    onOpenChange(false);
+    onSuccess();
   }
 
   return (
@@ -201,14 +200,24 @@ interface OrderDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOrderUpdated?: () => void;
+  cashRegisters?: CashRegister[];
 }
 
-export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated }: OrderDetailDialogProps) {
+export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated, cashRegisters = [] }: OrderDetailDialogProps) {
   const { t } = useLocale();
   const { canDelete } = useRole();
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Build a lookup map from cashRegisterId → name
+  const cashRegisterMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const cr of cashRegisters) {
+      map.set(cr.id, cr.name);
+    }
+    return map;
+  }, [cashRegisters]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showReprintDialog, setShowReprintDialog] = useState(false);
 
@@ -231,16 +240,15 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
     if (!orderId) return;
     setShowDeleteConfirm(false);
     setDeleting(true);
-    try {
-      await deleteOrder(orderId);
-      toast.success(t.orders.toastDeleted);
-      onOpenChange(false);
-      onOrderUpdated?.();
-    } catch {
-      toast.error(t.orders.toastErrorDelete);
-    } finally {
-      setDeleting(false);
+    const result = await deleteOrder(orderId);
+    setDeleting(false);
+    if (!result.ok) {
+      toast.error(result.error || t.orders.toastErrorDelete);
+      return;
     }
+    toast.success(t.orders.toastDeleted);
+    onOpenChange(false);
+    onOrderUpdated?.();
   }
 
   const isConfirmed = order?.status === 'CONFIRMED' || order?.status === 'COMPLETED' || order?.status === 'PICKED_UP';
@@ -292,7 +300,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                     { icon: <Hash className="h-3.5 w-3.5" />,         label: t.orders.detailCode,             value: order.displayCode,             mono: true  },
                     { icon: <Ticket className="h-3.5 w-3.5" />,       label: t.orders.detailTicket,           value: order.ticketNumber ?? 'N/A',   mono: true  },
                     { icon: <CreditCard className="h-3.5 w-3.5" />,   label: t.orders.detailPayment,          value: order.paymentMethod || 'N/A',  mono: true  },
-                    { icon: <MonitorCheck className="h-3.5 w-3.5" />, label: t.orders.detailCashRegister,    value: (order as any).cashRegister?.name || (order as any).cashRegister || 'N/A', mono: false },
+                    { icon: <MonitorCheck className="h-3.5 w-3.5" />, label: t.orders.detailCashRegister,    value: (() => { const id = (order as any).cashRegisterId || (order as any).cashRegister; if (!id) return 'N/A'; return cashRegisterMap.get(id) ?? (order as any).cashRegister?.name ?? id; })(), mono: false },
                     {
                       icon: <CalendarPlus className="h-3.5 w-3.5" />,
                       label: t.orders.detailCreationDate,

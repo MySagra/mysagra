@@ -316,7 +316,7 @@ export class FoodsService {
             )
         }
 
-        return res;
+        return res.patchedFood;
     }
 
     async deleteFood(id: string) {

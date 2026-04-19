@@ -72,7 +72,7 @@ const ConfirmationDataSchema = z.object({
     paymentMethod: PaymentMethodSchema.meta({
         description: "How the order was/will be paid"
     }),
-    cashRegisterId: z.string().cuid().meta({
+    cashRegisterId: z.cuid().meta({
         description: "Cash register processing the order"
     }),
     userId: z.cuid().optional().meta({
@@ -80,6 +80,10 @@ const ConfirmationDataSchema = z.object({
     }),
     discount: z.number().min(0).default(0).meta({
         description: "Discount amount applied"
+    }),
+    customer: z.string().optional().meta({
+        description: "Updated customer name",
+        example: "John Doe"
     })
 }).meta({
     id: "ConfirmationData",
@@ -135,10 +139,10 @@ export const GetOrdersQuerySchema = z.object({
     page: z.coerce.number().int().positive().default(1).meta({
         description: "Page number for pagination"
     }),
-    limit: z.coerce.number().int().positive().max(100).default(20).meta({
+    limit: z.coerce.number().int().min(20).positive().max(100).default(20).meta({
         description: "Items per page"
     }),
-    sortBy: z.enum(['createdAt']).optional().default('createdAt').meta({
+    sortBy: z.enum(['createdAt', 'confirmedAt', 'completedAt']).optional().default('createdAt').meta({
         description: "Sort field"
     }),
     status: z.preprocess(
@@ -170,14 +174,9 @@ export const OrderIdParamSchema = z.object({
     description: "Path parameter for numeric order ID"
 })
 
-export const OrderCodeSchema = z.object({
-    code: z.string().regex(/^[A-Z0-9]+$/).min(3).meta({
-        description: "3+ character alphanumeric display code",
-        example: "ABC123"
-    })
-}).meta({
-    id: "OrderCode",
-    description: "Order display/receipt code"
+export const OrderCodeSchema = z.string().regex(/^[A-Z0-9]+$/).min(3).meta({
+    description: "3+ character alphanumeric display code",
+    example: "ABC123"
 })
 
 export const OrderResponseSchema = z.object({
@@ -205,6 +204,9 @@ export const OrderResponseSchema = z.object({
     confirmedAt: z.date().nullish().meta({
         description: "Timestamp when order was confirmed"
     }),
+    completedAt: z.date().nullish().meta({
+        description: "Timestamp when order was completed"
+    }),
     subTotal: z.number().meta({
         description: "Sub-total before discounts/charges"
     }),
@@ -220,6 +222,12 @@ export const OrderResponseSchema = z.object({
     paymentMethod: PaymentMethodSchema.nullish().meta({
         description: "Payment method used"
     }),
+    userId: z.cuid().meta({
+        description: "User CUID that confirmed/created the order"
+    }),
+    cashRegisterId: z.cuid().meta({
+        description: "Cash register CUID that confirmed/created the order"
+    }),
     orderItems: z.array(OrderItemResponseSchema).optional().meta({
         description: "Order items with pricing"
     })
@@ -227,6 +235,8 @@ export const OrderResponseSchema = z.object({
     id: "OrderResponse",
     description: "Complete order entity with items and pricing"
 })
+
+export const OrdersResponseSchema = z.array(OrderResponseSchema.omit({ orderItems: true }))
 
 export const IngredientSchema = z.object({
     id: z.cuid().meta({ description: "Ingredient identifier" }),

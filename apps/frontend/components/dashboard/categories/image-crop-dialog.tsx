@@ -15,7 +15,7 @@ import { useLocale } from "@/contexts/locale-context";
 import { Loader2Icon } from "lucide-react";
 
 const ASPECT = 480 / 128;
-const MAX_FILE_SIZE = 1024 * 1024; // 1 MB
+const MAX_FILE_SIZE = 150 * 1024; // 150 KB
 const SNAP_THRESHOLD_PCT = 2; // % proximity to trigger guide + snap
 
 interface ImageCropDialogProps {

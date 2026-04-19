@@ -85,24 +85,25 @@ export function CreateApiKeyDialog({
   }, [open, form]);
 
   async function onSubmit(values: CreateFormValues) {
-    try {
-      const result = await createApiKey({ name: values.name.trim(), type: values.type });
-      setCreatedKey(result);
-      onCreated({
-        id: result.id,
-        type: result.type,
-        prefix: result.type === "PRINTER" ? "ms_pt_" : "ms_wb_",
-        last_digits: result.apiKey.slice(-4),
-        name: values.name.trim(),
-        createdAt: new Date(result.createdAt),
-        lastUsedAt: null,
-        revokedAt: null,
-      });
-      toast.success(t.apiKeys.toastCreated);
-      setStep("reveal");
-    } catch (error: any) {
-      toast.error(error.message || t.apiKeys.toastErrorCreate);
+    const result = await createApiKey({ name: values.name.trim(), type: values.type });
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
     }
+    const apiKeyRes = result.data;
+    setCreatedKey(apiKeyRes);
+    onCreated({
+      id: apiKeyRes.id,
+      type: apiKeyRes.type,
+      prefix: apiKeyRes.type === "PRINTER" ? "ms_pt_" : "ms_wb_",
+      last_digits: apiKeyRes.apiKey.slice(-4),
+      name: values.name.trim(),
+      createdAt: new Date(apiKeyRes.createdAt),
+      lastUsedAt: null,
+      revokedAt: null,
+    });
+    toast.success(t.apiKeys.toastCreated);
+    setStep("reveal");
   }
 
   async function handleCopy() {

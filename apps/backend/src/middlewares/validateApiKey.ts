@@ -56,7 +56,7 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
             await Promise.all([
                 redisConnection.setex(redisKey, env.REDIS_CACHE_TTL, JSON.stringify(activeData)),
                 prisma.$transaction(async (tx) => {
-                    await tx.$queryRaw`SELECT * FROM api_key WHERE hash_key = ${hash} FOR UPDATE`;
+                    await tx.$queryRaw`SELECT * FROM api_keys WHERE hash_key = ${hash} FOR UPDATE`;
                     await tx.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } });
                 })
             ]);
@@ -74,7 +74,7 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
                 const updatedData = { ...keyData, lastUsedUpdatedAt: now.getTime() };
                 redisConnection.setex(redisKey, env.REDIS_CACHE_TTL, JSON.stringify(updatedData))
                     .then(() => prisma.$transaction(async (tx) => {
-                        await tx.$queryRaw`SELECT * FROM api_key WHERE hash_key = ${hash} FOR UPDATE`;
+                        await tx.$queryRaw`SELECT * FROM api_keys WHERE hash_key = ${hash} FOR UPDATE`;
                         await tx.apiKey.update({ where: { hash_key: hash }, data: { lastUsedAt: now } });
                     }))
                     .catch(err => {

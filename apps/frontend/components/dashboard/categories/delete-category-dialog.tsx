@@ -34,17 +34,15 @@ export function DeleteCategoryDialog({
 
   async function handleDelete() {
     if (!category) return;
-
     setIsLoading(true);
-    try {
-      await deleteCategory(category.id);
-      onDeleted(category.id);
-      toast.success(`"${category.name}" ${t.categories.toastDeleted}`);
-    } catch (error: any) {
-      toast.error(error.message || t.categories.toastErrorDelete);
-    } finally {
-      setIsLoading(false);
+    const result = await deleteCategory(category.id);
+    setIsLoading(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
     }
+    onDeleted(category.id);
+    toast.success(`"${category.name}" ${t.categories.toastDeleted}`);
   }
 
   return (

@@ -9,6 +9,7 @@ import {
 } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"]);
 
@@ -95,19 +96,29 @@ export async function updateOrderStatus(
 export async function reprintOrder(
   id: string,
   params: { orderItems?: string[]; reprintReceipt: boolean }
-): Promise<void> {
-  await fetchApi(
-    `${API_ENDPOINTS.ORDERS.BY_ID(id)}/reprint`,
-    {
-      method: "POST",
-      body: JSON.stringify(params),
-    }
-  );
+): Promise<ActionResult<void>> {
+  try {
+    await fetchApi(
+      `${API_ENDPOINTS.ORDERS.BY_ID(id)}/reprint`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      }
+    );
+    return { ok: true, data: undefined };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore durante la ristampa") };
+  }
 }
 
-export async function deleteOrder(id: string): Promise<void> {
-  await fetchApi(API_ENDPOINTS.ORDERS.BY_ID(id), {
-    method: "DELETE",
-  });
-  revalidatePath("/dashboard/orders");
+export async function deleteOrder(id: string): Promise<ActionResult<void>> {
+  try {
+    await fetchApi(API_ENDPOINTS.ORDERS.BY_ID(id), {
+      method: "DELETE",
+    });
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: undefined };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione dell'ordine") };
+  }
 }

@@ -34,17 +34,12 @@ export function DeleteOrderInstructionDialog({
 
   async function handleDelete() {
     if (!instruction) return;
-
     setIsLoading(true);
-    try {
-      await deleteOrderInstruction(instruction.id);
-      onDeleted(instruction.id);
-      toast.success(`"${instruction.text.substring(0, 30)}${instruction.text.length > 30 ? '...' : ''}" ${t.orderInstructions.toastDeleted}`);
-    } catch (error: any) {
-      toast.error(error.message || t.orderInstructions.toastErrorDelete);
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await deleteOrderInstruction(instruction.id);
+    setIsLoading(false);
+    if (!result.ok) { toast.error(result.error); return; }
+    onDeleted(instruction.id);
+    toast.success(`"${instruction.text.substring(0, 30)}${instruction.text.length > 30 ? '...' : ''}" ${t.orderInstructions.toastDeleted}`);
   }
 
   return (

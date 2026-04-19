@@ -34,17 +34,12 @@ export function DeletePrinterDialog({
 
   async function handleDelete() {
     if (!printer) return;
-
     setIsLoading(true);
-    try {
-      await deletePrinter(printer.id);
-      onDeleted(printer.id);
-      toast.success(`"${printer.name}" ${t.printers.toastDeleted}`);
-    } catch (error: any) {
-      toast.error(error.message || t.printers.toastErrorDelete);
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await deletePrinter(printer.id);
+    setIsLoading(false);
+    if (!result.ok) { toast.error(result.error); return; }
+    onDeleted(printer.id);
+    toast.success(`"${printer.name}" ${t.printers.toastDeleted}`);
   }
 
   return (

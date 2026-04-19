@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { Banner } from "@/lib/api-types";
 import {
   Table,
@@ -12,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PencilIcon, ImageIcon } from "lucide-react";
+import { ImageSkeleton } from "@/components/ui/image-skeleton";
 import { useLocale } from "@/contexts/locale-context";
 
 function getBannerImageUrl(filename: string) {
@@ -21,6 +23,38 @@ function getBannerImageUrl(filename: string) {
 interface BannersTableProps {
   banners: Banner[];
   onEdit: (banner: Banner) => void;
+}
+
+function BannerImageCell({ image, label }: { image?: string | null; label: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (imgRef.current?.complete) {
+      setLoaded(true);
+    }
+  }, []);
+
+  if (!image) {
+    return (
+      <div className="h-10 w-14 rounded-md border bg-muted flex items-center justify-center">
+        <ImageIcon className="h-4 w-4 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {!loaded && <ImageSkeleton width={56} height={40} className="rounded-md border" />}
+      <img
+        ref={imgRef}
+        src={getBannerImageUrl(image)}
+        alt={label}
+        className={`h-10 w-14 object-cover rounded-md border ${!loaded ? "hidden" : ""}`}
+        onLoad={() => setLoaded(true)}
+      />
+    </>
+  );
 }
 
 export function BannersTable({ banners, onEdit }: BannersTableProps) {
@@ -59,17 +93,7 @@ export function BannersTable({ banners, onEdit }: BannersTableProps) {
                 </Button>
               </TableCell>
               <TableCell className="w-16">
-                {banner.image ? (
-                  <img
-                    src={getBannerImageUrl(banner.image)}
-                    alt={banner.label}
-                    className="h-10 w-14 object-cover rounded-md border"
-                  />
-                ) : (
-                  <div className="h-10 w-14 rounded-md border bg-muted flex items-center justify-center">
-                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                )}
+                <BannerImageCell image={banner.image} label={banner.label} />
               </TableCell>
               <TableCell className="font-medium max-w-48">
                 <span className="block truncate" title={banner.label}>{banner.label}</span>

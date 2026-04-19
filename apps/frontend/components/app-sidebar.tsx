@@ -6,7 +6,6 @@ import Link from "next/link"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
-import { ThemeSwitcher } from "@/components/theme-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -156,7 +155,6 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         <NavSecondary items={navItems.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <ThemeSwitcher />
         <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>

@@ -34,17 +34,12 @@ export function DeleteFoodDialog({
 
   async function handleDelete() {
     if (!food) return;
-
     setIsLoading(true);
-    try {
-      await deleteFood(food.id);
-      onDeleted(food.id);
-      toast.success(`"${food.name}" ${t.foods.toastDeleted}`);
-    } catch (error: any) {
-      toast.error(error.message || t.foods.toastErrorDelete);
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await deleteFood(food.id);
+    setIsLoading(false);
+    if (!result.ok) { toast.error(result.error); return; }
+    onDeleted(food.id);
+    toast.success(`"${food.name}" ${t.foods.toastDeleted}`);
   }
 
   return (
