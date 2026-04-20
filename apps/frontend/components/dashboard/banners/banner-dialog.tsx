@@ -44,9 +44,26 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useLocale } from "@/contexts/locale-context";
+import { useTimezone } from "@/contexts/timezone-context";
 
 function getBannerImageUrl(filename: string) {
   return `/api/images/banners/${filename}`;
+}
+
+function formatDateTimeLocalValue(dateStr: string, timezone: string): string {
+  const date = new Date(dateStr);
+  const dtf = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const parts = dtf.formatToParts(date);
+  const timeMap = new Map<string, string>();
+  parts.forEach(p => timeMap.set(p.type, p.value));
+  return `${timeMap.get("year")}-${timeMap.get("month")}-${timeMap.get("day")}T${timeMap.get("hour")}:${timeMap.get("minute")}`;
 }
 
 type BannerFormValues = {
@@ -77,6 +94,7 @@ export function BannerDialog({
   onDelete,
 }: BannerDialogProps) {
   const { t } = useLocale();
+  const timezone = useTimezone();
   const isEditing = !!banner;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -126,9 +144,7 @@ export function BannerDialog({
           facebook: banner.facebook ?? "",
           instagram: banner.instagram ?? "",
           color: banner.color ? `#${banner.color.replace(/^#/, "")}` : "#fecc01",
-          dateTime: banner.dateTime
-            ? new Date(banner.dateTime).toISOString().slice(0, 16)
-            : "",
+          dateTime: banner.dateTime ? formatDateTimeLocalValue(banner.dateTime, timezone) : "",
         });
         setImagePreview(banner.image ? getBannerImageUrl(banner.image) : null);
       } else {

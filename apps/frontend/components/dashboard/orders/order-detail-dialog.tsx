@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { getOrderById, deleteOrder, reprintOrder } from '@/actions/orders';
 import { useLocale } from '@/contexts/locale-context';
+import { useTimezone } from '@/contexts/timezone-context';
 import { useRole } from '@/hooks/use-role';
 
 // ─── Status config ───────────────────────────────────────────────────────────
@@ -205,6 +206,7 @@ interface OrderDetailDialogProps {
 
 export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated, cashRegisters = [] }: OrderDetailDialogProps) {
   const { t } = useLocale();
+  const timezone = useTimezone();
   const { canDelete } = useRole();
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -304,14 +306,14 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                     {
                       icon: <CalendarPlus className="h-3.5 w-3.5" />,
                       label: t.orders.detailCreationDate,
-                      value: new Date(order.createdAt).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                      value: new Date(order.createdAt).toLocaleString('it-IT', { timeZone: timezone, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
                       mono: false,
                     },
                     {
                       icon: <CalendarCheck className="h-3.5 w-3.5" />,
                       label: t.orders.detailConfirmationDate,
                       value: order.confirmedAt
-                        ? new Date(order.confirmedAt).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                        ? new Date(order.confirmedAt).toLocaleString('it-IT', { timeZone: timezone, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
                         : 'N/A',
                       mono: false,
                     },

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EyeIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon, Clock, CircleCheck, PackageCheck, ShoppingBag } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
+import { useTimezone } from "@/contexts/timezone-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface OrdersTableProps {
@@ -46,6 +47,7 @@ export function OrdersTable({
   onPageChange,
 }: OrdersTableProps) {
   const { t } = useLocale();
+  const timezone = useTimezone();
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -134,6 +136,7 @@ export function OrdersTable({
 
   function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleString("it-IT", {
+      timeZone: timezone,
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -144,6 +147,7 @@ export function OrdersTable({
 
   function formatDateShort(dateStr: string): string {
     return new Date(dateStr).toLocaleString("it-IT", {
+      timeZone: timezone,
       day: "2-digit",
       month: "2-digit",
       hour: "2-digit",
