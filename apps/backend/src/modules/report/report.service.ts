@@ -75,7 +75,7 @@ export class ReportService {
                 startTime = lastReport.timestamp
                 actualInterval = Math.round((to.getTime() - lastReport.timestamp.getTime()) / 60000)
 
-                if (lastReport.totalOrders === 0) {
+                if (lastReport.totalOrders === 0 && saveData) {
                     await tx.report.delete({
                         where: { id: lastReport.id }
                     })
@@ -340,8 +340,6 @@ export class ReportService {
         const realtimeStats = await this._getRealTimeStats(query.from, query.to, saveLiveData);
         const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), query.groupBy);
 
-        console.log(realtimeStats, realtimeBucket)
-
         if (query.groupBy === '1h') {
             // For 1h grouping, append real-time data
             return realtimeBucket ? [...rawReports, realtimeBucket] : rawReports;
@@ -536,7 +534,7 @@ export class ReportService {
             from.setDate(from.getDate() - 1);
         }
 
-        if(!await prisma.cashRegister.findUnique({ where: { id: data.cashRegister }})){
+        if (!await prisma.cashRegister.findUnique({ where: { id: data.cashRegister } })) {
             throw new BadRequestError(`Cash register with CUID: ${data.cashRegister} doesn't exists`)
         }
 
