@@ -1,24 +1,23 @@
 import path from "path"
 import fs from "fs"
 import multer from "multer";
-import { Request, RequestHandler } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { logger } from "@/config/logger";
 import { env } from "@/config/env";
+import { BadRequestError } from "@/common/errors";
+import { fileTypeFromFile } from "file-type";
+
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 
 const fileFilter = (
     req: Request,
     file: Express.Multer.File,
     cb: multer.FileFilterCallback
 ) => {
-    if (
-        file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'image/png' ||
-        file.mimetype === 'image/jpg'
-    ) {
-        cb(null, true)
-    }
-    else {
-        cb(new Error('File not supported, allowed only jpeg and png files'));
+    if (ALLOWED_MIMES.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new BadRequestError(`File type ${file.mimetype} not supported`));
     }
 }
 
@@ -63,8 +62,35 @@ export class ImagesService {
         })
     }
 
-    public upload(): RequestHandler {
-        return this.uploader.single('image');
+    private async verifyRealFileType(filePath: string): Promise<boolean> {
+        try {
+            const type = await fileTypeFromFile(filePath);
+            if (!type || !ALLOWED_MIMES.includes(type.mime)) {
+                return false;
+            }
+            return true;
+        } catch (error) {
+            logger.error("Error verifying file type:", error);
+            return false;
+        }
+    }
+
+    public upload(): RequestHandler[] {
+        return [
+            this.uploader.single('image'),
+
+            async (req: Request, res: Response, next: NextFunction) => {
+                if (!req.file) return next();
+
+                const isReal = await this.verifyRealFileType(req.file.path);
+
+                if (!isReal) {
+                    fs.unlinkSync(req.file.path);
+                    return next(new BadRequestError("Security check failed: file content does not match extension."));
+                }
+                next();
+            }
+        ];
     }
 
     public delete(fileName: string) {

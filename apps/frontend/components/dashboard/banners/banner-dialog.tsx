@@ -86,6 +86,8 @@ interface BannerDialogProps {
   onDelete?: (banner: Banner) => void;
 }
 
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+
 export function BannerDialog({
   open,
   onOpenChange,
@@ -144,7 +146,7 @@ export function BannerDialog({
           facebook: banner.facebook ?? "",
           instagram: banner.instagram ?? "",
           color: banner.color ? `#${banner.color.replace(/^#/, "")}` : "#fecc01",
-          dateTime: banner.dateTime ? formatDateTimeLocalValue(banner.dateTime, timezone) : "",
+          dateTime: banner.dateTime ? formatDateTimeLocalValue(new Date(banner.dateTime).toISOString(), timezone) : "",
         });
         setImagePreview(banner.image ? getBannerImageUrl(banner.image) : null);
       } else {
@@ -168,8 +170,12 @@ export function BannerDialog({
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      processFile(file);
+    if (file) {
+      if (ALLOWED_MIMES.includes(file.type)) {
+        processFile(file);
+      } else {
+        toast.error(`Invalid file type. Allowed: ${ALLOWED_MIMES.join(", ")}`);
+      }
     }
     // Reset file input so the same file can be re-selected
     if (fileInputRef.current) {
@@ -222,8 +228,12 @@ export function BannerDialog({
     e.stopPropagation();
     setIsDragOver(false);
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      processFile(file);
+    if (file) {
+      if (ALLOWED_MIMES.includes(file.type)) {
+        processFile(file);
+      } else {
+        toast.error(`Invalid file type. Allowed: ${ALLOWED_MIMES.join(", ")}`);
+      }
     }
   }
 
@@ -505,7 +515,7 @@ export function BannerDialog({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept={ALLOWED_MIMES.join(", ")}
                   className="hidden"
                   onChange={handleImageChange}
                 />
