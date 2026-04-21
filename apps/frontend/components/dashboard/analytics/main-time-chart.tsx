@@ -12,7 +12,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import type { Report } from "@mysagra/schemas/src/report.schema";
+import type { Report } from "@mysagra/schemas";
 import { TrendingUp, ShoppingBag, Layers, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -145,7 +145,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
       <CardContent className="pb-4">
         {/* Revenue Area Chart */}
         {effectiveMode === "revenue" && (
-          <ChartContainer config={revenueConfig} className="h-[300px] w-full">
+          <ChartContainer config={revenueConfig} className="h-75 w-full">
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="mainRevenueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -164,7 +164,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
 
         {/* Orders Bar Chart */}
         {effectiveMode === "orders" && (
-          <ChartContainer config={ordersConfig} className="h-[300px] w-full">
+          <ChartContainer config={ordersConfig} className="h-75 w-full">
             <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="mainOrdersGradient" x1="0" y1="0" x2="0" y2="1">
@@ -184,7 +184,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
         {/* Payment Breakdown Area Chart (cash vs card) */}
         {effectiveMode === "payment" && (
           <>
-            <ChartContainer config={paymentConfig} className="h-[260px] w-full">
+            <ChartContainer config={paymentConfig} className="h-65 w-full">
               <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="mainCashGradient" x1="0" y1="0" x2="0" y2="1">

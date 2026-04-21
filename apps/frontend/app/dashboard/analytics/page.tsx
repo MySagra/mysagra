@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { getReports } from "@/actions/reports";
-import type { Report, GroupInterval } from "@mysagra/schemas/src/report.schema";
+import type { Report, GroupInterval } from "@mysagra/schemas";
 import { MainTimeChart } from "@/components/dashboard/analytics/main-time-chart";
 import { CategoryBreakdownPie } from "@/components/dashboard/analytics/category-breakdown-pie";
 import { AvgCompletionChart } from "@/components/dashboard/analytics/avg-completion-chart";

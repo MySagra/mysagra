@@ -2,7 +2,7 @@
 
 import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS } from "@/lib/api-types";
-import { GetStatsResponseSchema, type GetStatsResponse, type GroupInterval } from "@mysagra/schemas/src/report.schema";
+import { GetStatsResponseSchema, type GetStatsResponse, type GroupInterval } from "@mysagra/schemas";
 
 export async function getReports(params: {
   from: string;

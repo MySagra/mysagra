@@ -1,5 +1,6 @@
 {
   "name": "mysagra-backend",
+  "type": "module",
   "version": "1.0.0",
   "main": "index.js",
   "license": "Apache-2.0",
@@ -13,7 +14,7 @@
     "generate": "npx prisma generate",
     "studio": "npx prisma studio",
     "test": "vitest",
-    "test:watch": "jest --watch",
+    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "jest --config jest.e2e.config.ts",
     "lint": "eslint . --ext .ts",

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CalendarIcon, RefreshCw, FileSpreadsheet, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
-import type { GroupInterval } from "@mysagra/schemas/src/report.schema";
+import type { GroupInterval } from "@mysagra/schemas";
 import { cn } from "@/lib/utils";
 
 interface AnalyticsFiltersProps {
@@ -197,7 +197,7 @@ export function AnalyticsFilters({
               variant="outline"
               size="sm"
               className={cn(
-                "justify-start text-left font-normal min-w-[200px]",
+                "justify-start text-left font-normal min-w-50",
                 !dateFrom && "text-muted-foreground"
               )}
             >
@@ -228,7 +228,7 @@ export function AnalyticsFilters({
               variant="outline"
               size="sm"
               className={cn(
-                "justify-start text-left font-normal min-w-[200px]",
+                "justify-start text-left font-normal min-w-50",
                 isToNow && "text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
               )}
             >
@@ -269,7 +269,7 @@ export function AnalyticsFilters({
 
         {/* Group by */}
         <Select value={groupBy} onValueChange={(v) => onGroupByChange(v as GroupInterval)}>
-          <SelectTrigger className="w-[140px] h-9">
+          <SelectTrigger className="w-35 h-9">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

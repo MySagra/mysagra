@@ -1,5 +1,5 @@
 import XLSX from "xlsx-js-style";
-import type { Report } from "@mysagra/schemas/src/report.schema";
+import type { Report } from "@mysagra/schemas";
 import type { Translations } from "@/lib/i18n";
 
 function num(v: unknown): number {
