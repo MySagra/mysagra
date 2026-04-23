@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, FormProvider, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
@@ -14,6 +14,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { MacAddressInput } from "@/components/ui/mac-address-input";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,7 +50,7 @@ export function PrinterDialog({
   const isEditing = !!printer;
 
   const printerSchema = z.object({
-    name: z.string().min(1, t.printers.nameRequired),
+    name: z.string().min(1, t.printers.nameRequired).max(100, "Name must be max 100 characters"),
     ip: z
       .string()
       .regex(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, t.printers.ipInvalid)
@@ -65,9 +66,13 @@ export function PrinterDialog({
       .int()
       .min(0, t.printers.portMin)
       .max(65535, t.printers.portMax),
-    description: z.string().optional(),
+    description: z.string().max(250, "Description must be max 250 characters").optional(),
   });
   type PrinterFormValues = z.output<typeof printerSchema>;
+
+  const [descriptionLength, setDescriptionLength] = useState(0);
+
+  const isDescriptionOverLimit = descriptionLength > 250;
 
   const form = useForm<PrinterFormValues>({
     resolver: standardSchemaResolver(printerSchema) as unknown as Resolver<PrinterFormValues>,
@@ -79,6 +84,12 @@ export function PrinterDialog({
       description: "",
     },
   });
+
+  const watchedDescription = form.watch("description");
+
+  useEffect(() => {
+    setDescriptionLength(watchedDescription?.length || 0);
+  }, [watchedDescription]);
 
   useEffect(() => {
     if (printer) {
@@ -150,6 +161,7 @@ export function PrinterDialog({
                             {...field}
                             placeholder={t.printers.namePlaceholder}
                             autoFocus
+                            maxLength={100}
                           />
                         </FormControl>
                         <FormMessage />
@@ -220,8 +232,17 @@ export function PrinterDialog({
                       <Field>
                         <FieldLabel>{t.printers.descriptionLabel}</FieldLabel>
                         <FormControl>
-                          <Input {...field} placeholder={t.printers.descriptionPlaceholder} />
+                          <Textarea
+                            {...field}
+                            placeholder={t.printers.descriptionPlaceholder}
+                            rows={3}
+                            className="resize-none"
+                            maxLength={250}
+                          />
                         </FormControl>
+                        <div className={`text-xs mt-1 ${isDescriptionOverLimit ? 'text-red-500' : 'text-muted-foreground'}`}>
+                          {descriptionLength}/250
+                        </div>
                         <FormMessage />
                       </Field>
                     </FormItem>
@@ -247,7 +268,7 @@ export function PrinterDialog({
                 >
                   {t.common.cancel}
                 </Button>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                <Button type="submit" disabled={form.formState.isSubmitting || isDescriptionOverLimit}>
                   {form.formState.isSubmitting
                     ? t.printers.saving
                     : isEditing

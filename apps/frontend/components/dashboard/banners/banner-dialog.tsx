@@ -18,6 +18,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Trash2Icon, ImageIcon, UploadIcon, CropIcon } from "lucide-react";
 import { ImageCropDialog } from "./image-crop-dialog";
@@ -104,12 +105,15 @@ export function BannerDialog({
   const [isDragOver, setIsDragOver] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
+  const [descriptionLength, setDescriptionLength] = useState(0);
+
+  const isDescriptionOverLimit = descriptionLength > 250;
 
   const bannerSchema = z.object({
-    label: z.string().min(1, t.banners.labelRequired),
+    label: z.string().min(1, t.banners.labelRequired).max(100, "Label must be max 100 characters"),
     type: z.enum(["EVENT", "SPONSOR"], { error: t.banners.typeRequired }),
-    title: z.string().optional(),
-    description: z.string().optional(),
+    title: z.string().max(100, "Title must be max 100 characters").optional(),
+    description: z.string().max(250, "Description must be max 250 characters").optional(),
     website: z.string().optional(),
     facebook: z.string().optional(),
     instagram: z.string().optional(),
@@ -133,6 +137,11 @@ export function BannerDialog({
   });
 
   const watchedType = form.watch("type");
+  const watchedDescription = form.watch("description");
+
+  useEffect(() => {
+    setDescriptionLength(watchedDescription?.length || 0);
+  }, [watchedDescription]);
 
   useEffect(() => {
     if (open) {
@@ -166,7 +175,7 @@ export function BannerDialog({
       setImageFile(null);
       setRawImageUrl(null);
     }
-  }, [banner, open, form]);
+  }, [banner, open, form, timezone]);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -305,6 +314,7 @@ export function BannerDialog({
                           autoComplete="off"
                           placeholder={t.banners.labelPlaceholder}
                           autoFocus
+                          maxLength={100}
                           {...field}
                         />
                       </FormControl>
@@ -355,6 +365,7 @@ export function BannerDialog({
                           id="title"
                           autoComplete="off"
                           placeholder={t.banners.titlePlaceholder}
+                          maxLength={100}
                           {...field}
                         />
                       </FormControl>
@@ -373,13 +384,18 @@ export function BannerDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input
+                        <Textarea
                           id="description"
-                          autoComplete="off"
                           placeholder={t.banners.descriptionPlaceholder}
+                          rows={3}
+                          className="resize-none"
+                          maxLength={250}
                           {...field}
                         />
                       </FormControl>
+                      <div className={`text-xs mt-1 ${isDescriptionOverLimit ? 'text-red-500' : 'text-muted-foreground'}`}>
+                        {descriptionLength}/250
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -596,7 +612,7 @@ export function BannerDialog({
               >
                 {t.common.cancel}
               </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button type="submit" disabled={form.formState.isSubmitting || isDescriptionOverLimit}>
                 {form.formState.isSubmitting
                   ? t.banners.saving
                   : isEditing

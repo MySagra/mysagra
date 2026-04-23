@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { RoleResponseSchema } from './role.schema'
 
 export const UserBase = {
-    username: z.string().min(4).meta({
+    username: z.string().min(4).max(100).meta({
         description: "Username for the user account",
         example: "john_doe"
     }),
@@ -14,10 +14,10 @@ export const UserBase = {
 
 export const CreateUserSchema = z.object({
     ...UserBase,
-    password: z.string().meta({
+    password: z.string().min(8).max(100).meta({
         description: "User's password",
         example: "Super_secret_password!"
-    }).min(8)
+    })
 }).meta({
     id: "CreateUserRequest",
     description: "Payload required to create a new user"
@@ -25,7 +25,7 @@ export const CreateUserSchema = z.object({
 
 export const UpdateUserSchema = z.object({
     ...UserBase,
-    password: z.string().min(8).meta({
+    password: z.string().min(8).max(100).meta({
         description: "User's password",
         example: "Super_secret_password!"
     })

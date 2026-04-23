@@ -87,7 +87,7 @@ export function CategoryDialog({
   const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
 
   const categorySchema = z.object({
-    name: z.string().min(1, t.categories.nameRequired),
+    name: z.string().min(1, t.categories.nameRequired).max(100, "Name must be max 100 characters"),
     available: z.boolean(),
     printerId: z.string().optional(),
   });
@@ -252,6 +252,7 @@ export function CategoryDialog({
                             autoComplete="off"
                             placeholder={t.categories.namePlaceholder}
                             autoFocus
+                            maxLength={100}
                             {...field}
                           />
                         </FormControl>

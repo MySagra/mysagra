@@ -10,7 +10,7 @@ datasource db {
 //TODO: implement tenancy settings in future
 model Sagra {
   id   String @id @default(cuid())
-  name String @default("MySagra")
+  name String @default("MySagra") @db.VarChar(100)
 
   // stats settings and data
   lastClosingAt        DateTime @default(now())
@@ -21,7 +21,7 @@ model Sagra {
 
 model Category {
   id        String  @id @default(cuid())
-  name      String  @unique
+  name      String  @unique @db.VarChar(100)
   available Boolean @default(true)
   position  Int     @default(0)
   image     String?
@@ -35,7 +35,7 @@ model Category {
 
 model Ingredient {
   id   String @id @default(cuid())
-  name String @unique
+  name String @unique @db.VarChar(100)
 
   foodIngredients FoodIngredient[]
 
@@ -44,8 +44,8 @@ model Ingredient {
 
 model Food {
   id          String  @id @default(cuid())
-  name        String  @unique
-  description String?
+  name        String  @unique @db.VarChar(100)
+  description String? @db.VarChar(250)
   price       Decimal @db.Decimal(10,2)
   available   Boolean @default(true)
 
@@ -148,8 +148,8 @@ model Role {
 
 model User {
   id       String @id @default(cuid())
-  username String @unique
-  password String
+  username String @unique @db.VarChar(100)
+  password String @db.VarChar(100)
 
   role   Role   @relation(fields: [roleId], references: [id])
   roleId String
@@ -167,11 +167,11 @@ enum PrinterStatus {
 
 model Printer {
   id          String        @id @default(cuid())
-  name        String        @unique
+  name        String        @unique @db.VarChar(100)
   ip          String?
   mac         String?
   port        Int           @default(9100)
-  description String?
+  description String?       @db.VarChar(250)
   status      PrinterStatus @default(ONLINE)
 
   cashRegisters CashRegister[]
@@ -183,7 +183,7 @@ model Printer {
 
 model CashRegister {
   id      String  @id @default(cuid())
-  name    String  @unique // e.g., "Cassa Bar 1", "Cassa Food Principale"
+  name    String  @unique @db.VarChar(100)
   enabled Boolean @default(true)
 
   defaultPrinterId String?
@@ -221,11 +221,11 @@ enum BannerType {
 
 model Banner {
   id    String     @id @default(cuid())
-  label String
+  label String     @db.VarChar(100)
   type  BannerType
 
-  title       String?
-  description String?
+  title       String?       @db.VarChar(100)
+  description String?       @db.VarChar(250)
 
   website   String?
   instagram String?

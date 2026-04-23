@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 
 const IngredientBase = {
-    name: z.string().min(1).meta({
+    name: z.string().min(1).max(100).meta({
         description: "Name of the ingredient",
         example: "Tomato"
     })
