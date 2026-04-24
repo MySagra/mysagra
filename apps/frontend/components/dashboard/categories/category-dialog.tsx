@@ -66,6 +66,8 @@ interface CategoryDialogProps {
   categoriesCount?: number;
 }
 
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+
 export function CategoryDialog({
   open,
   onOpenChange,
@@ -85,7 +87,7 @@ export function CategoryDialog({
   const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
 
   const categorySchema = z.object({
-    name: z.string().min(1, t.categories.nameRequired),
+    name: z.string().min(1, t.categories.nameRequired).max(100, "Name must be max 100 characters"),
     available: z.boolean(),
     printerId: z.string().optional(),
   });
@@ -121,8 +123,12 @@ export function CategoryDialog({
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      processFile(file);
+    if (file) {
+      if (ALLOWED_MIMES.includes(file.type)) {
+        processFile(file);
+      } else {
+        toast.error(`Invalid file type. Allowed: ${ALLOWED_MIMES.join(", ")}`);
+      }
     }
   }
 
@@ -170,8 +176,12 @@ export function CategoryDialog({
     setIsDragOver(false);
 
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      processFile(file);
+    if (file) {
+      if (ALLOWED_MIMES.includes(file.type)) {
+        processFile(file);
+      } else {
+        toast.error(`Invalid file type. Allowed: ${ALLOWED_MIMES.join(", ")}`);
+      }
     }
   }
 
@@ -242,6 +252,7 @@ export function CategoryDialog({
                             autoComplete="off"
                             placeholder={t.categories.namePlaceholder}
                             autoFocus
+                            maxLength={100}
                             {...field}
                           />
                         </FormControl>
@@ -309,7 +320,7 @@ export function CategoryDialog({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept={ALLOWED_MIMES.join(", ")}
                     className="hidden"
                     onChange={handleImageChange}
                   />

@@ -2,11 +2,11 @@ import { z } from 'zod'
 import { RoleEnum } from './role.schema'
 
 export const LoginSchema = z.object({
-    username: z.string().meta({
+    username: z.string().max(100).meta({
         description: "Your username",
         example: "John_Doe"
     }),
-    password: z.string().meta({
+    password: z.string().max(100).meta({
         description: "Your password",
         example: "Super_secret_password!"
     })

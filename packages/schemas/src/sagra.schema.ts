@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const SagraSchema = z.object({
     id: z.cuid(),
-    name: z.string(),
+    name: z.string().max(100),
 
     lastClosingAt: z.date().optional(),
     statsIntervalMinutes: z.int().min(1).default(60)

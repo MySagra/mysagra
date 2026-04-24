@@ -9,7 +9,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import type { Report } from "@mysagra/schemas/src/report.schema";
+import type { Report } from "@mysagra/schemas";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { Clock } from "lucide-react";
@@ -45,7 +45,7 @@ export function AvgCompletionChart({ reports }: AvgCompletionChartProps) {
             <CardTitle className="text-base">{t.analytics.avgCompletionTime}</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-[240px] text-muted-foreground text-sm">
+        <CardContent className="flex items-center justify-center h-60 text-muted-foreground text-sm">
           {t.analytics.noCompletionData}
         </CardContent>
       </Card>
@@ -61,7 +61,7 @@ export function AvgCompletionChart({ reports }: AvgCompletionChartProps) {
         </div>
       </CardHeader>
       <CardContent className="pb-4">
-        <ChartContainer config={chartConfig} className="h-[240px] w-full">
+        <ChartContainer config={chartConfig} className="h-60 w-full">
           <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis

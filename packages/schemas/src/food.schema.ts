@@ -12,11 +12,11 @@ const FoodIngredientInputSchema = z.object({
 })
 
 const FoodBase = {
-    name: z.string().min(1).meta({
+    name: z.string().min(1).max(100).meta({
         description: "Food item name",
         example: "Margherita Pizza"
     }),
-    description: z.string().optional().meta({
+    description: z.string().max(250).optional().meta({
         description: "Food item description"
     }),
     price: z.number().min(0.01).meta({
@@ -57,7 +57,7 @@ export const CreateFoodSchema = z.object({
 
 export const UpdateFoodSchema = z.object({
     ...FoodBase,
-    description: z.string().meta({
+    description: z.string().max(250).meta({
         description: "Required food description"
     }),
     ingredients: FoodBase.ingredients.optional()

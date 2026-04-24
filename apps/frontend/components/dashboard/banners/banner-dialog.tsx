@@ -18,6 +18,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Trash2Icon, ImageIcon, UploadIcon, CropIcon } from "lucide-react";
 import { ImageCropDialog } from "./image-crop-dialog";
@@ -44,9 +45,26 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useLocale } from "@/contexts/locale-context";
+import { useTimezone } from "@/contexts/timezone-context";
 
 function getBannerImageUrl(filename: string) {
   return `/api/images/banners/${filename}`;
+}
+
+function formatDateTimeLocalValue(dateStr: string, timezone: string): string {
+  const date = new Date(dateStr);
+  const dtf = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const parts = dtf.formatToParts(date);
+  const timeMap = new Map<string, string>();
+  parts.forEach(p => timeMap.set(p.type, p.value));
+  return `${timeMap.get("year")}-${timeMap.get("month")}-${timeMap.get("day")}T${timeMap.get("hour")}:${timeMap.get("minute")}`;
 }
 
 type BannerFormValues = {
@@ -69,6 +87,8 @@ interface BannerDialogProps {
   onDelete?: (banner: Banner) => void;
 }
 
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+
 export function BannerDialog({
   open,
   onOpenChange,
@@ -77,6 +97,7 @@ export function BannerDialog({
   onDelete,
 }: BannerDialogProps) {
   const { t } = useLocale();
+  const timezone = useTimezone();
   const isEditing = !!banner;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -84,12 +105,15 @@ export function BannerDialog({
   const [isDragOver, setIsDragOver] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
+  const [descriptionLength, setDescriptionLength] = useState(0);
+
+  const isDescriptionOverLimit = descriptionLength > 250;
 
   const bannerSchema = z.object({
-    label: z.string().min(1, t.banners.labelRequired),
+    label: z.string().min(1, t.banners.labelRequired).max(100, "Label must be max 100 characters"),
     type: z.enum(["EVENT", "SPONSOR"], { error: t.banners.typeRequired }),
-    title: z.string().optional(),
-    description: z.string().optional(),
+    title: z.string().max(100, "Title must be max 100 characters").optional(),
+    description: z.string().max(250, "Description must be max 250 characters").optional(),
     website: z.string().optional(),
     facebook: z.string().optional(),
     instagram: z.string().optional(),
@@ -113,6 +137,11 @@ export function BannerDialog({
   });
 
   const watchedType = form.watch("type");
+  const watchedDescription = form.watch("description");
+
+  useEffect(() => {
+    setDescriptionLength(watchedDescription?.length || 0);
+  }, [watchedDescription]);
 
   useEffect(() => {
     if (open) {
@@ -126,9 +155,7 @@ export function BannerDialog({
           facebook: banner.facebook ?? "",
           instagram: banner.instagram ?? "",
           color: banner.color ? `#${banner.color.replace(/^#/, "")}` : "#fecc01",
-          dateTime: banner.dateTime
-            ? new Date(banner.dateTime).toISOString().slice(0, 16)
-            : "",
+          dateTime: banner.dateTime ? formatDateTimeLocalValue(new Date(banner.dateTime).toISOString(), timezone) : "",
         });
         setImagePreview(banner.image ? getBannerImageUrl(banner.image) : null);
       } else {
@@ -148,12 +175,16 @@ export function BannerDialog({
       setImageFile(null);
       setRawImageUrl(null);
     }
-  }, [banner, open, form]);
+  }, [banner, open, form, timezone]);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      processFile(file);
+    if (file) {
+      if (ALLOWED_MIMES.includes(file.type)) {
+        processFile(file);
+      } else {
+        toast.error(`Invalid file type. Allowed: ${ALLOWED_MIMES.join(", ")}`);
+      }
     }
     // Reset file input so the same file can be re-selected
     if (fileInputRef.current) {
@@ -206,8 +237,12 @@ export function BannerDialog({
     e.stopPropagation();
     setIsDragOver(false);
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      processFile(file);
+    if (file) {
+      if (ALLOWED_MIMES.includes(file.type)) {
+        processFile(file);
+      } else {
+        toast.error(`Invalid file type. Allowed: ${ALLOWED_MIMES.join(", ")}`);
+      }
     }
   }
 
@@ -279,6 +314,7 @@ export function BannerDialog({
                           autoComplete="off"
                           placeholder={t.banners.labelPlaceholder}
                           autoFocus
+                          maxLength={100}
                           {...field}
                         />
                       </FormControl>
@@ -329,6 +365,7 @@ export function BannerDialog({
                           id="title"
                           autoComplete="off"
                           placeholder={t.banners.titlePlaceholder}
+                          maxLength={100}
                           {...field}
                         />
                       </FormControl>
@@ -347,13 +384,18 @@ export function BannerDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input
+                        <Textarea
                           id="description"
-                          autoComplete="off"
                           placeholder={t.banners.descriptionPlaceholder}
+                          rows={3}
+                          className="resize-none"
+                          maxLength={250}
                           {...field}
                         />
                       </FormControl>
+                      <div className={`text-xs mt-1 ${isDescriptionOverLimit ? 'text-red-500' : 'text-muted-foreground'}`}>
+                        {descriptionLength}/250
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -489,7 +531,7 @@ export function BannerDialog({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept={ALLOWED_MIMES.join(", ")}
                   className="hidden"
                   onChange={handleImageChange}
                 />
@@ -570,7 +612,7 @@ export function BannerDialog({
               >
                 {t.common.cancel}
               </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button type="submit" disabled={form.formState.isSubmitting || isDescriptionOverLimit}>
                 {form.formState.isSubmitting
                   ? t.banners.saving
                   : isEditing

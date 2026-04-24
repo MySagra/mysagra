@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trash2Icon } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
+import { useTimezone } from "@/contexts/timezone-context";
 import { useRole } from "@/hooks/use-role";
 
 interface ApiKeysTableProps {
@@ -27,6 +28,7 @@ const typeVariants: Record<string, "default" | "secondary"> = {
 
 export function ApiKeysTable({ apiKeys, onRevoke }: ApiKeysTableProps) {
   const { t } = useLocale();
+  const timezone = useTimezone();
   const { canManageApiKeys } = useRole();
 
   if (apiKeys.length === 0) {
@@ -68,10 +70,10 @@ export function ApiKeysTable({ apiKeys, onRevoke }: ApiKeysTableProps) {
                 {key.last_digits}
               </TableCell>
               <TableCell className="text-sm text-muted-foreground hidden md:table-cell">
-                {key.createdAt.toLocaleDateString()}
+                {key.createdAt.toLocaleDateString("it-IT", { timeZone: timezone })}
               </TableCell>
               <TableCell className="text-sm text-muted-foreground hidden md:table-cell">
-                {key.lastUsedAt ? key.lastUsedAt.toLocaleDateString() : "—"}
+                {key.lastUsedAt ? key.lastUsedAt.toLocaleDateString("it-IT", { timeZone: timezone }) : "—"}
               </TableCell>
               <TableCell className="text-center">
                 {key.revokedAt ? (

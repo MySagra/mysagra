@@ -10,7 +10,7 @@ datasource db {
 //TODO: implement tenancy settings in future
 model Sagra {
   id   String @id @default(cuid())
-  name String @default("MySagra")
+  name String @default("MySagra") @db.VarChar(100)
 
   // stats settings and data
   lastClosingAt        DateTime @default(now())
@@ -21,7 +21,7 @@ model Sagra {
 
 model Category {
   id        String  @id @default(cuid())
-  name      String  @unique
+  name      String  @unique @db.VarChar(100)
   available Boolean @default(true)
   position  Int     @default(0)
   image     String?
@@ -35,7 +35,7 @@ model Category {
 
 model Ingredient {
   id   String @id @default(cuid())
-  name String @unique
+  name String @unique @db.VarChar(100)
 
   foodIngredients FoodIngredient[]
 
@@ -44,9 +44,9 @@ model Ingredient {
 
 model Food {
   id          String  @id @default(cuid())
-  name        String  @unique
-  description String?
-  price       Decimal
+  name        String  @unique @db.VarChar(100)
+  description String? @db.VarChar(250)
+  price       Decimal @db.Decimal(10,2)
   available   Boolean @default(true)
 
   categoryId String
@@ -100,10 +100,10 @@ model Order {
   status       OrderStatus @default(PENDING)
 
   paymentMethod PaymentMethod?
-  subTotal      Decimal
-  discount      Decimal        @default(0)
-  surcharge     Decimal        @default(0)
-  total         Decimal
+  subTotal      Decimal @db.Decimal(10,2)
+  discount      Decimal @db.Decimal(10,2)        @default(0)
+  surcharge     Decimal @db.Decimal(10,2)        @default(0)
+  total         Decimal @db.Decimal(10,2)
 
   orderItems OrderItem[]
 
@@ -126,9 +126,9 @@ model OrderItem {
   food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
   foodId String
 
-  unitPrice     Decimal
-  unitSurcharge Decimal @default(0)
-  total         Decimal
+  unitPrice     Decimal @db.Decimal(10,2)
+  unitSurcharge Decimal @db.Decimal(10,2) @default(0)
+  total         Decimal @db.Decimal(10,2)
 
   notes String?
 
@@ -148,8 +148,8 @@ model Role {
 
 model User {
   id       String @id @default(cuid())
-  username String @unique
-  password String
+  username String @unique @db.VarChar(100)
+  password String @db.VarChar(100)
 
   role   Role   @relation(fields: [roleId], references: [id])
   roleId String
@@ -167,11 +167,11 @@ enum PrinterStatus {
 
 model Printer {
   id          String        @id @default(cuid())
-  name        String        @unique
+  name        String        @unique @db.VarChar(100)
   ip          String?
   mac         String?
   port        Int           @default(9100)
-  description String?
+  description String?       @db.VarChar(250)
   status      PrinterStatus @default(ONLINE)
 
   cashRegisters CashRegister[]
@@ -183,7 +183,7 @@ model Printer {
 
 model CashRegister {
   id      String  @id @default(cuid())
-  name    String  @unique // e.g., "Cassa Bar 1", "Cassa Food Principale"
+  name    String  @unique @db.VarChar(100)
   enabled Boolean @default(true)
 
   defaultPrinterId String?
@@ -221,11 +221,11 @@ enum BannerType {
 
 model Banner {
   id    String     @id @default(cuid())
-  label String
+  label String     @db.VarChar(100)
   type  BannerType
 
-  title       String?
-  description String?
+  title       String?       @db.VarChar(100)
+  description String?       @db.VarChar(250)
 
   website   String?
   instagram String?
@@ -252,15 +252,17 @@ model Report {
   timestamp         DateTime
   intervalInMinutes Int      @default(60) // explain the duration of this report
 
-  totalRevenue     Decimal
-  totalCashRevenue Decimal
-  totalCardRevenue Decimal
+  totalRevenue     Decimal @db.Decimal(10,2)
+  totalCashRevenue Decimal @db.Decimal(10,2)
+  totalCardRevenue Decimal @db.Decimal(10,2)
   totalOrders      Int
 
   averageCompletitionTime Int? @default(0) // in ms
 
   categoryStats     CategoryStats[]
   cashRegisterStats CashRegisterStats[]
+
+  @@map("reports")
 }
 
 model CashRegisterStats {
@@ -270,9 +272,9 @@ model CashRegisterStats {
   cashRegisterId   String
   cashRegisterName String
 
-  totalRevenue     Decimal
-  totalCardRevenue Decimal
-  totalCashRevenue Decimal
+  totalRevenue     Decimal @db.Decimal(10,2)
+  totalCardRevenue Decimal @db.Decimal(10,2)
+  totalCashRevenue Decimal @db.Decimal(10,2)
 
   report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
   @@map("cash_register_stats")
@@ -284,7 +286,7 @@ model CategoryStats {
 
   categoryId   String
   categoryName String // use the category denormalized for mantain the original name in this period
-  revenue      Decimal
+  revenue      Decimal @db.Decimal(10,2)
   quantity     Int
 
   report    Report      @relation(fields: [reportId], references: [id], onDelete: Cascade)
@@ -300,7 +302,7 @@ model FoodStats {
   foodId   String
   foodName String // use the food denormalized for mantain the original name in this period
 
-  revenue  Decimal
+  revenue  Decimal @db.Decimal(10,2)
   quantity Int
 
   categoryStats CategoryStats @relation(fields: [categoryStatsId], references: [id], onDelete: Cascade)

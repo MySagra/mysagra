@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const BannerEnumSchema = z.enum(["EVENT", "SPONSOR"])
 
 export const BannerInputSchema = z.object({
-    label: z.string().meta({
+    label: z.string().max(100).meta({
         description: "Internal label used to identify the banner in the management panel",
         example: "Queen band event"
     }),
@@ -11,11 +11,11 @@ export const BannerInputSchema = z.object({
         description: "Determines whether the banner promotes a festival event or a sponsor. Accepted values: EVENT, SPONSOR",
         example: "EVENT"
     }),
-    title: z.string().optional().nullable().meta({
+    title: z.string().max(100).optional().nullable().meta({
         description: "Headline displayed on the banner card in the UI. Null if not provided",
         example: "Queen – A Night at the Opera"
     }),
-    description: z.string().optional().nullable().meta({
+    description: z.string().max(250).optional().nullable().meta({
         description: "Short body text displayed beneath the title on the banner card. Null if not provided",
         example: "The legendary Queen band performs their iconic album live on stage."
     }),

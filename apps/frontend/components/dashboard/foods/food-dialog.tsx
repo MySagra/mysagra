@@ -68,18 +68,22 @@ export function FoodDialog({
   const { t } = useLocale();
   const { canDelete } = useRole();
   const isEditing = !!food;
-  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
-  const [ingredientSearch, setIngredientSearch] = useState("");
-  const [selectedPrinterId, setSelectedPrinterId] = useState<string | null>(null);
 
   const foodSchema = z.object({
-    name: z.string().min(1, t.foods.nameRequired),
-    description: z.string().optional(),
+    name: z.string().min(1, t.foods.nameRequired).max(100, "Name must be max 100 characters"),
+    description: z.string().max(250, "Description must be max 250 characters").optional(),
     price: z.coerce.number().min(0.01, t.foods.priceMin),
     categoryId: z.string().min(1, t.foods.categoryRequired),
     available: z.boolean(),
   });
   type FoodFormValues = z.output<typeof foodSchema>;
+
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [ingredientSearch, setIngredientSearch] = useState("");
+  const [selectedPrinterId, setSelectedPrinterId] = useState<string | null>(null);
+  const [descriptionLength, setDescriptionLength] = useState(0);
+
+  const isDescriptionOverLimit = descriptionLength > 250;
 
   const form = useForm<FoodFormValues>({
     resolver: standardSchemaResolver(foodSchema) as unknown as Resolver<FoodFormValues>,
@@ -91,6 +95,12 @@ export function FoodDialog({
       available: true,
     },
   });
+
+  const watchedDescription = form.watch("description");
+
+  useEffect(() => {
+    setDescriptionLength(watchedDescription?.length || 0);
+  }, [watchedDescription]);
 
   useEffect(() => {
     if (food) {
@@ -222,8 +232,12 @@ export function FoodDialog({
                             placeholder={t.foods.descriptionPlaceholder}
                             rows={3}
                             className="resize-none"
+                            maxLength={250}
                           />
                         </FormControl>
+                        <div className={`text-xs mt-1 ${isDescriptionOverLimit ? 'text-red-500' : 'text-muted-foreground'}`}>
+                          {descriptionLength}/250
+                        </div>
                         <FormMessage />
                       </Field>
                     </FormItem>
@@ -367,7 +381,7 @@ export function FoodDialog({
                 >
                   {t.common.cancel}
                 </Button>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                <Button type="submit" disabled={form.formState.isSubmitting || isDescriptionOverLimit}>
                   {form.formState.isSubmitting
                     ? t.foods.saving
                     : isEditing

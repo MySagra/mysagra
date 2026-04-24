@@ -8,7 +8,7 @@ const PrinterEnum = z.enum(["ONLINE", "OFFLINE", "ERROR"]).meta({
 })
 
 const PrinterBase = {
-    name: z.string().min(1).meta({
+    name: z.string().min(1).max(100).meta({
         description: "Name of the printer",
         example: "Kitchen Printer"
     }),
@@ -24,7 +24,7 @@ const PrinterBase = {
         description: "Port number for printer communication",
         example: 9100
     }),
-    description: z.string().optional().meta({
+    description: z.string().max(250).optional().meta({
         description: "Optional description of the printer's location or purpose"
     }),
     status: PrinterEnum.default("ONLINE").meta({
@@ -43,7 +43,7 @@ export const CreatePrinterSchema = z.object({
 
 export const UpdatePrinterSchema = z.object({
     ...PrinterBase,
-    description: z.string().meta({
+    description: z.string().max(250).meta({
         description: "Required description for update the printer"
     })
 }).meta({

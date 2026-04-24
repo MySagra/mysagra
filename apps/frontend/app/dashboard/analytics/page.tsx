@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { getReports } from "@/actions/reports";
-import type { Report, GroupInterval } from "@mysagra/schemas/src/report.schema";
+import type { Report, GroupInterval } from "@mysagra/schemas";
 import { MainTimeChart } from "@/components/dashboard/analytics/main-time-chart";
 import { CategoryBreakdownPie } from "@/components/dashboard/analytics/category-breakdown-pie";
 import { AvgCompletionChart } from "@/components/dashboard/analytics/avg-completion-chart";
@@ -398,17 +398,17 @@ export default function AnalyticsPage() {
             {/* KPI skeleton */}
             <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-[90px] rounded-xl" />
+                <Skeleton key={i} className="h-22.5 rounded-xl" />
               ))}
             </div>
             {/* Main area skeleton */}
             <div className="flex gap-6">
-              <Skeleton className="hidden lg:block h-[600px] w-[320px] rounded-xl shrink-0" />
+              <Skeleton className="hidden lg:block h-150 w-[320px] rounded-xl shrink-0" />
               <div className="flex-1 space-y-6">
-                <Skeleton className="h-[380px] rounded-xl" />
+                <Skeleton className="h-95 rounded-xl" />
                 <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
-                  <Skeleton className="h-[340px] rounded-xl" />
-                  <Skeleton className="h-[340px] rounded-xl" />
+                  <Skeleton className="h-85 rounded-xl" />
+                  <Skeleton className="h-85 rounded-xl" />
                 </div>
               </div>
             </div>

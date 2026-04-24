@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useLocale } from "@/contexts/locale-context";
+import { useTimezone } from "@/contexts/timezone-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,9 +12,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import type { Report } from "@mysagra/schemas/src/report.schema";
-import { format } from "date-fns";
-import { it as itLocale } from "date-fns/locale";
+import type { Report } from "@mysagra/schemas";
 import { TrendingUp, ShoppingBag, Layers, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,8 +26,8 @@ interface MainTimeChartProps {
 }
 
 export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterFilter }: MainTimeChartProps) {
-  const { t, locale } = useLocale();
-  const dateLocale = locale === "it" ? itLocale : undefined;
+  const { t } = useLocale();
+  const timezone = useTimezone();
   const [mode, setMode] = useState<ChartMode>("revenue");
 
   // Payment breakdown is disabled for category/food filters, but allowed for cash register filters
@@ -39,14 +38,28 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
 
   const data = useMemo(
     () =>
-      reports.map((r) => ({
-        time: format(new Date(r.timestamp), "HH:mm dd/MM", { locale: dateLocale }),
-        totalRevenue: Number(r.totalRevenue) || 0,
-        totalOrders: r.totalOrders,
-        totalCashRevenue: Number(r.totalCashRevenue) || 0,
-        totalCardRevenue: Number(r.totalCardRevenue) || 0,
-      })),
-    [reports, dateLocale]
+      reports.map((r) => {
+        const date = new Date(r.timestamp);
+        const dtf = new Intl.DateTimeFormat("it-IT", {
+          timeZone: timezone,
+          hour: "2-digit",
+          minute: "2-digit",
+          day: "2-digit",
+          month: "2-digit",
+        });
+        const parts = dtf.formatToParts(date);
+        const timeMap = new Map<string, string>();
+        parts.forEach(p => timeMap.set(p.type, p.value));
+        const timeStr = `${timeMap.get("hour")}:${timeMap.get("minute")} ${timeMap.get("day")}/${timeMap.get("month")}`;
+        return {
+          time: timeStr,
+          totalRevenue: Number(r.totalRevenue) || 0,
+          totalOrders: r.totalOrders,
+          totalCashRevenue: Number(r.totalCashRevenue) || 0,
+          totalCardRevenue: Number(r.totalCardRevenue) || 0,
+        };
+      }),
+    [reports, timezone]
   );
 
   const revenueConfig: ChartConfig = {
@@ -132,7 +145,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
       <CardContent className="pb-4">
         {/* Revenue Area Chart */}
         {effectiveMode === "revenue" && (
-          <ChartContainer config={revenueConfig} className="h-[300px] w-full">
+          <ChartContainer config={revenueConfig} className="h-75 w-full">
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="mainRevenueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -151,7 +164,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
 
         {/* Orders Bar Chart */}
         {effectiveMode === "orders" && (
-          <ChartContainer config={ordersConfig} className="h-[300px] w-full">
+          <ChartContainer config={ordersConfig} className="h-75 w-full">
             <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="mainOrdersGradient" x1="0" y1="0" x2="0" y2="1">
@@ -171,7 +184,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
         {/* Payment Breakdown Area Chart (cash vs card) */}
         {effectiveMode === "payment" && (
           <>
-            <ChartContainer config={paymentConfig} className="h-[260px] w-full">
+            <ChartContainer config={paymentConfig} className="h-65 w-full">
               <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="mainCashGradient" x1="0" y1="0" x2="0" y2="1">

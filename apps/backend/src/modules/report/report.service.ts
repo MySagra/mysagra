@@ -75,7 +75,7 @@ export class ReportService {
                 startTime = lastReport.timestamp
                 actualInterval = Math.round((to.getTime() - lastReport.timestamp.getTime()) / 60000)
 
-                if (lastReport.totalOrders === 0) {
+                if (lastReport.totalOrders === 0 && saveData) {
                     await tx.report.delete({
                         where: { id: lastReport.id }
                     })
@@ -92,7 +92,7 @@ export class ReportService {
                 this._generateFoodStats(tx, startTime, to),
                 this._generateCashRegisterStats(tx, startTime, to),
             ])
-
+            
             if (!saveData) {
                 return {
                     orderStats: orderStatsRaw[0],
@@ -157,13 +157,12 @@ export class ReportService {
                 SELECT
                 ${to} as timestamp,
                 CEIL((UNIX_TIMESTAMP(${to}) - UNIX_TIMESTAMP(${from})) / 60) as intervalInMinutes,
-                IFNULL(SUM(oi.total), 0) as totalRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CASH', oi.total, 0)), 0) as totalCashRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CARD', oi.total, 0)), 0) as totalCardRevenue,
+                IFNULL(SUM(o.total), 0) as totalRevenue,
+                IFNULL(SUM(IF(o.paymentMethod = 'CASH', o.total, 0)), 0) as totalCashRevenue,
+                IFNULL(SUM(IF(o.paymentMethod = 'CARD', o.total, 0)), 0) as totalCardRevenue,
                 COUNT(DISTINCT o.id) as totalOrders,
                 IFNULL(AVG(IF(o.completedAt IS NOT NULL, (UNIX_TIMESTAMP(o.completedAt) - UNIX_TIMESTAMP(o.createdAt)) * 1000, NULL)), 0) as averageCompletitionTime
                 FROM orders o
-                INNER JOIN order_items oi ON o.id = oi.orderId
                 WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
                 AND o.confirmedAt >= ${from}
                 AND o.confirmedAt < ${to};
@@ -339,8 +338,6 @@ export class ReportService {
         // Get real-time stats for current interval
         const realtimeStats = await this._getRealTimeStats(query.from, query.to, saveLiveData);
         const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), query.groupBy);
-
-        console.log(realtimeStats, realtimeBucket)
 
         if (query.groupBy === '1h') {
             // For 1h grouping, append real-time data
@@ -536,7 +533,7 @@ export class ReportService {
             from.setDate(from.getDate() - 1);
         }
 
-        if(!await prisma.cashRegister.findUnique({ where: { id: data.cashRegister }})){
+        if (!await prisma.cashRegister.findUnique({ where: { id: data.cashRegister } })) {
             throw new BadRequestError(`Cash register with CUID: ${data.cashRegister} doesn't exists`)
         }
 
