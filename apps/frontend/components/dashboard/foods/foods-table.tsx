@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Food } from "@/lib/api-types";
+import { Food, Printer } from "@/lib/api-types";
 import { toggleFoodAvailability } from "@/actions/foods";
+import { getPrinters } from "@/actions/printers";
 import {
   Table,
   TableBody,
@@ -24,7 +25,7 @@ interface FoodsTableProps {
   onToggle: (updated: Food) => void;
 }
 
-type SortColumn = "name" | "category" | "price" | "available" | null;
+type SortColumn = "name" | "category" | "price" | "printer" | "available" | null;
 type SortDirection = "asc" | "desc";
 
 export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
@@ -33,6 +34,19 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [pressedCell, setPressedCell] = useState<string | null>(null);
+  const [printers, setPrinters] = useState<Printer[]>([]);
+
+  useEffect(() => {
+    async function loadPrinters() {
+      try {
+        const data = await getPrinters();
+        setPrinters(data);
+      } catch (error) {
+        console.error("Failed to load printers", error);
+      }
+    }
+    loadPrinters();
+  }, []);
 
   useEffect(() => {
     const savedColumn = localStorage.getItem("foods-table-sort-column");
@@ -88,6 +102,10 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
           aValue = a.price;
           bValue = b.price;
           break;
+        case "printer":
+          aValue = printers.find(p => p.id === a.printerId)?.name?.toLowerCase() || "";
+          bValue = printers.find(p => p.id === b.printerId)?.name?.toLowerCase() || "";
+          break;
         case "available":
           aValue = a.available ? 1 : 0;
           bValue = b.available ? 1 : 0;
@@ -100,7 +118,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
       if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
-  }, [foods, sortColumn, sortDirection]);
+  }, [foods, sortColumn, sortDirection, printers]);
 
   async function handleToggle(food: Food) {
     setTogglingId(food.id);
@@ -178,6 +196,15 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
             </TableHead>
             <TableHead className="hidden md:table-cell w-32">
               <button
+                onClick={() => handleSort("printer")}
+                className="flex items-center hover:text-foreground transition-colors font-medium"
+              >
+                {t.foods.columnPrinter || "Stampante"}
+                <SortIcon column="printer" />
+              </button>
+            </TableHead>
+            <TableHead className="hidden md:table-cell w-32">
+              <button
                 onClick={() => handleSort("available")}
                 className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
               >
@@ -239,6 +266,9 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
               </TableCell>
               <TableCell className="hidden md:table-cell text-right font-medium">
                 {formatPrice(food.price)}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-sm">
+                {food.printerId ? printers.find(p => p.id === food.printerId)?.name || food.printerId : "—"}
               </TableCell>
               <TableCell className="hidden md:table-cell text-center">
                 <div className="flex justify-center">

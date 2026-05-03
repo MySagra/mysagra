@@ -52,6 +52,7 @@ export function OrdersToolbar({
           <SelectItem value="CONFIRMED">{t.orders.statusConfirmed}</SelectItem>
           <SelectItem value="COMPLETED">{t.orders.statusCompleted}</SelectItem>
           <SelectItem value="PICKED_UP">{t.orders.statusPickedUp}</SelectItem>
+          <SelectItem value="CANCELLED">{t.orders.statusCancelled}</SelectItem>
         </SelectContent>
       </Select>
       <Button

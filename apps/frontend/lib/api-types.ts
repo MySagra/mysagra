@@ -93,7 +93,7 @@ export interface Ingredient {
 }
 
 // Orders
-export type OrderStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "PICKED_UP";
+export type OrderStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "PICKED_UP" | "CANCELLED";
 export type PaymentMethod = "CASH" | "CARD";
 
 export interface OrderListResponse {

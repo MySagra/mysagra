@@ -66,7 +66,7 @@ router.patch(
 
 router.delete(
     "/:id",
-    authenticate(["admin"]),
+    authenticate(["admin", "maintainer", "operator"]),
     validateRequest({
         params: OrderIdParamSchema
     }),

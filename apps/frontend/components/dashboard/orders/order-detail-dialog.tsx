@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Printer, Trash2, User, LayoutGrid, Hash, Ticket, CalendarPlus, CalendarCheck, CreditCard, MonitorCheck, Clock, CircleCheck, PackageCheck, ShoppingBag } from 'lucide-react';
+import { FileText, Printer, Trash2, User, LayoutGrid, Hash, Ticket, CalendarPlus, CalendarCheck, CreditCard, MonitorCheck, Clock, CircleCheck, PackageCheck, ShoppingBag, XIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { getOrderById, deleteOrder, reprintOrder } from '@/actions/orders';
@@ -29,6 +29,7 @@ const statusConfig: Record<string, { icon: React.ReactNode; colorClass: string; 
   CONFIRMED: { icon: <CircleCheck className="h-4 w-4" />, colorClass: 'text-primary',                        bgClass: 'bg-primary/10 border-primary/30' },
   COMPLETED: { icon: <PackageCheck className="h-4 w-4" />,colorClass: 'text-green-600 dark:text-green-400',  bgClass: 'bg-green-500/10 border-green-500/30' },
   PICKED_UP: { icon: <ShoppingBag className="h-4 w-4" />, colorClass: 'text-green-700 dark:text-green-500',  bgClass: 'bg-green-600/10 border-green-600/30' },
+  CANCELLED: { icon: <XIcon className="h-4 w-4" />,       colorClass: 'text-destructive',                     bgClass: 'bg-destructive/10 border-destructive/30' },
 };
 
 // ─── Reprint Dialog ──────────────────────────────────────────────────────────

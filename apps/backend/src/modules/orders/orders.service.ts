@@ -39,15 +39,144 @@ export class OrdersService {
     private async _getOrderCount(): Promise<number> {
         const redisKey = `order_count`;
         let orderCount = await redisConnection.incr(redisKey);
-        if(orderCount === 1) {
+        if (orderCount === 1) {
             const dbCount = await prisma.order.count();
 
-            if(dbCount > 0) {
+            if (dbCount > 0) {
                 await redisConnection.set(redisKey, dbCount);
                 orderCount = dbCount
             }
         }
         return orderCount;
+    }
+
+    private async _updateReportsOnOrderCancellation(tx: Prisma.TransactionClient, orderId: string) {
+        const order = await tx.order.findUnique({
+            where: { id: orderId },
+            include: {
+                orderItems: {
+                    include: {
+                        food: {
+                            select: {
+                                categoryId: true,
+                                name: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!order || !order.confirmedAt) return;
+
+        const affectedReport = await tx.report.findFirst({
+            where: {
+                timestamp: {
+                    gt: order.confirmedAt
+                }
+            },
+            orderBy: { timestamp: 'asc' },
+            include: {
+                categoryStats: {
+                    include: {
+                        foodStats: true
+                    }
+                },
+                cashRegisterStats: true
+            }
+        });
+
+        if (!affectedReport) return;
+
+        const reportStartTime = new Date(affectedReport.timestamp.getTime() - affectedReport.intervalInMinutes * 60 * 1000);
+        if (order.confirmedAt < reportStartTime) return;
+
+        const orderTotal = Number(order.total);
+        const orderCashRevenue = order.paymentMethod === 'CASH' ? orderTotal : 0;
+        const orderCardRevenue = order.paymentMethod === 'CARD' ? orderTotal : 0;
+
+        const updatedCategoryStats = affectedReport.categoryStats.map(catStat => {
+            const itemsInCategory = order.orderItems.filter(item => item.food.categoryId === catStat.categoryId);
+
+            if (itemsInCategory.length === 0) {
+                return catStat;
+            }
+
+            const categoryRevenue = itemsInCategory.reduce((sum, item) => sum + Number(item.total), 0);
+            const categoryQuantity = itemsInCategory.reduce((sum, item) => sum + item.quantity, 0);
+
+            return {
+                ...catStat,
+                revenue: Number(catStat.revenue) - categoryRevenue,
+                quantity: catStat.quantity - categoryQuantity,
+                foodStats: catStat.foodStats.map(foodStat => {
+                    const matchingItems = itemsInCategory.filter(item => item.foodId === foodStat.foodId);
+
+                    if (matchingItems.length === 0) {
+                        return foodStat;
+                    }
+
+                    const foodRevenue = matchingItems.reduce((sum, item) => sum + Number(item.total), 0);
+                    const foodQuantity = matchingItems.reduce((sum, item) => sum + item.quantity, 0);
+
+                    return {
+                        ...foodStat,
+                        revenue: Number(foodStat.revenue) - foodRevenue,
+                        quantity: foodStat.quantity - foodQuantity
+                    };
+                })
+            };
+        });
+
+        const updatedCashRegisterStats = affectedReport.cashRegisterStats.map(crStat => {
+            if (order.cashRegisterId !== crStat.cashRegisterId) {
+                return crStat;
+            }
+
+            return {
+                ...crStat,
+                totalRevenue: Number(crStat.totalRevenue) - orderTotal,
+                totalCashRevenue: Number(crStat.totalCashRevenue) - orderCashRevenue,
+                totalCardRevenue: Number(crStat.totalCardRevenue) - orderCardRevenue
+            };
+        });
+
+        await tx.report.update({
+            where: { id: affectedReport.id },
+            data: {
+                totalRevenue: Number(affectedReport.totalRevenue) - orderTotal,
+                totalCashRevenue: Number(affectedReport.totalCashRevenue) - orderCashRevenue,
+                totalCardRevenue: Number(affectedReport.totalCardRevenue) - orderCardRevenue,
+                totalOrders: affectedReport.totalOrders - 1,
+                categoryStats: {
+                    deleteMany: {},
+                    create: updatedCategoryStats.map(catStat => ({
+                        categoryId: catStat.categoryId,
+                        categoryName: catStat.categoryName,
+                        revenue: catStat.revenue,
+                        quantity: catStat.quantity,
+                        foodStats: {
+                            create: catStat.foodStats.map(foodStat => ({
+                                foodId: foodStat.foodId,
+                                foodName: foodStat.foodName,
+                                revenue: foodStat.revenue,
+                                quantity: foodStat.quantity
+                            }))
+                        }
+                    }))
+                },
+                cashRegisterStats: {
+                    deleteMany: {},
+                    create: updatedCashRegisterStats.map(crStat => ({
+                        cashRegisterId: crStat.cashRegisterId,
+                        cashRegisterName: crStat.cashRegisterName,
+                        totalRevenue: crStat.totalRevenue,
+                        totalCashRevenue: crStat.totalCashRevenue,
+                        totalCardRevenue: crStat.totalCardRevenue
+                    }))
+                }
+            }
+        });
     }
 
     async getOrders(queryParams: GetOrdersQueryParams) {
@@ -332,7 +461,7 @@ export class OrdersService {
 
                 const foodIds = confirm.orderItems.map(item => item.foodId);
                 const foods = await tx.food.findMany({
-                    where: { id: { in: foodIds }, available: true },
+                    where: { id: { in: foodIds } },
                     select: { id: true, price: true }
                 });
 
@@ -468,12 +597,42 @@ export class OrdersService {
 
 
     async deleteOrder(id: string) {
-        await prisma.order.delete({
-            where: {
-                id
+        return await prisma.$transaction(async (tx) => {
+            const order = await tx.order.findUnique({
+                where: { id },
+                select: { status: true, ticketNumber: true, displayCode: true }
+            });
+
+            if (!order) return null;
+
+            if (order.status !== "PENDING") {
+                await this._updateReportsOnOrderCancellation(tx, id);
+
+                const updatedOrder = await tx.order.update({
+                    where: { id },
+                    data: { status: "CANCELLED" }
+                });
+
+                EventsService.broadcastEvents(
+                    [this.displayEvent, this.cashierEvent, this.printerEvent],
+                    {
+                        id,
+                        ticketNumber: updatedOrder.ticketNumber,
+                        displayCode: updatedOrder.displayCode,
+                        status: updatedOrder.status
+                    },
+                    "order-cancelled"
+                );
+
+                return updatedOrder;
             }
+
+            await tx.order.delete({
+                where: { id }
+            });
+
+            return null;
         });
-        return null;
     }
 
     async reprintOrder(id: string, reprint: ReprintOrder) {
@@ -500,7 +659,7 @@ export class OrdersService {
             throw new NotFoundError("Order not found")
         }
 
-        if(order.status === "PENDING"){
+        if (order.status === "PENDING") {
             throw new BadRequestError("Pending orders can't be reprinted");
         }
 

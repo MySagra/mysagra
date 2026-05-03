@@ -218,12 +218,15 @@ registry.registerPath({
 registry.registerPath({
     method: "delete",
     path: "/v1/orders/{id}",
-    summary: "Delete order by ID",
+    summary: "Delete or cancel order by ID",
+    description: "Deletes or cancels an order based on its status:\n\n" +
+        "- **PENDING orders**: Completely deleted from the database.\n" +
+        "- **Confirmed/Completed/Picked-up orders**: Changed to CANCELLED status. Report statistics for the time window containing the order are automatically updated to exclude this order.",
     tags: ["Orders"],
     security: [{ cookieAuth: [] }],
     request: { params: OrderIdParam },
     responses: {
-        200: { description: "Order deleted" },
+        200: { description: "Order deleted or cancelled" },
         404: { description: "Not Found - Order not found" },
         401: { description: "Unauthorized - Invalid or missing authentication" },
         429: { description: "Too Many Requests - Rate limit exceeded" },

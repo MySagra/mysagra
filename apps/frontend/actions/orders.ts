@@ -11,7 +11,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
-const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"]);
+const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP", "CANCELLED"]);
 
 // Frontend-specific schemas matching the actual API response shapes
 const OrderListItemSchema = z.object({
