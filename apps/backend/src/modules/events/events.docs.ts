@@ -99,6 +99,8 @@ const SSEPrinterOrderCancelledPayloadSchema = z.object({
     orderId: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy", description: "Order ID" }),
     ticketNumber: z.number().int().nullable().meta({ example: 1 }),
     displayCode: z.string().meta({ example: "A01" }),
+    customer: z.string().nullable().meta({ example: "John Doe" }),
+    table: z.string().nullable().meta({ example: "3" }),
     status: z.enum(["CANCELLED"]).meta({ example: "CANCELLED" }),
     printers: z.array(z.string()).meta({ example: ["printer1", "printer2"], description: "Array of printer IDs involved in the order" })
 }).meta({ id: "SSEPrinterOrderCancelledPayload" });
