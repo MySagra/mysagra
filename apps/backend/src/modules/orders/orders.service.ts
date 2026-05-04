@@ -643,6 +643,8 @@ export class OrdersService {
                         orderId: id,
                         ticketNumber: updatedOrder.ticketNumber,
                         displayCode: updatedOrder.displayCode,
+                        customer: updatedOrder.customer,
+                        table: updatedOrder.table,
                         status: updatedOrder.status,
                         printers: printerIds
                     },
