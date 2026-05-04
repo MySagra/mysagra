@@ -573,6 +573,10 @@ export class OrdersService {
     }
 
     async updateStatus(id: string, status: OrderStatus) {
+        if (status == "CANCELLED") {
+            return await this.deleteOrder(id)
+        }
+
         const patchedOrder = await prisma.order.update({
             where: {
                 id
@@ -583,7 +587,7 @@ export class OrdersService {
             }
         })
         EventsService.broadcastEvents(
-            [this.displayEvent],
+            [this.displayEvent, this.cashierEvent],
             {
                 id,
                 ticketNumber: patchedOrder.ticketNumber,
@@ -613,13 +617,34 @@ export class OrdersService {
                     data: { status: "CANCELLED" }
                 });
 
+
+                // Select all distinct printers in an order
+                const printers: { printerId: string }[] = await tx.$queryRaw
+                `
+                    SELECT DISTINCT f.printerId
+                    FROM orders o JOIN order_items oi ON o.id = oi.orderId
+                    JOIN foods f ON oi.foodId = f.id
+                `
+                const printerIds = printers.map(p => p.printerId)
+
                 EventsService.broadcastEvents(
-                    [this.displayEvent, this.cashierEvent, this.printerEvent],
+                    [this.displayEvent, this.cashierEvent],
                     {
                         id,
                         ticketNumber: updatedOrder.ticketNumber,
                         displayCode: updatedOrder.displayCode,
                         status: updatedOrder.status
+                    },
+                    "order-cancelled"
+                );
+
+                this.printerEvent.broadcastEvent(
+                    {
+                        orderId: id,
+                        ticketNumber: updatedOrder.ticketNumber,
+                        displayCode: updatedOrder.displayCode,
+                        status: updatedOrder.status,
+                        printers: printerIds
                     },
                     "order-cancelled"
                 );
