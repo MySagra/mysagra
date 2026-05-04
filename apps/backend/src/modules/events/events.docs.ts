@@ -81,6 +81,28 @@ const SSEGeneralClosurePayloadSchema = z.object({
     report: z.array(ReportSchema).meta({ description: "Array of aggregated reports (typically one report for daily closure with groupBy='all')" })
 }).meta({ id: "SSEGeneralClosurePayload" });
 
+const SSEOrderCancelledPayloadSchema = z.object({
+    id: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy", description: "Order ID" }),
+    ticketNumber: z.number().int().nullable().meta({ example: 1 }),
+    displayCode: z.string().meta({ example: "A01" }),
+    status: z.enum(["CANCELLED"]).meta({ example: "CANCELLED" })
+}).meta({ id: "SSEOrderCancelledPayload" });
+
+const SSEOrderStatusUpdatePayloadSchema = z.object({
+    id: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy", description: "Order ID" }),
+    ticketNumber: z.number().int().nullable().meta({ example: 1 }),
+    displayCode: z.string().meta({ example: "A01" }),
+    status: z.enum(["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"]).meta({ example: "COMPLETED" })
+}).meta({ id: "SSEOrderStatusUpdatePayload" });
+
+const SSEPrinterOrderCancelledPayloadSchema = z.object({
+    orderId: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy", description: "Order ID" }),
+    ticketNumber: z.number().int().nullable().meta({ example: 1 }),
+    displayCode: z.string().meta({ example: "A01" }),
+    status: z.enum(["CANCELLED"]).meta({ example: "CANCELLED" }),
+    printers: z.array(z.string()).meta({ example: ["printer1", "printer2"], description: "Array of printer IDs involved in the order" })
+}).meta({ id: "SSEPrinterOrderCancelledPayload" });
+
 registry.register("SSEOrder", SSEOrderSchema);
 registry.register("SSEConfirmedOrderSummary", SSEConfirmedOrderSummary);
 registry.register("SSEReprintOrder", SSEReprintOrderSchema);
@@ -88,6 +110,9 @@ registry.register("SSEFoodAvailability", SSEFoodAvailabilitySchema);
 registry.register("SSECategoryAvailability", SSECategoryAvailabilitySchema);
 registry.register("SSEPrinterStatus", SSEPrinterStatusSchema);
 registry.register("SSEGeneralClosurePayload", SSEGeneralClosurePayloadSchema);
+registry.register("SSEOrderCancelledPayload", SSEOrderCancelledPayloadSchema);
+registry.register("SSEOrderStatusUpdatePayload", SSEOrderStatusUpdatePayloadSchema);
+registry.register("SSEPrinterOrderCancelledPayload", SSEPrinterOrderCancelledPayloadSchema);
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -105,15 +130,20 @@ registry.registerPath({
 ### \`cashier\` channel
 - **\`new-order\`** — Fired when a new order is placed. Payload: full order object (\`SSEOrder\`).
 - **\`confirmed-order\`** — Fired when an order is confirmed. Payload: \`SSEConfirmedOrderSummary\`.
+- **\`order-cancelled\`** — Fired when a confirmed order is cancelled. Updates report statistics. Payload: \`SSEOrderCancelledPayload\`.
+- **\`order-status-update\`** — Fired when an order status is updated. Payload: \`SSEOrderStatusUpdatePayload\`.
 - **\`food-availability-changed\`** — Fired when a food item's availability changes. Payload: \`SSEFoodAvailability\`.
 - **\`category-availability-changed\`** — Fired when a category's availability changes. Payload: \`SSECategoryAvailability\`.
 - **\`printer-status-changed\`** — Fired when a printer's status changes. Payload: \`SSEPrinterStatus\`.
 
 ### \`display\` channel
 - **\`confirmed-order\`** — Fired when an order is confirmed. Payload: \`SSEConfirmedOrderSummary\`.
+- **\`order-cancelled\`** — Fired when a confirmed order is cancelled. Payload: \`SSEOrderCancelledPayload\`.
+- **\`order-status-update\`** — Fired when an order status is updated. Payload: \`SSEOrderStatusUpdatePayload\`.
 
 ### \`printer\` channel
 - **\`confirmed-order\`** — Fired when an order is confirmed (includes food details for printing). Payload: full order object (\`SSEOrder\`).
+- **\`order-cancelled\`** — Fired when a confirmed order is cancelled. Includes array of printer IDs involved in the order. Payload: \`SSEPrinterOrderCancelledPayload\`.
 - **\`reprint-order\`** — Fired when a reprint is requested. Payload: \`SSEReprintOrder\`.
 - **\`general-closure\`** — Fired when daily closure report is generated. Contains aggregated statistics for the day. Payload: \`SSEGeneralClosurePayload\`.`,
     tags: ["Events (SSE)"],

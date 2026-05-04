@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 
-export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP"]).meta({
+export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP", "CANCELLED"]).meta({
     id: "OrderStatus",
     description: "Order fulfillment status",
     example: "PENDING"
