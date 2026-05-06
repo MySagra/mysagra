@@ -16,6 +16,9 @@ const CategoryBase = {
     }),
     printerId: z.cuid().nullish().meta({
         description: "Associated printer identifier for category orders"
+    }),
+    stationId: z.cuid().nullish().meta({
+        description: "Associated station identifier"
     })
 }
 
@@ -41,6 +44,9 @@ export const PatchCategorySchema = z.object({
     }),
     printerId: CategoryBase.printerId.optional().nullable().meta({
         description: "Update associated printer"
+    }),
+    stationId: z.cuid().nullish().meta({
+        description: "Associated station identifier"
     })
 }).refine(data => Object.keys(data).length > 0, {
     message: "At least one field must be provided"

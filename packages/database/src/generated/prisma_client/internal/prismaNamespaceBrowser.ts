@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Sagra: 'Sagra',
+  Station: 'Station',
   Category: 'Category',
   Ingredient: 'Ingredient',
   Food: 'Food',
@@ -97,13 +98,22 @@ export const SagraScalarFieldEnum = {
 export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
 
 
+export const StationScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type StationScalarFieldEnum = (typeof StationScalarFieldEnum)[keyof typeof StationScalarFieldEnum]
+
+
 export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   available: 'available',
   position: 'position',
   image: 'image',
-  printerId: 'printerId'
+  printerId: 'printerId',
+  stationId: 'stationId'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -323,6 +333,14 @@ export const SagraOrderByRelevanceFieldEnum = {
 export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
 
 
+export const StationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type StationOrderByRelevanceFieldEnum = (typeof StationOrderByRelevanceFieldEnum)[keyof typeof StationOrderByRelevanceFieldEnum]
+
+
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -335,7 +353,8 @@ export const CategoryOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
   image: 'image',
-  printerId: 'printerId'
+  printerId: 'printerId',
+  stationId: 'stationId'
 } as const
 
 export type CategoryOrderByRelevanceFieldEnum = (typeof CategoryOrderByRelevanceFieldEnum)[keyof typeof CategoryOrderByRelevanceFieldEnum]

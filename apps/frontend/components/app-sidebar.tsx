@@ -30,6 +30,7 @@ import {
   ImageIcon,
   ListOrderedIcon,
   BarChart3,
+  UtensilsIcon,
 } from "lucide-react"
 import { useLocale } from "@/contexts/locale-context"
 
@@ -92,6 +93,9 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         : []),
     ],
     gestione: [
+      ...(isAdmin || isMaintainer
+        ? [{ title: t.nav.stations, url: "/dashboard/stations", icon: UtensilsIcon }]
+        : []),
       {
         title: t.nav.cashRegisters,
         url: "/dashboard/cash-registers",

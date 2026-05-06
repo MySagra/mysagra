@@ -19,6 +19,13 @@ model Sagra {
   @@map("sagra")
 }
 
+model Station {
+  id   String @id @default(cuid())
+  name String @unique
+
+  categories Category[]
+}
+
 model Category {
   id        String  @id @default(cuid())
   name      String  @unique @db.VarChar(100)
@@ -29,6 +36,9 @@ model Category {
 
   printerId String?
   printer   Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
+
+  stationId String?
+  station   Station? @relation(fields: [stationId], references: [id])
 
   @@map("categories")
 }
@@ -46,7 +56,7 @@ model Food {
   id          String  @id @default(cuid())
   name        String  @unique @db.VarChar(100)
   description String? @db.VarChar(250)
-  price       Decimal @db.Decimal(10,2)
+  price       Decimal @db.Decimal(10, 2)
   available   Boolean @default(true)
 
   categoryId String
@@ -101,10 +111,10 @@ model Order {
   status       OrderStatus @default(PENDING)
 
   paymentMethod PaymentMethod?
-  subTotal      Decimal @db.Decimal(10,2)
-  discount      Decimal @db.Decimal(10,2)        @default(0)
-  surcharge     Decimal @db.Decimal(10,2)        @default(0)
-  total         Decimal @db.Decimal(10,2)
+  subTotal      Decimal        @db.Decimal(10, 2)
+  discount      Decimal        @default(0) @db.Decimal(10, 2)
+  surcharge     Decimal        @default(0) @db.Decimal(10, 2)
+  total         Decimal        @db.Decimal(10, 2)
 
   orderItems OrderItem[]
 
@@ -127,9 +137,9 @@ model OrderItem {
   food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
   foodId String
 
-  unitPrice     Decimal @db.Decimal(10,2)
-  unitSurcharge Decimal @db.Decimal(10,2) @default(0)
-  total         Decimal @db.Decimal(10,2)
+  unitPrice     Decimal @db.Decimal(10, 2)
+  unitSurcharge Decimal @default(0) @db.Decimal(10, 2)
+  total         Decimal @db.Decimal(10, 2)
 
   notes String?
 
@@ -225,8 +235,8 @@ model Banner {
   label String     @db.VarChar(100)
   type  BannerType
 
-  title       String?       @db.VarChar(100)
-  description String?       @db.VarChar(250)
+  title       String? @db.VarChar(100)
+  description String? @db.VarChar(250)
 
   website   String?
   instagram String?
@@ -253,9 +263,9 @@ model Report {
   timestamp         DateTime
   intervalInMinutes Int      @default(60) // explain the duration of this report
 
-  totalRevenue     Decimal @db.Decimal(10,2)
-  totalCashRevenue Decimal @db.Decimal(10,2)
-  totalCardRevenue Decimal @db.Decimal(10,2)
+  totalRevenue     Decimal @db.Decimal(10, 2)
+  totalCashRevenue Decimal @db.Decimal(10, 2)
+  totalCardRevenue Decimal @db.Decimal(10, 2)
   totalOrders      Int
 
   averageCompletitionTime Int? @default(0) // in ms
@@ -273,11 +283,12 @@ model CashRegisterStats {
   cashRegisterId   String
   cashRegisterName String
 
-  totalRevenue     Decimal @db.Decimal(10,2)
-  totalCardRevenue Decimal @db.Decimal(10,2)
-  totalCashRevenue Decimal @db.Decimal(10,2)
+  totalRevenue     Decimal @db.Decimal(10, 2)
+  totalCardRevenue Decimal @db.Decimal(10, 2)
+  totalCashRevenue Decimal @db.Decimal(10, 2)
 
   report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
   @@map("cash_register_stats")
 }
 
@@ -287,7 +298,7 @@ model CategoryStats {
 
   categoryId   String
   categoryName String // use the category denormalized for mantain the original name in this period
-  revenue      Decimal @db.Decimal(10,2)
+  revenue      Decimal @db.Decimal(10, 2)
   quantity     Int
 
   report    Report      @relation(fields: [reportId], references: [id], onDelete: Cascade)
@@ -303,7 +314,7 @@ model FoodStats {
   foodId   String
   foodName String // use the food denormalized for mantain the original name in this period
 
-  revenue  Decimal @db.Decimal(10,2)
+  revenue  Decimal @db.Decimal(10, 2)
   quantity Int
 
   categoryStats CategoryStats @relation(fields: [categoryStatsId], references: [id], onDelete: Cascade)

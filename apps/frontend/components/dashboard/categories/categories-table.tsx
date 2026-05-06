@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Category, Printer } from "@/lib/api-types";
+import { Category, Printer, Station } from "@/lib/api-types";
 import { toggleCategoryAvailability } from "@/actions/categories";
 import {
   Table,
@@ -43,6 +43,7 @@ function getCategoryImageUrl(filename: string) {
 interface CategoriesTableProps {
   categories: Category[];
   printers: Printer[];
+  stations: Station[];
   onEdit: (category: Category) => void;
   onToggle: (updated: Category) => void;
   onReorder: (reordered: Category[]) => void;
@@ -86,6 +87,7 @@ function TableHeaders({ t }: { t: any }) {
       <TableHead className="w-10" />
       <TableHead className="w-16 font-medium">{t.categories.columnImage}</TableHead>
       <TableHead className="font-medium">{t.categories.columnName}</TableHead>
+      <TableHead className="hidden lg:table-cell font-medium">{t.categories.columnStation}</TableHead>
       <TableHead className="hidden md:table-cell font-medium">{t.categories.columnPrinter}</TableHead>
       <TableHead className="w-32 text-center font-medium">{t.categories.columnAvailable}</TableHead>
       <TableHead className="w-10 text-right" />
@@ -96,6 +98,7 @@ function TableHeaders({ t }: { t: any }) {
 function SortableRow({
   category,
   printers,
+  stations,
   togglingId,
   onEdit,
   handleToggle,
@@ -103,6 +106,7 @@ function SortableRow({
 }: {
   category: Category;
   printers: Printer[];
+  stations: Station[];
   togglingId: string | null;
   onEdit: (category: Category) => void;
   handleToggle: (category: Category) => void;
@@ -139,6 +143,9 @@ function SortableRow({
       <TableCell className="font-medium max-w-48">
         <span className="block truncate" title={category.name}>{category.name}</span>
       </TableCell>
+      <TableCell className="hidden lg:table-cell text-muted-foreground">
+        {stations.find((s) => s.id === category.stationId)?.name || "-"}
+      </TableCell>
       <TableCell className="hidden md:table-cell text-muted-foreground">
         {printers.find((p) => p.id === category.printerId)?.name || "-"}
       </TableCell>
@@ -169,6 +176,7 @@ function SortableRow({
 export function CategoriesTable({
   categories,
   printers,
+  stations,
   onEdit,
   onToggle,
   onReorder,
@@ -251,6 +259,9 @@ export function CategoriesTable({
                 <TableCell className="font-medium max-w-48">
                   <span className="block truncate" title={category.name}>{category.name}</span>
                 </TableCell>
+                <TableCell className="hidden lg:table-cell text-muted-foreground">
+                  {stations.find((s) => s.id === category.stationId)?.name || "-"}
+                </TableCell>
                 <TableCell className="hidden md:table-cell text-muted-foreground">
                   {printers.find((p) => p.id === category.printerId)?.name || "-"}
                 </TableCell>
@@ -300,6 +311,7 @@ export function CategoriesTable({
                   key={category.id}
                   category={category}
                   printers={printers}
+                  stations={stations}
                   togglingId={togglingId}
                   onEdit={onEdit}
                   handleToggle={handleToggle}

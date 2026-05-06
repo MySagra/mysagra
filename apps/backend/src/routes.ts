@@ -14,6 +14,7 @@ import apiKeysRouter from "@/modules/api-keys/api-keys.route"
 import bannerRouter from "@/modules/banner/banner.route"
 import reportRouter from "@/modules/report/report.route"
 import orderInstructionsRoute from "@/modules/order-instructions/order-instruction.route"
+import stationRoute from "@/modules/station/stations.route"
 import { apiLimiter, authLimiter } from "./middlewares/rateLimiter.middleware";
 
 const router = Router();
@@ -29,9 +30,10 @@ router.use("/v1/orders", apiLimiter, ordersRouter);
 router.use("/v1/printers", apiLimiter, printersRouter);
 router.use("/v1/roles", apiLimiter, rolesRouter);
 router.use("/v1/users", apiLimiter, usersRouter);
-router.use("/v1/api-keys", apiLimiter, apiKeysRouter)
-router.use("/v1/banners", apiLimiter, bannerRouter)
-router.use("/v1/reports", apiLimiter, reportRouter)
-router.use("/v1/order-instructions", apiLimiter, orderInstructionsRoute)
+router.use("/v1/api-keys", apiLimiter, apiKeysRouter);
+router.use("/v1/banners", apiLimiter, bannerRouter);
+router.use("/v1/reports", apiLimiter, reportRouter);
+router.use("/v1/order-instructions", apiLimiter, orderInstructionsRoute);
+router.use("/v1/stations", apiLimiter, stationRoute);
 
 export default router;

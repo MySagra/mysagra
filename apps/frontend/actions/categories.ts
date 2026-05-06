@@ -20,6 +20,7 @@ export async function createCategory(data: {
   available: boolean;
   position?: number;
   printerId?: string | null;
+  stationId?: string;
 }): Promise<ActionResult<Category>> {
   try {
     const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.ALL, {
@@ -40,6 +41,7 @@ export async function updateCategory(
     available?: boolean;
     position?: number;
     printerId?: string | null;
+    stationId?: string;
   }
 ): Promise<ActionResult<Category>> {
   try {
@@ -52,6 +54,7 @@ export async function updateCategory(
       available: data.available ?? currentCategory.available,
       position: data.position ?? currentCategory.position,
       printerId: data.printerId !== undefined ? data.printerId : (currentCategory.printerId || undefined),
+      stationId: data.stationId !== undefined ? data.stationId : (currentCategory.stationId || undefined),
     };
 
     const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id), {
@@ -67,15 +70,15 @@ export async function updateCategory(
 }
 
 export async function reorderCategories(
-  categories: { id: string; name: string; available: boolean; position: number; printerId?: string | null }[]
+  categories: { id: string; name: string; available: boolean; position: number; printerId?: string | null; stationId?: string }[]
 ): Promise<Category[]> {
   const results: Category[] = [];
-  for (const { id, name, available, position, printerId } of categories) {
+  for (const { id, name, available, position, printerId, stationId } of categories) {
     const result = await fetchApi<Category>(
       API_ENDPOINTS.CATEGORIES.BY_ID(id),
       {
         method: "PUT",
-        body: JSON.stringify({ name, available, position, printerId: printerId ?? undefined }),
+        body: JSON.stringify({ name, available, position, printerId: printerId ?? undefined, stationId: stationId ?? undefined }),
       },
       CategoryResponseSchema
     );

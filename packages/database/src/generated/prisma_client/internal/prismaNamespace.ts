@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Sagra: 'Sagra',
+  Station: 'Station',
   Category: 'Category',
   Ingredient: 'Ingredient',
   Food: 'Food',
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "sagra" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner" | "orderInstruction" | "report" | "cashRegisterStats" | "categoryStats" | "foodStats"
+    modelProps: "sagra" | "station" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "orderItem" | "role" | "user" | "printer" | "cashRegister" | "apiKey" | "banner" | "orderInstruction" | "report" | "cashRegisterStats" | "categoryStats" | "foodStats"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -484,6 +485,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SagraCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SagraCountAggregateOutputType> | number
+        }
+      }
+    }
+    Station: {
+      payload: Prisma.$StationPayload<ExtArgs>
+      fields: Prisma.StationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload>
+        }
+        findFirst: {
+          args: Prisma.StationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload>
+        }
+        findMany: {
+          args: Prisma.StationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload>[]
+        }
+        create: {
+          args: Prisma.StationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload>
+        }
+        createMany: {
+          args: Prisma.StationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.StationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload>
+        }
+        update: {
+          args: Prisma.StationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload>
+        }
+        deleteMany: {
+          args: Prisma.StationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.StationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StationPayload>
+        }
+        aggregate: {
+          args: Prisma.StationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStation>
+        }
+        groupBy: {
+          args: Prisma.StationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StationCountAggregateOutputType> | number
         }
       }
     }
@@ -1658,13 +1725,22 @@ export const SagraScalarFieldEnum = {
 export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
 
 
+export const StationScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type StationScalarFieldEnum = (typeof StationScalarFieldEnum)[keyof typeof StationScalarFieldEnum]
+
+
 export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   available: 'available',
   position: 'position',
   image: 'image',
-  printerId: 'printerId'
+  printerId: 'printerId',
+  stationId: 'stationId'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -1884,6 +1960,14 @@ export const SagraOrderByRelevanceFieldEnum = {
 export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
 
 
+export const StationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type StationOrderByRelevanceFieldEnum = (typeof StationOrderByRelevanceFieldEnum)[keyof typeof StationOrderByRelevanceFieldEnum]
+
+
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -1896,7 +1980,8 @@ export const CategoryOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
   image: 'image',
-  printerId: 'printerId'
+  printerId: 'printerId',
+  stationId: 'stationId'
 } as const
 
 export type CategoryOrderByRelevanceFieldEnum = (typeof CategoryOrderByRelevanceFieldEnum)[keyof typeof CategoryOrderByRelevanceFieldEnum]
@@ -2238,6 +2323,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   sagra?: Prisma.SagraOmit
+  station?: Prisma.StationOmit
   category?: Prisma.CategoryOmit
   ingredient?: Prisma.IngredientOmit
   food?: Prisma.FoodOmit

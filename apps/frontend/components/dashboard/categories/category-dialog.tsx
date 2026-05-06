@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 function getCategoryImageUrl(filename: string) {
   return `/api/images/categories/${filename}`;
 }
-import { Category, Printer } from "@/lib/api-types";
+import { Category, Printer, Station } from "@/lib/api-types";
 import { createCategory, updateCategory, uploadCategoryImage, getCategoryById, checkCategoryNameExists } from "@/actions/categories";
 import {
   Select,
@@ -54,6 +54,7 @@ type CategoryFormValues = {
   name: string;
   available: boolean;
   printerId?: string;
+  stationId?: string;
 };
 
 interface CategoryDialogProps {
@@ -61,6 +62,7 @@ interface CategoryDialogProps {
   onOpenChange: (open: boolean) => void;
   category: Category | null;
   printers?: Printer[];
+  stations?: Station[];
   onSaved: (category: Category) => void;
   onDelete?: (category: Category) => void;
   categoriesCount?: number;
@@ -73,6 +75,7 @@ export function CategoryDialog({
   onOpenChange,
   category,
   printers = [],
+  stations = [],
   onSaved,
   onDelete,
   categoriesCount = 0,
@@ -90,6 +93,7 @@ export function CategoryDialog({
     name: z.string().min(1, t.categories.nameRequired).max(100, "Name must be max 100 characters"),
     available: z.boolean(),
     printerId: z.string().optional(),
+    stationId: z.string().optional(),
   });
 
   const form = useForm<CategoryFormValues>({
@@ -98,6 +102,7 @@ export function CategoryDialog({
       name: "",
       available: true,
       printerId: "none",
+      stationId: "none",
     },
   });
 
@@ -108,12 +113,14 @@ export function CategoryDialog({
           name: category.name,
           available: category.available,
           printerId: category.printerId || "none",
+          stationId: category.stationId || "none",
         });
       } else {
         form.reset({
           name: "",
           available: true,
           printerId: "none",
+          stationId: "none",
         });
       }
       setImagePreview(category?.image ? getCategoryImageUrl(category.image) : null);
@@ -198,6 +205,7 @@ export function CategoryDialog({
       name: nameTrimmed,
       available: values.available,
       printerId: values.printerId === "none" ? null : values.printerId,
+      stationId: values.stationId === "none" ? undefined : values.stationId,
     };
 
     let savedCategory: Category;
@@ -282,6 +290,38 @@ export function CategoryDialog({
                     )}
                   />
                 </div>
+
+                <Field>
+                  <FieldLabel>{t.categories.stationLabel}</FieldLabel>
+                  <FormField
+                    control={form.control}
+                    name="stationId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={t.categories.stationSelectPlaceholder} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="none">{t.categories.noStation}</SelectItem>
+                            {stations.map((station) => (
+                              <SelectItem key={station.id} value={station.id}>
+                                {station.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </Field>
 
                 <Field>
                   <FieldLabel>{t.categories.defaultPrinterLabel}</FieldLabel>

@@ -23,6 +23,11 @@ export * from './enums';
  */
 export type Sagra = Prisma.SagraModel
 /**
+ * Model Station
+ * 
+ */
+export type Station = Prisma.StationModel
+/**
  * Model Category
  * 
  */
