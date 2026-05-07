@@ -229,7 +229,7 @@ export class OrdersService {
                         select: {
                             stationId: true,
                             status: true
-                        } 
+                        }
                     } : false
                 }
             })
@@ -637,14 +637,23 @@ export class OrdersService {
             return await this.deleteOrder(id)
         }
 
-        const patchedOrder = await prisma.order.update({
-            where: {
-                id
-            },
-            data: {
-                status,
-                completedAt: status === "COMPLETED" ? new Date() : null
-            }
+        const patchedOrder = await prisma.$transaction(async tx => {
+            const order = await tx.order.update({
+                where: {
+                    id
+                },
+                data: {
+                    status,
+                    completedAt: status === "COMPLETED" ? new Date() : null
+                }
+            })
+
+            await tx.orderStationStatus.updateMany({
+                where: { orderId: order.id },
+                data: { status }
+            })
+
+            return order;
         })
         EventsService.broadcastEvents(
             [this.displayEvent, this.cashierEvent],
@@ -677,6 +686,10 @@ export class OrdersService {
                     data: { status: "CANCELLED" }
                 });
 
+                await tx.orderStationStatus.updateMany({
+                    where: { orderId: id },
+                    data: { status: "CANCELLED" }
+                })
 
                 // Select all distinct printers in an order
                 const printers: { printerId: string }[] = await tx.$queryRaw
