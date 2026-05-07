@@ -448,6 +448,7 @@ export class OrdersService {
             const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
                 SELECT DISTINCT os.stationId
                 FROM orders_stations_states os
+                WHERE os.orderId = ${createdOrder?.id}
             `).map(({ stationId }) => stationId)
 
             this.displayEvent.broadcastEvent(
@@ -612,6 +613,7 @@ export class OrdersService {
         const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
             SELECT DISTINCT os.stationId
             FROM orders_stations_states os
+            WHERE os.orderId = ${confirmedOrder?.id}
         `).map(({ stationId }) => stationId)
 
         this.displayEvent.broadcastEvent(
