@@ -90,7 +90,11 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
   async function handleSaveOrder() {
     setIsSavingOrder(true);
     try {
-      const reordered = categories.map((cat, index) => ({ ...cat, position: index }));
+      const reordered = categories.map((cat, index) => ({
+        ...cat,
+        position: index,
+        stationId: cat.stationId === null ? undefined : cat.stationId,
+      }));
       await reorderCategories(reordered);
       setHasOrderChanged(false);
       toast.success("Ordine categorie salvato");
