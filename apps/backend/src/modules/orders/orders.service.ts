@@ -821,6 +821,15 @@ export class OrdersService {
                 data: { status: newOrderStatus }
             })
 
+            this.displayEvent.broadcastEvent(
+                {
+                    orderId,
+                    stationId,
+                    status
+                },
+                "order-station-status-update"
+            );
+
             return patchedOrderStation;
         })
     }
