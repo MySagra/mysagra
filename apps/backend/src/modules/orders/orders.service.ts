@@ -180,7 +180,7 @@ export class OrdersService {
     }
 
     async getOrders(queryParams: GetOrdersQueryParams) {
-        const { limit, page } = queryParams;
+        const { limit, page, include } = queryParams;
         const skip = (page - 1) * limit;
 
         const where: Prisma.OrderWhereInput = {};
@@ -223,6 +223,14 @@ export class OrdersService {
                 take: limit,
                 orderBy: {
                     [queryParams.sortBy]: 'desc'
+                },
+                include: {
+                    orderStationStates: include === "ordersStationsStates" ? {
+                        select: {
+                            stationId: true,
+                            status: true
+                        } 
+                    } : false
                 }
             })
             return {
@@ -368,7 +376,7 @@ export class OrdersService {
 
                     userId: userId,
                     cashRegisterId: cashRegisterId
-                }
+                },
             });
 
             //create order items
@@ -383,6 +391,23 @@ export class OrdersService {
                     total: item.total!
                 }))
             });
+
+            const stationIds = await tx.$queryRaw<Array<{ stationId: string }>>`
+                SELECT DISTINCT s.id as stationId
+                FROM orders o JOIN order_items oi ON o.id = oi.orderId
+                JOIN foods f ON oi.foodId = f.id
+                JOIN categories c ON c.id = f.categoryId
+                JOIN stations s ON s.id = c.stationId
+                WHERE o.id = ${createdOrder.id}
+            `
+
+            await tx.orderStationStatus.createMany({
+                data: stationIds.map(({ stationId }) => ({
+                    orderId: createdOrder.id,
+                    stationId,
+                    status: finalStatus
+                }))
+            })
 
             return await tx.order.findUnique({
                 where: { id: createdOrder.id },
@@ -410,12 +435,26 @@ export class OrdersService {
         })
 
         if (confirm) {
-            EventsService.broadcastEvents(
-                [this.cashierEvent, this.displayEvent],
+            this.cashierEvent.broadcastEvent(
                 {
                     displayCode: createdOrder?.displayCode,
                     ticketNumber: createdOrder?.ticketNumber,
                     id: createdOrder?.id
+                },
+                "confirmed-order"
+            )
+
+            const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
+                SELECT DISTINCT os.stationId
+                FROM orders_stations_states os
+            `).map(({ stationId }) => stationId)
+
+            this.displayEvent.broadcastEvent(
+                {
+                    displayCode: createdOrder?.displayCode,
+                    ticketNumber: createdOrder?.ticketNumber,
+                    id: createdOrder?.id,
+                    ordersStations
                 },
                 "confirmed-order"
             )
@@ -550,18 +589,39 @@ export class OrdersService {
                 }
             });
 
+            await tx.orderStationStatus.updateMany({
+                where: { orderId },
+                data: {
+                    status: "CONFIRMED"
+                }
+            })
+
             return updatedOrder;
         });
 
-        EventsService.broadcastEvents(
-            [this.cashierEvent, this.displayEvent],
+        this.cashierEvent.broadcastEvent(
             {
                 displayCode: confirmedOrder.displayCode,
                 ticketNumber: confirmedOrder.ticketNumber,
                 id: confirmedOrder.id
             },
             "confirmed-order"
-        );
+        )
+
+        const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
+            SELECT DISTINCT os.stationId
+            FROM orders_stations_states os
+        `).map(({ stationId }) => stationId)
+
+        this.displayEvent.broadcastEvent(
+            {
+                displayCode: confirmedOrder.displayCode,
+                ticketNumber: confirmedOrder.ticketNumber,
+                id: confirmedOrder.id,
+                ordersStations
+            },
+            "confirmed-order"
+        )
 
         this.printerEvent.broadcastEvent(
             confirmedOrder,
@@ -620,7 +680,7 @@ export class OrdersService {
 
                 // Select all distinct printers in an order
                 const printers: { printerId: string }[] = await tx.$queryRaw
-                `
+                    `
                     SELECT DISTINCT f.printerId
                     FROM orders o JOIN order_items oi ON o.id = oi.orderId
                     JOIN foods f ON oi.foodId = f.id

@@ -159,12 +159,14 @@ export type StationWhereInput = {
   id?: Prisma.StringFilter<"Station"> | string
   name?: Prisma.StringFilter<"Station"> | string
   categories?: Prisma.CategoryListRelationFilter
+  orderStationStates?: Prisma.OrderStationStatusListRelationFilter
 }
 
 export type StationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   categories?: Prisma.CategoryOrderByRelationAggregateInput
+  orderStationStates?: Prisma.OrderStationStatusOrderByRelationAggregateInput
   _relevance?: Prisma.StationOrderByRelevanceInput
 }
 
@@ -175,6 +177,7 @@ export type StationWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.StationWhereInput[]
   NOT?: Prisma.StationWhereInput | Prisma.StationWhereInput[]
   categories?: Prisma.CategoryListRelationFilter
+  orderStationStates?: Prisma.OrderStationStatusListRelationFilter
 }, "id" | "name">
 
 export type StationOrderByWithAggregationInput = {
@@ -197,24 +200,28 @@ export type StationCreateInput = {
   id?: string
   name: string
   categories?: Prisma.CategoryCreateNestedManyWithoutStationInput
+  orderStationStates?: Prisma.OrderStationStatusCreateNestedManyWithoutStationInput
 }
 
 export type StationUncheckedCreateInput = {
   id?: string
   name: string
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutStationInput
+  orderStationStates?: Prisma.OrderStationStatusUncheckedCreateNestedManyWithoutStationInput
 }
 
 export type StationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   categories?: Prisma.CategoryUpdateManyWithoutStationNestedInput
+  orderStationStates?: Prisma.OrderStationStatusUpdateManyWithoutStationNestedInput
 }
 
 export type StationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutStationNestedInput
+  orderStationStates?: Prisma.OrderStationStatusUncheckedUpdateManyWithoutStationNestedInput
 }
 
 export type StationCreateManyInput = {
@@ -258,6 +265,11 @@ export type StationNullableScalarRelationFilter = {
   isNot?: Prisma.StationWhereInput | null
 }
 
+export type StationScalarRelationFilter = {
+  is?: Prisma.StationWhereInput
+  isNot?: Prisma.StationWhereInput
+}
+
 export type StationCreateNestedOneWithoutCategoriesInput = {
   create?: Prisma.XOR<Prisma.StationCreateWithoutCategoriesInput, Prisma.StationUncheckedCreateWithoutCategoriesInput>
   connectOrCreate?: Prisma.StationCreateOrConnectWithoutCategoriesInput
@@ -274,14 +286,30 @@ export type StationUpdateOneWithoutCategoriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.StationUpdateToOneWithWhereWithoutCategoriesInput, Prisma.StationUpdateWithoutCategoriesInput>, Prisma.StationUncheckedUpdateWithoutCategoriesInput>
 }
 
+export type StationCreateNestedOneWithoutOrderStationStatesInput = {
+  create?: Prisma.XOR<Prisma.StationCreateWithoutOrderStationStatesInput, Prisma.StationUncheckedCreateWithoutOrderStationStatesInput>
+  connectOrCreate?: Prisma.StationCreateOrConnectWithoutOrderStationStatesInput
+  connect?: Prisma.StationWhereUniqueInput
+}
+
+export type StationUpdateOneRequiredWithoutOrderStationStatesNestedInput = {
+  create?: Prisma.XOR<Prisma.StationCreateWithoutOrderStationStatesInput, Prisma.StationUncheckedCreateWithoutOrderStationStatesInput>
+  connectOrCreate?: Prisma.StationCreateOrConnectWithoutOrderStationStatesInput
+  upsert?: Prisma.StationUpsertWithoutOrderStationStatesInput
+  connect?: Prisma.StationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StationUpdateToOneWithWhereWithoutOrderStationStatesInput, Prisma.StationUpdateWithoutOrderStationStatesInput>, Prisma.StationUncheckedUpdateWithoutOrderStationStatesInput>
+}
+
 export type StationCreateWithoutCategoriesInput = {
   id?: string
   name: string
+  orderStationStates?: Prisma.OrderStationStatusCreateNestedManyWithoutStationInput
 }
 
 export type StationUncheckedCreateWithoutCategoriesInput = {
   id?: string
   name: string
+  orderStationStates?: Prisma.OrderStationStatusUncheckedCreateNestedManyWithoutStationInput
 }
 
 export type StationCreateOrConnectWithoutCategoriesInput = {
@@ -303,11 +331,53 @@ export type StationUpdateToOneWithWhereWithoutCategoriesInput = {
 export type StationUpdateWithoutCategoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  orderStationStates?: Prisma.OrderStationStatusUpdateManyWithoutStationNestedInput
 }
 
 export type StationUncheckedUpdateWithoutCategoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  orderStationStates?: Prisma.OrderStationStatusUncheckedUpdateManyWithoutStationNestedInput
+}
+
+export type StationCreateWithoutOrderStationStatesInput = {
+  id?: string
+  name: string
+  categories?: Prisma.CategoryCreateNestedManyWithoutStationInput
+}
+
+export type StationUncheckedCreateWithoutOrderStationStatesInput = {
+  id?: string
+  name: string
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutStationInput
+}
+
+export type StationCreateOrConnectWithoutOrderStationStatesInput = {
+  where: Prisma.StationWhereUniqueInput
+  create: Prisma.XOR<Prisma.StationCreateWithoutOrderStationStatesInput, Prisma.StationUncheckedCreateWithoutOrderStationStatesInput>
+}
+
+export type StationUpsertWithoutOrderStationStatesInput = {
+  update: Prisma.XOR<Prisma.StationUpdateWithoutOrderStationStatesInput, Prisma.StationUncheckedUpdateWithoutOrderStationStatesInput>
+  create: Prisma.XOR<Prisma.StationCreateWithoutOrderStationStatesInput, Prisma.StationUncheckedCreateWithoutOrderStationStatesInput>
+  where?: Prisma.StationWhereInput
+}
+
+export type StationUpdateToOneWithWhereWithoutOrderStationStatesInput = {
+  where?: Prisma.StationWhereInput
+  data: Prisma.XOR<Prisma.StationUpdateWithoutOrderStationStatesInput, Prisma.StationUncheckedUpdateWithoutOrderStationStatesInput>
+}
+
+export type StationUpdateWithoutOrderStationStatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  categories?: Prisma.CategoryUpdateManyWithoutStationNestedInput
+}
+
+export type StationUncheckedUpdateWithoutOrderStationStatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutStationNestedInput
 }
 
 
@@ -317,10 +387,12 @@ export type StationUncheckedUpdateWithoutCategoriesInput = {
 
 export type StationCountOutputType = {
   categories: number
+  orderStationStates: number
 }
 
 export type StationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categories?: boolean | StationCountOutputTypeCountCategoriesArgs
+  orderStationStates?: boolean | StationCountOutputTypeCountOrderStationStatesArgs
 }
 
 /**
@@ -340,11 +412,19 @@ export type StationCountOutputTypeCountCategoriesArgs<ExtArgs extends runtime.Ty
   where?: Prisma.CategoryWhereInput
 }
 
+/**
+ * StationCountOutputType without action
+ */
+export type StationCountOutputTypeCountOrderStationStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderStationStatusWhereInput
+}
+
 
 export type StationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   categories?: boolean | Prisma.Station$categoriesArgs<ExtArgs>
+  orderStationStates?: boolean | Prisma.Station$orderStationStatesArgs<ExtArgs>
   _count?: boolean | Prisma.StationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["station"]>
 
@@ -358,6 +438,7 @@ export type StationSelectScalar = {
 export type StationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name", ExtArgs["result"]["station"]>
 export type StationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categories?: boolean | Prisma.Station$categoriesArgs<ExtArgs>
+  orderStationStates?: boolean | Prisma.Station$orderStationStatesArgs<ExtArgs>
   _count?: boolean | Prisma.StationCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -365,6 +446,7 @@ export type $StationPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Station"
   objects: {
     categories: Prisma.$CategoryPayload<ExtArgs>[]
+    orderStationStates: Prisma.$OrderStationStatusPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -710,6 +792,7 @@ readonly fields: StationFieldRefs;
 export interface Prisma__StationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   categories<T extends Prisma.Station$categoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Station$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orderStationStates<T extends Prisma.Station$orderStationStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Station$orderStationStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderStationStatusPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1105,6 +1188,30 @@ export type Station$categoriesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.CategoryScalarFieldEnum | Prisma.CategoryScalarFieldEnum[]
+}
+
+/**
+ * Station.orderStationStates
+ */
+export type Station$orderStationStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrderStationStatus
+   */
+  select?: Prisma.OrderStationStatusSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OrderStationStatus
+   */
+  omit?: Prisma.OrderStationStatusOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderStationStatusInclude<ExtArgs> | null
+  where?: Prisma.OrderStationStatusWhereInput
+  orderBy?: Prisma.OrderStationStatusOrderByWithRelationInput | Prisma.OrderStationStatusOrderByWithRelationInput[]
+  cursor?: Prisma.OrderStationStatusWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderStationStatusScalarFieldEnum | Prisma.OrderStationStatusScalarFieldEnum[]
 }
 
 /**

@@ -53,6 +53,11 @@ export type FoodIngredient = Prisma.FoodIngredientModel
  */
 export type Order = Prisma.OrderModel
 /**
+ * Model OrderStationStatus
+ * 
+ */
+export type OrderStationStatus = Prisma.OrderStationStatusModel
+/**
  * Model OrderItem
  * 
  */

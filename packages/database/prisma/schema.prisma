@@ -23,7 +23,10 @@ model Station {
   id   String @id @default(cuid())
   name String @unique
 
-  categories Category[]
+  categories           Category[]
+  orderStationStates OrderStationStatus[]
+
+  @@map("stations")
 }
 
 model Category {
@@ -85,6 +88,7 @@ model FoodIngredient {
 enum OrderStatus {
   PENDING
   CONFIRMED
+  PARTIAL
   COMPLETED
   PICKED_UP
   CANCELLED
@@ -121,10 +125,25 @@ model Order {
   userId String?
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  cashRegisterId String?
-  cashRegister   CashRegister? @relation(fields: [cashRegisterId], references: [id], onDelete: SetNull)
+  cashRegisterId       String?
+  cashRegister         CashRegister?        @relation(fields: [cashRegisterId], references: [id], onDelete: SetNull)
+  orderStationStates OrderStationStatus[]
 
   @@map("orders")
+}
+
+model OrderStationStatus {
+  id     String      @id @default(cuid())
+  status OrderStatus
+
+  orderId   String
+  stationId String
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, stationId])
+  @@map("orders_stations_states")
 }
 
 model OrderItem {

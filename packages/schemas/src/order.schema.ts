@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 
-export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP", "CANCELLED"]).meta({
+export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "PARTIAL", "COMPLETED", "PICKED_UP", "CANCELLED"]).meta({
     id: "OrderStatus",
     description: "Order fulfillment status",
     example: "PENDING"
@@ -159,7 +159,8 @@ export const GetOrdersQuerySchema = z.object({
     }),
     dateTo: z.coerce.date().optional().meta({
         description: "Filter orders created before this date"
-    })
+    }),
+    include: z.enum(["ordersStationsStates"]).optional()
 }).meta({
     id: "GetOrdersQuery",
     description: "Query parameters for listing orders"

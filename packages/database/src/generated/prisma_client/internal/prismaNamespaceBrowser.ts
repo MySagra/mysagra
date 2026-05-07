@@ -58,6 +58,7 @@ export const ModelName = {
   Food: 'Food',
   FoodIngredient: 'FoodIngredient',
   Order: 'Order',
+  OrderStationStatus: 'OrderStationStatus',
   OrderItem: 'OrderItem',
   Role: 'Role',
   User: 'User',
@@ -168,6 +169,16 @@ export const OrderScalarFieldEnum = {
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const OrderStationStatusScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  orderId: 'orderId',
+  stationId: 'stationId'
+} as const
+
+export type OrderStationStatusScalarFieldEnum = (typeof OrderStationStatusScalarFieldEnum)[keyof typeof OrderStationStatusScalarFieldEnum]
 
 
 export const OrderItemScalarFieldEnum = {
@@ -397,6 +408,15 @@ export const OrderOrderByRelevanceFieldEnum = {
 } as const
 
 export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldEnum)[keyof typeof OrderOrderByRelevanceFieldEnum]
+
+
+export const OrderStationStatusOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  stationId: 'stationId'
+} as const
+
+export type OrderStationStatusOrderByRelevanceFieldEnum = (typeof OrderStationStatusOrderByRelevanceFieldEnum)[keyof typeof OrderStationStatusOrderByRelevanceFieldEnum]
 
 
 export const OrderItemOrderByRelevanceFieldEnum = {
