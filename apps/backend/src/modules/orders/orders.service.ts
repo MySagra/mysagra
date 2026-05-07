@@ -788,4 +788,40 @@ export class OrdersService {
             reprintReceipt: reprint.reprintReceipt
         };
     }
+
+    async updateOrderStationStatus(orderId: string, stationId: string, status: OrderStatus) {
+        return await prisma.$transaction(async tx => {
+            const patchedOrderStation = await tx.orderStationStatus.update({
+                where: {
+                    orderId_stationId: { orderId, stationId }
+                },
+                data: { status }
+            })
+
+            const orderStationsStates = await tx.orderStationStatus.findMany({
+                where: { orderId }
+            })
+
+            const statuses = orderStationsStates.map(oss => oss.status);
+            const uniqueStatuses = new Set(statuses);
+
+            let newOrderStatus: OrderStatus;
+
+            if (uniqueStatuses.size === 1) {
+                newOrderStatus = statuses[0];
+            } else if (uniqueStatuses.has('CONFIRMED')) {
+                newOrderStatus = 'PARTIAL';
+            } else {
+                const statusStrength = { PENDING: 0, CONFIRMED: 1, PARTIAL: 2, COMPLETED: 3, PICKED_UP: 4, CANCELLED: 5 };
+                newOrderStatus = statuses.sort((a, b) => statusStrength[a as OrderStatus] - statusStrength[b as OrderStatus])[0] as OrderStatus;
+            }
+
+            await tx.order.update({
+                where: { id: orderId },
+                data: { status: newOrderStatus }
+            })
+
+            return patchedOrderStation;
+        })
+    }
 }
