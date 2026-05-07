@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { EyeIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon, Clock, CircleCheck, PackageCheck, ShoppingBag, XIcon } from "lucide-react";
+import { EyeIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon, Clock, CircleCheck, PackageCheck, ShoppingBag, XIcon, GitMerge } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
 import { useTimezone } from "@/contexts/timezone-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -38,6 +38,7 @@ const statusIcons: Record<string, React.ReactNode> = {
   COMPLETED: <PackageCheck className="h-4 w-4 text-green-500" />,
   PICKED_UP: <ShoppingBag className="h-4 w-4 text-green-600" />,
   CANCELLED: <XIcon className="h-4 w-4 text-destructive" />,
+  PARTIAL: <GitMerge className="h-4 w-4 text-orange-500" />,
 };
 
 export function OrdersTable({
@@ -58,6 +59,7 @@ export function OrdersTable({
     COMPLETED: t.orders.statusCompleted,
     PICKED_UP: t.orders.statusPickedUp,
     CANCELLED: t.orders.statusCancelled,
+    PARTIAL: t.orders.statusPartial,
   };
 
   useEffect(() => {

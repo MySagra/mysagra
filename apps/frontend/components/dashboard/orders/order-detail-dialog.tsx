@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Printer, Trash2, User, LayoutGrid, Hash, Ticket, CalendarPlus, CalendarCheck, CreditCard, MonitorCheck, Clock, CircleCheck, PackageCheck, ShoppingBag, XIcon } from 'lucide-react';
+import { FileText, Printer, Trash2, User, LayoutGrid, Hash, Ticket, CalendarPlus, CalendarCheck, CreditCard, MonitorCheck, Clock, CircleCheck, PackageCheck, ShoppingBag, XIcon, GitMerge, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { getOrderById, deleteOrder, reprintOrder } from '@/actions/orders';
@@ -30,6 +30,7 @@ const statusConfig: Record<string, { icon: React.ReactNode; colorClass: string; 
   COMPLETED: { icon: <PackageCheck className="h-4 w-4" />,colorClass: 'text-green-600 dark:text-green-400',  bgClass: 'bg-green-500/10 border-green-500/30' },
   PICKED_UP: { icon: <ShoppingBag className="h-4 w-4" />, colorClass: 'text-green-700 dark:text-green-500',  bgClass: 'bg-green-600/10 border-green-600/30' },
   CANCELLED: { icon: <XIcon className="h-4 w-4" />,       colorClass: 'text-destructive',                     bgClass: 'bg-destructive/10 border-destructive/30' },
+  PARTIAL:   { icon: <GitMerge className="h-4 w-4" />,    colorClass: 'text-orange-600 dark:text-orange-400', bgClass: 'bg-orange-500/10 border-orange-500/30' },
 };
 
 // ─── Reprint Dialog ──────────────────────────────────────────────────────────
@@ -281,6 +282,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                     : order.status === 'CONFIRMED' ? t.orders.statusConfirmed
                     : order.status === 'COMPLETED' ? t.orders.statusReady
                     : order.status === 'PICKED_UP' ? t.orders.statusPickedUp
+                    : order.status === 'PARTIAL' ? t.orders.statusPartial
                     : order.status;
                   return (
                     <div className={cn('flex items-center justify-between rounded-lg border px-4 py-3', cfg?.bgClass ?? 'bg-muted border-border')}>
@@ -401,6 +403,38 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                     </span>
                   </div>
                 </div>
+
+                {/* ── Station States ───────────────────────────────────── */}
+                {order.orderStationStates && order.orderStationStates.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                      <Activity className="h-3.5 w-3.5" />
+                      {t.orders.detailStationStates}
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {order.orderStationStates.map((ss) => {
+                        const cfg = statusConfig[ss.status];
+                        return (
+                          <div
+                            key={ss.id}
+                            className={cn(
+                              'flex items-center justify-between rounded-md border px-3 py-2 text-xs',
+                              cfg?.bgClass ?? 'bg-muted border-border'
+                            )}
+                          >
+                            <span className="text-muted-foreground font-medium truncate">
+                              {t.orders.detailStation} {ss.stationId.slice(-6).toUpperCase()}
+                            </span>
+                            <span className={cn('flex items-center gap-1 font-semibold shrink-0', cfg?.colorClass ?? 'text-foreground')}>
+                              {cfg?.icon}
+                              {ss.status}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
               </div>
             ) : null}

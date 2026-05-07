@@ -105,7 +105,7 @@ export interface Ingredient {
 }
 
 // Orders
-export type OrderStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "PICKED_UP" | "CANCELLED";
+export type OrderStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "PICKED_UP" | "CANCELLED" | "PARTIAL";
 export type PaymentMethod = "CASH" | "CARD";
 
 export interface OrderListResponse {
@@ -117,6 +117,13 @@ export interface OrderListResponse {
   status: OrderStatus;
   createdAt: string;
   updatedAt?: string;
+}
+
+export interface OrderStationState {
+  id: string;
+  status: string;
+  orderId: string;
+  stationId: string;
 }
 
 export interface OrderDetailResponse {
@@ -132,9 +139,11 @@ export interface OrderDetailResponse {
   surcharge?: number;
   ticketNumber?: number | null;
   confirmedAt?: string | null;
+  completedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
   categorizedItems: CategorizedItems[];
+  orderStationStates?: OrderStationState[];
 }
 
 export interface CategorizedItems {
