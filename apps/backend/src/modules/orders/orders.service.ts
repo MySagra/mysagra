@@ -190,7 +190,7 @@ export class OrdersService {
                 { displayCode: { contains: queryParams.search } },
                 { table: { contains: queryParams.search } },
                 { customer: { contains: queryParams.search } },
-                { ticketNumber: { equals: parseInt(queryParams.search) }}
+                { ticketNumber: { equals: parseInt(queryParams.search) } }
             ]
         }
 
@@ -437,22 +437,14 @@ export class OrdersService {
         })
 
         if (confirm) {
-            this.cashierEvent.broadcastEvent(
-                {
-                    displayCode: createdOrder?.displayCode,
-                    ticketNumber: createdOrder?.ticketNumber,
-                    id: createdOrder?.id
-                },
-                "confirmed-order"
-            )
-
             const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
                 SELECT DISTINCT os.stationId
                 FROM orders_stations_states os
                 WHERE os.orderId = ${createdOrder?.id}
             `).map(({ stationId }) => stationId)
 
-            this.displayEvent.broadcastEvent(
+            EventsService.broadcastEvents(
+                [this.displayEvent, this.cashierEvent],
                 {
                     displayCode: createdOrder?.displayCode,
                     ticketNumber: createdOrder?.ticketNumber,
@@ -602,22 +594,14 @@ export class OrdersService {
             return updatedOrder;
         });
 
-        this.cashierEvent.broadcastEvent(
-            {
-                displayCode: confirmedOrder.displayCode,
-                ticketNumber: confirmedOrder.ticketNumber,
-                id: confirmedOrder.id
-            },
-            "confirmed-order"
-        )
-
         const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
             SELECT DISTINCT os.stationId
             FROM orders_stations_states os
             WHERE os.orderId = ${confirmedOrder?.id}
         `).map(({ stationId }) => stationId)
 
-        this.displayEvent.broadcastEvent(
+        EventsService.broadcastEvents(
+            [this.displayEvent, this.cashierEvent],
             {
                 displayCode: confirmedOrder.displayCode,
                 ticketNumber: confirmedOrder.ticketNumber,
