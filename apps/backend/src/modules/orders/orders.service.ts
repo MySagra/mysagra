@@ -190,7 +190,7 @@ export class OrdersService {
                 { displayCode: { contains: queryParams.search } },
                 { table: { contains: queryParams.search } },
                 { customer: { contains: queryParams.search } },
-                { ticketNumber: { equals: parseInt(queryParams.search) }}
+                { ticketNumber: { equals: parseInt(queryParams.search) } }
             ]
         }
 
@@ -784,11 +784,18 @@ export class OrdersService {
             throw new Error("Some order items were not found");
         }
 
+        const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
+            SELECT DISTINCT os.stationId
+            FROM orders_stations_states os
+            WHERE os.orderId = ${order?.id}
+        `).map(({ stationId }) => stationId)
+
         this.printerEvent.broadcastEvent(
             {
                 ...order,
                 reprintOrderItems,
                 reprintReceipt: reprint.reprintReceipt,
+                ordersStations
             },
             "reprint-order"
         );
