@@ -189,7 +189,8 @@ export class OrdersService {
             where.OR = [
                 { displayCode: { contains: queryParams.search } },
                 { table: { contains: queryParams.search } },
-                { customer: { contains: queryParams.search } }
+                { customer: { contains: queryParams.search } },
+                { ticketNumber: { equals: parseInt(queryParams.search) }}
             ]
         }
 
