@@ -14,7 +14,7 @@ const router = Router();
 
 router.get(
     "/",
-    authenticate(["admin", "maintainer"]),
+    authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     validateRequest({
         query: GetStationQuerySchema
     }),
@@ -23,7 +23,7 @@ router.get(
 
 router.get(
     "/:id",
-    authenticate(["admin", "maintainer"]),
+    authenticate(["admin", "maintainer", "operator"], ["ms_pt_"]),
     validateRequest({
         query: GetStationQuerySchema,
         params: cuidParamSchema
