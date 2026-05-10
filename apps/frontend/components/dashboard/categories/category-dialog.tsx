@@ -205,7 +205,7 @@ export function CategoryDialog({
       name: nameTrimmed,
       available: values.available,
       printerId: values.printerId === "none" ? null : values.printerId,
-      stationId: values.stationId === "none" ? undefined : values.stationId,
+      stationId: values.stationId === "none" ? null : values.stationId,
     };
 
     let savedCategory: Category;

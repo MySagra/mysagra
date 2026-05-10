@@ -17,7 +17,7 @@ const CategoryBase = {
     printerId: z.cuid().nullish().meta({
         description: "Associated printer identifier for category orders"
     }),
-    stationId: z.cuid().nullish().meta({
+    stationId: z.cuid().nullable().meta({
         description: "Associated station identifier"
     })
 }
@@ -45,7 +45,7 @@ export const PatchCategorySchema = z.object({
     printerId: CategoryBase.printerId.optional().nullable().meta({
         description: "Update associated printer"
     }),
-    stationId: z.cuid().nullish().meta({
+    stationId: z.cuid().optional().nullable().meta({
         description: "Associated station identifier"
     })
 }).refine(data => Object.keys(data).length > 0, {
