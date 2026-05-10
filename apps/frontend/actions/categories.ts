@@ -20,7 +20,7 @@ export async function createCategory(data: {
   available: boolean;
   position?: number;
   printerId?: string | null;
-  stationId?: string;
+  stationId?: string | null;
 }): Promise<ActionResult<Category>> {
   try {
     const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.ALL, {
@@ -41,7 +41,7 @@ export async function updateCategory(
     available?: boolean;
     position?: number;
     printerId?: string | null;
-    stationId?: string;
+    stationId?: string | null;
   }
 ): Promise<ActionResult<Category>> {
   try {
@@ -70,7 +70,7 @@ export async function updateCategory(
 }
 
 export async function reorderCategories(
-  categories: { id: string; name: string; available: boolean; position: number; printerId?: string | null; stationId?: string }[]
+  categories: { id: string; name: string; available: boolean; position: number; printerId?: string | null; stationId?: string | null }[]
 ): Promise<Category[]> {
   const results: Category[] = [];
   for (const { id, name, available, position, printerId, stationId } of categories) {
