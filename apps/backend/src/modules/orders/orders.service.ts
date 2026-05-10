@@ -470,10 +470,7 @@ export class OrdersService {
             )
 
             this.printerEvent.broadcastEvent(
-                {
-                    createdOrder,
-                    ordersStations
-                },
+                createdOrder,
                 "confirmed-order"
             );
         }
@@ -645,11 +642,7 @@ export class OrdersService {
         )
 
         this.printerEvent.broadcastEvent(
-            {
-                confirmedOrder,
-                ordersStations
-            }
-            ,
+            confirmedOrder,
             "confirmed-order"
         );
 
@@ -815,8 +808,7 @@ export class OrdersService {
             {
                 ...order,
                 reprintOrderItems,
-                reprintReceipt: reprint.reprintReceipt,
-                ordersStations
+                reprintReceipt: reprint.reprintReceipt
             },
             "reprint-order"
         );
