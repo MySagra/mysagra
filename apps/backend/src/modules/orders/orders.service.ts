@@ -1,9 +1,10 @@
 import {
+    Channel,
     ConfirmOrderInput,
     CreateOrder,
+    EventName,
     GetOrdersQueryParams,
     OrderItem,
-    OrderItemInput,
     OrderStatus,
     ReprintOrder
 } from "@mysagra/schemas";
@@ -13,10 +14,15 @@ import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
 import { redisConnection } from "@/lib/redis";
 import { BadRequestError, NotFoundError } from "@/common/errors";
-export class OrdersService {
+import { EventsServiceIF } from "@/common/EventServiceIF";
+export class OrdersService implements EventsServiceIF {
     private cashierEvent = EventsService.getIstance('cashier');
     private displayEvent = EventsService.getIstance('display');
     private printerEvent = EventsService.getIstance('printer');
+
+    recoverEvents(channel: Channel, eventName: EventName, id: string, timestamp: string) {
+        return;
+    }
 
     private async _getNextTicketNumber(): Promise<number> {
         const today = new Date().toISOString().split('T')[0];
