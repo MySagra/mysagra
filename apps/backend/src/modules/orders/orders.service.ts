@@ -427,7 +427,14 @@ export class OrdersService {
                                 select: {
                                     id: true,
                                     name: true,
-                                    printerId: true
+                                    printerId: true,
+                                    category: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                            station: true
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -587,7 +594,14 @@ export class OrdersService {
                                 select: {
                                     id: true,
                                     name: true,
-                                    printerId: true
+                                    printerId: true,
+                                    category: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                            station: true
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -756,9 +770,16 @@ export class OrdersService {
                     include: {
                         food: {
                             select: {
-                                name: true,
                                 id: true,
-                                printerId: true
+                                name: true,
+                                printerId: true,
+                                category: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        station: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -836,7 +857,10 @@ export class OrdersService {
 
             await tx.order.update({
                 where: { id: orderId },
-                data: { status: newOrderStatus }
+                data: {
+                    status: newOrderStatus,
+                    completedAt: newOrderStatus === "COMPLETED" ? new Date() : null
+                }
             })
 
             this.displayEvent.broadcastEvent(
