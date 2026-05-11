@@ -6,8 +6,11 @@ import {
     UpdateCashRegisterInput
 } from "@mysagra/schemas";
 import { NotFoundError } from "@/common/errors";
+import { EventsService } from "../events/events.service";
 
 export class CashRegistersService {
+    private printerEvent = EventsService.getIstance('printer');
+    
     async getCashRegisters(queryParams?: GetCashRegisterQueryParams) {
         const where: Prisma.CashRegisterWhereInput = {};
         const include: Prisma.CashRegisterInclude = {}
@@ -77,5 +80,26 @@ export class CashRegistersService {
                 id
             }
         })
+    }
+
+    async openDrawer(id: string){
+        const cashRegister = await prisma.cashRegister.findUnique({
+            where: { id },
+            select: { id: true, defaultPrinterId: true }
+        })
+
+        if(!cashRegister){
+            throw new NotFoundError(`Cash register with id: ${id} not found`)
+        }
+
+        this.printerEvent.broadcastEvent(
+            {
+                cashRegisterId: cashRegister.id,
+                printerId: cashRegister.defaultPrinterId
+            },
+            "open-drawer"
+        )
+
+        return cashRegister;
     }
 }

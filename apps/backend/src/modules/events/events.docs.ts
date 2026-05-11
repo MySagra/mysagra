@@ -105,6 +105,11 @@ const SSEPrinterOrderCancelledPayloadSchema = z.object({
     printers: z.array(z.string()).meta({ example: ["printer1", "printer2"], description: "Array of printer IDs involved in the order" })
 }).meta({ id: "SSEPrinterOrderCancelledPayload" });
 
+const SSEOpenDrawerPayloadSchema = z.object({
+    cashRegisterId: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy" }),
+    printerId: z.string().nullable().meta({ example: "printer123" })
+}).meta({ id: "SSEOpenDrawerPayload" });
+
 registry.register("SSEOrder", SSEOrderSchema);
 registry.register("SSEConfirmedOrderSummary", SSEConfirmedOrderSummary);
 registry.register("SSEReprintOrder", SSEReprintOrderSchema);
@@ -115,6 +120,7 @@ registry.register("SSEGeneralClosurePayload", SSEGeneralClosurePayloadSchema);
 registry.register("SSEOrderCancelledPayload", SSEOrderCancelledPayloadSchema);
 registry.register("SSEOrderStatusUpdatePayload", SSEOrderStatusUpdatePayloadSchema);
 registry.register("SSEPrinterOrderCancelledPayload", SSEPrinterOrderCancelledPayloadSchema);
+registry.register("SSEOpenDrawerPayload", SSEOpenDrawerPayloadSchema);
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -137,6 +143,7 @@ registry.registerPath({
 - **\`food-availability-changed\`** — Fired when a food item's availability changes. Payload: \`SSEFoodAvailability\`.
 - **\`category-availability-changed\`** — Fired when a category's availability changes. Payload: \`SSECategoryAvailability\`.
 - **\`printer-status-changed\`** — Fired when a printer's status changes. Payload: \`SSEPrinterStatus\`.
+- **\`open-drawer\`** — Fired when cash register drawer is opened. Payload: \`SSEOpenDrawerPayload\`.
 
 ### \`display\` channel
 - **\`confirmed-order\`** — Fired when an order is confirmed. Payload: \`SSEConfirmedOrderSummary\`.

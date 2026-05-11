@@ -17,6 +17,10 @@ const UpdateCashRegisterRequest = registry.register("UpdateCashRegisterRequest",
 const PatchCashRegisterRequest = registry.register("PatchCashRegisterRequest", PatchCashRegisterSchema);
 const GetCashRegisterQuery = registry.register("GetCashRegisterQuery", GetCashRegisterQuerySchema);
 const CUIDParam = registry.register("CUIDParam", cuidParamSchema);
+const OpenDrawerResponse = registry.register("OpenDrawerResponse", z.object({
+    cashRegisterId: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy" }),
+    printerId: z.string().nullable().meta({ example: "printer123" }),
+}));
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
@@ -155,6 +159,25 @@ registry.registerPath({
     request: { params: CUIDParam },
     responses: {
         200: { description: "Cash register deleted" },
+        404: { description: "Not Found - Cash register not found" },
+        401: { description: "Unauthorized" },
+    },
+});
+
+registry.registerPath({
+    method: "post",
+    path: "/v1/cash-registers/{id}/open-drawer",
+    summary: "Open cash register drawer",
+    tags: ["CashRegisters"],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+    request: { params: CUIDParam },
+    responses: {
+        200: {
+            description: "Drawer opened successfully",
+            content: {
+                "application/json": { schema: OpenDrawerResponse },
+            },
+        },
         404: { description: "Not Found - Cash register not found" },
         401: { description: "Unauthorized" },
     },

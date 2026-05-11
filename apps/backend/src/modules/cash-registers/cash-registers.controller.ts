@@ -19,7 +19,7 @@ export class CashRegistersController {
         req: TypedRequest<{ query: GetCashRegisterQueryParams }>,
         res: Response,
     ): Promise<void> => {
-        if(req.user?.role === "operator" && req.validated.query.enabled !== true){
+        if (req.user?.role === "operator" && req.validated.query.enabled !== true) {
             throw new ForbiddenError("Operators can only access enabled cash registers");
         }
 
@@ -73,5 +73,15 @@ export class CashRegistersController {
         await this.cashRegisterService.deleteCashRegister(id)
 
         res.status(204).send();
+    });
+
+    openDrawer = asyncHandler(async (
+        req: TypedRequest<{ params: CUIDParam }>,
+        res: Response,
+    ): Promise<void> => {
+        const { id } = req.validated.params;
+        const data = await this.cashRegisterService.openDrawer(id)
+
+        res.status(201).json(data);
     });
 }

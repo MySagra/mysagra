@@ -70,4 +70,14 @@ router.delete(
     }),
     cashRegisterController.deleteCashRegister
 );
+
+router.post(
+    "/:id/open-drawer",
+    authenticate(["admin", "maintainer", "operator"]),
+    validateRequest({
+        params: cuidParamSchema,
+    }),
+    cashRegisterController.openDrawer
+);
+
 export default router;
