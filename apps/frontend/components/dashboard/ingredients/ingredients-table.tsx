@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Ingredient } from "@/lib/api-types";
+import { formatDecimal } from "@/lib/decimal-parser";
 import {
   Table,
   TableBody,
@@ -113,6 +114,7 @@ export function IngredientsTable({
                 <SortIcon column="name" />
               </button>
             </TableHead>
+            <TableHead>{t.ingredients.columnSovrapprezzo}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -128,6 +130,7 @@ export function IngredientsTable({
                 </Button>
               </TableCell>
               <TableCell className="font-medium">{ingredient.name}</TableCell>
+              <TableCell>{formatDecimal(ingredient.surcharge)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

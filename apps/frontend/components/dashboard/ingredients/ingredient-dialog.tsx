@@ -6,6 +6,7 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Ingredient } from "@/lib/api-types";
 import { createIngredient, updateIngredient } from "@/actions/ingredients";
+import { parseDecimal, formatDecimal } from "@/lib/decimal-parser";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ import { useRole } from "@/hooks/use-role";
 
 type IngredientFormValues = {
   name: string;
+  surcharge: string;
 };
 
 interface IngredientDialogProps {
@@ -52,12 +54,20 @@ export function IngredientDialog({
 
   const ingredientSchema = z.object({
     name: z.string().min(1, t.ingredients.nameRequired),
+    surcharge: z.string().refine(
+      (val) => {
+        const parsed = parseDecimal(val);
+        return parsed >= 0 && parsed <= 99.99;
+      },
+      { message: t.ingredients.sovraprezzoInvalid }
+    ),
   });
 
   const form = useForm<IngredientFormValues>({
     resolver: standardSchemaResolver(ingredientSchema),
     defaultValues: {
       name: "",
+      surcharge: "0.50",
     },
   });
 
@@ -65,22 +75,25 @@ export function IngredientDialog({
     if (ingredient) {
       form.reset({
         name: ingredient.name,
+        surcharge: formatDecimal(ingredient.surcharge),
       });
     } else {
       form.reset({
         name: "",
+        surcharge: "0.50",
       });
     }
   }, [ingredient, open, form]);
 
   async function onSubmit(values: IngredientFormValues) {
+    const surcharge = parseDecimal(values.surcharge);
     if (isEditing && ingredient) {
-      const result = await updateIngredient(ingredient.id, { name: values.name.trim() });
+      const result = await updateIngredient(ingredient.id, { name: values.name.trim(), surcharge });
       if (!result.ok) { toast.error(result.error); return; }
       onSaved(result.data);
       toast.success(t.ingredients.toastUpdated);
     } else {
-      const result = await createIngredient({ name: values.name.trim() });
+      const result = await createIngredient({ name: values.name.trim(), surcharge });
       if (!result.ok) { toast.error(result.error); return; }
       onSaved(result.data);
       toast.success(t.ingredients.toastCreated);
@@ -110,6 +123,26 @@ export function IngredientDialog({
                             {...field}
                             placeholder={t.ingredients.namePlaceholder}
                             autoFocus
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </Field>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="surcharge"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Field>
+                        <FieldLabel required>{t.ingredients.sovraprezzoLabel}</FieldLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder={t.ingredients.sovraprezzoPlaceholder}
+                            type="text"
+                            inputMode="decimal"
                           />
                         </FormControl>
                         <FormMessage />

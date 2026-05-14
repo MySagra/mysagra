@@ -15,14 +15,12 @@ export class ReportService {
 
     static getInstance(): ReportService {
         if (!ReportService.instance) {
-            const instance = new ReportService()
-            ReportService.instance = instance
-            instance.initReports();
+            ReportService.instance = new ReportService()
         }
         return ReportService.instance
     }
 
-    private async initReports() {
+    async initReports() {
         const lastReport = await prisma.report.findFirst({
             orderBy: { timestamp: "desc" }
         })

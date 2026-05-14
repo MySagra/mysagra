@@ -2,6 +2,7 @@ import { env } from "./config/env"; // load the .env before prisma
 import { logger } from "./config/logger";
 import { connectRedis, redisConnection } from "./lib/redis";
 import { sagraService } from "./modules/sagra/sagra.service";
+import { reportService } from "./modules/report/report.service";
 import app from "./app";
 import { initReportWorker } from "./jobs/report-automation.job";
 
@@ -14,6 +15,9 @@ async function startServer() {
 
     //load configuration
     await sagraService.loadConfig();
+
+    // initialize report service (backfills missing reports) before worker starts
+    await reportService.initReports();
 
     // start bullMQ worker
     initReportWorker()
