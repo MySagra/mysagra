@@ -102,6 +102,7 @@ export interface FoodRequest {
 export interface Ingredient {
   id: string;
   name: string;
+  surcharge: number;
 }
 
 // Orders

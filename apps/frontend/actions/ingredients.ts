@@ -17,6 +17,7 @@ export async function getIngredientById(id: string): Promise<Ingredient> {
 
 export async function createIngredient(data: {
   name: string;
+  surcharge: number;
 }): Promise<ActionResult<Ingredient>> {
   try {
     const result = await fetchApi<Ingredient>(API_ENDPOINTS.INGREDIENTS.ALL, {
@@ -32,7 +33,7 @@ export async function createIngredient(data: {
 
 export async function updateIngredient(
   id: string,
-  data: { name: string }
+  data: { name: string; surcharge: number }
 ): Promise<ActionResult<Ingredient>> {
   try {
     const result = await fetchApi<Ingredient>(
