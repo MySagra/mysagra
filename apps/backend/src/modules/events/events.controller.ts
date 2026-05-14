@@ -16,8 +16,8 @@ export class EventsController {
         res.setHeader('Connection', 'keep-alive');
         res.flushHeaders();
 
-        const event = EventsService.getIstance(channel);
-        event.addClient(res);
+        const event = EventsService.getInstance(channel);
+        event.addClient(res, req);
 
         // Hearthbeat
         const keepAliveInterval = setInterval(() => res.write(': keep-alive\n\n'), 15000);

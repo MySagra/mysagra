@@ -9,7 +9,7 @@ import { NotFoundError } from "@/common/errors";
 import { EventsService } from "../events/events.service";
 
 export class CashRegistersService {
-    private printerEvent = EventsService.getIstance('printer');
+    private printerEvent = EventsService.getInstance('printer');
     
     async getCashRegisters(queryParams?: GetCashRegisterQueryParams) {
         const where: Prisma.CashRegisterWhereInput = {};

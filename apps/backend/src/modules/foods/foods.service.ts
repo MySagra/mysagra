@@ -23,7 +23,7 @@ type FoodWithIngredients = Prisma.FoodGetPayload<{
 }>;
 
 export class FoodsService {
-    private event = EventsService.getIstance('cashier')
+    private event = EventsService.getInstance('cashier')
 
     public static formatFoodResponse(food: FoodWithIngredients) {
         const { foodIngredients, ...restOfFood } = food;

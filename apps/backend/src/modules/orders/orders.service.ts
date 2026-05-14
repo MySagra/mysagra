@@ -14,11 +14,11 @@ import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
 import { redisConnection } from "@/lib/redis";
 import { BadRequestError, NotFoundError } from "@/common/errors";
-import { EventsServiceIF } from "@/common/EventServiceIF";
-export class OrdersService implements EventsServiceIF {
-    private cashierEvent = EventsService.getIstance('cashier');
-    private displayEvent = EventsService.getIstance('display');
-    private printerEvent = EventsService.getIstance('printer');
+import { RecoverableService } from "@/common/RecoverableService";
+export class OrdersService implements RecoverableService {
+    private cashierEvent = EventsService.getInstance('cashier');
+    private displayEvent = EventsService.getInstance('display');
+    private printerEvent = EventsService.getInstance('printer');
 
     recoverEvents(channel: Channel, eventName: EventName, id: string, timestamp: string) {
         return;

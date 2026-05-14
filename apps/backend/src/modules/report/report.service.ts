@@ -9,7 +9,7 @@ import { BadRequestError } from "@/common/errors"
 
 export class ReportService {
     private static instance: ReportService
-    private printerEvent = EventsService.getIstance('printer');
+    private printerEvent = EventsService.getInstance('printer');
 
     private constructor() { }
 
