@@ -14,15 +14,10 @@ import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
 import { redisConnection } from "@/lib/redis";
 import { BadRequestError, NotFoundError } from "@/common/errors";
-import { RecoverableService } from "@/common/RecoverableService";
-export class OrdersService implements RecoverableService {
+export class OrdersService {
     private cashierEvent = EventsService.getInstance('cashier');
     private displayEvent = EventsService.getInstance('display');
     private printerEvent = EventsService.getInstance('printer');
-
-    recoverEvents(channel: Channel, eventName: EventName, id: string, timestamp: string) {
-        return;
-    }
 
     private async _getNextTicketNumber(): Promise<number> {
         const today = new Date().toISOString().split('T')[0];

@@ -126,6 +126,34 @@ registry.register("SSEOpenDrawerPayload", SSEOpenDrawerPayloadSchema);
 
 registry.registerPath({
     method: "get",
+    path: "/events/debug/destroy-connections/{channel}",
+    summary: "[DEBUG] Destroy all SSE connections for a channel",
+    description: `Forces all active SSE clients on the specified channel to disconnect.
+
+> ⚠️ **Available in non-production environments only.** This route is not registered when \`NODE_ENV=production\`.
+
+Sends a \`retry: 20000\` directive to each client before closing the connection, so clients will attempt to reconnect after 20 seconds.`,
+    tags: ["Events (SSE)"],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+    request: { params: EventParams },
+    responses: {
+        200: {
+            description: "Connections destroyed. Returns count of disconnected clients.",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        connections: z.number().int().meta({ example: 3, description: "Number of clients that were disconnected" }),
+                    }),
+                },
+            },
+        },
+        401: { description: "Unauthorized" },
+        403: { description: "Forbidden — admin only" },
+    },
+});
+
+registry.registerPath({
+    method: "get",
     path: "/events/{channel}",
     summary: "Subscribe to Server-Sent Events (SSE)",
     description: `Establishes a persistent SSE connection to receive real-time updates for the specified channel.
