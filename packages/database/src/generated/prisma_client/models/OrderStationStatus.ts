@@ -29,6 +29,7 @@ export type OrderStationStatusMinAggregateOutputType = {
   status: $Enums.OrderStatus | null
   orderId: string | null
   stationId: string | null
+  updatedAt: Date | null
 }
 
 export type OrderStationStatusMaxAggregateOutputType = {
@@ -36,6 +37,7 @@ export type OrderStationStatusMaxAggregateOutputType = {
   status: $Enums.OrderStatus | null
   orderId: string | null
   stationId: string | null
+  updatedAt: Date | null
 }
 
 export type OrderStationStatusCountAggregateOutputType = {
@@ -43,6 +45,7 @@ export type OrderStationStatusCountAggregateOutputType = {
   status: number
   orderId: number
   stationId: number
+  updatedAt: number
   _all: number
 }
 
@@ -52,6 +55,7 @@ export type OrderStationStatusMinAggregateInputType = {
   status?: true
   orderId?: true
   stationId?: true
+  updatedAt?: true
 }
 
 export type OrderStationStatusMaxAggregateInputType = {
@@ -59,6 +63,7 @@ export type OrderStationStatusMaxAggregateInputType = {
   status?: true
   orderId?: true
   stationId?: true
+  updatedAt?: true
 }
 
 export type OrderStationStatusCountAggregateInputType = {
@@ -66,6 +71,7 @@ export type OrderStationStatusCountAggregateInputType = {
   status?: true
   orderId?: true
   stationId?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -146,6 +152,7 @@ export type OrderStationStatusGroupByOutputType = {
   status: $Enums.OrderStatus
   orderId: string
   stationId: string
+  updatedAt: Date
   _count: OrderStationStatusCountAggregateOutputType | null
   _min: OrderStationStatusMinAggregateOutputType | null
   _max: OrderStationStatusMaxAggregateOutputType | null
@@ -174,6 +181,7 @@ export type OrderStationStatusWhereInput = {
   status?: Prisma.EnumOrderStatusFilter<"OrderStationStatus"> | $Enums.OrderStatus
   orderId?: Prisma.StringFilter<"OrderStationStatus"> | string
   stationId?: Prisma.StringFilter<"OrderStationStatus"> | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderStationStatus"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   station?: Prisma.XOR<Prisma.StationScalarRelationFilter, Prisma.StationWhereInput>
 }
@@ -183,6 +191,7 @@ export type OrderStationStatusOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
   stationId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   station?: Prisma.StationOrderByWithRelationInput
   _relevance?: Prisma.OrderStationStatusOrderByRelevanceInput
@@ -197,6 +206,7 @@ export type OrderStationStatusWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumOrderStatusFilter<"OrderStationStatus"> | $Enums.OrderStatus
   orderId?: Prisma.StringFilter<"OrderStationStatus"> | string
   stationId?: Prisma.StringFilter<"OrderStationStatus"> | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderStationStatus"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   station?: Prisma.XOR<Prisma.StationScalarRelationFilter, Prisma.StationWhereInput>
 }, "id" | "orderId_stationId">
@@ -206,6 +216,7 @@ export type OrderStationStatusOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
   stationId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderStationStatusCountOrderByAggregateInput
   _max?: Prisma.OrderStationStatusMaxOrderByAggregateInput
   _min?: Prisma.OrderStationStatusMinOrderByAggregateInput
@@ -219,11 +230,13 @@ export type OrderStationStatusScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumOrderStatusWithAggregatesFilter<"OrderStationStatus"> | $Enums.OrderStatus
   orderId?: Prisma.StringWithAggregatesFilter<"OrderStationStatus"> | string
   stationId?: Prisma.StringWithAggregatesFilter<"OrderStationStatus"> | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrderStationStatus"> | Date | string
 }
 
 export type OrderStationStatusCreateInput = {
   id?: string
   status: $Enums.OrderStatus
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutOrderStationStatesInput
   station: Prisma.StationCreateNestedOneWithoutOrderStationStatesInput
 }
@@ -233,11 +246,13 @@ export type OrderStationStatusUncheckedCreateInput = {
   status: $Enums.OrderStatus
   orderId: string
   stationId: string
+  updatedAt?: Date | string
 }
 
 export type OrderStationStatusUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutOrderStationStatesNestedInput
   station?: Prisma.StationUpdateOneRequiredWithoutOrderStationStatesNestedInput
 }
@@ -247,6 +262,7 @@ export type OrderStationStatusUncheckedUpdateInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   stationId?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStationStatusCreateManyInput = {
@@ -254,11 +270,13 @@ export type OrderStationStatusCreateManyInput = {
   status: $Enums.OrderStatus
   orderId: string
   stationId: string
+  updatedAt?: Date | string
 }
 
 export type OrderStationStatusUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStationStatusUncheckedUpdateManyInput = {
@@ -266,6 +284,7 @@ export type OrderStationStatusUncheckedUpdateManyInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   stationId?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStationStatusListRelationFilter = {
@@ -294,6 +313,7 @@ export type OrderStationStatusCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
   stationId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderStationStatusMaxOrderByAggregateInput = {
@@ -301,6 +321,7 @@ export type OrderStationStatusMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
   stationId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderStationStatusMinOrderByAggregateInput = {
@@ -308,6 +329,7 @@ export type OrderStationStatusMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
   stationId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type OrderStationStatusCreateNestedManyWithoutStationInput = {
@@ -397,6 +419,7 @@ export type OrderStationStatusUncheckedUpdateManyWithoutOrderNestedInput = {
 export type OrderStationStatusCreateWithoutStationInput = {
   id?: string
   status: $Enums.OrderStatus
+  updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutOrderStationStatesInput
 }
 
@@ -404,6 +427,7 @@ export type OrderStationStatusUncheckedCreateWithoutStationInput = {
   id?: string
   status: $Enums.OrderStatus
   orderId: string
+  updatedAt?: Date | string
 }
 
 export type OrderStationStatusCreateOrConnectWithoutStationInput = {
@@ -440,11 +464,13 @@ export type OrderStationStatusScalarWhereInput = {
   status?: Prisma.EnumOrderStatusFilter<"OrderStationStatus"> | $Enums.OrderStatus
   orderId?: Prisma.StringFilter<"OrderStationStatus"> | string
   stationId?: Prisma.StringFilter<"OrderStationStatus"> | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderStationStatus"> | Date | string
 }
 
 export type OrderStationStatusCreateWithoutOrderInput = {
   id?: string
   status: $Enums.OrderStatus
+  updatedAt?: Date | string
   station: Prisma.StationCreateNestedOneWithoutOrderStationStatesInput
 }
 
@@ -452,6 +478,7 @@ export type OrderStationStatusUncheckedCreateWithoutOrderInput = {
   id?: string
   status: $Enums.OrderStatus
   stationId: string
+  updatedAt?: Date | string
 }
 
 export type OrderStationStatusCreateOrConnectWithoutOrderInput = {
@@ -484,11 +511,13 @@ export type OrderStationStatusCreateManyStationInput = {
   id?: string
   status: $Enums.OrderStatus
   orderId: string
+  updatedAt?: Date | string
 }
 
 export type OrderStationStatusUpdateWithoutStationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutOrderStationStatesNestedInput
 }
 
@@ -496,23 +525,27 @@ export type OrderStationStatusUncheckedUpdateWithoutStationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStationStatusUncheckedUpdateManyWithoutStationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStationStatusCreateManyOrderInput = {
   id?: string
   status: $Enums.OrderStatus
   stationId: string
+  updatedAt?: Date | string
 }
 
 export type OrderStationStatusUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   station?: Prisma.StationUpdateOneRequiredWithoutOrderStationStatesNestedInput
 }
 
@@ -520,12 +553,14 @@ export type OrderStationStatusUncheckedUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   stationId?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStationStatusUncheckedUpdateManyWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   stationId?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -535,6 +570,7 @@ export type OrderStationStatusSelect<ExtArgs extends runtime.Types.Extensions.In
   status?: boolean
   orderId?: boolean
   stationId?: boolean
+  updatedAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   station?: boolean | Prisma.StationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orderStationStatus"]>
@@ -546,9 +582,10 @@ export type OrderStationStatusSelectScalar = {
   status?: boolean
   orderId?: boolean
   stationId?: boolean
+  updatedAt?: boolean
 }
 
-export type OrderStationStatusOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "orderId" | "stationId", ExtArgs["result"]["orderStationStatus"]>
+export type OrderStationStatusOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "orderId" | "stationId" | "updatedAt", ExtArgs["result"]["orderStationStatus"]>
 export type OrderStationStatusInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   station?: boolean | Prisma.StationDefaultArgs<ExtArgs>
@@ -565,6 +602,7 @@ export type $OrderStationStatusPayload<ExtArgs extends runtime.Types.Extensions.
     status: $Enums.OrderStatus
     orderId: string
     stationId: string
+    updatedAt: Date
   }, ExtArgs["result"]["orderStationStatus"]>
   composites: {}
 }
@@ -940,6 +978,7 @@ export interface OrderStationStatusFieldRefs {
   readonly status: Prisma.FieldRef<"OrderStationStatus", 'OrderStatus'>
   readonly orderId: Prisma.FieldRef<"OrderStationStatus", 'String'>
   readonly stationId: Prisma.FieldRef<"OrderStationStatus", 'String'>
+  readonly updatedAt: Prisma.FieldRef<"OrderStationStatus", 'DateTime'>
 }
     
 

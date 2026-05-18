@@ -809,7 +809,8 @@ export class OrdersService {
             {
                 ...order,
                 reprintOrderItems,
-                reprintReceipt: reprint.reprintReceipt
+                reprintReceipt: reprint.reprintReceipt,
+                ordersStations
             },
             "reprint-order"
         );

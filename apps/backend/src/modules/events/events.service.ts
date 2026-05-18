@@ -37,10 +37,24 @@ export class EventsService {
             );
         }
 
-        const updatedOrders = await prisma.order.findMany({
+        const orderStationStatus = await prisma.orderStationStatus.findMany({
             where: {
                 updatedAt: { gte: lastEventDate },
-                status: { not: "CONFIRMED"}
+            },
+            select: {
+                orderId: true,
+                stationId: true,
+                status: true
+            }
+        });
+
+        for (const o of orderStationStatus) {
+            this.broadcastEvent(o, "order-station-status-update", undefined, client);
+        }
+
+        const updatedOrders = await prisma.order.findMany({
+            where: {
+                updatedAt: { gte: lastEventDate }
             },
             select: {
                 id: true,
@@ -51,7 +65,12 @@ export class EventsService {
         });
 
         for (const o of updatedOrders) {
-            this.broadcastEvent(o, "order-status-update", undefined, client);
+            if (o.status === "CANCELLED") {
+                this.broadcastEvent(o, "order-cancelled", undefined, client);
+            }
+            else {
+                this.broadcastEvent(o, "order-status-update", undefined, client);
+            }
         }
     }
 
@@ -78,7 +97,7 @@ export class EventsService {
         logger.info('[SSE] Client connected', { size: this.clients.size })
         const lastEventId = req.headers['last-event-id']?.toString();
         this.clients.add(res);
-        
+
         if (lastEventId) this._recoverOrders(lastEventId, res);
     }
 
