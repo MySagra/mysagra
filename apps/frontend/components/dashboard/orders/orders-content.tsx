@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CashRegister, OrderListResponse, OrderStatus, PaginatedOrders } from "@/lib/api-types";
 import { OrdersToolbar } from "./orders-toolbar";
 import { OrdersTable } from "./orders-table";
@@ -13,9 +14,11 @@ interface OrdersContentProps {
   cashRegisters?: CashRegister[];
   dateFrom?: Date;
   dateTo?: Date;
+  initialOnlyDiscounted?: boolean;
 }
 
-export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateTo }: OrdersContentProps) {
+export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateTo, initialOnlyDiscounted = false }: OrdersContentProps) {
+  const router = useRouter();
   const [orders, setOrders] = useState<OrderListResponse[]>(
     initialData?.data ?? []
   );
@@ -26,6 +29,7 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [onlyDiscounted, setOnlyDiscounted] = useState(initialOnlyDiscounted);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,6 +38,7 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
     search?: string;
     status?: string;
     page?: number;
+    onlyDiscounted?: boolean;
   }) {
     setIsLoading(true);
     try {
@@ -47,6 +52,7 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
         status: statusArr,
         page: params.page || 1,
         limit: 20,
+        onlyDiscounted: params.onlyDiscounted || undefined,
       });
 
       setOrders(data.data);
@@ -60,16 +66,29 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
 
   function handleSearch(query: string) {
     setSearchQuery(query);
-    loadOrders({ search: query, status: statusFilter });
+    loadOrders({ search: query, status: statusFilter, onlyDiscounted });
   }
 
   function handleStatusFilter(status: string) {
     setStatusFilter(status);
-    loadOrders({ search: searchQuery, status });
+    loadOrders({ search: searchQuery, status, onlyDiscounted });
+  }
+
+  function handleOnlyDiscountedChange(value: boolean) {
+    setOnlyDiscounted(value);
+    const params = new URLSearchParams(window.location.search);
+    if (value) {
+      params.set("onlyDiscounted", "true");
+    } else {
+      params.delete("onlyDiscounted");
+    }
+    const query = params.toString();
+    router.replace(query ? `?${query}` : window.location.pathname, { scroll: false });
+    loadOrders({ search: searchQuery, status: statusFilter, onlyDiscounted: value });
   }
 
   function handlePageChange(page: number) {
-    loadOrders({ search: searchQuery, status: statusFilter, page });
+    loadOrders({ search: searchQuery, status: statusFilter, page, onlyDiscounted });
   }
 
   function handleViewDetail(order: OrderListResponse) {
@@ -78,11 +97,11 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
   }
 
   function handleOrderUpdated() {
-    loadOrders({ search: searchQuery, status: statusFilter, page: pagination.currentPage });
+    loadOrders({ search: searchQuery, status: statusFilter, page: pagination.currentPage, onlyDiscounted });
   }
 
   function handleRefresh() {
-    loadOrders({ search: searchQuery, status: statusFilter, page: pagination.currentPage });
+    loadOrders({ search: searchQuery, status: statusFilter, page: pagination.currentPage, onlyDiscounted });
   }
 
   return (
@@ -93,6 +112,8 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
           onSearchChange={handleSearch}
           statusFilter={statusFilter}
           onStatusFilterChange={handleStatusFilter}
+          onlyDiscounted={onlyDiscounted}
+          onOnlyDiscountedChange={handleOnlyDiscountedChange}
           onRefresh={handleRefresh}
           isLoading={isLoading}
         />

@@ -34,7 +34,7 @@ import {
 } from "lucide-react"
 import { useLocale } from "@/contexts/locale-context"
 
-type AppRole = "admin" | "maintainer" | null
+type AppRole = "admin" | "maintainer" | "operator" | null
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: { name: string; email: string; avatar: string }
@@ -159,7 +159,7 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         <NavSecondary items={navItems.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={user} role={userRole} />
       </SidebarFooter>
     </Sidebar>
   )

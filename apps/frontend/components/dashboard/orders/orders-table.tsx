@@ -29,7 +29,7 @@ interface OrdersTableProps {
   onPageChange: (page: number) => void;
 }
 
-type SortColumn = "displayCode" | "customer" | "table" | "subTotal" | "status" | "createdAt" | null;
+type SortColumn = "displayCode" | "customer" | "table" | "total" | "discount" | "status" | "createdAt" | null;
 type SortDirection = "asc" | "desc";
 
 const statusIcons: Record<string, React.ReactNode> = {
@@ -116,9 +116,13 @@ export function OrdersTable({
           aValue = a.table;
           bValue = b.table;
           break;
-        case "subTotal":
-          aValue = a.subTotal;
-          bValue = b.subTotal;
+        case "total":
+          aValue = parseFloat(a.total);
+          bValue = parseFloat(b.total);
+          break;
+        case "discount":
+          aValue = parseFloat(a.discount);
+          bValue = parseFloat(b.discount);
           break;
         case "status":
           aValue = a.status;
@@ -221,13 +225,22 @@ export function OrdersTable({
                   <SortIcon column="table" />
                 </button>
               </TableHead>
+              <TableHead className="w-24 hidden md:table-cell">
+                <button
+                  onClick={() => handleSort("discount")}
+                  className="flex items-center ml-auto hover:text-foreground transition-colors font-medium"
+                >
+                  {t.orders.columnDiscount}
+                  <SortIcon column="discount" />
+                </button>
+              </TableHead>
               <TableHead className="w-24 sm:w-28">
                 <button
-                  onClick={() => handleSort("subTotal")}
+                  onClick={() => handleSort("total")}
                   className="flex items-center ml-auto hover:text-foreground transition-colors font-medium"
                 >
                   {t.orders.columnTotal}
-                  <SortIcon column="subTotal" />
+                  <SortIcon column="total" />
                 </button>
               </TableHead>
               <TableHead className="w-16 sm:w-40">
@@ -245,7 +258,7 @@ export function OrdersTable({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <p className="text-muted-foreground">{t.common.loading}</p>
                 </TableCell>
               </TableRow>
@@ -275,8 +288,11 @@ export function OrdersTable({
                     <span className="block truncate" title={order.customer}>{order.customer}</span>
                   </TableCell>
                   <TableCell className="text-center hidden sm:table-cell">{order.table === 'NO_TABLE_PRESET' ? '--' : order.table}</TableCell>
+                  <TableCell className="text-right text-muted-foreground text-sm hidden md:table-cell">
+                    {parseFloat(order.discount) > 0 ? `-€${order.discount}` : "—"}
+                  </TableCell>
                   <TableCell className="text-right font-medium">
-                    €{order.subTotal}
+                    €{order.total}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     <span className="hidden sm:inline">{formatDate(order.createdAt)}</span>

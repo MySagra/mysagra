@@ -145,6 +145,8 @@ export const GetOrdersQuerySchema = z.object({
     sortBy: z.enum(['createdAt', 'confirmedAt', 'completedAt']).optional().default('createdAt').meta({
         description: "Sort field"
     }),
+    onlyDiscounted: z
+        .preprocess((value) => value === 'true', z.boolean()).default(false),
     status: z.preprocess(
         (val) => {
             if (!val) return undefined;

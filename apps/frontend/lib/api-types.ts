@@ -115,6 +115,8 @@ export interface OrderListResponse {
   table: string;
   customer: string;
   subTotal: string;
+  total: string;
+  discount: string;
   status: OrderStatus;
   createdAt: string;
   updatedAt?: string;
