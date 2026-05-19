@@ -39,7 +39,7 @@ export class EventsService {
 
         const orderStationStatus = await prisma.orderStationStatus.findMany({
             where: {
-                updatedAt: { gte: lastEventDate },
+                updatedAt: { gte: lastEventDate }
             },
             select: {
                 orderId: true,
