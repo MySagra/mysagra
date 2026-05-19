@@ -5,7 +5,14 @@ import { OrdersContent } from "@/components/dashboard/orders/orders-content";
 import { PaginatedOrders, CashRegister } from "@/lib/api-types";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
-export default async function OrdersPage() {
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ onlyDiscounted?: string }>;
+}) {
+  const { onlyDiscounted: onlyDiscountedParam } = await searchParams;
+  const onlyDiscounted = onlyDiscountedParam === "true";
+
   let ordersData: PaginatedOrders = {
     data: [],
     pagination: {
@@ -18,7 +25,7 @@ export default async function OrdersPage() {
 
   try {
     [ordersData, cashRegisters] = await Promise.all([
-      getOrders({ page: 1, limit: 20 }),
+      getOrders({ page: 1, limit: 20, onlyDiscounted: onlyDiscounted || undefined }),
       getCashRegisters(),
     ]);
   } catch (error) {
@@ -29,7 +36,7 @@ export default async function OrdersPage() {
   return (
     <>
       <DashboardHeader title="Ordini" />
-      <OrdersContent initialData={ordersData} cashRegisters={cashRegisters} />
+      <OrdersContent initialData={ordersData} cashRegisters={cashRegisters} initialOnlyDiscounted={onlyDiscounted} />
     </>
   );
 }

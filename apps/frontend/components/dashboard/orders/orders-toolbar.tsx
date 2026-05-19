@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SearchIcon, RefreshCw } from "lucide-react";
+import { SearchIcon, RefreshCw, Tag } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
 
 interface OrdersToolbarProps {
@@ -17,6 +17,8 @@ interface OrdersToolbarProps {
   onSearchChange: (query: string) => void;
   statusFilter: string;
   onStatusFilterChange: (status: string) => void;
+  onlyDiscounted: boolean;
+  onOnlyDiscountedChange: (value: boolean) => void;
   onRefresh: () => void;
   isLoading?: boolean;
 }
@@ -26,6 +28,8 @@ export function OrdersToolbar({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
+  onlyDiscounted,
+  onOnlyDiscountedChange,
   onRefresh,
   isLoading,
 }: OrdersToolbarProps) {
@@ -56,6 +60,16 @@ export function OrdersToolbar({
           <SelectItem value="PARTIAL">{t.orders.statusPartial}</SelectItem>
         </SelectContent>
       </Select>
+      <Button
+        variant={onlyDiscounted ? "default" : "outline"}
+        size="sm"
+        onClick={() => onOnlyDiscountedChange(!onlyDiscounted)}
+        title={t.orders.onlyDiscountedTitle}
+        className="gap-2"
+      >
+        <Tag className="h-4 w-4" />
+        {t.orders.onlyDiscounted}
+      </Button>
       <Button
         variant="outline"
         size="icon"

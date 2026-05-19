@@ -185,12 +185,16 @@ export class OrdersService {
 
         const where: Prisma.OrderWhereInput = {};
 
+        if(queryParams.onlyDiscounted) {
+            where.discount = { gt: 0 }
+        }
+
         if (queryParams.search) {
             where.OR = [
                 { displayCode: { contains: queryParams.search } },
                 { table: { contains: queryParams.search } },
                 { customer: { contains: queryParams.search } },
-                { ticketNumber: { equals: parseInt(queryParams.search) } }
+                { ticketNumber: { equals: parseInt(queryParams.search) } },
             ]
         }
 
