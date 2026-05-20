@@ -41,7 +41,7 @@ model Category {
   printer   Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
 
   stationId String?
-  station   Station? @relation(fields: [stationId], references: [id])
+  station   Station? @relation(fields: [stationId], references: [id], onDelete: SetNull)
 
   @@map("categories")
 }
