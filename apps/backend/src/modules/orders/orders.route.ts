@@ -9,7 +9,9 @@ import {
     idParamSchema,
     OrderIdParamSchema,
     PatchOrderSchema,
-    ReprintOrderSchema
+    ReprintOrderSchema,
+    PatchOrderStationStatusParamsSchema,
+    PatchOrderStationInputSchema
 } from "@mysagra/schemas";
 import { OrdersController } from "@/modules/orders/orders.controller";
 import { OrdersService } from "@/modules/orders/orders.service";
@@ -82,4 +84,15 @@ router.post(
     }),
     orderController.reprintOrder
 );
+
+router.patch(
+    "/:orderId/stations/:stationId",
+    authenticate(["admin", "maintainer", "operator"]),
+        validateRequest({
+        params: PatchOrderStationStatusParamsSchema,
+        body: PatchOrderStationInputSchema
+    }),
+    orderController.updateOrderStationStatus
+)
+
 export default router;

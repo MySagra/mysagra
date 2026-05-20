@@ -13,7 +13,7 @@ import { NotFoundError } from "@/common/errors";
 
 export class CategoriesService {
     public static imageService = new ImagesService('categories', 'category');
-    private event = EventsService.getIstance('cashier')
+    private event = EventsService.getInstance('cashier')
 
     async getCategories(queryParams?: GetCategoriesQuery) {
         if (!queryParams) {

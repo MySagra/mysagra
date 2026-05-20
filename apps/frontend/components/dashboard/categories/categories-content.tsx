@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Category, Printer } from "@/lib/api-types";
+import { Category, Printer, Station } from "@/lib/api-types";
 import { reorderCategories } from "@/actions/categories";
 import { CategoriesToolbar } from "./categories-toolbar";
 import { CategoriesTable } from "./categories-table";
@@ -13,9 +13,10 @@ import { useRole } from "@/hooks/use-role";
 interface CategoriesContentProps {
   initialCategories: Category[];
   printers: Printer[];
+  stations: Station[];
 }
 
-export function CategoriesContent({ initialCategories, printers }: CategoriesContentProps) {
+export function CategoriesContent({ initialCategories, printers, stations }: CategoriesContentProps) {
   const { canManageCategories } = useRole();
   const [categories, setCategories] = useState<Category[]>(
     [...initialCategories].sort((a, b) => a.position - b.position)
@@ -89,7 +90,10 @@ export function CategoriesContent({ initialCategories, printers }: CategoriesCon
   async function handleSaveOrder() {
     setIsSavingOrder(true);
     try {
-      const reordered = categories.map((cat, index) => ({ ...cat, position: index }));
+      const reordered = categories.map((cat, index) => ({
+        ...cat,
+        position: index,
+      }));
       await reorderCategories(reordered);
       setHasOrderChanged(false);
       toast.success("Ordine categorie salvato");
@@ -121,6 +125,7 @@ export function CategoriesContent({ initialCategories, printers }: CategoriesCon
         <CategoriesTable
           categories={filteredCategories}
           printers={printers}
+          stations={stations}
           onEdit={handleEdit}
           onToggle={handleToggled}
           onReorder={handleReorder}
@@ -130,6 +135,7 @@ export function CategoriesContent({ initialCategories, printers }: CategoriesCon
           onOpenChange={setDialogOpen}
           category={editingCategory}
           printers={printers}
+          stations={stations}
           onSaved={handleSaved}
           onDelete={canManageCategories ? handleDelete : undefined}
           categoriesCount={categories.length}

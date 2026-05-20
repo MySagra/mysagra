@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type Sagra = Prisma.SagraModel
 /**
+ * Model Station
+ * 
+ */
+export type Station = Prisma.StationModel
+/**
  * Model Category
  * 
  */
@@ -71,6 +76,11 @@ export type FoodIngredient = Prisma.FoodIngredientModel
  * 
  */
 export type Order = Prisma.OrderModel
+/**
+ * Model OrderStationStatus
+ * 
+ */
+export type OrderStationStatus = Prisma.OrderStationStatusModel
 /**
  * Model OrderItem
  * 

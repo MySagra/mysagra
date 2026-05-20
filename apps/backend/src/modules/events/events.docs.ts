@@ -105,6 +105,11 @@ const SSEPrinterOrderCancelledPayloadSchema = z.object({
     printers: z.array(z.string()).meta({ example: ["printer1", "printer2"], description: "Array of printer IDs involved in the order" })
 }).meta({ id: "SSEPrinterOrderCancelledPayload" });
 
+const SSEOpenDrawerPayloadSchema = z.object({
+    cashRegisterId: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy" }),
+    printerId: z.string().nullable().meta({ example: "printer123" })
+}).meta({ id: "SSEOpenDrawerPayload" });
+
 registry.register("SSEOrder", SSEOrderSchema);
 registry.register("SSEConfirmedOrderSummary", SSEConfirmedOrderSummary);
 registry.register("SSEReprintOrder", SSEReprintOrderSchema);
@@ -115,8 +120,37 @@ registry.register("SSEGeneralClosurePayload", SSEGeneralClosurePayloadSchema);
 registry.register("SSEOrderCancelledPayload", SSEOrderCancelledPayloadSchema);
 registry.register("SSEOrderStatusUpdatePayload", SSEOrderStatusUpdatePayloadSchema);
 registry.register("SSEPrinterOrderCancelledPayload", SSEPrinterOrderCancelledPayloadSchema);
+registry.register("SSEOpenDrawerPayload", SSEOpenDrawerPayloadSchema);
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
+
+registry.registerPath({
+    method: "get",
+    path: "/events/debug/destroy-connections/{channel}",
+    summary: "[DEBUG] Destroy all SSE connections for a channel",
+    description: `Forces all active SSE clients on the specified channel to disconnect.
+
+> ⚠️ **Available in non-production environments only.** This route is not registered when \`NODE_ENV=production\`.
+
+Sends a \`retry: 20000\` directive to each client before closing the connection, so clients will attempt to reconnect after 20 seconds.`,
+    tags: ["Events (SSE)"],
+    security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+    request: { params: EventParams },
+    responses: {
+        200: {
+            description: "Connections destroyed. Returns count of disconnected clients.",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        connections: z.number().int().meta({ example: 3, description: "Number of clients that were disconnected" }),
+                    }),
+                },
+            },
+        },
+        401: { description: "Unauthorized" },
+        403: { description: "Forbidden — admin only" },
+    },
+});
 
 registry.registerPath({
     method: "get",
@@ -137,6 +171,7 @@ registry.registerPath({
 - **\`food-availability-changed\`** — Fired when a food item's availability changes. Payload: \`SSEFoodAvailability\`.
 - **\`category-availability-changed\`** — Fired when a category's availability changes. Payload: \`SSECategoryAvailability\`.
 - **\`printer-status-changed\`** — Fired when a printer's status changes. Payload: \`SSEPrinterStatus\`.
+- **\`open-drawer\`** — Fired when cash register drawer is opened. Payload: \`SSEOpenDrawerPayload\`.
 
 ### \`display\` channel
 - **\`confirmed-order\`** — Fired when an order is confirmed. Payload: \`SSEConfirmedOrderSummary\`.

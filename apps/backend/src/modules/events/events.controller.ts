@@ -16,15 +16,26 @@ export class EventsController {
         res.setHeader('Connection', 'keep-alive');
         res.flushHeaders();
 
-        const event = EventsService.getIstance(channel);
-        event.addClient(res);
+        const event = EventsService.getInstance(channel);
+        event.addClient(res, req);
 
         // Hearthbeat
-        const keepAliveInterval = setInterval(() => res.write(': keep-alive\n\n'), 15000);
+        res.write(`id: ${Date.now()}\n: keepalive\n\n`) // first hearthbeat for connection
+        const keepAliveInterval = setInterval(() => res.write(`id: ${Date.now()}\n: keepalive\n\n`), 15000);
 
         req.on('close', () => {
             clearInterval(keepAliveInterval);
             event.removeClient(res);
         });
+    })
+
+    destroyConnections = asyncHandler(async (
+        req: TypedRequest<{ params: EventParams }>,
+        res: Response,
+    ): Promise<void> => {
+        const { channel } = req.validated.params;
+        const event = EventsService.getInstance(channel);
+        const size = event.destroyConnections()
+        res.status(200).json({ connections: size });
     })
 }

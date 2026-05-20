@@ -76,6 +76,8 @@ registry.registerPath({
     method: "post",
     path: "/v1/categories",
     summary: "Create a new category",
+    description:
+        "Creates a new category. Can optionally associate with a station via `stationId` and a printer via `printerId`.",
     tags: ["Categories"],
     security: [{ cookieAuth: [] }],
     request: {
@@ -105,7 +107,8 @@ registry.registerPath({
     summary: "Update category by ID",
     description:
         "Updates a category. Changing `available` also updates all associated foods' availability. " +
-        "Changing `printerId` (or setting it to null) propagates to all associated foods.",
+        "Changing `printerId` (or setting it to null) propagates to all associated foods. " +
+        "Can update station association via `stationId`.",
     tags: ["Categories"],
     security: [{ cookieAuth: [] }],
     request: {
@@ -136,7 +139,8 @@ registry.registerPath({
     path: "/v1/categories/{id}",
     summary: "Partially update a category",
     description:
-        "Partially updates a category. Changing `available` or `printerId` propagates to all associated foods.",
+        "Partially updates a category. Changing `available` or `printerId` propagates to all associated foods. " +
+        "Can update station association via `stationId`.",
     tags: ["Categories"],
     security: [{ cookieAuth: [] }],
     request: {

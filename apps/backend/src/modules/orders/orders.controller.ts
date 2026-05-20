@@ -8,7 +8,9 @@ import {
     CreateOrder,
     OrderIdParam,
     PatchOrderInput,
-    ReprintOrder
+    ReprintOrder,
+    PatchOrderStationStatusParams,
+    PatchOrderStationInput
 } from "@mysagra/schemas";
 import { ForbiddenError } from "@/common/errors";
 
@@ -16,16 +18,16 @@ export class OrdersController {
     constructor(private orderService: OrdersService) { }
 
     getOrders = asyncHandler(async (
-        req: TypedRequest<{query: GetOrdersQueryParams}>,
-        res: Response, 
+        req: TypedRequest<{ query: GetOrdersQueryParams }>,
+        res: Response,
     ): Promise<void> => {
         const orders = await this.orderService.getOrders(req.validated.query);
         res.status(200).json(orders);
     });
 
     getOrderById = asyncHandler(async (
-        req: TypedRequest<{params: OrderIdParam}>, 
-        res: Response, 
+        req: TypedRequest<{ params: OrderIdParam }>,
+        res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
         const order = await this.orderService.getOrderById(id);
@@ -33,12 +35,12 @@ export class OrdersController {
     });
 
     createOrder = asyncHandler(async (
-        req: TypedRequest<{body: CreateOrder}>,
+        req: TypedRequest<{ body: CreateOrder }>,
         res: Response,
     ): Promise<void> => {
         const { confirm } = req.validated.body;
 
-        if((confirm && (req.apiKey && !req.user))){
+        if ((confirm && (req.apiKey && !req.user))) {
             throw new ForbiddenError("API key cannot confirm orders");
         }
 
@@ -47,8 +49,8 @@ export class OrdersController {
     });
 
     confirmOrder = asyncHandler(async (
-        req: TypedRequest<{params: OrderIdParam, body: ConfirmOrderInput}>,
-        res: Response, 
+        req: TypedRequest<{ params: OrderIdParam, body: ConfirmOrderInput }>,
+        res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
 
@@ -57,8 +59,8 @@ export class OrdersController {
     });
 
     patchOrder = asyncHandler(async (
-        req: TypedRequest<{params: OrderIdParam, body: PatchOrderInput}>,
-        res: Response, 
+        req: TypedRequest<{ params: OrderIdParam, body: PatchOrderInput }>,
+        res: Response,
     ): Promise<void> => {
         const { status } = req.validated.body;
         const { id } = req.validated.params;
@@ -68,8 +70,8 @@ export class OrdersController {
     });
 
     deleteOrder = asyncHandler(async (
-        req: TypedRequest<{params: OrderIdParam}>, 
-        res: Response, 
+        req: TypedRequest<{ params: OrderIdParam }>,
+        res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
         await this.orderService.deleteOrder(id);
@@ -78,11 +80,22 @@ export class OrdersController {
     });
 
     reprintOrder = asyncHandler(async (
-        req: TypedRequest<{params: OrderIdParam, body: ReprintOrder}>, 
-        res: Response, 
+        req: TypedRequest<{ params: OrderIdParam, body: ReprintOrder }>,
+        res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
         const order = await this.orderService.reprintOrder(id, req.body)
         res.status(201).json(order)
+    })
+
+    updateOrderStationStatus = asyncHandler(async (
+        req: TypedRequest<{ params: PatchOrderStationStatusParams, body: PatchOrderStationInput }>,
+        res: Response,
+    ): Promise<void> => {
+        const { orderId, stationId } = req.validated.params;
+        const { status } = req.validated.body
+
+        const orderStation = await this.orderService.updateOrderStationStatus(orderId, stationId, status)
+        res.status(200).json(orderStation)
     })
 }

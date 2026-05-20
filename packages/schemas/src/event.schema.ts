@@ -14,8 +14,10 @@ const eventName = z.enum([
     "printer-status-changed",
     "reprint-order",
     "order-status-update",
+    "order-station-status-update",
     "order-cancelled",
-    "general-closure"
+    "general-closure",
+    "open-drawer"
 ]).meta({
     id: "EventName",
     description: "Type of event",

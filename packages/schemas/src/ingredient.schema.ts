@@ -5,6 +5,10 @@ const IngredientBase = {
     name: z.string().min(1).max(100).meta({
         description: "Name of the ingredient",
         example: "Tomato"
+    }),
+    surcharge: z.number().min(0).default(0.50).meta({
+        description: "surcharge for single ingredient add",
+        example: 0.50
     })
 }
 

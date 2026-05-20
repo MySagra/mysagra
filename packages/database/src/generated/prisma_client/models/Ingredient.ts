@@ -20,40 +20,64 @@ export type IngredientModel = runtime.Types.Result.DefaultSelection<Prisma.$Ingr
 
 export type AggregateIngredient = {
   _count: IngredientCountAggregateOutputType | null
+  _avg: IngredientAvgAggregateOutputType | null
+  _sum: IngredientSumAggregateOutputType | null
   _min: IngredientMinAggregateOutputType | null
   _max: IngredientMaxAggregateOutputType | null
+}
+
+export type IngredientAvgAggregateOutputType = {
+  surcharge: runtime.Decimal | null
+}
+
+export type IngredientSumAggregateOutputType = {
+  surcharge: runtime.Decimal | null
 }
 
 export type IngredientMinAggregateOutputType = {
   id: string | null
   name: string | null
+  surcharge: runtime.Decimal | null
 }
 
 export type IngredientMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  surcharge: runtime.Decimal | null
 }
 
 export type IngredientCountAggregateOutputType = {
   id: number
   name: number
+  surcharge: number
   _all: number
 }
 
 
+export type IngredientAvgAggregateInputType = {
+  surcharge?: true
+}
+
+export type IngredientSumAggregateInputType = {
+  surcharge?: true
+}
+
 export type IngredientMinAggregateInputType = {
   id?: true
   name?: true
+  surcharge?: true
 }
 
 export type IngredientMaxAggregateInputType = {
   id?: true
   name?: true
+  surcharge?: true
 }
 
 export type IngredientCountAggregateInputType = {
   id?: true
   name?: true
+  surcharge?: true
   _all?: true
 }
 
@@ -95,6 +119,18 @@ export type IngredientAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: IngredientAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: IngredientSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: IngredientMinAggregateInputType
@@ -125,6 +161,8 @@ export type IngredientGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: IngredientCountAggregateInputType | true
+  _avg?: IngredientAvgAggregateInputType
+  _sum?: IngredientSumAggregateInputType
   _min?: IngredientMinAggregateInputType
   _max?: IngredientMaxAggregateInputType
 }
@@ -132,7 +170,10 @@ export type IngredientGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type IngredientGroupByOutputType = {
   id: string
   name: string
+  surcharge: runtime.Decimal
   _count: IngredientCountAggregateOutputType | null
+  _avg: IngredientAvgAggregateOutputType | null
+  _sum: IngredientSumAggregateOutputType | null
   _min: IngredientMinAggregateOutputType | null
   _max: IngredientMaxAggregateOutputType | null
 }
@@ -158,12 +199,14 @@ export type IngredientWhereInput = {
   NOT?: Prisma.IngredientWhereInput | Prisma.IngredientWhereInput[]
   id?: Prisma.StringFilter<"Ingredient"> | string
   name?: Prisma.StringFilter<"Ingredient"> | string
+  surcharge?: Prisma.DecimalFilter<"Ingredient"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   foodIngredients?: Prisma.FoodIngredientListRelationFilter
 }
 
 export type IngredientOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
   foodIngredients?: Prisma.FoodIngredientOrderByRelationAggregateInput
   _relevance?: Prisma.IngredientOrderByRelevanceInput
 }
@@ -174,15 +217,19 @@ export type IngredientWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.IngredientWhereInput | Prisma.IngredientWhereInput[]
   OR?: Prisma.IngredientWhereInput[]
   NOT?: Prisma.IngredientWhereInput | Prisma.IngredientWhereInput[]
+  surcharge?: Prisma.DecimalFilter<"Ingredient"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   foodIngredients?: Prisma.FoodIngredientListRelationFilter
 }, "id" | "name">
 
 export type IngredientOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
   _count?: Prisma.IngredientCountOrderByAggregateInput
+  _avg?: Prisma.IngredientAvgOrderByAggregateInput
   _max?: Prisma.IngredientMaxOrderByAggregateInput
   _min?: Prisma.IngredientMinOrderByAggregateInput
+  _sum?: Prisma.IngredientSumOrderByAggregateInput
 }
 
 export type IngredientScalarWhereWithAggregatesInput = {
@@ -191,45 +238,53 @@ export type IngredientScalarWhereWithAggregatesInput = {
   NOT?: Prisma.IngredientScalarWhereWithAggregatesInput | Prisma.IngredientScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Ingredient"> | string
   name?: Prisma.StringWithAggregatesFilter<"Ingredient"> | string
+  surcharge?: Prisma.DecimalWithAggregatesFilter<"Ingredient"> | runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IngredientCreateInput = {
   id?: string
   name: string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
   foodIngredients?: Prisma.FoodIngredientCreateNestedManyWithoutIngredientInput
 }
 
 export type IngredientUncheckedCreateInput = {
   id?: string
   name: string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
   foodIngredients?: Prisma.FoodIngredientUncheckedCreateNestedManyWithoutIngredientInput
 }
 
 export type IngredientUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   foodIngredients?: Prisma.FoodIngredientUpdateManyWithoutIngredientNestedInput
 }
 
 export type IngredientUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   foodIngredients?: Prisma.FoodIngredientUncheckedUpdateManyWithoutIngredientNestedInput
 }
 
 export type IngredientCreateManyInput = {
   id?: string
   name: string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IngredientUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IngredientUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IngredientOrderByRelevanceInput = {
@@ -241,21 +296,40 @@ export type IngredientOrderByRelevanceInput = {
 export type IngredientCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+}
+
+export type IngredientAvgOrderByAggregateInput = {
+  surcharge?: Prisma.SortOrder
 }
 
 export type IngredientMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
 }
 
 export type IngredientMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+}
+
+export type IngredientSumOrderByAggregateInput = {
+  surcharge?: Prisma.SortOrder
 }
 
 export type IngredientScalarRelationFilter = {
   is?: Prisma.IngredientWhereInput
   isNot?: Prisma.IngredientWhereInput
+}
+
+export type DecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IngredientCreateNestedOneWithoutFoodIngredientsInput = {
@@ -275,11 +349,13 @@ export type IngredientUpdateOneRequiredWithoutFoodIngredientsNestedInput = {
 export type IngredientCreateWithoutFoodIngredientsInput = {
   id?: string
   name: string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IngredientUncheckedCreateWithoutFoodIngredientsInput = {
   id?: string
   name: string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IngredientCreateOrConnectWithoutFoodIngredientsInput = {
@@ -301,11 +377,13 @@ export type IngredientUpdateToOneWithWhereWithoutFoodIngredientsInput = {
 export type IngredientUpdateWithoutFoodIngredientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IngredientUncheckedUpdateWithoutFoodIngredientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 
@@ -342,6 +420,7 @@ export type IngredientCountOutputTypeCountFoodIngredientsArgs<ExtArgs extends ru
 export type IngredientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  surcharge?: boolean
   foodIngredients?: boolean | Prisma.Ingredient$foodIngredientsArgs<ExtArgs>
   _count?: boolean | Prisma.IngredientCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ingredient"]>
@@ -351,9 +430,10 @@ export type IngredientSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type IngredientSelectScalar = {
   id?: boolean
   name?: boolean
+  surcharge?: boolean
 }
 
-export type IngredientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name", ExtArgs["result"]["ingredient"]>
+export type IngredientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "surcharge", ExtArgs["result"]["ingredient"]>
 export type IngredientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   foodIngredients?: boolean | Prisma.Ingredient$foodIngredientsArgs<ExtArgs>
   _count?: boolean | Prisma.IngredientCountOutputTypeDefaultArgs<ExtArgs>
@@ -367,6 +447,7 @@ export type $IngredientPayload<ExtArgs extends runtime.Types.Extensions.Internal
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    surcharge: runtime.Decimal
   }, ExtArgs["result"]["ingredient"]>
   composites: {}
 }
@@ -739,6 +820,7 @@ export interface Prisma__IngredientClient<T, Null = never, ExtArgs extends runti
 export interface IngredientFieldRefs {
   readonly id: Prisma.FieldRef<"Ingredient", 'String'>
   readonly name: Prisma.FieldRef<"Ingredient", 'String'>
+  readonly surcharge: Prisma.FieldRef<"Ingredient", 'Decimal'>
 }
     
 

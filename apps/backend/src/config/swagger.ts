@@ -35,6 +35,7 @@ export function generateOpenApiDocument() {
             { name: 'API Keys' },
             { name: 'Users' },
             { name: 'Roles' },
+            { name: 'Stations' },
             { name: 'Categories' },
             { name: 'Foods' },
             { name: 'Ingredients' },

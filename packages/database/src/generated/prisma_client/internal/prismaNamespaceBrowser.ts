@@ -52,11 +52,13 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Sagra: 'Sagra',
+  Station: 'Station',
   Category: 'Category',
   Ingredient: 'Ingredient',
   Food: 'Food',
   FoodIngredient: 'FoodIngredient',
   Order: 'Order',
+  OrderStationStatus: 'OrderStationStatus',
   OrderItem: 'OrderItem',
   Role: 'Role',
   User: 'User',
@@ -97,13 +99,22 @@ export const SagraScalarFieldEnum = {
 export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
 
 
+export const StationScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type StationScalarFieldEnum = (typeof StationScalarFieldEnum)[keyof typeof StationScalarFieldEnum]
+
+
 export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   available: 'available',
   position: 'position',
   image: 'image',
-  printerId: 'printerId'
+  printerId: 'printerId',
+  stationId: 'stationId'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -111,7 +122,8 @@ export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typ
 
 export const IngredientScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  name: 'name',
+  surcharge: 'surcharge'
 } as const
 
 export type IngredientScalarFieldEnum = (typeof IngredientScalarFieldEnum)[keyof typeof IngredientScalarFieldEnum]
@@ -146,6 +158,7 @@ export const OrderScalarFieldEnum = {
   createdAt: 'createdAt',
   confirmedAt: 'confirmedAt',
   completedAt: 'completedAt',
+  updatedAt: 'updatedAt',
   ticketNumber: 'ticketNumber',
   status: 'status',
   paymentMethod: 'paymentMethod',
@@ -158,6 +171,17 @@ export const OrderScalarFieldEnum = {
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const OrderStationStatusScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  orderId: 'orderId',
+  stationId: 'stationId',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderStationStatusScalarFieldEnum = (typeof OrderStationStatusScalarFieldEnum)[keyof typeof OrderStationStatusScalarFieldEnum]
 
 
 export const OrderItemScalarFieldEnum = {
@@ -323,6 +347,14 @@ export const SagraOrderByRelevanceFieldEnum = {
 export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
 
 
+export const StationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type StationOrderByRelevanceFieldEnum = (typeof StationOrderByRelevanceFieldEnum)[keyof typeof StationOrderByRelevanceFieldEnum]
+
+
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -335,7 +367,8 @@ export const CategoryOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
   image: 'image',
-  printerId: 'printerId'
+  printerId: 'printerId',
+  stationId: 'stationId'
 } as const
 
 export type CategoryOrderByRelevanceFieldEnum = (typeof CategoryOrderByRelevanceFieldEnum)[keyof typeof CategoryOrderByRelevanceFieldEnum]
@@ -378,6 +411,15 @@ export const OrderOrderByRelevanceFieldEnum = {
 } as const
 
 export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldEnum)[keyof typeof OrderOrderByRelevanceFieldEnum]
+
+
+export const OrderStationStatusOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  stationId: 'stationId'
+} as const
+
+export type OrderStationStatusOrderByRelevanceFieldEnum = (typeof OrderStationStatusOrderByRelevanceFieldEnum)[keyof typeof OrderStationStatusOrderByRelevanceFieldEnum]
 
 
 export const OrderItemOrderByRelevanceFieldEnum = {

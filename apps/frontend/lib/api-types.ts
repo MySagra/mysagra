@@ -44,6 +44,17 @@ export interface Role {
   name: string;
 }
 
+// Stations
+export interface Station {
+  id: string;
+  name: string;
+  categories?: Category[];
+}
+
+export interface StationRequest {
+  name: string;
+}
+
 // Categories
 export interface Category {
   id: string;
@@ -52,6 +63,7 @@ export interface Category {
   position: number;
   printerId?: string | null;
   image?: string | null;
+  stationId?: string | null;
 }
 
 export interface CategoryWithFoods extends Category {
@@ -90,10 +102,11 @@ export interface FoodRequest {
 export interface Ingredient {
   id: string;
   name: string;
+  surcharge: number;
 }
 
 // Orders
-export type OrderStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "PICKED_UP" | "CANCELLED";
+export type OrderStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "PICKED_UP" | "CANCELLED" | "PARTIAL";
 export type PaymentMethod = "CASH" | "CARD";
 
 export interface OrderListResponse {
@@ -102,9 +115,18 @@ export interface OrderListResponse {
   table: string;
   customer: string;
   subTotal: string;
+  total: string;
+  discount: string;
   status: OrderStatus;
   createdAt: string;
   updatedAt?: string;
+}
+
+export interface OrderStationState {
+  id: string;
+  status: string;
+  orderId: string;
+  stationId: string;
 }
 
 export interface OrderDetailResponse {
@@ -120,9 +142,11 @@ export interface OrderDetailResponse {
   surcharge?: number;
   ticketNumber?: number | null;
   confirmedAt?: string | null;
+  completedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
   categorizedItems: CategorizedItems[];
+  orderStationStates?: OrderStationState[];
 }
 
 export interface CategorizedItems {
@@ -253,6 +277,10 @@ export const API_ENDPOINTS = {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",
     REFRESH: "/auth/refresh",
+  },
+  STATIONS: {
+    ALL: "/v1/stations",
+    BY_ID: (id: string) => `/v1/stations/${id}`,
   },
   CATEGORIES: {
     ALL: "/v1/categories",

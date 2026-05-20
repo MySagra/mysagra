@@ -124,7 +124,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
     setTogglingId(food.id);
     try {
       const updated = await toggleFoodAvailability(food.id, !food.available);
-      onToggle(updated);
+      onToggle({ ...food, available: updated.available });
       toast.success(
         `"${food.name}" ${updated.available ? t.foods.toastUpdated : t.foods.toastUpdated}`
       );
@@ -203,7 +203,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
                 <SortIcon column="printer" />
               </button>
             </TableHead>
-            <TableHead className="hidden md:table-cell w-32">
+            <TableHead className="w-32">
               <button
                 onClick={() => handleSort("available")}
                 className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
@@ -270,7 +270,7 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
               <TableCell className="hidden md:table-cell text-sm">
                 {food.printerId ? printers.find(p => p.id === food.printerId)?.name || food.printerId : "—"}
               </TableCell>
-              <TableCell className="hidden md:table-cell text-center">
+              <TableCell className="text-center">
                 <div className="flex justify-center">
                   <Checkbox
                     checked={food.available}

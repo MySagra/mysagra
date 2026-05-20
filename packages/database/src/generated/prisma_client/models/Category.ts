@@ -41,6 +41,7 @@ export type CategoryMinAggregateOutputType = {
   position: number | null
   image: string | null
   printerId: string | null
+  stationId: string | null
 }
 
 export type CategoryMaxAggregateOutputType = {
@@ -50,6 +51,7 @@ export type CategoryMaxAggregateOutputType = {
   position: number | null
   image: string | null
   printerId: string | null
+  stationId: string | null
 }
 
 export type CategoryCountAggregateOutputType = {
@@ -59,6 +61,7 @@ export type CategoryCountAggregateOutputType = {
   position: number
   image: number
   printerId: number
+  stationId: number
   _all: number
 }
 
@@ -78,6 +81,7 @@ export type CategoryMinAggregateInputType = {
   position?: true
   image?: true
   printerId?: true
+  stationId?: true
 }
 
 export type CategoryMaxAggregateInputType = {
@@ -87,6 +91,7 @@ export type CategoryMaxAggregateInputType = {
   position?: true
   image?: true
   printerId?: true
+  stationId?: true
 }
 
 export type CategoryCountAggregateInputType = {
@@ -96,6 +101,7 @@ export type CategoryCountAggregateInputType = {
   position?: true
   image?: true
   printerId?: true
+  stationId?: true
   _all?: true
 }
 
@@ -192,6 +198,7 @@ export type CategoryGroupByOutputType = {
   position: number
   image: string | null
   printerId: string | null
+  stationId: string | null
   _count: CategoryCountAggregateOutputType | null
   _avg: CategoryAvgAggregateOutputType | null
   _sum: CategorySumAggregateOutputType | null
@@ -224,8 +231,10 @@ export type CategoryWhereInput = {
   position?: Prisma.IntFilter<"Category"> | number
   image?: Prisma.StringNullableFilter<"Category"> | string | null
   printerId?: Prisma.StringNullableFilter<"Category"> | string | null
+  stationId?: Prisma.StringNullableFilter<"Category"> | string | null
   foods?: Prisma.FoodListRelationFilter
   printer?: Prisma.XOR<Prisma.PrinterNullableScalarRelationFilter, Prisma.PrinterWhereInput> | null
+  station?: Prisma.XOR<Prisma.StationNullableScalarRelationFilter, Prisma.StationWhereInput> | null
 }
 
 export type CategoryOrderByWithRelationInput = {
@@ -235,8 +244,10 @@ export type CategoryOrderByWithRelationInput = {
   position?: Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   printerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stationId?: Prisma.SortOrderInput | Prisma.SortOrder
   foods?: Prisma.FoodOrderByRelationAggregateInput
   printer?: Prisma.PrinterOrderByWithRelationInput
+  station?: Prisma.StationOrderByWithRelationInput
   _relevance?: Prisma.CategoryOrderByRelevanceInput
 }
 
@@ -250,8 +261,10 @@ export type CategoryWhereUniqueInput = Prisma.AtLeast<{
   position?: Prisma.IntFilter<"Category"> | number
   image?: Prisma.StringNullableFilter<"Category"> | string | null
   printerId?: Prisma.StringNullableFilter<"Category"> | string | null
+  stationId?: Prisma.StringNullableFilter<"Category"> | string | null
   foods?: Prisma.FoodListRelationFilter
   printer?: Prisma.XOR<Prisma.PrinterNullableScalarRelationFilter, Prisma.PrinterWhereInput> | null
+  station?: Prisma.XOR<Prisma.StationNullableScalarRelationFilter, Prisma.StationWhereInput> | null
 }, "id" | "name">
 
 export type CategoryOrderByWithAggregationInput = {
@@ -261,6 +274,7 @@ export type CategoryOrderByWithAggregationInput = {
   position?: Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   printerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stationId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CategoryCountOrderByAggregateInput
   _avg?: Prisma.CategoryAvgOrderByAggregateInput
   _max?: Prisma.CategoryMaxOrderByAggregateInput
@@ -278,6 +292,7 @@ export type CategoryScalarWhereWithAggregatesInput = {
   position?: Prisma.IntWithAggregatesFilter<"Category"> | number
   image?: Prisma.StringNullableWithAggregatesFilter<"Category"> | string | null
   printerId?: Prisma.StringNullableWithAggregatesFilter<"Category"> | string | null
+  stationId?: Prisma.StringNullableWithAggregatesFilter<"Category"> | string | null
 }
 
 export type CategoryCreateInput = {
@@ -288,6 +303,7 @@ export type CategoryCreateInput = {
   image?: string | null
   foods?: Prisma.FoodCreateNestedManyWithoutCategoryInput
   printer?: Prisma.PrinterCreateNestedOneWithoutCategoriesInput
+  station?: Prisma.StationCreateNestedOneWithoutCategoriesInput
 }
 
 export type CategoryUncheckedCreateInput = {
@@ -297,6 +313,7 @@ export type CategoryUncheckedCreateInput = {
   position?: number
   image?: string | null
   printerId?: string | null
+  stationId?: string | null
   foods?: Prisma.FoodUncheckedCreateNestedManyWithoutCategoryInput
 }
 
@@ -308,6 +325,7 @@ export type CategoryUpdateInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foods?: Prisma.FoodUpdateManyWithoutCategoryNestedInput
   printer?: Prisma.PrinterUpdateOneWithoutCategoriesNestedInput
+  station?: Prisma.StationUpdateOneWithoutCategoriesNestedInput
 }
 
 export type CategoryUncheckedUpdateInput = {
@@ -317,6 +335,7 @@ export type CategoryUncheckedUpdateInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   printerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foods?: Prisma.FoodUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
@@ -327,6 +346,7 @@ export type CategoryCreateManyInput = {
   position?: number
   image?: string | null
   printerId?: string | null
+  stationId?: string | null
 }
 
 export type CategoryUpdateManyMutationInput = {
@@ -344,6 +364,17 @@ export type CategoryUncheckedUpdateManyInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   printerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type CategoryListRelationFilter = {
+  every?: Prisma.CategoryWhereInput
+  some?: Prisma.CategoryWhereInput
+  none?: Prisma.CategoryWhereInput
+}
+
+export type CategoryOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type CategoryOrderByRelevanceInput = {
@@ -359,6 +390,7 @@ export type CategoryCountOrderByAggregateInput = {
   position?: Prisma.SortOrder
   image?: Prisma.SortOrder
   printerId?: Prisma.SortOrder
+  stationId?: Prisma.SortOrder
 }
 
 export type CategoryAvgOrderByAggregateInput = {
@@ -372,6 +404,7 @@ export type CategoryMaxOrderByAggregateInput = {
   position?: Prisma.SortOrder
   image?: Prisma.SortOrder
   printerId?: Prisma.SortOrder
+  stationId?: Prisma.SortOrder
 }
 
 export type CategoryMinOrderByAggregateInput = {
@@ -381,6 +414,7 @@ export type CategoryMinOrderByAggregateInput = {
   position?: Prisma.SortOrder
   image?: Prisma.SortOrder
   printerId?: Prisma.SortOrder
+  stationId?: Prisma.SortOrder
 }
 
 export type CategorySumOrderByAggregateInput = {
@@ -392,14 +426,46 @@ export type CategoryScalarRelationFilter = {
   isNot?: Prisma.CategoryWhereInput
 }
 
-export type CategoryListRelationFilter = {
-  every?: Prisma.CategoryWhereInput
-  some?: Prisma.CategoryWhereInput
-  none?: Prisma.CategoryWhereInput
+export type CategoryCreateNestedManyWithoutStationInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutStationInput, Prisma.CategoryUncheckedCreateWithoutStationInput> | Prisma.CategoryCreateWithoutStationInput[] | Prisma.CategoryUncheckedCreateWithoutStationInput[]
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutStationInput | Prisma.CategoryCreateOrConnectWithoutStationInput[]
+  createMany?: Prisma.CategoryCreateManyStationInputEnvelope
+  connect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
 }
 
-export type CategoryOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type CategoryUncheckedCreateNestedManyWithoutStationInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutStationInput, Prisma.CategoryUncheckedCreateWithoutStationInput> | Prisma.CategoryCreateWithoutStationInput[] | Prisma.CategoryUncheckedCreateWithoutStationInput[]
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutStationInput | Prisma.CategoryCreateOrConnectWithoutStationInput[]
+  createMany?: Prisma.CategoryCreateManyStationInputEnvelope
+  connect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+}
+
+export type CategoryUpdateManyWithoutStationNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutStationInput, Prisma.CategoryUncheckedCreateWithoutStationInput> | Prisma.CategoryCreateWithoutStationInput[] | Prisma.CategoryUncheckedCreateWithoutStationInput[]
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutStationInput | Prisma.CategoryCreateOrConnectWithoutStationInput[]
+  upsert?: Prisma.CategoryUpsertWithWhereUniqueWithoutStationInput | Prisma.CategoryUpsertWithWhereUniqueWithoutStationInput[]
+  createMany?: Prisma.CategoryCreateManyStationInputEnvelope
+  set?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  disconnect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  delete?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  connect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  update?: Prisma.CategoryUpdateWithWhereUniqueWithoutStationInput | Prisma.CategoryUpdateWithWhereUniqueWithoutStationInput[]
+  updateMany?: Prisma.CategoryUpdateManyWithWhereWithoutStationInput | Prisma.CategoryUpdateManyWithWhereWithoutStationInput[]
+  deleteMany?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
+}
+
+export type CategoryUncheckedUpdateManyWithoutStationNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutStationInput, Prisma.CategoryUncheckedCreateWithoutStationInput> | Prisma.CategoryCreateWithoutStationInput[] | Prisma.CategoryUncheckedCreateWithoutStationInput[]
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutStationInput | Prisma.CategoryCreateOrConnectWithoutStationInput[]
+  upsert?: Prisma.CategoryUpsertWithWhereUniqueWithoutStationInput | Prisma.CategoryUpsertWithWhereUniqueWithoutStationInput[]
+  createMany?: Prisma.CategoryCreateManyStationInputEnvelope
+  set?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  disconnect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  delete?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  connect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  update?: Prisma.CategoryUpdateWithWhereUniqueWithoutStationInput | Prisma.CategoryUpdateWithWhereUniqueWithoutStationInput[]
+  updateMany?: Prisma.CategoryUpdateManyWithWhereWithoutStationInput | Prisma.CategoryUpdateManyWithWhereWithoutStationInput[]
+  deleteMany?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -466,6 +532,65 @@ export type CategoryUncheckedUpdateManyWithoutPrinterNestedInput = {
   deleteMany?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
 }
 
+export type CategoryCreateWithoutStationInput = {
+  id?: string
+  name: string
+  available?: boolean
+  position?: number
+  image?: string | null
+  foods?: Prisma.FoodCreateNestedManyWithoutCategoryInput
+  printer?: Prisma.PrinterCreateNestedOneWithoutCategoriesInput
+}
+
+export type CategoryUncheckedCreateWithoutStationInput = {
+  id?: string
+  name: string
+  available?: boolean
+  position?: number
+  image?: string | null
+  printerId?: string | null
+  foods?: Prisma.FoodUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type CategoryCreateOrConnectWithoutStationInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutStationInput, Prisma.CategoryUncheckedCreateWithoutStationInput>
+}
+
+export type CategoryCreateManyStationInputEnvelope = {
+  data: Prisma.CategoryCreateManyStationInput | Prisma.CategoryCreateManyStationInput[]
+  skipDuplicates?: boolean
+}
+
+export type CategoryUpsertWithWhereUniqueWithoutStationInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.CategoryUpdateWithoutStationInput, Prisma.CategoryUncheckedUpdateWithoutStationInput>
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutStationInput, Prisma.CategoryUncheckedCreateWithoutStationInput>
+}
+
+export type CategoryUpdateWithWhereUniqueWithoutStationInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.CategoryUpdateWithoutStationInput, Prisma.CategoryUncheckedUpdateWithoutStationInput>
+}
+
+export type CategoryUpdateManyWithWhereWithoutStationInput = {
+  where: Prisma.CategoryScalarWhereInput
+  data: Prisma.XOR<Prisma.CategoryUpdateManyMutationInput, Prisma.CategoryUncheckedUpdateManyWithoutStationInput>
+}
+
+export type CategoryScalarWhereInput = {
+  AND?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
+  OR?: Prisma.CategoryScalarWhereInput[]
+  NOT?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
+  id?: Prisma.StringFilter<"Category"> | string
+  name?: Prisma.StringFilter<"Category"> | string
+  available?: Prisma.BoolFilter<"Category"> | boolean
+  position?: Prisma.IntFilter<"Category"> | number
+  image?: Prisma.StringNullableFilter<"Category"> | string | null
+  printerId?: Prisma.StringNullableFilter<"Category"> | string | null
+  stationId?: Prisma.StringNullableFilter<"Category"> | string | null
+}
+
 export type CategoryCreateWithoutFoodsInput = {
   id?: string
   name: string
@@ -473,6 +598,7 @@ export type CategoryCreateWithoutFoodsInput = {
   position?: number
   image?: string | null
   printer?: Prisma.PrinterCreateNestedOneWithoutCategoriesInput
+  station?: Prisma.StationCreateNestedOneWithoutCategoriesInput
 }
 
 export type CategoryUncheckedCreateWithoutFoodsInput = {
@@ -482,6 +608,7 @@ export type CategoryUncheckedCreateWithoutFoodsInput = {
   position?: number
   image?: string | null
   printerId?: string | null
+  stationId?: string | null
 }
 
 export type CategoryCreateOrConnectWithoutFoodsInput = {
@@ -507,6 +634,7 @@ export type CategoryUpdateWithoutFoodsInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   printer?: Prisma.PrinterUpdateOneWithoutCategoriesNestedInput
+  station?: Prisma.StationUpdateOneWithoutCategoriesNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutFoodsInput = {
@@ -516,6 +644,7 @@ export type CategoryUncheckedUpdateWithoutFoodsInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   printerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CategoryCreateWithoutPrinterInput = {
@@ -525,6 +654,7 @@ export type CategoryCreateWithoutPrinterInput = {
   position?: number
   image?: string | null
   foods?: Prisma.FoodCreateNestedManyWithoutCategoryInput
+  station?: Prisma.StationCreateNestedOneWithoutCategoriesInput
 }
 
 export type CategoryUncheckedCreateWithoutPrinterInput = {
@@ -533,6 +663,7 @@ export type CategoryUncheckedCreateWithoutPrinterInput = {
   available?: boolean
   position?: number
   image?: string | null
+  stationId?: string | null
   foods?: Prisma.FoodUncheckedCreateNestedManyWithoutCategoryInput
 }
 
@@ -562,16 +693,42 @@ export type CategoryUpdateManyWithWhereWithoutPrinterInput = {
   data: Prisma.XOR<Prisma.CategoryUpdateManyMutationInput, Prisma.CategoryUncheckedUpdateManyWithoutPrinterInput>
 }
 
-export type CategoryScalarWhereInput = {
-  AND?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
-  OR?: Prisma.CategoryScalarWhereInput[]
-  NOT?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
-  id?: Prisma.StringFilter<"Category"> | string
-  name?: Prisma.StringFilter<"Category"> | string
-  available?: Prisma.BoolFilter<"Category"> | boolean
-  position?: Prisma.IntFilter<"Category"> | number
-  image?: Prisma.StringNullableFilter<"Category"> | string | null
-  printerId?: Prisma.StringNullableFilter<"Category"> | string | null
+export type CategoryCreateManyStationInput = {
+  id?: string
+  name: string
+  available?: boolean
+  position?: number
+  image?: string | null
+  printerId?: string | null
+}
+
+export type CategoryUpdateWithoutStationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foods?: Prisma.FoodUpdateManyWithoutCategoryNestedInput
+  printer?: Prisma.PrinterUpdateOneWithoutCategoriesNestedInput
+}
+
+export type CategoryUncheckedUpdateWithoutStationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  printerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foods?: Prisma.FoodUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
+export type CategoryUncheckedUpdateManyWithoutStationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  printerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CategoryCreateManyPrinterInput = {
@@ -580,6 +737,7 @@ export type CategoryCreateManyPrinterInput = {
   available?: boolean
   position?: number
   image?: string | null
+  stationId?: string | null
 }
 
 export type CategoryUpdateWithoutPrinterInput = {
@@ -589,6 +747,7 @@ export type CategoryUpdateWithoutPrinterInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foods?: Prisma.FoodUpdateManyWithoutCategoryNestedInput
+  station?: Prisma.StationUpdateOneWithoutCategoriesNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutPrinterInput = {
@@ -597,6 +756,7 @@ export type CategoryUncheckedUpdateWithoutPrinterInput = {
   available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foods?: Prisma.FoodUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
@@ -606,6 +766,7 @@ export type CategoryUncheckedUpdateManyWithoutPrinterInput = {
   available?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -646,8 +807,10 @@ export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   position?: boolean
   image?: boolean
   printerId?: boolean
+  stationId?: boolean
   foods?: boolean | Prisma.Category$foodsArgs<ExtArgs>
   printer?: boolean | Prisma.Category$printerArgs<ExtArgs>
+  station?: boolean | Prisma.Category$stationArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["category"]>
 
@@ -660,12 +823,14 @@ export type CategorySelectScalar = {
   position?: boolean
   image?: boolean
   printerId?: boolean
+  stationId?: boolean
 }
 
-export type CategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "available" | "position" | "image" | "printerId", ExtArgs["result"]["category"]>
+export type CategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "available" | "position" | "image" | "printerId" | "stationId", ExtArgs["result"]["category"]>
 export type CategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   foods?: boolean | Prisma.Category$foodsArgs<ExtArgs>
   printer?: boolean | Prisma.Category$printerArgs<ExtArgs>
+  station?: boolean | Prisma.Category$stationArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -674,6 +839,7 @@ export type $CategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     foods: Prisma.$FoodPayload<ExtArgs>[]
     printer: Prisma.$PrinterPayload<ExtArgs> | null
+    station: Prisma.$StationPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -682,6 +848,7 @@ export type $CategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     position: number
     image: string | null
     printerId: string | null
+    stationId: string | null
   }, ExtArgs["result"]["category"]>
   composites: {}
 }
@@ -1024,6 +1191,7 @@ export interface Prisma__CategoryClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   foods<T extends Prisma.Category$foodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$foodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FoodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   printer<T extends Prisma.Category$printerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$printerArgs<ExtArgs>>): Prisma.Prisma__PrinterClient<runtime.Types.Result.GetResult<Prisma.$PrinterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  station<T extends Prisma.Category$stationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$stationArgs<ExtArgs>>): Prisma.Prisma__StationClient<runtime.Types.Result.GetResult<Prisma.$StationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1059,6 +1227,7 @@ export interface CategoryFieldRefs {
   readonly position: Prisma.FieldRef<"Category", 'Int'>
   readonly image: Prisma.FieldRef<"Category", 'String'>
   readonly printerId: Prisma.FieldRef<"Category", 'String'>
+  readonly stationId: Prisma.FieldRef<"Category", 'String'>
 }
     
 
@@ -1442,6 +1611,25 @@ export type Category$printerArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   include?: Prisma.PrinterInclude<ExtArgs> | null
   where?: Prisma.PrinterWhereInput
+}
+
+/**
+ * Category.station
+ */
+export type Category$stationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Station
+   */
+  select?: Prisma.StationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Station
+   */
+  omit?: Prisma.StationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StationInclude<ExtArgs> | null
+  where?: Prisma.StationWhereInput
 }
 
 /**

@@ -4,7 +4,7 @@ import { EventsService } from "../events/events.service";
 import { NotFoundError } from "@/common/errors";
 
 export class PrintersService {
-    private cashierEvent = EventsService.getIstance('cashier');
+    private cashierEvent = EventsService.getInstance('cashier');
 
     async getPrinters() {
         return await prisma.printer.findMany();

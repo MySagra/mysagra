@@ -11,7 +11,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
-const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP", "CANCELLED"]);
+const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_UP", "CANCELLED", "PARTIAL"]);
 
 // Frontend-specific schemas matching the actual API response shapes
 const OrderListItemSchema = z.object({
@@ -20,6 +20,8 @@ const OrderListItemSchema = z.object({
   table: z.string(),
   customer: z.string(),
   subTotal: z.coerce.string(),
+  total: z.coerce.string(),
+  discount: z.coerce.string(),
   status: OrderStatusSchema,
   createdAt: z.string(),
   updatedAt: z.string().optional(),
@@ -60,6 +62,7 @@ export async function getOrders(params?: {
   status?: OrderStatus[];
   dateFrom?: string;
   dateTo?: string;
+  onlyDiscounted?: boolean;
 }): Promise<PaginatedOrders> {
   const searchParams = new URLSearchParams();
   if (params?.search) searchParams.set("search", params.search);
@@ -72,6 +75,7 @@ export async function getOrders(params?: {
   }
   if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
   if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+  if (params?.onlyDiscounted) searchParams.set("onlyDiscounted", "true");
 
   const query = searchParams.toString();
   const endpoint = `${API_ENDPOINTS.ORDERS.ALL}${query ? `?${query}` : ""}`;

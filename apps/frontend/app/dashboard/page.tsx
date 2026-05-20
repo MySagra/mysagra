@@ -21,9 +21,10 @@ import { useSession } from "next-auth/react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { t } = useLocale();
   const { canManageUsers, canManageCategories, canManageBanners, canManageOrderInstructions } = useRole();
 
@@ -139,24 +140,37 @@ export default function DashboardPage() {
       <div>
         <h2 className="text-lg font-semibold mb-3">{t.dashboard.sectionsTitle}</h2>
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-          {navigationCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Link key={card.href} href={card.href}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-                  <CardContent className="p-3 sm:p-4">
-                    <div
-                      className={`w-9 h-9 rounded-lg ${card.bgColor} flex items-center justify-center mb-2`}
-                    >
-                      <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${card.color}`} />
-                    </div>
-                    <p className="font-semibold text-sm leading-tight">{card.title}</p>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{card.description}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
+          {status === "loading" ? (
+            Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="h-full">
+                <CardContent className="p-4 sm:p-5">
+                  <Skeleton className="w-10 h-10 rounded-lg mb-3" />
+                  <Skeleton className="h-4 w-3/4 mb-3" />
+                  <Skeleton className="h-3 w-full mb-1.5" />
+                  <Skeleton className="h-3 w-2/3" />
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            navigationCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <Link key={card.href} href={card.href}>
+                  <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+                    <CardContent className="p-3 sm:p-4">
+                      <div
+                        className={`w-9 h-9 rounded-lg ${card.bgColor} flex items-center justify-center mb-2`}
+                      >
+                        <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${card.color}`} />
+                      </div>
+                      <p className="font-semibold text-sm leading-tight">{card.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{card.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })
+          )}
         </div>
       </div>
     </div></>
