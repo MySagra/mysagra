@@ -153,6 +153,7 @@ export const en = {
     cropTitle: "Crop Image",
     cropConfirm: "Crop",
     compressing: "Compressing...",
+    imageTooLarge: "Compressed image exceeds 1MB. Use a smaller image.",
     recrop: "Crop again",
     noCategoriesFound: "No categories found",
     columnImage: "Image",

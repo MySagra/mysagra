@@ -153,6 +153,7 @@ export const it = {
     cropTitle: "Ritaglia Immagine",
     cropConfirm: "Ritaglia",
     compressing: "Compressione in corso...",
+    imageTooLarge: "L'immagine compressa supera 1MB. Usa un'immagine più piccola.",
     recrop: "Ritaglia di nuovo",
     noCategoriesFound: "Nessuna categoria trovata",
     columnImage: "Immagine",
