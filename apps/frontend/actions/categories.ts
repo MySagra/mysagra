@@ -53,8 +53,8 @@ export async function updateCategory(
       name: data.name ?? currentCategory.name,
       available: data.available ?? currentCategory.available,
       position: data.position ?? currentCategory.position,
-      printerId: data.printerId !== undefined ? data.printerId : (currentCategory.printerId || undefined),
-      stationId: data.stationId !== undefined ? data.stationId : (currentCategory.stationId || undefined),
+      printerId: data.printerId !== undefined ? data.printerId : (currentCategory.printerId ?? null),
+      stationId: data.stationId !== undefined ? data.stationId : (currentCategory.stationId ?? null),
     };
 
     const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id), {
@@ -78,7 +78,7 @@ export async function reorderCategories(
       API_ENDPOINTS.CATEGORIES.BY_ID(id),
       {
         method: "PUT",
-        body: JSON.stringify({ name, available, position, printerId: printerId ?? undefined, stationId: stationId ?? undefined }),
+        body: JSON.stringify({ name, available, position, printerId: printerId ?? null, stationId: stationId ?? null }),
       },
       CategoryResponseSchema
     );

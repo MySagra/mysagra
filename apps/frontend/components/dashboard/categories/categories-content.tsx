@@ -93,7 +93,6 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
       const reordered = categories.map((cat, index) => ({
         ...cat,
         position: index,
-        stationId: cat.stationId === null ? undefined : cat.stationId,
       }));
       await reorderCategories(reordered);
       setHasOrderChanged(false);

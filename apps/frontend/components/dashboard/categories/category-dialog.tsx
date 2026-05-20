@@ -150,6 +150,11 @@ export function CategoryDialog({
   }
 
   function handleCropComplete(croppedFile: File, previewUrl: string) {
+    if (croppedFile.size > 1024 * 1024) {
+      toast.error(t.categories.imageTooLarge);
+      setCropDialogOpen(false);
+      return;
+    }
     setImageFile(croppedFile);
     setImagePreview(previewUrl);
     setCropDialogOpen(false);
