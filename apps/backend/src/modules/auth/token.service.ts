@@ -16,7 +16,7 @@ export class TokenService {
                 role: user.role.name
             },
             this.secret,
-            { expiresIn: "6h" }
+            { expiresIn: "12h" }
         );
     }
 
@@ -38,6 +38,7 @@ export class TokenService {
     getTokenPayload(token: string) {
         try {
             const payload = jwt.verify(token, this.secret);
+            console.log(payload)
             const parsed = TokenPayloadSchema.safeParse(payload);
             if (!parsed.success) return null;
             return parsed.data;

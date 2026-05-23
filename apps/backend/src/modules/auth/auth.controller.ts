@@ -21,7 +21,7 @@ export class AuthController {
             secure: env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
-            maxAge: 6 * 60 * 60 * 1000
+            maxAge: 12 * 60 * 60 * 1000
         });
 
         res.status(200).json({

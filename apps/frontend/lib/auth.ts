@@ -2,6 +2,22 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { cookies } from "next/headers";
 
+function parseTokenExpiry(token: string): { maxAge: number; exp: number } {
+  try {
+    const payload = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64url").toString()
+    );
+    if (payload.exp) {
+      const now = Math.floor(Date.now() / 1000);
+      return { maxAge: Math.max(0, payload.exp - now), exp: payload.exp };
+    }
+  } catch {
+    // fall through to default
+  }
+  const defaultMaxAge = 12 * 60 * 60;
+  return { maxAge: defaultMaxAge, exp: Math.floor(Date.now() / 1000) + defaultMaxAge };
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
@@ -31,6 +47,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Propagate the mysagra_token cookie from the backend response to the browser.
           // The backend sets it via Set-Cookie header, but since this is a server-to-server
           // fetch, the cookie would otherwise be lost and never reach the user's browser.
+          let tokenExpiry: number | undefined;
+
           const setCookieHeader = response.headers.getSetCookie();
           if (setCookieHeader) {
             const cookieStore = await cookies();
@@ -43,12 +61,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   .slice(1)
                   .join("=");              // handle '=' in token value
 
+                const { maxAge, exp } = parseTokenExpiry(tokenValue);
+                tokenExpiry = exp;
+
                 cookieStore.set("mysagra_token", tokenValue, {
                   httpOnly: true,
                   secure: process.env.NODE_ENV === "production",
                   sameSite: "lax",
                   path: "/",
-                  maxAge: 6 * 60 * 60, // 6 hours — matches backend
+                  maxAge,
                 });
               }
             }
@@ -66,6 +87,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             name: data.username || (credentials.username as string),
             email: `${credentials.username}@myamministratore.local`,
             role,
+            tokenExpiry,
           };
         } catch (error) {
           return null;
@@ -80,6 +102,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           ...token,
           id: user.id,
           role: (user as any).role,
+          exp: (user as any).tokenExpiry ?? token.exp,
         };
       }
       return token;
@@ -97,7 +120,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: "jwt",
-    maxAge: 6 * 60 * 60, // 6 hours
+    maxAge: 12 * 60 * 60, // 12 hours — matches backend JWT expiry
   },
   secret: process.env.AUTH_SECRET,
   cookies: {
@@ -108,7 +131,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         sameSite: "lax",
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 6 * 60 * 60, // 6 hours — matches session.maxAge
+        maxAge: 12 * 60 * 60, // 12 hours — matches session.maxAge
       },
     },
     callbackUrl: {
