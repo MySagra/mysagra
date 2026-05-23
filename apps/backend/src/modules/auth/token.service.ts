@@ -16,7 +16,7 @@ export class TokenService {
                 role: user.role.name
             },
             this.secret,
-            { expiresIn: "6h" }
+            { expiresIn: "12h" }
         );
     }
 
