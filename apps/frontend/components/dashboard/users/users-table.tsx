@@ -18,13 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2Icon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
+import { Trash2Icon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon, PencilIcon } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
 
 interface UsersTableProps {
   users: User[];
   roles: Role[];
   onRoleChange: (user: User, roleId: string) => void;
+  onEdit: (user: User) => void;
   onDelete: (user: User) => void;
   updatingId: string | null;
 }
@@ -32,7 +33,7 @@ interface UsersTableProps {
 type SortColumn = "username" | "role" | null;
 type SortDirection = "asc" | "desc";
 
-export function UsersTable({ users, roles, onRoleChange, onDelete, updatingId }: UsersTableProps) {
+export function UsersTable({ users, roles, onRoleChange, onEdit, onDelete, updatingId }: UsersTableProps) {
   const { t } = useLocale();
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -120,7 +121,7 @@ export function UsersTable({ users, roles, onRoleChange, onDelete, updatingId }:
                 <SortIcon column="role" />
               </button>
             </TableHead>
-            <TableHead className="w-12" />
+            <TableHead className="w-20" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -148,15 +149,26 @@ export function UsersTable({ users, roles, onRoleChange, onDelete, updatingId }:
                 </Select>
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => onDelete(user)}
-                  disabled={updatingId === user.id}
-                >
-                  <Trash2Icon className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-foreground"
+                    onClick={() => onEdit(user)}
+                    disabled={updatingId === user.id}
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={() => onDelete(user)}
+                    disabled={updatingId === user.id}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

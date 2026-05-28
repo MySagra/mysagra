@@ -23,17 +23,6 @@ export const CreateUserSchema = z.object({
     description: "Payload required to create a new user"
 })
 
-export const UpdateUserSchema = z.object({
-    ...UserBase,
-    password: z.string().min(8).max(100).meta({
-        description: "User's password",
-        example: "Super_secret_password!"
-    })
-}).meta({
-    id: "UpdateUserRequest",
-    description: "Payload required to update a user"
-})
-
 export const UserResponseSchema = z.object({
     id: z.cuid().meta({
         description: "Unique identifier for the user"
@@ -48,10 +37,22 @@ export const UserResponseSchema = z.object({
 export const PatchUserSchema = z.object({
     role: z.cuid().meta({
         description: "Unique identifier of the assigned role"
-    })
-})
+    }).optional(),
+
+    username: z.string().min(4).max(100).meta({
+        description: "Username for the user account",
+        example: "john_doe"
+    }).optional(),
+
+    password: z.string().min(8).max(100).meta({
+        description: "User's password",
+        example: "Super_secret_password!"
+    }).optional()
+}).refine(
+    (data) => Object.values(data).some((v) => v !== undefined),
+    { message: "At least one field must be provided" }
+);
 
 export type CreateUserInput = z.infer<typeof CreateUserSchema>
-export type UpdateUserInput = z.infer<typeof UpdateUserSchema>
 export type UserResponse = z.infer<typeof UserResponseSchema>
 export type PatchUserInput = z.infer<typeof PatchUserSchema>

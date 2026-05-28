@@ -1,39 +1,76 @@
 import { checkHashPassword } from "@/lib/hashPassword";
 import { prisma } from "@mysagra/database";
-import { Role, User } from "@mysagra/database";
-import { TokenService } from "./token.service";
 import { UnauthorizedError, NotFoundError } from "@/common/errors";
 
+import { sessionsService } from "./sessions.service";
+import { RoleEnum, SessionPayload } from "@mysagra/schemas";
 export class AuthService {
-    private tokenService = new TokenService();
-
-    async getUser(username: string) {
-        const user = await prisma.user.findUnique({
-            where: {
-                username
-            },
-            include: {
-                role: true
+    async login(username: string, password: string, userAgent?: string) {
+        const user = await prisma.user.findUnique(
+            {
+                where: { username },
+                include: { role: true }
             }
-        });
-
+        );
         if (!user) {
-            throw new NotFoundError("User not found");
+            throw new UnauthorizedError("Invalid credentials");
         }
 
-        return user;
-    }
-
-    async login(user: User & { role: Role }, password: string) {
         const isPasswordValid = await checkHashPassword(password, user.password);
         if (!isPasswordValid) {
             throw new UnauthorizedError("Invalid credentials");
         }
-        const accessToken = await this.tokenService.generateToken(user)
-        return accessToken
+        const sessionId = await sessionsService.generateSessionId();
+
+        const sessionPayload: SessionPayload = {
+            userId: user.id,
+            username: user.username,
+            role: RoleEnum.parse(user.role.name)
+        }
+
+        await sessionsService.createSession(
+            sessionId,
+            user.id,
+            sessionPayload,
+            userAgent
+        )
+
+        return { sessionPayload, sessionId }
     }
 
-    async logout(token: string) : Promise<Boolean>{
-        return await this.tokenService.revokeToken(token);
+    async logout(sessionId: string): Promise<void> {
+        await sessionsService.revokeSessionBySessionId(sessionId)
+        await prisma.session.update({
+            where: { sessionId },
+            data: { revokedAt: new Date() }
+        });
+    }
+
+    async getSessions(userId: string) {
+        return await prisma.session.findMany({
+            where: {
+                userId,
+                OR: [
+                    { revokedAt: { not: null } },
+                    { expiresAt: { gt: new Date() } }
+                ]
+            },
+            omit: { userId: true, updatedAt: true },
+            orderBy: { createdAt: "desc" }
+        });
+    }
+
+    async revokeSession(userId: string, sessionId: string) {
+        const sessionPayload = await sessionsService.getSessionPayload(sessionId)
+
+        if (!sessionPayload) {
+            throw new NotFoundError("Session not found");
+        }
+
+        if (userId !== sessionPayload.userId) {
+            throw new UnauthorizedError("Cannot revoke another user's session");
+        }
+
+        await sessionsService.revokeSessionBySessionId(sessionId);
     }
 }

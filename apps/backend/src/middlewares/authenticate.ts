@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { TokenService } from '@/modules/auth/token.service';
 import { RoleNames } from '@mysagra/schemas';
 import { ApiKeyPrefix } from '@mysagra/schemas';
-
-const tokenService = new TokenService();
 
 export function authenticate(allowedRoles: RoleNames[] = [], allowedApiKeys: ApiKeyPrefix[] = []) {
   return (req: Request, res: Response, next: NextFunction) => {

@@ -28,6 +28,19 @@ export async function createUser(data: UserRequest): Promise<ActionResult<User>>
   }
 }
 
+export async function updateUser(id: string, data: UserRequest): Promise<ActionResult<User>> {
+  try {
+    const result = await fetchApi<User>(API_ENDPOINTS.USERS.BY_ID(id), {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }, UserResponseSchema);
+    revalidatePath("/dashboard/users");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento dell'utente") };
+  }
+}
+
 export async function patchUserRole(id: string, roleId: string): Promise<ActionResult<User>> {
   try {
     const result = await fetchApi<User>(API_ENDPOINTS.USERS.BY_ID(id), {
@@ -38,6 +51,22 @@ export async function patchUserRole(id: string, roleId: string): Promise<ActionR
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento del ruolo") };
+  }
+}
+
+export async function patchUser(
+  id: string,
+  data: { username?: string; password?: string; role?: string }
+): Promise<ActionResult<User>> {
+  try {
+    const result = await fetchApi<User>(API_ENDPOINTS.USERS.BY_ID(id), {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }, UserResponseSchema);
+    revalidatePath("/dashboard/users");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento dell'utente") };
   }
 }
 

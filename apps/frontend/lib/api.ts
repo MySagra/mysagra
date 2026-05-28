@@ -17,14 +17,14 @@ export async function fetchApi<T>(
 ): Promise<T> {
   // Read the backend auth cookie from the incoming browser request
   const cookieStore = await cookies();
-  const token = cookieStore.get("mysagra_token");
+  const token = cookieStore.get("mysagra_session");
 
   // Merge default headers with custom headers, remove Content-Type for FormData
   const headers: HeadersInit = {
     ...buildHeaders(),
     ...options.headers,
     // Forward the backend auth cookie so the API can authenticate the request
-    ...(token ? { Cookie: `mysagra_token=${token.value}` } : {}),
+    ...(token ? { Cookie: `mysagra_session=${token.value}` } : {}),
   };
 
   if (options.body instanceof FormData) {

@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import {
   Avatar,
   AvatarFallback,
@@ -23,7 +24,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Badge } from "@/components/ui/badge"
-import { ChevronsUpDownIcon, LogOutIcon, LanguagesIcon, CheckIcon, MoonIcon, SunIcon } from "lucide-react"
+import { ChevronsUpDownIcon, LogOutIcon, LanguagesIcon, CheckIcon, MoonIcon, SunIcon, SettingsIcon } from "lucide-react"
 import { useLocale } from "@/contexts/locale-context"
 import { useTheme } from "next-themes"
 import type { Locale } from "@/lib/i18n"
@@ -139,6 +140,13 @@ export function NavUser({
             <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
               {theme === "dark" ? <SunIcon className="size-4" /> : <MoonIcon className="size-4" />}
               {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/settings">
+                <SettingsIcon className="size-4" />
+                {t.nav.settings}
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>

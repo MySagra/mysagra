@@ -20,7 +20,7 @@ import { setupSwagger } from './config/swagger';
 // middlewares
 import { requestId } from './middlewares/requestId';
 import { loggingMiddleware } from './middlewares/logging';
-import { validateJwt } from './middlewares/validateJwt';
+import { validateSession } from './middlewares/validateSession';
 import { validateApiKey } from './middlewares/validateApiKey';
 
 //app config
@@ -56,7 +56,7 @@ app.use(loggingMiddleware);
 
 // validate tokens
 app.use(validateApiKey);
-app.use(validateJwt);
+app.use(validateSession);
 
 app.use((req, res, next) => {
     if (req.path.startsWith('/events')) {

@@ -62,6 +62,7 @@ export const ModelName = {
   OrderItem: 'OrderItem',
   Role: 'Role',
   User: 'User',
+  Session: 'Session',
   Printer: 'Printer',
   CashRegister: 'CashRegister',
   ApiKey: 'ApiKey',
@@ -214,6 +215,19 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  sessionId: 'sessionId',
+  userId: 'userId',
+  userAgent: 'userAgent',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
 
 
 export const PrinterScalarFieldEnum = {
@@ -448,6 +462,15 @@ export const UserOrderByRelevanceFieldEnum = {
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
+
+
+export const SessionOrderByRelevanceFieldEnum = {
+  sessionId: 'sessionId',
+  userId: 'userId',
+  userAgent: 'userAgent'
+} as const
+
+export type SessionOrderByRelevanceFieldEnum = (typeof SessionOrderByRelevanceFieldEnum)[keyof typeof SessionOrderByRelevanceFieldEnum]
 
 
 export const PrinterOrderByRelevanceFieldEnum = {

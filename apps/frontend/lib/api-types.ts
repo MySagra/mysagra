@@ -1,5 +1,13 @@
 // API Types for MyAmministratore
 
+export interface Session {
+  sessionId: string;
+  userAgent: string | null;
+  expiresAt: string;
+  createdAt: string;
+  revokedAt: string | null;
+}
+
 export interface LoginRequest {
   username: string;
   password: string;
@@ -277,6 +285,8 @@ export const API_ENDPOINTS = {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",
     REFRESH: "/auth/refresh",
+    SESSIONS: "/auth/sessions",
+    SESSION_BY_ID: (id: string) => `/auth/session/${id}`,
   },
   STATIONS: {
     ALL: "/v1/stations",

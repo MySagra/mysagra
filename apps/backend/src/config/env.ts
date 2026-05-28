@@ -43,5 +43,6 @@ export const env = {
     TRUST_PROXY_LEVEL: data.TRUST_PROXY_LEVEL,
     REDIS_URL: data.REDIS_URL,
     REDIS_CACHE_TTL: data.REDIS_CACHE_TTL,
-    FILE_BASE_PATH: data.FILE_BASE_PATH ? data.FILE_BASE_PATH : data.NODE_ENV === "production" ? "/app" : process.cwd()
+    FILE_BASE_PATH: data.FILE_BASE_PATH ? data.FILE_BASE_PATH : data.NODE_ENV === "production" ? "/app" : process.cwd(),
+    SESSION_TTL_MIN: 60 * 60 * 24
 }

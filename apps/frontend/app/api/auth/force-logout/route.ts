@@ -11,7 +11,7 @@ const SESSION_COOKIES = [
 ];
 
 // Backend auth cookie
-const BACKEND_COOKIE = "mysagra_token";
+const BACKEND_COOKIE = "mysagra_session";
 
 export async function GET() {
   // 1. Read the backend cookie to forward it in the logout request
