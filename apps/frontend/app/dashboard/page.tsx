@@ -28,7 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const { t } = useLocale();
-  const { canManageUsers, canManageCategories, canManageBanners, canManageOrderInstructions, isAdmin, isMaintainer } = useRole();
+  const { canManageUsers, canManageCategories, canManageBanners, canManageOrderInstructions, isAdmin, isMaintainer, isOperator } = useRole();
 
   const navigationCards = [
     ...(isAdmin || isMaintainer
@@ -41,7 +41,7 @@ export default function DashboardPage() {
           bgColor: "bg-violet-50 dark:bg-violet-950/20",
         }]
       : []),
-    ...(canManageCategories
+    ...(canManageCategories || isOperator
       ? [{
           title: t.dashboard.cardCategoriesTitle,
           description: t.dashboard.cardCategoriesDescription,
@@ -67,14 +67,16 @@ export default function DashboardPage() {
       color: "text-emerald-600",
       bgColor: "bg-emerald-50 dark:bg-emerald-950/20",
     },
-    {
-      title: t.dashboard.cardOrdersTitle,
-      description: t.dashboard.cardOrdersDescription,
-      icon: ClipboardListIcon,
-      href: "/dashboard/orders",
-      color: "text-pink-600",
-      bgColor: "bg-pink-50 dark:bg-pink-950/20",
-    },
+    ...(!isOperator
+      ? [{
+          title: t.dashboard.cardOrdersTitle,
+          description: t.dashboard.cardOrdersDescription,
+          icon: ClipboardListIcon,
+          href: "/dashboard/orders",
+          color: "text-pink-600",
+          bgColor: "bg-pink-50 dark:bg-pink-950/20",
+        }]
+      : []),
     ...(canManageBanners
       ? [{
           title: t.dashboard.cardBannersTitle,
@@ -95,7 +97,7 @@ export default function DashboardPage() {
           bgColor: "bg-teal-50 dark:bg-teal-950/20",
         }]
       : []),
-    ...(isAdmin || isMaintainer
+    ...(isAdmin || isMaintainer || isOperator
       ? [{
           title: t.dashboard.cardStationsTitle,
           description: t.dashboard.cardStationsDescription,

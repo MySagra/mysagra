@@ -17,6 +17,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CashRegistersTableProps {
   cashRegisters: CashRegister[];
@@ -35,6 +37,7 @@ export function CashRegistersTable({
   onToggle,
 }: CashRegistersTableProps) {
   const { t } = useLocale();
+  const { isReadOnly, isSessionLoading } = useRole();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -180,13 +183,14 @@ export function CashRegistersTable({
           {sortedCashRegisters.map((cr) => (
             <TableRow key={cr.id}>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(cr)}
-                >
-                  <PencilIcon className="h-4 w-4" />
-                </Button>
+                {isSessionLoading
+                  ? <Skeleton className="h-8 w-8 rounded-md" />
+                  : !isReadOnly && (
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(cr)}>
+                        <PencilIcon className="h-4 w-4" />
+                      </Button>
+                    )
+                }
               </TableCell>
               <TableCell className="font-medium max-w-48">
                 <span className="block truncate" title={cr.name}>{cr.name}</span>
@@ -202,8 +206,8 @@ export function CashRegistersTable({
                 <div className="flex justify-center">
                   <Checkbox
                     checked={cr.enabled}
-                    disabled={togglingId === cr.id}
-                    onCheckedChange={() => handleToggle(cr)}
+                    disabled={isReadOnly || togglingId === cr.id}
+                    onCheckedChange={() => !isReadOnly && handleToggle(cr)}
                   />
                 </div>
               </TableCell>

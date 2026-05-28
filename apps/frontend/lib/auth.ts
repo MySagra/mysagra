@@ -63,7 +63,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const data = await response.json();
 
           const role = data.role as string | undefined;
-          if (role !== "admin" && role !== "maintainer") {
+          if (role !== "admin" && role !== "maintainer" && role !== "operator") {
             throw new Error("role_not_allowed");
           }
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PrintersToolbarProps {
   searchQuery: string;
@@ -18,7 +19,7 @@ export function PrintersToolbar({
   onCreateNew,
 }: PrintersToolbarProps) {
   const { t } = useLocale();
-  const { canCreatePrinters } = useRole();
+  const { canCreatePrinters, isSessionLoading } = useRole();
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -31,12 +32,15 @@ export function PrintersToolbar({
           className="pl-9"
         />
       </div>
-      {canCreatePrinters && (
-        <Button onClick={onCreateNew}>
-          <PlusIcon className="h-4 w-4 mr-2" />
-          {t.printers.newPrinter}
-        </Button>
-      )}
+      {isSessionLoading
+        ? <Skeleton className="h-9 w-36 rounded-md" />
+        : canCreatePrinters && (
+            <Button onClick={onCreateNew}>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              {t.printers.newPrinter}
+            </Button>
+          )
+      }
     </div>
   );
 }

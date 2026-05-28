@@ -27,6 +27,23 @@ export default auth((req) => {
     }
   }
 
+  // Operator può accedere solo a sezioni di sola lettura
+  if (isLoggedIn && role === "operator") {
+    const allowed = [
+      "/dashboard",
+      "/dashboard/categories",
+      "/dashboard/foods",
+      "/dashboard/ingredients",
+      "/dashboard/stations",
+      "/dashboard/printers",
+      "/dashboard/cash-registers",
+    ];
+    const isAllowed = allowed.some((p) => pathname === p || pathname.startsWith(p + "/"));
+    if (!isAllowed) {
+      return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
+    }
+  }
+
   return NextResponse.next();
 });
 

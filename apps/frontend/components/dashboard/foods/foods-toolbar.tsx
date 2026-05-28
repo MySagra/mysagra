@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FoodsToolbarProps {
   searchQuery: string;
@@ -30,6 +32,7 @@ export function FoodsToolbar({
   onCreateNew,
 }: FoodsToolbarProps) {
   const { t } = useLocale();
+  const { isReadOnly, isSessionLoading } = useRole();
 
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -57,10 +60,15 @@ export function FoodsToolbar({
           </SelectContent>
         </Select>
       </div>
-      <Button onClick={onCreateNew}>
-        <PlusIcon className="h-4 w-4 mr-2" />
-        {t.foods.newFood}
-      </Button>
+      {isSessionLoading
+        ? <Skeleton className="h-9 w-32 rounded-md" />
+        : !isReadOnly && (
+            <Button onClick={onCreateNew}>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              {t.foods.newFood}
+            </Button>
+          )
+      }
     </div>
   );
 }

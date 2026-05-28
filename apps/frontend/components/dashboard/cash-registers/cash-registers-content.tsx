@@ -6,6 +6,8 @@ import { CashRegistersToolbar } from "./cash-registers-toolbar";
 import { CashRegistersTable } from "./cash-registers-table";
 import { CashRegisterDialog } from "./cash-register-dialog";
 import { DeleteCashRegisterDialog } from "./delete-cash-register-dialog";
+import { CashRegistersTableSkeleton } from "./cash-registers-table-skeleton";
+import { useRole } from "@/hooks/use-role";
 
 interface CashRegistersContentProps {
   initialCashRegisters: CashRegister[];
@@ -16,6 +18,7 @@ export function CashRegistersContent({
   initialCashRegisters,
   printers,
 }: CashRegistersContentProps) {
+  const { isSessionLoading } = useRole();
   const [cashRegisters, setCashRegisters] =
     useState<CashRegister[]>(initialCashRegisters);
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,6 +69,14 @@ export function CashRegistersContent({
   function handleToggled(updated: CashRegister) {
     setCashRegisters((prev) =>
       prev.map((cr) => (cr.id === updated.id ? updated : cr))
+    );
+  }
+
+  if (isSessionLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <CashRegistersTableSkeleton />
+      </div>
     );
   }
 

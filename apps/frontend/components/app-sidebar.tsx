@@ -46,6 +46,7 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
 
   const isAdmin = userRole === "admin"
   const isMaintainer = userRole === "maintainer"
+  const isOperator = userRole === "operator"
 
   const navItems = {
     home: [
@@ -63,7 +64,7 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         : []),
     ],
     cucina: [
-      ...(isAdmin || isMaintainer
+      ...(isAdmin || isMaintainer || isOperator
         ? [{ title: t.nav.categories, url: "/dashboard/categories", icon: LayoutGridIcon }]
         : []),
       {
@@ -78,11 +79,13 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
       },
     ],
     ordini: [
-      {
-        title: t.nav.orders,
-        url: "/dashboard/orders",
-        icon: ClipboardListIcon,
-      },
+      ...(isAdmin || isMaintainer
+        ? [{
+            title: t.nav.orders,
+            url: "/dashboard/orders",
+            icon: ClipboardListIcon,
+          }]
+        : []),
     ],
     customerExperience: [
       ...(isAdmin || isMaintainer
@@ -93,7 +96,7 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         : []),
     ],
     gestione: [
-      ...(isAdmin || isMaintainer
+      ...(isAdmin || isMaintainer || isOperator
         ? [{ title: t.nav.stations, url: "/dashboard/stations", icon: UtensilsIcon }]
         : []),
       {
@@ -149,9 +152,11 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
       <SidebarContent>
         <NavMain items={navItems.home} />
         <NavMain items={navItems.cucina} label={t.nav.kitchen} />
-        <div className="my-2">
-          <NavMain items={navItems.ordini} />
-        </div>
+        {navItems.ordini.length > 0 && (
+          <div className="my-2">
+            <NavMain items={navItems.ordini} />
+          </div>
+        )}
         {navItems.customerExperience.length > 0 && (
           <NavMain items={navItems.customerExperience} label={t.nav.customerExperience} />
         )}

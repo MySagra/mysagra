@@ -23,7 +23,7 @@ export default async function DashboardLayout({
     email: session?.user?.email ?? "",
     avatar: "",
   };
-  const role = (session?.user?.role as "admin" | "maintainer" | null) ?? null;
+  const role = (session?.user?.role as "admin" | "maintainer" | "operator" | null) ?? null;
 
   return (
     <TooltipProvider>

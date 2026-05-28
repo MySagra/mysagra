@@ -6,12 +6,15 @@ import { PrintersToolbar } from "./printers-toolbar";
 import { PrintersTable } from "./printers-table";
 import { PrinterDialog } from "./printer-dialog";
 import { DeletePrinterDialog } from "./delete-printer-dialog";
+import { PrintersTableSkeleton } from "./printers-table-skeleton";
+import { useRole } from "@/hooks/use-role";
 
 interface PrintersContentProps {
   initialPrinters: Printer[];
 }
 
 export function PrintersContent({ initialPrinters }: PrintersContentProps) {
+  const { isSessionLoading } = useRole();
   const [printers, setPrinters] = useState<Printer[]>(initialPrinters);
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -56,6 +59,14 @@ export function PrintersContent({ initialPrinters }: PrintersContentProps) {
 
   function handleStatusUpdated(updated: Printer) {
     setPrinters((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  }
+
+  if (isSessionLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <PrintersTableSkeleton />
+      </div>
+    );
   }
 
   return (

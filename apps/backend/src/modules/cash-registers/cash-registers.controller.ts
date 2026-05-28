@@ -10,7 +10,7 @@ import {
     CUIDParam
 } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
-import { ForbiddenError } from "@/common/errors";
+import { NotFoundError } from "@/common/errors";
 
 export class CashRegistersController {
     constructor(private cashRegisterService: CashRegistersService) { }
@@ -19,11 +19,11 @@ export class CashRegistersController {
         req: TypedRequest<{ query: GetCashRegisterQueryParams }>,
         res: Response,
     ): Promise<void> => {
-        if (req.user?.role === "operator" && req.validated.query.enabled !== true) {
-            throw new ForbiddenError("Operators can only access enabled cash registers");
-        }
+        const query = req.user?.role === "operator"
+            ? { ...req.validated.query, enabled: true }
+            : req.validated.query;
 
-        const cashRegisters = await this.cashRegisterService.getCashRegisters(req.validated.query)
+        const cashRegisters = await this.cashRegisterService.getCashRegisters(query);
         res.status(200).json(cashRegisters);
     });
 
@@ -32,7 +32,12 @@ export class CashRegistersController {
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
-        const cashRegister = await this.cashRegisterService.getCashRegisterById(id, req.validated.query)
+        const cashRegister = await this.cashRegisterService.getCashRegisterById(id, req.validated.query);
+
+        if (req.user?.role === "operator" && !cashRegister.enabled) {
+            throw new NotFoundError("Cash register not found");
+        }
+
         res.status(200).json(cashRegister);
     });
 

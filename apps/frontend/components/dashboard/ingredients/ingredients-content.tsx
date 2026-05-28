@@ -6,6 +6,8 @@ import { IngredientsToolbar } from "./ingredients-toolbar";
 import { IngredientsTable } from "./ingredients-table";
 import { IngredientDialog } from "./ingredient-dialog";
 import { DeleteIngredientDialog } from "./delete-ingredient-dialog";
+import { IngredientsTableSkeleton } from "./ingredients-table-skeleton";
+import { useRole } from "@/hooks/use-role";
 
 interface IngredientsContentProps {
   initialIngredients: Ingredient[];
@@ -14,6 +16,7 @@ interface IngredientsContentProps {
 export function IngredientsContent({
   initialIngredients,
 }: IngredientsContentProps) {
+  const { isSessionLoading } = useRole();
   const [ingredients, setIngredients] =
     useState<Ingredient[]>(initialIngredients);
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,6 +62,14 @@ export function IngredientsContent({
     setIngredients((prev) => prev.filter((i) => i.id !== id));
     setDeleteDialogOpen(false);
     setDeletingIngredient(null);
+  }
+
+  if (isSessionLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <IngredientsTableSkeleton />
+      </div>
+    );
   }
 
   return (

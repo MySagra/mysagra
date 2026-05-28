@@ -16,6 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PencilIcon, GripVerticalIcon, ImageIcon } from "lucide-react";
 import { ImageSkeleton } from "@/components/ui/image-skeleton";
 import { toast } from "sonner";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   DndContext,
   closestCenter,
@@ -103,6 +105,8 @@ function SortableRow({
   onEdit,
   handleToggle,
   dragLabel,
+  isReadOnly,
+  isSessionLoading,
 }: {
   category: Category;
   printers: Printer[];
@@ -111,6 +115,8 @@ function SortableRow({
   onEdit: (category: Category) => void;
   handleToggle: (category: Category) => void;
   dragLabel: string;
+  isReadOnly: boolean;
+  isSessionLoading: boolean;
 }) {
   const {
     attributes,
@@ -133,9 +139,14 @@ function SortableRow({
   return (
     <TableRow ref={setNodeRef} style={style}>
       <TableCell className="w-10">
-        <Button variant="ghost" size="icon" onClick={() => onEdit(category)}>
-          <PencilIcon className="h-4 w-4" />
-        </Button>
+        {isSessionLoading
+          ? <Skeleton className="h-8 w-8 rounded-md" />
+          : !isReadOnly && (
+              <Button variant="ghost" size="icon" onClick={() => onEdit(category)}>
+                <PencilIcon className="h-4 w-4" />
+              </Button>
+            )
+        }
       </TableCell>
       <TableCell className="w-16">
         <ImageCell image={category.image} name={category.name} />
@@ -153,21 +164,26 @@ function SortableRow({
         <div className="flex justify-center">
           <Checkbox
             checked={category.available}
-            disabled={togglingId === category.id}
-            onCheckedChange={() => handleToggle(category)}
+            disabled={isReadOnly || togglingId === category.id}
+            onCheckedChange={() => !isReadOnly && handleToggle(category)}
           />
         </div>
       </TableCell>
       <TableCell className="w-10 text-right">
-        <button
-          ref={setActivatorNodeRef}
-          {...attributes}
-          {...listeners}
-          className="p-1 rounded hover:bg-muted transition-colors cursor-grab active:cursor-grabbing touch-none"
-          aria-label={dragLabel}
-        >
-          <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
-        </button>
+        {isSessionLoading
+          ? <Skeleton className="h-6 w-4 rounded-md mx-auto" />
+          : !isReadOnly && (
+              <button
+                ref={setActivatorNodeRef}
+                {...attributes}
+                {...listeners}
+                className="p-1 rounded hover:bg-muted transition-colors cursor-grab active:cursor-grabbing touch-none"
+                aria-label={dragLabel}
+              >
+                <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
+              </button>
+            )
+        }
       </TableCell>
     </TableRow>
   );
@@ -182,6 +198,7 @@ export function CategoriesTable({
   onReorder,
 }: CategoriesTableProps) {
   const { t } = useLocale();
+  const { isReadOnly, isSessionLoading } = useRole();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -249,9 +266,14 @@ export function CategoriesTable({
             {categories.map((category) => (
               <TableRow key={category.id}>
                 <TableCell className="w-10">
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(category)}>
-                    <PencilIcon className="h-4 w-4" />
-                  </Button>
+                  {isSessionLoading
+                    ? <Skeleton className="h-8 w-8 rounded-md" />
+                    : !isReadOnly && (
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(category)}>
+                          <PencilIcon className="h-4 w-4" />
+                        </Button>
+                      )
+                  }
                 </TableCell>
                 <TableCell className="w-16">
                   <ImageCell image={category.image} name={category.name} />
@@ -269,15 +291,20 @@ export function CategoriesTable({
                   <div className="flex justify-center">
                     <Checkbox
                       checked={category.available}
-                      disabled={togglingId === category.id}
-                      onCheckedChange={() => handleToggle(category)}
+                      disabled={isReadOnly || togglingId === category.id}
+                      onCheckedChange={() => !isReadOnly && handleToggle(category)}
                     />
                   </div>
                 </TableCell>
                 <TableCell className="w-10 text-right">
-                  <div className="p-1">
-                    <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
-                  </div>
+                  {isSessionLoading
+                    ? <Skeleton className="h-6 w-4 rounded-md mx-auto" />
+                    : !isReadOnly && (
+                        <div className="p-1">
+                          <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      )
+                  }
                 </TableCell>
               </TableRow>
             ))}
@@ -316,6 +343,8 @@ export function CategoriesTable({
                   onEdit={onEdit}
                   handleToggle={handleToggle}
                   dragLabel={t.categories.dragToReorder}
+                  isReadOnly={isReadOnly}
+                  isSessionLoading={isSessionLoading}
                 />
               ))}
             </TableBody>
