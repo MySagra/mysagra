@@ -1,5 +1,5 @@
 import { prisma } from "@mysagra/database";
-import { SessionPayload, TokenPayloadSchema } from "@mysagra/schemas";
+import { SessionPayload } from "@mysagra/schemas";
 import { redisConnection } from "@/lib/redis";
 import crypto from "crypto";
 
