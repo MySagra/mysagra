@@ -1,4 +1,3 @@
-import { env } from "@/config/env"
 import { prisma } from "@mysagra/database";
 import { SessionPayload, TokenPayloadSchema } from "@mysagra/schemas";
 import { redisConnection } from "@/lib/redis";
@@ -12,26 +11,40 @@ export class SessionsService {
         return crypto.randomBytes(32).toString("hex");
     }
 
+    private getExpiresAt(): Date {
+        const now = new Date();
+        const expires = new Date();
+
+        expires.setHours(7, 0, 0, 0);
+        if (now.getHours() >= 7) {
+            expires.setDate(expires.getDate() + 1)
+        }
+
+        return expires;
+    }
+
     async createSession(
         sessionId: string,
         userId: string,
         payload: SessionPayload,
         userAgent?: string
     ) {
-        const expiresAt = new Date(Date.now() + env.SESSION_TTL_MIN * 1000);
+        const expiresAt = this.getExpiresAt();
+        const ttlSeconds = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
 
-        await Promise.all([
+        const [, session] = await Promise.all([
             redisConnection.multi()
-                .setex(`${SESSION_PREFIX}:${sessionId}`, env.SESSION_TTL_MIN, JSON.stringify(payload))
+                .setex(`${SESSION_PREFIX}:${sessionId}`, ttlSeconds, JSON.stringify(payload))
                 .sadd(`${USERS_PREFIX}:${userId}`, sessionId)
-                .expire(`${USERS_PREFIX}:${userId}`, env.SESSION_TTL_MIN)
+                .expire(`${USERS_PREFIX}:${userId}`, ttlSeconds)
                 .exec(),
 
             prisma.session.create({
-                data: { sessionId, userId, userAgent, expiresAt },
-                select: { userId: true, createdAt: true }
+                data: { sessionId, userId, userAgent, expiresAt }
             })
         ])
+
+        return session;
     }
 
     async getSessionPayload(sessionId: string): Promise<SessionPayload | null> {
@@ -68,6 +81,22 @@ export class SessionsService {
             where: { userId, revokedAt: null },
             data: { revokedAt: new Date() }
         });
+    }
+
+    async clearOldSessions() {
+        return await prisma.session.deleteMany({
+            where: {
+                OR: [
+                    {
+                        expiresAt: { lte: new Date() },
+                        revokedAt: null
+                    },
+                    {
+                        revokedAt: { lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)}
+                    }
+                ]
+            }
+        })
     }
 }
 

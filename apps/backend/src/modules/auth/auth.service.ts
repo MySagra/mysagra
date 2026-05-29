@@ -28,14 +28,14 @@ export class AuthService {
             role: RoleEnum.parse(user.role.name)
         }
 
-        await sessionsService.createSession(
+        const { expiresAt } = await sessionsService.createSession(
             sessionId,
             user.id,
             sessionPayload,
             userAgent
         )
 
-        return { sessionPayload, sessionId }
+        return { sessionPayload, sessionId, expiresAt }
     }
 
     async logout(sessionId: string): Promise<void> {

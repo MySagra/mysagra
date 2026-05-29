@@ -4,7 +4,7 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { env } from "@/config/env";
 import { LoginRequest, RevokeSessionParams } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
-import { NotFoundError, UnauthorizedError } from "@/common/errors";
+import { UnauthorizedError } from "@/common/errors";
 
 export class AuthController {
     constructor(private authService: AuthService) { }
@@ -14,14 +14,14 @@ export class AuthController {
         res: Response,
     ): Promise<void> => {
         const { username, password } = req.validated.body;
-        const { sessionPayload, sessionId } = await this.authService.login(username, password, req.headers["user-agent"]);
+        const { sessionPayload, sessionId, expiresAt } = await this.authService.login(username, password, req.headers["user-agent"]);
 
         res.cookie('mysagra_session', sessionId, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
-            maxAge: env.SESSION_TTL_MIN * 1000
+            expires: expiresAt
         });
 
         res.status(200).json(sessionPayload);

@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { getBackendSessionId } from "@/lib/auth";
 
 const API_URL = process.env.API_URL || "";
 
@@ -10,20 +10,16 @@ const SESSION_COOKIES = [
   "myamministratore.csrf-token",
 ];
 
-// Backend auth cookie
-const BACKEND_COOKIE = "mysagra_session";
-
 export async function GET() {
-  // 1. Read the backend cookie to forward it in the logout request
-  const cookieStore = await cookies();
-  const backendToken = cookieStore.get(BACKEND_COOKIE);
+  // 1. Read the backend session id out of the encrypted NextAuth JWT
+  const sessionId = await getBackendSessionId();
 
-  // 2. Call backend logout to clear the backend HTTP-only cookie
+  // 2. Call backend logout to revoke the server-side session
   try {
     await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
       headers: {
-        ...(backendToken ? { Cookie: `${BACKEND_COOKIE}=${backendToken.value}` } : {}),
+        ...(sessionId ? { Cookie: `mysagra_session=${sessionId}` } : {}),
       },
     });
   } catch {
@@ -44,8 +40,8 @@ export async function GET() {
     });
   }
 
-  // 5. Delete the backend auth cookie as well
-  response.cookies.set(BACKEND_COOKIE, "", {
+  // 5. Defensively clear any legacy mysagra_session browser cookie
+  response.cookies.set("mysagra_session", "", {
     path: "/",
     maxAge: 0,
     expires: new Date(0),

@@ -180,12 +180,12 @@ export function SettingsContent({
   ];
 
   return (
-    <div className="flex flex-1 flex-col md:flex-row gap-0 p-4 pt-0 min-h-0">
+    <div className="flex flex-1 flex-col lg:flex-row gap-0 p-4 pt-0 min-h-0">
 
-      {/* ─── Nav — horizontal on mobile, vertical on desktop ── */}
-      <nav className="md:w-48 shrink-0 md:pr-4">
-        {/* Mobile: horizontal pill tabs */}
-        <div className="flex md:hidden gap-1 mb-4 rounded-lg bg-muted p-1">
+      {/* ─── Nav — horizontal pills until lg, vertical list on lg+ ── */}
+      <nav className="lg:w-48 shrink-0 lg:pr-4">
+        {/* Compact: horizontal pill tabs */}
+        <div className="flex lg:hidden gap-1 mb-4 rounded-lg bg-muted p-1">
           {navItems.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
@@ -204,7 +204,7 @@ export function SettingsContent({
         </div>
 
         {/* Desktop: vertical list */}
-        <ul className="hidden md:flex flex-col space-y-1">
+        <ul className="hidden lg:flex flex-col space-y-1">
           {navItems.map(({ id, icon: Icon, label }) => (
             <li key={id}>
               <button
@@ -224,11 +224,11 @@ export function SettingsContent({
         </ul>
       </nav>
 
-      <Separator orientation="vertical" className="hidden md:block self-stretch" />
-      <Separator className="md:hidden mb-4" />
+      <Separator orientation="vertical" className="hidden lg:block self-stretch" />
+      <Separator className="lg:hidden mb-4" />
 
       {/* ─── Content ──────────────────────────────────────────── */}
-      <div className="flex-1 md:pl-6 min-w-0">
+      <div className="flex-1 lg:pl-6 min-w-0">
 
         {/* Account */}
         {activeTab === "account" && (
@@ -486,42 +486,43 @@ function SessionCard({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors",
+        "flex flex-col gap-3 rounded-xl border px-4 py-3 transition-colors lg:flex-row lg:items-center",
         isActive ? "bg-card" : "bg-muted/30 opacity-60",
         isCurrent && "border-primary/40 ring-1 ring-primary/20"
       )}
     >
-      {/* Device icon */}
-      <div
-        className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-lg",
-          isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-        )}
-      >
-        <DeviceIcon className="size-4" />
+      {/* Device icon + info */}
+      <div className="flex items-start gap-3 min-w-0 flex-1">
+        <div
+          className={cn(
+            "flex size-9 shrink-0 items-center justify-center rounded-lg",
+            isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+          )}
+        >
+          <DeviceIcon className="size-4" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <p className="text-sm font-medium truncate">{browser ?? t.unknownDevice}</p>
+            {os && <span className="text-xs text-muted-foreground shrink-0">· {os}</span>}
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground mt-0.5">
+            <span className="whitespace-nowrap">{t.sessionCreatedAt}: {format(new Date(session.createdAt), "dd/MM/yy HH:mm")}</span>
+            {isActive && (
+              <span className="whitespace-nowrap">{t.sessionExpiresAt}: {format(new Date(session.expiresAt), "dd/MM/yy HH:mm")}</span>
+            )}
+            {status === "revoked" && session.revokedAt && (
+              <span className="whitespace-nowrap">{t.sessionRevokedAt}: {format(new Date(session.revokedAt), "dd/MM/yy HH:mm")}</span>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <p className="text-sm font-medium truncate">{browser ?? t.unknownDevice}</p>
-          {os && <span className="text-xs text-muted-foreground shrink-0">· {os}</span>}
-        </div>
-        <div className="flex flex-wrap gap-x-3 gap-y-0 text-xs text-muted-foreground mt-0.5">
-          <span>{t.sessionCreatedAt}: {format(new Date(session.createdAt), "dd/MM/yy HH:mm")}</span>
-          {isActive && (
-            <span>{t.sessionExpiresAt}: {format(new Date(session.expiresAt), "dd/MM/yy HH:mm")}</span>
-          )}
-          {status === "revoked" && session.revokedAt && (
-            <span>{t.sessionRevokedAt}: {format(new Date(session.revokedAt), "dd/MM/yy HH:mm")}</span>
-          )}
-        </div>
-      </div>
-
-      {/* Status + revoke */}
-      <div className="flex items-center gap-2 shrink-0">
+      {/* Status + revoke — wraps below info on mobile, inline on sm+ */}
+      <div className="flex items-center gap-2 flex-wrap shrink-0 pl-12 lg:pl-0">
         {isCurrent && (
-          <Badge variant="outline" className="gap-1 text-primary border-primary/30 bg-primary/5 text-xs whitespace-nowrap hidden sm:flex">
+          <Badge variant="outline" className="gap-1 text-primary border-primary/30 bg-primary/5 text-xs whitespace-nowrap">
             <CheckCircle2Icon className="size-3" />
             {t.sessionCurrent}
           </Badge>
@@ -531,7 +532,7 @@ function SessionCard({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-auto lg:ml-0"
             disabled={revoking}
             onClick={() => onRevoke(session.sessionId)}
             title={t.revokeButton}
