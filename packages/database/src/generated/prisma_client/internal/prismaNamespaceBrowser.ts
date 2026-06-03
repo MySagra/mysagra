@@ -272,14 +272,17 @@ export const BannerScalarFieldEnum = {
   id: 'id',
   label: 'label',
   type: 'type',
+  position: 'position',
   title: 'title',
   description: 'description',
   website: 'website',
   instagram: 'instagram',
   facebook: 'facebook',
+  telephone: 'telephone',
   image: 'image',
   color: 'color',
-  dateTime: 'dateTime'
+  startsAt: 'startsAt',
+  endsAt: 'endsAt'
 } as const
 
 export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
@@ -512,6 +515,7 @@ export const BannerOrderByRelevanceFieldEnum = {
   website: 'website',
   instagram: 'instagram',
   facebook: 'facebook',
+  telephone: 'telephone',
   image: 'image',
   color: 'color'
 } as const

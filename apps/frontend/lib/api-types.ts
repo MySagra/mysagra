@@ -262,13 +262,16 @@ export interface Banner {
   id: string;
   label: string;
   type: BannerType;
+  position: number;
   title?: string | null;
   description?: string | null;
   website?: string | null;
   facebook?: string | null;
   instagram?: string | null;
+  telephone?: string | null;
   color?: string;
-  dateTime?: Date | string | null;
+  startsAt?: Date | string | null;
+  endsAt?: Date | string | null;
   image: string | null;
 }
 

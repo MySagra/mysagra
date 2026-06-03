@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const BannerEnumSchema = z.enum(["EVENT", "SPONSOR"])
 
-export const BannerInputSchema = z.object({
+const BannerBaseSchema = z.object({
     label: z.string().max(100).meta({
         description: "Internal label used to identify the banner in the management panel",
         example: "Queen band event"
@@ -10,6 +10,10 @@ export const BannerInputSchema = z.object({
     type: z.string().transform(v => v.toUpperCase()).pipe(BannerEnumSchema).meta({
         description: "Determines whether the banner promotes a festival event or a sponsor. Accepted values: EVENT, SPONSOR",
         example: "EVENT"
+    }),
+    position: z.number().int().meta({
+        description: "Display position/order priority",
+        example: 1
     }),
     title: z.string().max(100).optional().nullable().meta({
         description: "Headline displayed on the banner card in the UI. Null if not provided",
@@ -31,17 +35,56 @@ export const BannerInputSchema = z.object({
         description: "Instagram profile URL shown as a social link on the banner. Null if not provided",
         example: "https://www.instagram.com/officialqueenmusic/"
     }),
+    telephone: z.string().regex(/^\+?[\d\s\-().]{6,20}$/).optional().nullable().meta({
+        description: "Contact phone number, with or without country prefix. Null if not provided",
+        example: "+39 02 1234567"
+    }),
     color: z.string().transform(v => v.replace(/^#/, '')).pipe(z.hex()).optional().default("fecc01").meta({
         description: "Hex color code used for action buttons and accents on the banner card. Defaults to #fecc01",
         example: "#fecc01"
     }),
-    dateTime: z.coerce.date().optional().nullable().meta({
-        description: "Date and time of the event displayed on the banner. Only relevant when type is 'event'. Null if not applicable",
+    startsAt: z.coerce.date().optional().nullable().meta({
+        description: "Date and time of the event starts. Only relevant when type is 'event'. Null if not applicable",
         example: "2026-07-15T21:00:00.000Z"
+    }),
+    endsAt: z.coerce.date().optional().nullable().meta({
+        description: "Date and time of the event ends. Only relevant when type is 'event'. Null if not applicable",
+        example: "2026-07-15T23:00:00.000Z"
     })
 })
 
-export const BannerResponseSchema = BannerInputSchema.extend({
+export const BannerInputSchema = BannerBaseSchema.superRefine((data, ctx) => {
+    const { startsAt, endsAt } = data
+    const hasStart = startsAt != null
+    const hasEnd = endsAt != null
+
+    if (data.type === "EVENT") {
+        if (!hasStart) {
+            ctx.addIssue({
+                code: "custom",
+                message: "startsAt is required for EVENT type",
+                path: ["startsAt"],
+            })
+        }
+        if (!hasEnd) {
+            ctx.addIssue({
+                code: "custom",
+                message: "endsAt is required for EVENT type",
+                path: ["endsAt"],
+            })
+        }
+    }
+
+    if (hasStart && hasEnd && startsAt! >= endsAt!) {
+        ctx.addIssue({
+            code: "custom",
+            message: "startsAt must be before endsAt",
+            path: ["startsAt"],
+        })
+    }
+})
+
+export const BannerResponseSchema = BannerBaseSchema.extend({
     id: z.cuid().meta({
         description: "Unique identifier of the banner",
         example: "clxyz1234abcd5678efgh9012"
