@@ -218,14 +218,14 @@ export interface CashRegister {
   id: string;
   name: string;
   enabled: boolean;
-  defaultPrinterId: string;
+  defaultPrinterId: string | null;
   defaultPrinter?: Printer;
 }
 
 export interface CashRegisterRequest {
   name: string;
   enabled: boolean;
-  defaultPrinterId: string;
+  defaultPrinterId: string | null;
 }
 
 // API Keys
