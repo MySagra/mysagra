@@ -378,6 +378,7 @@ export const en = {
     enabledLabel: "Enabled",
     cashPrinterLabel: "Cash Printer",
     printerSelectPlaceholder: "Select printer",
+    noPrinter: "No printer",
     printerRequired: "Select a default printer",
     noCashRegistersFound: "No cash registers found",
     columnName: "Name",

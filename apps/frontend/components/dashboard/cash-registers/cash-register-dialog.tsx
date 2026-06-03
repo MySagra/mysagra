@@ -44,6 +44,8 @@ type CashRegisterFormValues = {
   enabled: boolean;
 };
 
+const NO_PRINTER = "__none__";
+
 interface CashRegisterDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -67,7 +69,7 @@ export function CashRegisterDialog({
 
   const cashRegisterSchema = z.object({
     name: z.string().min(1, t.cashRegisters.nameRequired),
-    defaultPrinterId: z.string().min(1, t.cashRegisters.printerRequired),
+    defaultPrinterId: z.string(),
     enabled: z.boolean(),
   });
 
@@ -75,7 +77,7 @@ export function CashRegisterDialog({
     resolver: standardSchemaResolver(cashRegisterSchema),
     defaultValues: {
       name: "",
-      defaultPrinterId: printers[0]?.id || "",
+      defaultPrinterId: NO_PRINTER,
       enabled: true,
     },
   });
@@ -84,13 +86,13 @@ export function CashRegisterDialog({
     if (cashRegister) {
       form.reset({
         name: cashRegister.name,
-        defaultPrinterId: cashRegister.defaultPrinterId,
+        defaultPrinterId: cashRegister.defaultPrinterId ?? NO_PRINTER,
         enabled: cashRegister.enabled,
       });
     } else {
       form.reset({
         name: "",
-        defaultPrinterId: printers[0]?.id || "",
+        defaultPrinterId: NO_PRINTER,
         enabled: true,
       });
     }
@@ -99,7 +101,7 @@ export function CashRegisterDialog({
   async function onSubmit(values: CashRegisterFormValues) {
     const data = {
       name: values.name.trim(),
-      defaultPrinterId: values.defaultPrinterId,
+      defaultPrinterId: values.defaultPrinterId === NO_PRINTER ? null : values.defaultPrinterId,
       enabled: values.enabled,
     };
 
@@ -176,7 +178,7 @@ export function CashRegisterDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel required>{t.cashRegisters.cashPrinterLabel}</FieldLabel>
+                        <FieldLabel>{t.cashRegisters.cashPrinterLabel}</FieldLabel>
                         <FormControl>
                           <Select
                             value={field.value}
@@ -186,6 +188,9 @@ export function CashRegisterDialog({
                               <SelectValue placeholder={t.cashRegisters.printerSelectPlaceholder} />
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value={NO_PRINTER}>
+                                {t.cashRegisters.noPrinter}
+                              </SelectItem>
                               {printers.map((printer) => (
                                 <SelectItem key={printer.id} value={printer.id}>
                                   {printer.name}{printer.ip ? ` (${printer.ip})` : ""}

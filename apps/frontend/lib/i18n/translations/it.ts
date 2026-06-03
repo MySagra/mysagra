@@ -378,6 +378,7 @@ export const it = {
     enabledLabel: "Abilitata",
     cashPrinterLabel: "Stampante Cassa",
     printerSelectPlaceholder: "Seleziona stampante",
+    noPrinter: "Nessuna stampante",
     printerRequired: "Seleziona una stampante predefinita",
     noCashRegistersFound: "Nessuna cassa trovata",
     columnName: "Nome",

@@ -62,7 +62,8 @@ export function CashRegistersTable({
     localStorage.setItem("cash-registers-table-sort-direction", sortDirection);
   }, [sortColumn, sortDirection]);
 
-  function getPrinterName(printerId: string): string {
+  function getPrinterName(printerId: string | null): string | null {
+    if (!printerId) return null;
     const printer = printers.find((p) => p.id === printerId);
     return printer?.name || printerId;
   }
@@ -94,8 +95,8 @@ export function CashRegistersTable({
           bValue = b.name.toLowerCase();
           break;
         case "printer":
-          aValue = (a.defaultPrinter?.name || getPrinterName(a.defaultPrinterId)).toLowerCase();
-          bValue = (b.defaultPrinter?.name || getPrinterName(b.defaultPrinterId)).toLowerCase();
+          aValue = (a.defaultPrinter?.name || getPrinterName(a.defaultPrinterId) || "").toLowerCase();
+          bValue = (b.defaultPrinter?.name || getPrinterName(b.defaultPrinterId) || "").toLowerCase();
           break;
         case "enabled":
           aValue = a.enabled ? 1 : 0;
@@ -196,11 +197,13 @@ export function CashRegistersTable({
                 <span className="block truncate" title={cr.name}>{cr.name}</span>
               </TableCell>
               <TableCell>
-                <Badge variant="outline">
-                  {cr.defaultPrinter
-                    ? cr.defaultPrinter.name
-                    : getPrinterName(cr.defaultPrinterId)}
-                </Badge>
+                {(cr.defaultPrinter || cr.defaultPrinterId) ? (
+                  <Badge variant="outline">
+                    {cr.defaultPrinter?.name || getPrinterName(cr.defaultPrinterId)}
+                  </Badge>
+                ) : (
+                  <span className="text-muted-foreground text-sm">{t.cashRegisters.noPrinter}</span>
+                )}
               </TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center">
