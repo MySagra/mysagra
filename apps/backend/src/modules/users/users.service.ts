@@ -69,9 +69,7 @@ export class UsersService {
     }
 
     async deleteUser(id: string) {
-        await Promise.all([
-            sessionsService.revokeSessionByUserId(id),
-            prisma.user.delete({ where: { id } })
-        ])
+        await sessionsService.revokeSessionByUserId(id);
+        await prisma.user.delete({ where: { id } });
     }
 }

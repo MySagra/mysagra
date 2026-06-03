@@ -60,12 +60,7 @@ export async function setupNewAdmin(
       UserResponseSchema
     );
 
-    // 4. Delete the default admin user
-    await fetchApi(API_ENDPOINTS.USERS.BY_ID(defaultAdmin.id), {
-      method: "DELETE",
-    });
-
-    // 5. Optionally generate initial API keys
+    // 4. Optionally generate initial API keys
     const [printerKeyResult, webappKeyResult] = await Promise.all([
       options.generatePrinterKey
         ? fetchApi<CreateApiKeyResponse>(API_ENDPOINTS.API_KEYS.ALL, {
@@ -80,6 +75,11 @@ export async function setupNewAdmin(
           })
         : Promise.resolve(null),
     ]);
+
+    // 5. Delete the default admin user only after all configuration is complete
+    await fetchApi(API_ENDPOINTS.USERS.BY_ID(defaultAdmin.id), {
+      method: "DELETE",
+    });
 
     return {
       success: true,
