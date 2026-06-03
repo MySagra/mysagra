@@ -275,16 +275,20 @@ model Banner {
   label String     @db.VarChar(100)
   type  BannerType
 
+  position    Int
   title       String? @db.VarChar(100)
   description String? @db.VarChar(250)
 
   website   String?
   instagram String?
   facebook  String?
+  telephone String?
 
-  image    String?
-  color    String    @default("fecc01")
-  dateTime DateTime?
+  image String?
+  color String  @default("fecc01")
+
+  startsAt DateTime?
+  endsAt   DateTime?
 
   @@map("banners")
 }
