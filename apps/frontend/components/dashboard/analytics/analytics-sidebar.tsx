@@ -40,6 +40,7 @@ export type FilterSelection = {
 
 interface AnalyticsSidebarProps {
   categories: CategoryItem[];
+  allFoods: FoodItem[];
   topFoods: FoodItem[];
   topFoodsByRevenue: FoodItem[];
   cashRegisters: CashRegisterItem[];
@@ -89,6 +90,7 @@ const MAX_VISIBLE_FOODS = 4;
 
 export function AnalyticsSidebar({
   categories,
+  allFoods,
   topFoods,
   topFoodsByRevenue,
   cashRegisters,
@@ -116,7 +118,15 @@ export function AnalyticsSidebar({
 
   // Filter foods: first by selected category, then by search, then limit to 5
   const filteredFoodItems = useMemo(() => {
-    const baseItems = foodViewMode === "quantity" ? topFoods : topFoodsByRevenue;
+    const query = foodSearch.toLowerCase().trim();
+
+    // When searching, use allFoods so foods outside top-10 are still findable
+    const baseItems = query
+      ? (foodViewMode === "quantity"
+          ? [...allFoods].sort((a, b) => b.quantity - a.quantity)
+          : [...allFoods].sort((a, b) => b.revenue - a.revenue))
+      : (foodViewMode === "quantity" ? topFoods : topFoodsByRevenue);
+
     let items = baseItems;
 
     // Filter by selected category
@@ -128,13 +138,12 @@ export function AnalyticsSidebar({
     }
 
     // Filter by search
-    const query = foodSearch.toLowerCase().trim();
     if (query) {
       return items.filter((f) => f.name.toLowerCase().includes(query));
     }
 
     return items.slice(0, MAX_VISIBLE_FOODS);
-  }, [foodViewMode, topFoods, topFoodsByRevenue, selection, foodSearch]);
+  }, [foodViewMode, allFoods, topFoods, topFoodsByRevenue, selection, foodSearch]);
 
   // Filter cash registers by search
   const displayedCashRegisters = useMemo(() => {

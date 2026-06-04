@@ -73,9 +73,15 @@ function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: 
   // Get the intervalInMinutes from the first report
   const intervalInMinutes = reports[0].intervalInMinutes;
 
-  // Start from the first actual report, not from dateFrom (skip leading empty slots)
-  const firstReportMs = floorToInterval(new Date(reports[0].timestamp).getTime(), groupBy);
-  const startMs = firstReportMs;
+  // Start one interval before the first slot with actual orders (skip leading server-on/zero-order slots)
+  const firstWithOrders = reports.find((r) => {
+    const v = r.totalOrders;
+    return (typeof v === "number" ? v : Number(v) || 0) > 0;
+  });
+  const fromMs = floorToInterval(dateFrom.getTime(), groupBy);
+  const startMs = firstWithOrders
+    ? Math.max(floorToInterval(new Date(firstWithOrders.timestamp).getTime(), groupBy) - stepMs, fromMs)
+    : floorToInterval(new Date(reports[0].timestamp).getTime(), groupBy);
   const endMs = floorToInterval(dateTo.getTime(), groupBy);
 
   // Generate all expected slots
@@ -424,6 +430,7 @@ export default function AnalyticsPage() {
               <div className="w-full lg:w-[320px] shrink-0">
                 <AnalyticsSidebar
                   categories={aggregatedStats.categories}
+                  allFoods={aggregatedStats.allFoods}
                   topFoods={aggregatedStats.topFoods}
                   topFoodsByRevenue={aggregatedStats.topFoodsByRevenue}
                   cashRegisters={aggregatedStats.cashRegisters}
