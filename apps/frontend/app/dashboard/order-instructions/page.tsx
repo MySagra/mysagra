@@ -16,7 +16,7 @@ export default async function OrderInstructionsPage() {
 
   return (
     <>
-      <DashboardHeader title="Istruzioni Ordine" />
+      <DashboardHeader navKey="orderInstructions" />
       <OrderInstructionsContent initialInstructions={instructions} />
     </>
   );

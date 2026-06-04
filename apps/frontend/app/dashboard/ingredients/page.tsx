@@ -15,7 +15,7 @@ export default async function IngredientsPage() {
 
   return (
     <>
-      <DashboardHeader title="Ingredienti" />
+      <DashboardHeader navKey="ingredients" />
       <IngredientsContent initialIngredients={ingredients} />
     </>
   );

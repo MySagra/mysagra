@@ -30,7 +30,7 @@ export default async function FoodsPage() {
 
   return (
     <>
-      <DashboardHeader title="Cibi" />
+      <DashboardHeader navKey="foods" />
       <FoodsContent initialFoods={foods} categories={categories} ingredients={ingredients} printers={printers} />
     </>
   );

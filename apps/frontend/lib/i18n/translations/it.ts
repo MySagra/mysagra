@@ -26,6 +26,7 @@ export const it = {
     errorRoleNotAllowed: "Accesso non consentito per questo ruolo",
     errorGeneric: "Errore durante il login",
     validationError: "Errore di validazione",
+    sessionExpired: "Sessione scaduta. Effettua nuovamente il login.",
   },
   setup: {
     warningTitle: "Configurazione iniziale richiesta",
@@ -128,6 +129,9 @@ export const it = {
     toastRevoked: "Sessione revocata",
     toastErrorRevoke: "Errore nella revoca della sessione",
     revokeAllButton: "Revoca tutte",
+    revokeAllDialogTitle: "Revoca tutte le sessioni",
+    revokeAllDialogDescription: "Tutte le sessioni attive verranno revocate, inclusa quella corrente. Verrai reindirizzato alla pagina di login.",
+    revokeAllDialogConfirm: "Revoca e disconnetti",
     unknownDevice: "Dispositivo sconosciuto",
     loadingError: "Errore nel caricamento",
   },

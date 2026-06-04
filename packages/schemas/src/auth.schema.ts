@@ -26,19 +26,14 @@ export const RefreshSchema = z.object({
 })
 
 export const LoginResponseSchema = z.object({
-    user: z.object({
-        id: z.cuid().meta({
-            description: "User id"
-        }),
-        username: z.string().meta({
-            description: "User role",
-            example: "admin"
-        }),
-        role: RoleEnum
+    userId: z.cuid().meta({
+        description: "User id"
     }),
-    accessToken: z.jwt().meta({
-        description: "JWT for access token"
-    })
+    username: z.string().meta({
+        description: "User role",
+        example: "admin"
+    }),
+    role: RoleEnum
 })
 
 // Inferred types

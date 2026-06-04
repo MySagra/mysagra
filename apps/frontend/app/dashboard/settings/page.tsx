@@ -1,13 +1,13 @@
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SettingsContent } from "@/components/dashboard/settings/settings-content";
-import { auth, getBackendSessionId } from "@/lib/auth";
+import { getSession, getBackendSessionId } from "@/lib/auth";
 import { getSessions } from "@/actions/auth";
 import { getUserById } from "@/actions/users";
 import { Session } from "@/lib/api-types";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default async function SettingsPage() {
-  const session = await auth();
+  const session = await getSession();
   const userId = session?.user?.id ?? "";
   const currentSessionId = (await getBackendSessionId()) ?? "";
 
@@ -27,7 +27,7 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <DashboardHeader title="Impostazioni" />
+      <DashboardHeader navKey="settings" />
       <SettingsContent
         userId={userId}
         currentUsername={session?.user?.name ?? ""}

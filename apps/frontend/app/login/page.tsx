@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/login/login-card/login-form";
+import { SessionExpiredToast } from "@/components/login/session-expired-toast";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 
@@ -17,6 +18,9 @@ export default function LoginPage() {
 
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-4 sm:p-6 md:p-10">
+      <Suspense>
+        <SessionExpiredToast />
+      </Suspense>
       <div className="w-full max-w-sm md:max-w-4xl">
         <LoginForm />
       </div>

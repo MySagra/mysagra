@@ -19,7 +19,7 @@ import {
   UtensilsIcon,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/use-session";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
@@ -144,7 +144,7 @@ export default function DashboardPage() {
   const userName = formatName(session?.user?.name);
 
   return (
-    <><DashboardHeader title={t.nav.home} /><div className="space-y-6 p-4 md:p-8">
+    <><DashboardHeader navKey="home" /><div className="space-y-6 p-4 md:p-8">
       {/* Welcome Section */}
       <div className="flex items-center gap-4">
         <div className="shrink-0">

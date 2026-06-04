@@ -26,6 +26,7 @@ export const en = {
     errorRoleNotAllowed: "Access not allowed for this role",
     errorGeneric: "Login error",
     validationError: "Validation error",
+    sessionExpired: "Session expired. Please login again.",
   },
   setup: {
     warningTitle: "Initial setup required",
@@ -128,6 +129,9 @@ export const en = {
     toastRevoked: "Session revoked",
     toastErrorRevoke: "Error revoking session",
     revokeAllButton: "Revoke all",
+    revokeAllDialogTitle: "Revoke all sessions",
+    revokeAllDialogDescription: "All active sessions will be revoked, including the current one. You will be redirected to the login page.",
+    revokeAllDialogConfirm: "Revoke and logout",
     unknownDevice: "Unknown device",
     loadingError: "Error loading",
   },

@@ -15,7 +15,6 @@ export async function fetchApi<T>(
   options: RequestInit = {},
   schema?: z.ZodType<T>
 ): Promise<T> {
-  // Backend session id lives inside the encrypted NextAuth JWT, not a browser cookie.
   const sessionId = await getBackendSessionId();
 
   // Merge default headers with custom headers, remove Content-Type for FormData
@@ -38,7 +37,7 @@ export async function fetchApi<T>(
   // Handle 401 Unauthorized and 403 Forbidden
   // Redirect to the force-logout Route Handler which can properly clear cookies
   if (response.status === 401 || response.status === 403) {
-    redirect("/api/auth/force-logout");
+    redirect("/api/auth/force-logout?reason=expired");
   }
 
   // Handle other error responses

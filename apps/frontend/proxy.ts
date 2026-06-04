@@ -1,8 +1,23 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
+const USER_COOKIE = "myamministratore_user";
+
+async function getSession(req: NextRequest) {
+  const token = req.cookies.get(USER_COOKIE)?.value;
+  if (!token) return null;
+  try {
+    const secret = new TextEncoder().encode(process.env.AUTH_SECRET!);
+    const { payload } = await jwtVerify(token, secret);
+    return payload as { userId: string; username: string; role: string };
+  } catch {
+    return null;
+  }
+}
+
+export default async function middleware(req: NextRequest) {
+  const session = await getSession(req);
+  const isLoggedIn = !!session;
   const { pathname } = req.nextUrl;
   const isOnDashboard = pathname.startsWith("/dashboard");
   const isOnSetup = pathname === "/setup";
@@ -13,13 +28,13 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Se loggato e va su /login, rimanda alla dashboard
   if (pathname === "/login" && isLoggedIn) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
   }
 
+  const role = session?.role;
+
   // Maintainer non può accedere agli utenti
-  const role = (req.auth as any)?.user?.role as string | undefined;
   if (isLoggedIn && role === "maintainer") {
     const restricted = ["/dashboard/users"];
     if (restricted.some((p) => pathname.startsWith(p))) {
@@ -45,7 +60,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/dashboard/:path*", "/login", "/setup"],

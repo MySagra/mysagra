@@ -29,6 +29,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 import { patchUser } from "@/actions/users";
 import { revokeSession } from "@/actions/auth";
@@ -86,6 +94,7 @@ export function SettingsContent({
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [revokingAll, setRevokingAll] = useState(false);
+  const [revokeAllOpen, setRevokeAllOpen] = useState(false);
   const [inactiveOpen, setInactiveOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -161,17 +170,18 @@ export function SettingsContent({
     const active = sessions.filter((s) => getSessionStatus(s) === "active");
     if (!active.length) return;
     setRevokingAll(true);
-    await Promise.all(active.map((s) => revokeSession(s.sessionId)));
+    const others = active.filter((s) => s.sessionId !== currentSessionId);
+    const current = active.find((s) => s.sessionId === currentSessionId);
+    await Promise.all(others.map((s) => revokeSession(s.sessionId)));
+    if (current) await revokeSession(current.sessionId);
     setRevokingAll(false);
-    toast.success(t.settings.toastRevoked);
-    setSessions((prev) =>
-      prev.map((s) =>
-        getSessionStatus(s) === "active" ? { ...s, revokedAt: new Date().toISOString() } : s
-      )
-    );
+    setRevokeAllOpen(false);
+    router.push("/api/auth/force-logout?skip-logout=1");
   }
 
-  const activeSessions = sessions.filter((s) => getSessionStatus(s) === "active");
+  const activeSessions = sessions
+    .filter((s) => getSessionStatus(s) === "active")
+    .sort((a, b) => (b.sessionId === currentSessionId ? 1 : 0) - (a.sessionId === currentSessionId ? 1 : 0));
   const inactiveSessions = sessions.filter((s) => getSessionStatus(s) !== "active");
 
   const navItems: { id: SettingsTab; icon: React.ElementType; label: string }[] = [
@@ -342,18 +352,41 @@ export function SettingsContent({
                 <p className="text-sm text-muted-foreground mt-0.5">{t.settings.sessionsDescription}</p>
               </div>
               {activeSessions.length > 1 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive gap-1.5 shrink-0"
-                  disabled={revokingAll}
-                  onClick={handleRevokeAll}
-                >
-                  {revokingAll
-                    ? <Loader2Icon className="size-3.5 animate-spin" />
-                    : <ShieldXIcon className="size-3.5" />}
-                  {t.settings.revokeAllButton}
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive gap-1.5 shrink-0"
+                    onClick={() => setRevokeAllOpen(true)}
+                  >
+                    <ShieldXIcon className="size-3.5" />
+                    {t.settings.revokeAllButton}
+                  </Button>
+
+                  <Dialog open={revokeAllOpen} onOpenChange={setRevokeAllOpen}>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>{t.settings.revokeAllDialogTitle}</DialogTitle>
+                        <DialogDescription>{t.settings.revokeAllDialogDescription}</DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setRevokeAllOpen(false)} disabled={revokingAll}>
+                          {t.common.cancel}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          disabled={revokingAll}
+                          onClick={handleRevokeAll}
+                        >
+                          {revokingAll
+                            ? <Loader2Icon className="size-3.5 animate-spin mr-2" />
+                            : <ShieldXIcon className="size-3.5 mr-2" />}
+                          {t.settings.revokeAllDialogConfirm}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </>
               )}
             </div>
 
@@ -527,8 +560,8 @@ function SessionCard({
             {t.sessionCurrent}
           </Badge>
         )}
-        <SessionBadge status={status} t={t} />
-        {isActive && (
+        {status !== "active" && <SessionBadge status={status} t={t} />}
+        {isActive && !isCurrent && (
           <Button
             variant="ghost"
             size="sm"

@@ -16,7 +16,7 @@ export default async function BannersPage() {
 
   return (
     <>
-      <DashboardHeader title="Banner" />
+      <DashboardHeader navKey="banners" />
       <BannersContent initialBanners={banners} />
     </>
   );

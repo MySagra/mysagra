@@ -1,11 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import {
   Locale,
   Translations,
   translations,
-  detectLocale,
   LOCALE_STORAGE_KEY,
 } from "@/lib/i18n";
 
@@ -17,22 +16,24 @@ interface LocaleContextValue {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("it");
-
-  useEffect(() => {
-    setLocaleState(detectLocale());
-  }, []);
+export function LocaleProvider({
+  initialLocale,
+  children,
+}: {
+  initialLocale: Locale;
+  children: React.ReactNode;
+}) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   function setLocale(next: Locale) {
     localStorage.setItem(LOCALE_STORAGE_KEY, next);
+    // Write cookie so the server can read the preference on next request
+    document.cookie = `${LOCALE_STORAGE_KEY}=${next}; path=/; max-age=31536000; SameSite=Lax`;
     setLocaleState(next);
   }
 
   return (
-    <LocaleContext.Provider
-      value={{ locale, setLocale, t: translations[locale] }}
-    >
+    <LocaleContext.Provider value={{ locale, setLocale, t: translations[locale] }}>
       {children}
     </LocaleContext.Provider>
   );
