@@ -287,8 +287,9 @@ model Banner {
   image String?
   color String  @default("fecc01")
 
-  startsAt DateTime?
-  endsAt   DateTime?
+  startsAt    DateTime?
+  endsAt      DateTime?
+  visibleFrom DateTime @default(now())
 
   @@map("banners")
 }

@@ -2041,7 +2041,8 @@ export const BannerScalarFieldEnum = {
   image: 'image',
   color: 'color',
   startsAt: 'startsAt',
-  endsAt: 'endsAt'
+  endsAt: 'endsAt',
+  visibleFrom: 'visibleFrom'
 } as const
 
 export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]

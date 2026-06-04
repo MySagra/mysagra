@@ -272,6 +272,7 @@ export interface Banner {
   color?: string;
   startsAt?: Date | string | null;
   endsAt?: Date | string | null;
+  visibleFrom: Date | string;
   image: string | null;
 }
 

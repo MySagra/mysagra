@@ -49,6 +49,7 @@ export type BannerMinAggregateOutputType = {
   color: string | null
   startsAt: Date | null
   endsAt: Date | null
+  visibleFrom: Date | null
 }
 
 export type BannerMaxAggregateOutputType = {
@@ -66,6 +67,7 @@ export type BannerMaxAggregateOutputType = {
   color: string | null
   startsAt: Date | null
   endsAt: Date | null
+  visibleFrom: Date | null
 }
 
 export type BannerCountAggregateOutputType = {
@@ -83,6 +85,7 @@ export type BannerCountAggregateOutputType = {
   color: number
   startsAt: number
   endsAt: number
+  visibleFrom: number
   _all: number
 }
 
@@ -110,6 +113,7 @@ export type BannerMinAggregateInputType = {
   color?: true
   startsAt?: true
   endsAt?: true
+  visibleFrom?: true
 }
 
 export type BannerMaxAggregateInputType = {
@@ -127,6 +131,7 @@ export type BannerMaxAggregateInputType = {
   color?: true
   startsAt?: true
   endsAt?: true
+  visibleFrom?: true
 }
 
 export type BannerCountAggregateInputType = {
@@ -144,6 +149,7 @@ export type BannerCountAggregateInputType = {
   color?: true
   startsAt?: true
   endsAt?: true
+  visibleFrom?: true
   _all?: true
 }
 
@@ -248,6 +254,7 @@ export type BannerGroupByOutputType = {
   color: string
   startsAt: Date | null
   endsAt: Date | null
+  visibleFrom: Date | null
   _count: BannerCountAggregateOutputType | null
   _avg: BannerAvgAggregateOutputType | null
   _sum: BannerSumAggregateOutputType | null
@@ -288,6 +295,7 @@ export type BannerWhereInput = {
   color?: Prisma.StringFilter<"Banner"> | string
   startsAt?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
+  visibleFrom?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
 }
 
 export type BannerOrderByWithRelationInput = {
@@ -305,6 +313,7 @@ export type BannerOrderByWithRelationInput = {
   color?: Prisma.SortOrder
   startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   _relevance?: Prisma.BannerOrderByRelevanceInput
 }
 
@@ -326,6 +335,7 @@ export type BannerWhereUniqueInput = Prisma.AtLeast<{
   color?: Prisma.StringFilter<"Banner"> | string
   startsAt?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
+  visibleFrom?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
 }, "id">
 
 export type BannerOrderByWithAggregationInput = {
@@ -343,6 +353,7 @@ export type BannerOrderByWithAggregationInput = {
   color?: Prisma.SortOrder
   startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.BannerCountOrderByAggregateInput
   _avg?: Prisma.BannerAvgOrderByAggregateInput
   _max?: Prisma.BannerMaxOrderByAggregateInput
@@ -368,6 +379,7 @@ export type BannerScalarWhereWithAggregatesInput = {
   color?: Prisma.StringWithAggregatesFilter<"Banner"> | string
   startsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Banner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Banner"> | Date | string | null
+  visibleFrom?: Prisma.DateTimeNullableWithAggregatesFilter<"Banner"> | Date | string | null
 }
 
 export type BannerCreateInput = {
@@ -385,6 +397,7 @@ export type BannerCreateInput = {
   color?: string
   startsAt?: Date | string | null
   endsAt?: Date | string | null
+  visibleFrom?: Date | string | null
 }
 
 export type BannerUncheckedCreateInput = {
@@ -402,6 +415,7 @@ export type BannerUncheckedCreateInput = {
   color?: string
   startsAt?: Date | string | null
   endsAt?: Date | string | null
+  visibleFrom?: Date | string | null
 }
 
 export type BannerUpdateInput = {
@@ -419,6 +433,7 @@ export type BannerUpdateInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibleFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type BannerUncheckedUpdateInput = {
@@ -436,6 +451,7 @@ export type BannerUncheckedUpdateInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibleFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type BannerCreateManyInput = {
@@ -453,6 +469,7 @@ export type BannerCreateManyInput = {
   color?: string
   startsAt?: Date | string | null
   endsAt?: Date | string | null
+  visibleFrom?: Date | string | null
 }
 
 export type BannerUpdateManyMutationInput = {
@@ -470,6 +487,7 @@ export type BannerUpdateManyMutationInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibleFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type BannerUncheckedUpdateManyInput = {
@@ -487,6 +505,7 @@ export type BannerUncheckedUpdateManyInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibleFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type BannerOrderByRelevanceInput = {
@@ -510,6 +529,7 @@ export type BannerCountOrderByAggregateInput = {
   color?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrder
 }
 
 export type BannerAvgOrderByAggregateInput = {
@@ -531,6 +551,7 @@ export type BannerMaxOrderByAggregateInput = {
   color?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrder
 }
 
 export type BannerMinOrderByAggregateInput = {
@@ -548,6 +569,7 @@ export type BannerMinOrderByAggregateInput = {
   color?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrder
 }
 
 export type BannerSumOrderByAggregateInput = {
@@ -575,6 +597,7 @@ export type BannerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   color?: boolean
   startsAt?: boolean
   endsAt?: boolean
+  visibleFrom?: boolean
 }, ExtArgs["result"]["banner"]>
 
 
@@ -594,9 +617,10 @@ export type BannerSelectScalar = {
   color?: boolean
   startsAt?: boolean
   endsAt?: boolean
+  visibleFrom?: boolean
 }
 
-export type BannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "label" | "type" | "position" | "title" | "description" | "website" | "instagram" | "facebook" | "telephone" | "image" | "color" | "startsAt" | "endsAt", ExtArgs["result"]["banner"]>
+export type BannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "label" | "type" | "position" | "title" | "description" | "website" | "instagram" | "facebook" | "telephone" | "image" | "color" | "startsAt" | "endsAt" | "visibleFrom", ExtArgs["result"]["banner"]>
 
 export type $BannerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Banner"
@@ -616,6 +640,7 @@ export type $BannerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     color: string
     startsAt: Date | null
     endsAt: Date | null
+    visibleFrom: Date | null
   }, ExtArgs["result"]["banner"]>
   composites: {}
 }
@@ -999,6 +1024,7 @@ export interface BannerFieldRefs {
   readonly color: Prisma.FieldRef<"Banner", 'String'>
   readonly startsAt: Prisma.FieldRef<"Banner", 'DateTime'>
   readonly endsAt: Prisma.FieldRef<"Banner", 'DateTime'>
+  readonly visibleFrom: Prisma.FieldRef<"Banner", 'DateTime'>
 }
     
 

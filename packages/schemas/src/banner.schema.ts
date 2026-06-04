@@ -50,6 +50,10 @@ const BannerBaseSchema = z.object({
     endsAt: z.coerce.date().optional().nullable().meta({
         description: "Date and time of the event ends. Only relevant when type is 'event'. Null if not applicable",
         example: "2026-07-15T23:00:00.000Z"
+    }),
+    visibleFrom: z.coerce.date().optional().default(() => new Date()).meta({
+        description: "Date and time when webapp need to start to show the banner",
+        example: "2026-07-15T23:00:00.000Z"
     })
 })
 

@@ -98,6 +98,7 @@ export function BannersContent({ initialBanners }: BannersContentProps) {
           color: b.color,
           startsAt: b.startsAt ? new Date(b.startsAt).toISOString() : null,
           endsAt: b.endsAt ? new Date(b.endsAt).toISOString() : null,
+          visibleFrom: new Date(b.visibleFrom).toISOString(),
         }))
       );
       setHasOrderChanged(false);
