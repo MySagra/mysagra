@@ -20,7 +20,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Trash2Icon, ImageIcon, UploadIcon, CropIcon } from "lucide-react";
+import { Trash2Icon, ImageIcon, UploadIcon, CropIcon, InfoIcon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ImageCropDialog } from "./image-crop-dialog";
 import {
   Empty,
@@ -77,6 +83,7 @@ type BannerFormValues = {
   instagram?: string;
   telephone?: string;
   color: string;
+  visibleFrom: string;
   startsAt?: string;
   endsAt?: string;
 };
@@ -123,6 +130,7 @@ export function BannerDialog({
     instagram: z.string().optional(),
     telephone: z.string().regex(/^\+?[\d\s\-().]{6,20}$/, "Formato numero non valido").optional().or(z.literal("")),
     color: z.string(),
+    visibleFrom: z.string().min(1, t.banners.visibleFromRequired),
     startsAt: z.string().optional(),
     endsAt: z.string().optional(),
   }).superRefine((data, ctx) => {
@@ -164,6 +172,7 @@ export function BannerDialog({
       instagram: "",
       telephone: "",
       color: "#fecc01",
+      visibleFrom: "",
       startsAt: "",
       endsAt: "",
     },
@@ -189,6 +198,7 @@ export function BannerDialog({
           instagram: banner.instagram ?? "",
           telephone: banner.telephone ?? "",
           color: banner.color ? `#${banner.color.replace(/^#/, "")}` : "#fecc01",
+          visibleFrom: formatDateTimeLocalValue(new Date(banner.visibleFrom).toISOString(), timezone),
           startsAt: banner.startsAt ? formatDateTimeLocalValue(new Date(banner.startsAt).toISOString(), timezone) : "",
           endsAt: banner.endsAt ? formatDateTimeLocalValue(new Date(banner.endsAt).toISOString(), timezone) : "",
         });
@@ -204,6 +214,7 @@ export function BannerDialog({
           instagram: "",
           telephone: "",
           color: "#fecc01",
+          visibleFrom: formatDateTimeLocalValue(new Date().toISOString(), timezone),
           startsAt: "",
           endsAt: "",
         });
@@ -295,6 +306,7 @@ export function BannerDialog({
       instagram: values.instagram?.trim() || null,
       telephone: values.telephone?.trim() || null,
       color: values.color.replace(/^#/, ""),
+      visibleFrom: new Date(values.visibleFrom).toISOString(),
       startsAt: values.type === "EVENT" && values.startsAt
         ? new Date(values.startsAt).toISOString()
         : null,
@@ -513,6 +525,62 @@ export function BannerDialog({
                 />
               </Field>
 
+              {/* Telephone */}
+              <Field>
+                <FieldLabel htmlFor="telephone">{t.banners.telephoneLabel}</FieldLabel>
+                <FormField
+                  control={form.control}
+                  name="telephone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          id="telephone"
+                          type="tel"
+                          autoComplete="off"
+                          placeholder={t.banners.telephonePlaceholder}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+
+              {/* VisibleFrom */}
+              <Field>
+                <FieldLabel htmlFor="visibleFrom" required>
+                  {t.banners.visibleFromLabel}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="h-3.5 w-3.5 ml-1.5 text-muted-foreground cursor-help inline-block align-middle" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        {t.banners.visibleFromTooltip}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </FieldLabel>
+                <FormField
+                  control={form.control}
+                  name="visibleFrom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          id="visibleFrom"
+                          type="datetime-local"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+
               {/* Color */}
               <Field>
                 <FieldLabel htmlFor="color">{t.banners.colorLabel}</FieldLabel>
@@ -537,29 +605,6 @@ export function BannerDialog({
                             maxLength={7}
                           />
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </Field>
-
-              {/* Telephone */}
-              <Field>
-                <FieldLabel htmlFor="telephone">{t.banners.telephoneLabel}</FieldLabel>
-                <FormField
-                  control={form.control}
-                  name="telephone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          id="telephone"
-                          type="tel"
-                          autoComplete="off"
-                          placeholder={t.banners.telephonePlaceholder}
-                          {...field}
-                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

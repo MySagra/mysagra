@@ -16,7 +16,7 @@ export async function getBannerById(id: string): Promise<Banner> {
 }
 
 export async function reorderBanners(
-  banners: { id: string; label: string; type: string; position: number; title?: string | null; description?: string | null; website?: string | null; facebook?: string | null; instagram?: string | null; telephone?: string | null; color?: string; startsAt?: string | null; endsAt?: string | null }[]
+  banners: { id: string; label: string; type: string; position: number; title?: string | null; description?: string | null; website?: string | null; facebook?: string | null; instagram?: string | null; telephone?: string | null; color?: string; startsAt?: string | null; endsAt?: string | null; visibleFrom: string }[]
 ): Promise<Banner[]> {
   const results: Banner[] = [];
   for (const banner of banners) {
@@ -47,6 +47,7 @@ export async function createBanner(data: {
   color?: string;
   startsAt?: string | null;
   endsAt?: string | null;
+  visibleFrom: string;
 }): Promise<ActionResult<Banner>> {
   try {
     const result = await fetchApi<Banner>(API_ENDPOINTS.BANNERS.ALL, {
@@ -75,6 +76,7 @@ export async function updateBanner(
     color?: string;
     startsAt?: string | null;
     endsAt?: string | null;
+    visibleFrom: string;
   }
 ): Promise<ActionResult<Banner>> {
   try {
