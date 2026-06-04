@@ -84,6 +84,10 @@ const ConfirmationDataSchema = z.object({
     customer: z.string().optional().meta({
         description: "Updated customer name",
         example: "John Doe"
+    }),
+    table: z.string().optional().meta({
+        description: "Table number or location identifier",
+        example: "Table 5"
     })
 }).meta({
     id: "ConfirmationData",

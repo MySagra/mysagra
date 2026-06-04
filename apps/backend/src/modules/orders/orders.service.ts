@@ -580,7 +580,8 @@ export class OrdersService {
                     total: total,
                     userId: confirm.userId,
                     cashRegisterId: confirm.cashRegisterId,
-                    customer: confirm.customer
+                    customer: confirm.customer,
+                    table: confirm.table
                 },
                 include: {
                     orderItems: {
