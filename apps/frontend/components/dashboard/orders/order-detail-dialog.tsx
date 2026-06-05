@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
-import { CashRegister, OrderDetailResponse } from '@/lib/api-types';
+import { useState, useEffect } from 'react';
+import { OrderDetailResponse } from '@/lib/api-types';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
@@ -174,10 +174,9 @@ interface OrderDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOrderUpdated?: () => void;
-  cashRegisters?: CashRegister[];
 }
 
-export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated, cashRegisters = [] }: OrderDetailDialogProps) {
+export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated }: OrderDetailDialogProps) {
   const { t } = useLocale();
   const timezone = useTimezone();
   const { canDelete } = useRole();
@@ -186,12 +185,6 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showReprintDialog, setShowReprintDialog] = useState(false);
-
-  const cashRegisterMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const cr of cashRegisters) map.set(cr.id, cr.name);
-    return map;
-  }, [cashRegisters]);
 
   useEffect(() => {
     if (open && orderId) {
@@ -398,17 +391,11 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
 
                 {/* ── Info grid ────────────────────────────────────── */}
                 {(() => {
-                  const cashRegisterValue = (() => {
-                    const id = (order as any).cashRegisterId || (order as any).cashRegister;
-                    if (!id) return 'N/A';
-                    return cashRegisterMap.get(id) ?? (order as any).cashRegister?.name ?? id;
-                  })();
-
                   const cells = [
-                    { icon: <Hash className="h-3 w-3" />,         label: t.orders.detailCode,                                value: order.displayCode,                                   mono: true  },
-                    { icon: <Ticket className="h-3 w-3" />,       label: t.orders.detailTicket,                              value: String(order.ticketNumber ?? 'N/A'),                 mono: true  },
-                    { icon: <MonitorCheck className="h-3 w-3" />, label: t.orders.detailCashRegister.replace(':', '').trim(), value: cashRegisterValue,                                  mono: false },
-                    { icon: <User className="h-3 w-3" />,         label: t.orders.detailConfirmedBy,                         value: order.user?.username ?? 'N/A',                       mono: false },
+                    { icon: <Hash className="h-3 w-3" />,         label: t.orders.detailCode,                                value: order.displayCode,                  mono: true  },
+                    { icon: <Ticket className="h-3 w-3" />,       label: t.orders.detailTicket,                              value: String(order.ticketNumber ?? 'N/A'), mono: true  },
+                    { icon: <MonitorCheck className="h-3 w-3" />, label: t.orders.detailCashRegister.replace(':', '').trim(), value: order.cashRegister?.name ?? 'N/A',  mono: false },
+                    { icon: <User className="h-3 w-3" />,         label: t.orders.detailConfirmedBy,                         value: order.user?.username ?? 'N/A',       mono: false },
                   ];
 
                   return (

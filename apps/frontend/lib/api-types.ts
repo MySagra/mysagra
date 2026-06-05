@@ -153,6 +153,7 @@ export interface OrderDetailResponse {
   confirmedAt?: string | null;
   completedAt?: string | null;
   user?: { username: string } | null;
+  cashRegister?: { id: string; name: string } | null;
   createdAt: string;
   updatedAt?: string;
   categorizedItems: CategorizedItems[];
