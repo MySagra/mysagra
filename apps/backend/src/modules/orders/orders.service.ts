@@ -258,8 +258,10 @@ export class OrdersService {
     async getOrderById(id: string) {
         const order = await prisma.order.findUnique({
             where: { id },
+            omit: { userId: true },
             include: {
-                orderStationStates: true,
+                orderStationStates: { include: { station: true } },
+                user: { omit: { password: true } },
                 orderItems: {
                     orderBy: { food: { categoryId: 'asc' } },
                     include: {

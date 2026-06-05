@@ -135,6 +135,7 @@ export interface OrderStationState {
   status: string;
   orderId: string;
   stationId: string;
+  station?: { name: string };
 }
 
 export interface OrderDetailResponse {
@@ -151,6 +152,7 @@ export interface OrderDetailResponse {
   ticketNumber?: number | null;
   confirmedAt?: string | null;
   completedAt?: string | null;
+  user?: { username: string } | null;
   createdAt: string;
   updatedAt?: string;
   categorizedItems: CategorizedItems[];

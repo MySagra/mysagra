@@ -439,6 +439,8 @@ export const it = {
     detailTicket: "Ticket",
     detailCreationDate: "Data creazione",
     detailConfirmationDate: "Data conferma",
+    detailCompletionDate: "Data completamento",
+    detailConfirmedBy: "Confermato da",
     detailPayment: "Pagamento",
     detailStatus: "Stato",
     detailProducts: "Prodotti",
