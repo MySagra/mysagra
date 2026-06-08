@@ -9,11 +9,12 @@ import {
     ReprintOrder
 } from "@mysagra/schemas";
 
-import { generateDisplayId } from "@/lib/idGenerator";
 import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
 import { redisConnection } from "@/lib/redis";
 import { BadRequestError, NotFoundError } from "@/common/errors";
+
+import { displayCodeGenerator } from "@/lib/displayCodeGenerator";
 export class OrdersService {
     private cashierEvent = EventsService.getInstance('cashier');
     private displayEvent = EventsService.getInstance('display');
@@ -375,7 +376,7 @@ export class OrdersService {
                     table: order.table.toString(),
                     customer: order.customer,
                     subTotal: subTotal,
-                    displayCode: generateDisplayId(await this._getOrderCount()),
+                    displayCode: displayCodeGenerator.encode(await this._getOrderCount()),
 
                     status: finalStatus,
                     confirmedAt: confirmedAt,
