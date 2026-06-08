@@ -137,7 +137,7 @@ export const GetOrdersQuerySchema = z.object({
     search: z.string().optional().meta({
         description: "Search by table, customer, or display code"
     }),
-    displayCode: z.string().length(3).optional().meta({
+    displayCode: z.string().min(3).max(4).optional().meta({
         description: "Filter by 3-character display code"
     }),
     page: z.coerce.number().int().positive().default(1).meta({
