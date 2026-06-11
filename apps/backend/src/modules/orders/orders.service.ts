@@ -722,10 +722,11 @@ export class OrdersService {
 
                 // Select all distinct printers in an order
                 const printers: { printerId: string }[] = await tx.$queryRaw
-                    `
+                `
                     SELECT DISTINCT f.printerId
                     FROM orders o JOIN order_items oi ON o.id = oi.orderId
                     JOIN foods f ON oi.foodId = f.id
+                    WHERE o.id = ${id}
                 `
                 const printerIds = printers.map(p => p.printerId)
 
