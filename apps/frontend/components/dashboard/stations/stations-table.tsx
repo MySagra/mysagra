@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { PencilIcon } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StationsTableProps {
   stations: Station[];
@@ -31,6 +33,7 @@ function TableHeaders({ t }: { t: any }) {
 
 export function StationsTable({ stations, onEdit }: StationsTableProps) {
   const { t } = useLocale();
+  const { isReadOnly, isSessionLoading } = useRole();
 
   if (stations.length === 0) {
     return (
@@ -50,9 +53,14 @@ export function StationsTable({ stations, onEdit }: StationsTableProps) {
           {stations.map((station) => (
             <TableRow key={station.id}>
               <TableCell className="w-10">
-                <Button variant="ghost" size="icon" onClick={() => onEdit(station)}>
-                  <PencilIcon className="h-4 w-4" />
-                </Button>
+                {isSessionLoading
+                  ? <Skeleton className="h-8 w-8 rounded-md" />
+                  : !isReadOnly && (
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(station)}>
+                        <PencilIcon className="h-4 w-4" />
+                      </Button>
+                    )
+                }
               </TableCell>
               <TableCell className="font-medium max-w-48">
                 <span className="block truncate" title={station.name}>

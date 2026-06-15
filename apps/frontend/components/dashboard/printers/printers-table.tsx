@@ -24,6 +24,7 @@ import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-
 import { toast } from "sonner";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PrintersTableProps {
   printers: Printer[];
@@ -49,7 +50,7 @@ export function PrintersTable({
   onStatusUpdate,
 }: PrintersTableProps) {
   const { t } = useLocale();
-  const { canEditPrinters } = useRole();
+  const { canEditPrinters, isReadOnly, isSessionLoading } = useRole();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -239,15 +240,14 @@ export function PrintersTable({
           {sortedPrinters.map((printer) => (
             <TableRow key={printer.id}>
               <TableCell>
-                {canEditPrinters && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(printer)}
-                  >
-                    <PencilIcon className="h-4 w-4" />
-                  </Button>
-                )}
+                {isSessionLoading
+                  ? <Skeleton className="h-8 w-8 rounded-md" />
+                  : canEditPrinters && (
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(printer)}>
+                        <PencilIcon className="h-4 w-4" />
+                      </Button>
+                    )
+                }
               </TableCell>
               <TableCell className="font-medium max-w-48">
                 <span className="block truncate" title={printer.name}>{printer.name}</span>
@@ -267,7 +267,7 @@ export function PrintersTable({
                       v as "ONLINE" | "OFFLINE" | "ERROR"
                     )
                   }
-                  disabled={updatingId === printer.id}
+                  disabled={isReadOnly || updatingId === printer.id}
                 >
                   <SelectTrigger className="w-28 mx-auto">
                     <SelectValue>

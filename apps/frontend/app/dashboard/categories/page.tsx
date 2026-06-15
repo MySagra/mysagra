@@ -34,7 +34,7 @@ export default async function CategoriesPage() {
 
   return (
     <>
-      <DashboardHeader title="Categorie" />
+      <DashboardHeader navKey="categories" />
       <CategoriesContent initialCategories={categories} printers={printers} stations={stations} />
     </>
   );

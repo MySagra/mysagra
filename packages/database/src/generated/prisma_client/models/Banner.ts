@@ -20,94 +20,136 @@ export type BannerModel = runtime.Types.Result.DefaultSelection<Prisma.$BannerPa
 
 export type AggregateBanner = {
   _count: BannerCountAggregateOutputType | null
+  _avg: BannerAvgAggregateOutputType | null
+  _sum: BannerSumAggregateOutputType | null
   _min: BannerMinAggregateOutputType | null
   _max: BannerMaxAggregateOutputType | null
+}
+
+export type BannerAvgAggregateOutputType = {
+  position: number | null
+}
+
+export type BannerSumAggregateOutputType = {
+  position: number | null
 }
 
 export type BannerMinAggregateOutputType = {
   id: string | null
   label: string | null
   type: $Enums.BannerType | null
+  position: number | null
   title: string | null
   description: string | null
   website: string | null
   instagram: string | null
   facebook: string | null
+  telephone: string | null
   image: string | null
   color: string | null
-  dateTime: Date | null
+  startsAt: Date | null
+  endsAt: Date | null
+  visibleFrom: Date | null
 }
 
 export type BannerMaxAggregateOutputType = {
   id: string | null
   label: string | null
   type: $Enums.BannerType | null
+  position: number | null
   title: string | null
   description: string | null
   website: string | null
   instagram: string | null
   facebook: string | null
+  telephone: string | null
   image: string | null
   color: string | null
-  dateTime: Date | null
+  startsAt: Date | null
+  endsAt: Date | null
+  visibleFrom: Date | null
 }
 
 export type BannerCountAggregateOutputType = {
   id: number
   label: number
   type: number
+  position: number
   title: number
   description: number
   website: number
   instagram: number
   facebook: number
+  telephone: number
   image: number
   color: number
-  dateTime: number
+  startsAt: number
+  endsAt: number
+  visibleFrom: number
   _all: number
 }
 
+
+export type BannerAvgAggregateInputType = {
+  position?: true
+}
+
+export type BannerSumAggregateInputType = {
+  position?: true
+}
 
 export type BannerMinAggregateInputType = {
   id?: true
   label?: true
   type?: true
+  position?: true
   title?: true
   description?: true
   website?: true
   instagram?: true
   facebook?: true
+  telephone?: true
   image?: true
   color?: true
-  dateTime?: true
+  startsAt?: true
+  endsAt?: true
+  visibleFrom?: true
 }
 
 export type BannerMaxAggregateInputType = {
   id?: true
   label?: true
   type?: true
+  position?: true
   title?: true
   description?: true
   website?: true
   instagram?: true
   facebook?: true
+  telephone?: true
   image?: true
   color?: true
-  dateTime?: true
+  startsAt?: true
+  endsAt?: true
+  visibleFrom?: true
 }
 
 export type BannerCountAggregateInputType = {
   id?: true
   label?: true
   type?: true
+  position?: true
   title?: true
   description?: true
   website?: true
   instagram?: true
   facebook?: true
+  telephone?: true
   image?: true
   color?: true
-  dateTime?: true
+  startsAt?: true
+  endsAt?: true
+  visibleFrom?: true
   _all?: true
 }
 
@@ -149,6 +191,18 @@ export type BannerAggregateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: BannerAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: BannerSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: BannerMinAggregateInputType
@@ -179,6 +233,8 @@ export type BannerGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   _count?: BannerCountAggregateInputType | true
+  _avg?: BannerAvgAggregateInputType
+  _sum?: BannerSumAggregateInputType
   _min?: BannerMinAggregateInputType
   _max?: BannerMaxAggregateInputType
 }
@@ -187,15 +243,21 @@ export type BannerGroupByOutputType = {
   id: string
   label: string
   type: $Enums.BannerType
+  position: number
   title: string | null
   description: string | null
   website: string | null
   instagram: string | null
   facebook: string | null
+  telephone: string | null
   image: string | null
   color: string
-  dateTime: Date | null
+  startsAt: Date | null
+  endsAt: Date | null
+  visibleFrom: Date
   _count: BannerCountAggregateOutputType | null
+  _avg: BannerAvgAggregateOutputType | null
+  _sum: BannerSumAggregateOutputType | null
   _min: BannerMinAggregateOutputType | null
   _max: BannerMaxAggregateOutputType | null
 }
@@ -222,28 +284,36 @@ export type BannerWhereInput = {
   id?: Prisma.StringFilter<"Banner"> | string
   label?: Prisma.StringFilter<"Banner"> | string
   type?: Prisma.EnumBannerTypeFilter<"Banner"> | $Enums.BannerType
+  position?: Prisma.IntFilter<"Banner"> | number
   title?: Prisma.StringNullableFilter<"Banner"> | string | null
   description?: Prisma.StringNullableFilter<"Banner"> | string | null
   website?: Prisma.StringNullableFilter<"Banner"> | string | null
   instagram?: Prisma.StringNullableFilter<"Banner"> | string | null
   facebook?: Prisma.StringNullableFilter<"Banner"> | string | null
+  telephone?: Prisma.StringNullableFilter<"Banner"> | string | null
   image?: Prisma.StringNullableFilter<"Banner"> | string | null
   color?: Prisma.StringFilter<"Banner"> | string
-  dateTime?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
+  startsAt?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
+  visibleFrom?: Prisma.DateTimeFilter<"Banner"> | Date | string
 }
 
 export type BannerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   website?: Prisma.SortOrderInput | Prisma.SortOrder
   instagram?: Prisma.SortOrderInput | Prisma.SortOrder
   facebook?: Prisma.SortOrderInput | Prisma.SortOrder
+  telephone?: Prisma.SortOrderInput | Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   color?: Prisma.SortOrder
-  dateTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrder
   _relevance?: Prisma.BannerOrderByRelevanceInput
 }
 
@@ -254,31 +324,41 @@ export type BannerWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BannerWhereInput | Prisma.BannerWhereInput[]
   label?: Prisma.StringFilter<"Banner"> | string
   type?: Prisma.EnumBannerTypeFilter<"Banner"> | $Enums.BannerType
+  position?: Prisma.IntFilter<"Banner"> | number
   title?: Prisma.StringNullableFilter<"Banner"> | string | null
   description?: Prisma.StringNullableFilter<"Banner"> | string | null
   website?: Prisma.StringNullableFilter<"Banner"> | string | null
   instagram?: Prisma.StringNullableFilter<"Banner"> | string | null
   facebook?: Prisma.StringNullableFilter<"Banner"> | string | null
+  telephone?: Prisma.StringNullableFilter<"Banner"> | string | null
   image?: Prisma.StringNullableFilter<"Banner"> | string | null
   color?: Prisma.StringFilter<"Banner"> | string
-  dateTime?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
+  startsAt?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"Banner"> | Date | string | null
+  visibleFrom?: Prisma.DateTimeFilter<"Banner"> | Date | string
 }, "id">
 
 export type BannerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   website?: Prisma.SortOrderInput | Prisma.SortOrder
   instagram?: Prisma.SortOrderInput | Prisma.SortOrder
   facebook?: Prisma.SortOrderInput | Prisma.SortOrder
+  telephone?: Prisma.SortOrderInput | Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   color?: Prisma.SortOrder
-  dateTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrder
   _count?: Prisma.BannerCountOrderByAggregateInput
+  _avg?: Prisma.BannerAvgOrderByAggregateInput
   _max?: Prisma.BannerMaxOrderByAggregateInput
   _min?: Prisma.BannerMinOrderByAggregateInput
+  _sum?: Prisma.BannerSumOrderByAggregateInput
 }
 
 export type BannerScalarWhereWithAggregatesInput = {
@@ -288,112 +368,144 @@ export type BannerScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Banner"> | string
   label?: Prisma.StringWithAggregatesFilter<"Banner"> | string
   type?: Prisma.EnumBannerTypeWithAggregatesFilter<"Banner"> | $Enums.BannerType
+  position?: Prisma.IntWithAggregatesFilter<"Banner"> | number
   title?: Prisma.StringNullableWithAggregatesFilter<"Banner"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Banner"> | string | null
   website?: Prisma.StringNullableWithAggregatesFilter<"Banner"> | string | null
   instagram?: Prisma.StringNullableWithAggregatesFilter<"Banner"> | string | null
   facebook?: Prisma.StringNullableWithAggregatesFilter<"Banner"> | string | null
+  telephone?: Prisma.StringNullableWithAggregatesFilter<"Banner"> | string | null
   image?: Prisma.StringNullableWithAggregatesFilter<"Banner"> | string | null
   color?: Prisma.StringWithAggregatesFilter<"Banner"> | string
-  dateTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Banner"> | Date | string | null
+  startsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Banner"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Banner"> | Date | string | null
+  visibleFrom?: Prisma.DateTimeWithAggregatesFilter<"Banner"> | Date | string
 }
 
 export type BannerCreateInput = {
   id?: string
   label: string
   type: $Enums.BannerType
+  position: number
   title?: string | null
   description?: string | null
   website?: string | null
   instagram?: string | null
   facebook?: string | null
+  telephone?: string | null
   image?: string | null
   color?: string
-  dateTime?: Date | string | null
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  visibleFrom?: Date | string
 }
 
 export type BannerUncheckedCreateInput = {
   id?: string
   label: string
   type: $Enums.BannerType
+  position: number
   title?: string | null
   description?: string | null
   website?: string | null
   instagram?: string | null
   facebook?: string | null
+  telephone?: string | null
   image?: string | null
   color?: string
-  dateTime?: Date | string | null
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  visibleFrom?: Date | string
 }
 
 export type BannerUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumBannerTypeFieldUpdateOperationsInput | $Enums.BannerType
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instagram?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   facebook?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.StringFieldUpdateOperationsInput | string
-  dateTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibleFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BannerUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumBannerTypeFieldUpdateOperationsInput | $Enums.BannerType
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instagram?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   facebook?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.StringFieldUpdateOperationsInput | string
-  dateTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibleFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BannerCreateManyInput = {
   id?: string
   label: string
   type: $Enums.BannerType
+  position: number
   title?: string | null
   description?: string | null
   website?: string | null
   instagram?: string | null
   facebook?: string | null
+  telephone?: string | null
   image?: string | null
   color?: string
-  dateTime?: Date | string | null
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  visibleFrom?: Date | string
 }
 
 export type BannerUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumBannerTypeFieldUpdateOperationsInput | $Enums.BannerType
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instagram?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   facebook?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.StringFieldUpdateOperationsInput | string
-  dateTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibleFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BannerUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumBannerTypeFieldUpdateOperationsInput | $Enums.BannerType
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instagram?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   facebook?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telephone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.StringFieldUpdateOperationsInput | string
-  dateTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibleFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BannerOrderByRelevanceInput = {
@@ -406,42 +518,62 @@ export type BannerCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   website?: Prisma.SortOrder
   instagram?: Prisma.SortOrder
   facebook?: Prisma.SortOrder
+  telephone?: Prisma.SortOrder
   image?: Prisma.SortOrder
   color?: Prisma.SortOrder
-  dateTime?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrder
+}
+
+export type BannerAvgOrderByAggregateInput = {
+  position?: Prisma.SortOrder
 }
 
 export type BannerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   website?: Prisma.SortOrder
   instagram?: Prisma.SortOrder
   facebook?: Prisma.SortOrder
+  telephone?: Prisma.SortOrder
   image?: Prisma.SortOrder
   color?: Prisma.SortOrder
-  dateTime?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrder
 }
 
 export type BannerMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   label?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   website?: Prisma.SortOrder
   instagram?: Prisma.SortOrder
   facebook?: Prisma.SortOrder
+  telephone?: Prisma.SortOrder
   image?: Prisma.SortOrder
   color?: Prisma.SortOrder
-  dateTime?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  visibleFrom?: Prisma.SortOrder
+}
+
+export type BannerSumOrderByAggregateInput = {
+  position?: Prisma.SortOrder
 }
 
 export type EnumBannerTypeFieldUpdateOperationsInput = {
@@ -454,14 +586,18 @@ export type BannerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   id?: boolean
   label?: boolean
   type?: boolean
+  position?: boolean
   title?: boolean
   description?: boolean
   website?: boolean
   instagram?: boolean
   facebook?: boolean
+  telephone?: boolean
   image?: boolean
   color?: boolean
-  dateTime?: boolean
+  startsAt?: boolean
+  endsAt?: boolean
+  visibleFrom?: boolean
 }, ExtArgs["result"]["banner"]>
 
 
@@ -470,17 +606,21 @@ export type BannerSelectScalar = {
   id?: boolean
   label?: boolean
   type?: boolean
+  position?: boolean
   title?: boolean
   description?: boolean
   website?: boolean
   instagram?: boolean
   facebook?: boolean
+  telephone?: boolean
   image?: boolean
   color?: boolean
-  dateTime?: boolean
+  startsAt?: boolean
+  endsAt?: boolean
+  visibleFrom?: boolean
 }
 
-export type BannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "label" | "type" | "title" | "description" | "website" | "instagram" | "facebook" | "image" | "color" | "dateTime", ExtArgs["result"]["banner"]>
+export type BannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "label" | "type" | "position" | "title" | "description" | "website" | "instagram" | "facebook" | "telephone" | "image" | "color" | "startsAt" | "endsAt" | "visibleFrom", ExtArgs["result"]["banner"]>
 
 export type $BannerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Banner"
@@ -489,14 +629,18 @@ export type $BannerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     id: string
     label: string
     type: $Enums.BannerType
+    position: number
     title: string | null
     description: string | null
     website: string | null
     instagram: string | null
     facebook: string | null
+    telephone: string | null
     image: string | null
     color: string
-    dateTime: Date | null
+    startsAt: Date | null
+    endsAt: Date | null
+    visibleFrom: Date
   }, ExtArgs["result"]["banner"]>
   composites: {}
 }
@@ -869,14 +1013,18 @@ export interface BannerFieldRefs {
   readonly id: Prisma.FieldRef<"Banner", 'String'>
   readonly label: Prisma.FieldRef<"Banner", 'String'>
   readonly type: Prisma.FieldRef<"Banner", 'BannerType'>
+  readonly position: Prisma.FieldRef<"Banner", 'Int'>
   readonly title: Prisma.FieldRef<"Banner", 'String'>
   readonly description: Prisma.FieldRef<"Banner", 'String'>
   readonly website: Prisma.FieldRef<"Banner", 'String'>
   readonly instagram: Prisma.FieldRef<"Banner", 'String'>
   readonly facebook: Prisma.FieldRef<"Banner", 'String'>
+  readonly telephone: Prisma.FieldRef<"Banner", 'String'>
   readonly image: Prisma.FieldRef<"Banner", 'String'>
   readonly color: Prisma.FieldRef<"Banner", 'String'>
-  readonly dateTime: Prisma.FieldRef<"Banner", 'DateTime'>
+  readonly startsAt: Prisma.FieldRef<"Banner", 'DateTime'>
+  readonly endsAt: Prisma.FieldRef<"Banner", 'DateTime'>
+  readonly visibleFrom: Prisma.FieldRef<"Banner", 'DateTime'>
 }
     
 

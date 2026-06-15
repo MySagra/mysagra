@@ -9,11 +9,12 @@ import {
     ReprintOrder
 } from "@mysagra/schemas";
 
-import { generateDisplayId } from "@/lib/idGenerator";
 import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
 import { redisConnection } from "@/lib/redis";
 import { BadRequestError, NotFoundError } from "@/common/errors";
+
+import { displayCodeGenerator } from "@/lib/displayCodeGenerator";
 export class OrdersService {
     private cashierEvent = EventsService.getInstance('cashier');
     private displayEvent = EventsService.getInstance('display');
@@ -186,7 +187,7 @@ export class OrdersService {
 
         const where: Prisma.OrderWhereInput = {};
 
-        if(queryParams.onlyDiscounted) {
+        if (queryParams.onlyDiscounted) {
             where.discount = { gt: 0 }
         }
 
@@ -195,7 +196,9 @@ export class OrdersService {
                 { displayCode: { contains: queryParams.search } },
                 { table: { contains: queryParams.search } },
                 { customer: { contains: queryParams.search } },
-                { ticketNumber: { equals: parseInt(queryParams.search) } },
+                ...(!isNaN(parseInt(queryParams.search))
+                    ? [{ ticketNumber: { equals: parseInt(queryParams.search) } }]
+                    : [])
             ]
         }
 
@@ -258,8 +261,11 @@ export class OrdersService {
     async getOrderById(id: string) {
         const order = await prisma.order.findUnique({
             where: { id },
+            omit: { userId: true, cashRegisterId: true },
             include: {
-                orderStationStates: true,
+                orderStationStates: { include: { station: true } },
+                user: { omit: { password: true } },
+                cashRegister: true,
                 orderItems: {
                     orderBy: { food: { categoryId: 'asc' } },
                     include: {
@@ -370,7 +376,7 @@ export class OrdersService {
                     table: order.table.toString(),
                     customer: order.customer,
                     subTotal: subTotal,
-                    displayCode: generateDisplayId(await this._getOrderCount()),
+                    displayCode: displayCodeGenerator.encode(await this._getOrderCount()),
 
                     status: finalStatus,
                     confirmedAt: confirmedAt,
@@ -580,7 +586,8 @@ export class OrdersService {
                     total: total,
                     userId: confirm.userId,
                     cashRegisterId: confirm.cashRegisterId,
-                    customer: confirm.customer
+                    customer: confirm.customer,
+                    table: confirm.table
                 },
                 include: {
                     orderItems: {
@@ -716,10 +723,11 @@ export class OrdersService {
 
                 // Select all distinct printers in an order
                 const printers: { printerId: string }[] = await tx.$queryRaw
-                    `
+                `
                     SELECT DISTINCT f.printerId
                     FROM orders o JOIN order_items oi ON o.id = oi.orderId
                     JOIN foods f ON oi.foodId = f.id
+                    WHERE o.id = ${id}
                 `
                 const printerIds = printers.map(p => p.printerId)
 

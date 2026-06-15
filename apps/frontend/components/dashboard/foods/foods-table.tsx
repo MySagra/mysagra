@@ -18,6 +18,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FoodsTableProps {
   foods: Food[];
@@ -30,6 +32,7 @@ type SortDirection = "asc" | "desc";
 
 export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
   const { t } = useLocale();
+  const { isReadOnly, isSessionLoading } = useRole();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -218,13 +221,14 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
           {sortedFoods.map((food) => (
             <TableRow key={food.id}>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(food)}
-                >
-                  <PencilIcon className="h-4 w-4" />
-                </Button>
+                {isSessionLoading
+                  ? <Skeleton className="h-8 w-8 rounded-md" />
+                  : !isReadOnly && (
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(food)}>
+                        <PencilIcon className="h-4 w-4" />
+                      </Button>
+                    )
+                }
               </TableCell>
               <TableCell className="max-w-[150px] md:max-w-xs">
                 <div
@@ -274,8 +278,8 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
                 <div className="flex justify-center">
                   <Checkbox
                     checked={food.available}
-                    disabled={togglingId === food.id}
-                    onCheckedChange={() => handleToggle(food)}
+                    disabled={isReadOnly || togglingId === food.id}
+                    onCheckedChange={() => !isReadOnly && handleToggle(food)}
                   />
                 </div>
               </TableCell>

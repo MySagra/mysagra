@@ -1,31 +1,22 @@
 import { prisma } from "@mysagra/database";
 import { createHashPassword } from "@/lib/hashPassword";
-import { CreateUserInput, PatchUserInput, UpdateUserInput } from "@mysagra/schemas";
+import { CreateUserInput, PatchUserInput } from "@mysagra/schemas";
 import { NotFoundError } from "@/common/errors";
+import { sessionsService } from "../auth/sessions.service";
 
 export class UsersService {
     async getUsers() {
         return await prisma.user.findMany({
-            omit: {
-                password: true
-            },
-            include: {
-                role: true
-            }
+            omit: { password: true },
+            include: { role: true }
         });
     }
 
     async getUserById(id: string) {
         const user = await prisma.user.findUnique({
-            where: {
-                id
-            },
-            omit: {
-                password: true
-            },
-            include: {
-                role: true
-            }
+            where: { id },
+            omit: { password: true },
+            include: { role: true }
         });
 
         if (!user) {
@@ -37,15 +28,9 @@ export class UsersService {
 
     async getUserByUsername(username: string) {
         return await prisma.user.findUnique({
-            where: {
-                username
-            },
-            omit: {
-                password: true
-            },
-            include: {
-                role: true
-            }
+            where: { username },
+            omit: { password: true },
+            include: { role: true }
         })
     }
 
@@ -55,56 +40,36 @@ export class UsersService {
                 ...user,
                 password: await createHashPassword(user.password),
             },
-            omit: {
-                password: true
-            },
-            include: {
-                role: true
-            }
-        })
-    }
-
-    //TODO: update after session manage
-    async updateUser(id: string, user: UpdateUserInput) {
-        return await prisma.user.update({
-            where: {
-                id
-            },
-            data: {
-                ...user,
-                password: await createHashPassword(user.password),
-            },
-            omit: {
-                password: true
-            },
-            include: {
-                role: true
-            }
+            omit: { password: true },
+            include: { role: true }
         })
     }
 
     async patchUser(id: string, user: PatchUserInput) {
-        return await prisma.user.update({
-            where: {
-                id
-            },
+        if(user.password) {
+            user.password = await createHashPassword(user.password);
+        }
+
+        const { role, ...rest } = user;
+        const updated = await prisma.user.update({
+            where: { id },
             data: {
-                roleId: user.role
+                ...rest,
+                ...(role && { role: { connect: { id: role } } })
             },
-            omit: {
-                password: true
-            },
-            include: {
-                role: true
-            }
-        })
+            omit: { password: true },
+            include: { role: true }
+        });
+
+        if(user.password || user.role) {
+            await sessionsService.revokeSessionByUserId(id);
+        }
+        
+        return updated;
     }
 
     async deleteUser(id: string) {
-        return await prisma.user.delete({
-            where: {
-                id
-            }
-        });
+        await sessionsService.revokeSessionByUserId(id);
+        await prisma.user.delete({ where: { id } });
     }
 }

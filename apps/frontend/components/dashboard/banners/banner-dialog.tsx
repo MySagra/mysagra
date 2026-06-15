@@ -20,7 +20,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Trash2Icon, ImageIcon, UploadIcon, CropIcon } from "lucide-react";
+import { Trash2Icon, ImageIcon, UploadIcon, CropIcon, InfoIcon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ImageCropDialog } from "./image-crop-dialog";
 import {
   Empty,
@@ -75,14 +81,18 @@ type BannerFormValues = {
   website?: string;
   facebook?: string;
   instagram?: string;
+  telephone?: string;
   color: string;
-  dateTime?: string;
+  visibleFrom: string;
+  startsAt?: string;
+  endsAt?: string;
 };
 
 interface BannerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   banner: Banner | null;
+  nextPosition: number;
   onSaved: (banner: Banner) => void;
   onDelete?: (banner: Banner) => void;
 }
@@ -93,6 +103,7 @@ export function BannerDialog({
   open,
   onOpenChange,
   banner,
+  nextPosition,
   onSaved,
   onDelete,
 }: BannerDialogProps) {
@@ -117,8 +128,36 @@ export function BannerDialog({
     website: z.string().optional(),
     facebook: z.string().optional(),
     instagram: z.string().optional(),
+    telephone: z.string().regex(/^\+?[\d\s\-().]{6,20}$/, "Formato numero non valido").optional().or(z.literal("")),
     color: z.string(),
-    dateTime: z.string().optional(),
+    visibleFrom: z.string().min(1, t.banners.visibleFromRequired),
+    startsAt: z.string().optional(),
+    endsAt: z.string().optional(),
+  }).superRefine((data, ctx) => {
+    if (data.type !== "EVENT") return;
+    const hasStart = !!data.startsAt;
+    const hasEnd = !!data.endsAt;
+    if (!hasStart) {
+      ctx.addIssue({
+        code: "custom",
+        message: t.banners.startsAtRequired,
+        path: ["startsAt"],
+      });
+    }
+    if (!hasEnd) {
+      ctx.addIssue({
+        code: "custom",
+        message: t.banners.endsAtRequired,
+        path: ["endsAt"],
+      });
+    }
+    if (hasStart && hasEnd && new Date(data.startsAt!) >= new Date(data.endsAt!)) {
+      ctx.addIssue({
+        code: "custom",
+        message: t.banners.datesOrderError,
+        path: ["startsAt"],
+      });
+    }
   });
 
   const form = useForm<BannerFormValues>({
@@ -131,8 +170,11 @@ export function BannerDialog({
       website: "",
       facebook: "",
       instagram: "",
+      telephone: "",
       color: "#fecc01",
-      dateTime: "",
+      visibleFrom: "",
+      startsAt: "",
+      endsAt: "",
     },
   });
 
@@ -154,8 +196,11 @@ export function BannerDialog({
           website: banner.website ?? "",
           facebook: banner.facebook ?? "",
           instagram: banner.instagram ?? "",
+          telephone: banner.telephone ?? "",
           color: banner.color ? `#${banner.color.replace(/^#/, "")}` : "#fecc01",
-          dateTime: banner.dateTime ? formatDateTimeLocalValue(new Date(banner.dateTime).toISOString(), timezone) : "",
+          visibleFrom: formatDateTimeLocalValue(new Date(banner.visibleFrom).toISOString(), timezone),
+          startsAt: banner.startsAt ? formatDateTimeLocalValue(new Date(banner.startsAt).toISOString(), timezone) : "",
+          endsAt: banner.endsAt ? formatDateTimeLocalValue(new Date(banner.endsAt).toISOString(), timezone) : "",
         });
         setImagePreview(banner.image ? getBannerImageUrl(banner.image) : null);
       } else {
@@ -167,8 +212,11 @@ export function BannerDialog({
           website: "",
           facebook: "",
           instagram: "",
+          telephone: "",
           color: "#fecc01",
-          dateTime: "",
+          visibleFrom: formatDateTimeLocalValue(new Date().toISOString(), timezone),
+          startsAt: "",
+          endsAt: "",
         });
         setImagePreview(null);
       }
@@ -250,14 +298,20 @@ export function BannerDialog({
     const data = {
       label: values.label.trim(),
       type: values.type,
+      position: banner?.position ?? nextPosition,
       title: values.title?.trim() || null,
       description: values.description?.trim() || null,
       website: values.website?.trim() || null,
       facebook: values.facebook?.trim() || null,
       instagram: values.instagram?.trim() || null,
+      telephone: values.telephone?.trim() || null,
       color: values.color.replace(/^#/, ""),
-      dateTime: values.type === "EVENT" && values.dateTime
-        ? new Date(values.dateTime).toISOString()
+      visibleFrom: new Date(values.visibleFrom).toISOString(),
+      startsAt: values.type === "EVENT" && values.startsAt
+        ? new Date(values.startsAt).toISOString()
+        : null,
+      endsAt: values.type === "EVENT" && values.endsAt
+        ? new Date(values.endsAt).toISOString()
         : null,
     };
 
@@ -471,6 +525,62 @@ export function BannerDialog({
                 />
               </Field>
 
+              {/* Telephone */}
+              <Field>
+                <FieldLabel htmlFor="telephone">{t.banners.telephoneLabel}</FieldLabel>
+                <FormField
+                  control={form.control}
+                  name="telephone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          id="telephone"
+                          type="tel"
+                          autoComplete="off"
+                          placeholder={t.banners.telephonePlaceholder}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+
+              {/* VisibleFrom */}
+              <Field>
+                <FieldLabel htmlFor="visibleFrom" required>
+                  {t.banners.visibleFromLabel}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="h-3.5 w-3.5 ml-1.5 text-muted-foreground cursor-help inline-block align-middle" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        {t.banners.visibleFromTooltip}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </FieldLabel>
+                <FormField
+                  control={form.control}
+                  name="visibleFrom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          id="visibleFrom"
+                          type="datetime-local"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+
               {/* Color */}
               <Field>
                 <FieldLabel htmlFor="color">{t.banners.colorLabel}</FieldLabel>
@@ -502,27 +612,48 @@ export function BannerDialog({
                 />
               </Field>
 
-              {/* DateTime — only for EVENT */}
+              {/* StartsAt / EndsAt — only for EVENT */}
               {watchedType === "EVENT" && (
-                <Field>
-                  <FieldLabel htmlFor="dateTime">{t.banners.dateTimeLabel}</FieldLabel>
-                  <FormField
-                    control={form.control}
-                    name="dateTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            id="dateTime"
-                            type="datetime-local"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </Field>
+                <>
+                  <Field>
+                    <FieldLabel htmlFor="startsAt" required>{t.banners.startsAtLabel}</FieldLabel>
+                    <FormField
+                      control={form.control}
+                      name="startsAt"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              id="startsAt"
+                              type="datetime-local"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="endsAt" required>{t.banners.endsAtLabel}</FieldLabel>
+                    <FormField
+                      control={form.control}
+                      name="endsAt"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              id="endsAt"
+                              type="datetime-local"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </Field>
+                </>
               )}
 
               {/* Image */}

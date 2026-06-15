@@ -10,7 +10,7 @@ export class PrintersController {
     constructor(private printerService: PrintersService) { }
 
     getPrinters = asyncHandler(async (
-        req: TypedRequest<{}>,
+        _req: TypedRequest<{}>,
         res: Response,
     ): Promise<void> => {
         const printers = await this.printerService.getPrinters()

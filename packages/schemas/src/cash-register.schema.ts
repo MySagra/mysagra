@@ -10,7 +10,7 @@ const CashRegisterBase = {
     enabled: z.boolean().meta({
         description: "Whether the cash register is active"
     }),
-    defaultPrinterId: z.cuid().meta({
+    defaultPrinterId: z.cuid().nullable().meta({
         description: "Default printer identifier for receipts"
     })
 }

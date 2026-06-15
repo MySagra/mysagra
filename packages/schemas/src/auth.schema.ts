@@ -25,34 +25,17 @@ export const RefreshSchema = z.object({
     description: "Payload required to refresh an access token"
 })
 
-export const TokenPayloadSchema = z.object({
-    sub: z.string().meta({ description: "Subject — the user's unique identifier" }),
-    username: z.string().meta({ description: "The user's username" }),
-    role: RoleEnum,
-    iat: z.number().meta({ description: "Issued-at timestamp (Unix epoch seconds)" }),
-    exp: z.number().meta({ description: "Expiration timestamp (Unix epoch seconds)" })
-}).meta({
-    id: "TokenPayload",
-    description: "Decoded JWT access-token payload"
-})
-
 export const LoginResponseSchema = z.object({
-    user: z.object({
-        id: z.cuid().meta({
-            description: "User id"
-        }),
-        username: z.string().meta({
-            description: "User role",
-            example: "admin"
-        }),
-        role: RoleEnum
+    userId: z.cuid().meta({
+        description: "User id"
     }),
-    accessToken: z.jwt().meta({
-        description: "JWT for access token"
-    })
+    username: z.string().meta({
+        description: "User role",
+        example: "admin"
+    }),
+    role: RoleEnum
 })
 
 // Inferred types
 export type LoginRequest = z.infer<typeof LoginSchema>
 export type RefreshRequest = z.infer<typeof RefreshSchema>
-export type TokenPayload = z.infer<typeof TokenPayloadSchema>

@@ -15,16 +15,39 @@ export async function getBannerById(id: string): Promise<Banner> {
   return fetchApi<Banner>(API_ENDPOINTS.BANNERS.BY_ID(id), {}, BannerResponseSchema);
 }
 
+export async function reorderBanners(
+  banners: { id: string; label: string; type: string; position: number; title?: string | null; description?: string | null; website?: string | null; facebook?: string | null; instagram?: string | null; telephone?: string | null; color?: string; startsAt?: string | null; endsAt?: string | null; visibleFrom: string }[]
+): Promise<Banner[]> {
+  const results: Banner[] = [];
+  for (const banner of banners) {
+    const result = await fetchApi<Banner>(
+      API_ENDPOINTS.BANNERS.BY_ID(banner.id),
+      {
+        method: "PUT",
+        body: JSON.stringify(banner),
+      },
+      BannerResponseSchema
+    );
+    results.push(result);
+  }
+  revalidatePath("/dashboard/banners");
+  return results;
+}
+
 export async function createBanner(data: {
   label: string;
   type: string;
+  position: number;
   title?: string | null;
   description?: string | null;
   website?: string | null;
   facebook?: string | null;
   instagram?: string | null;
+  telephone?: string | null;
   color?: string;
-  dateTime?: string | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  visibleFrom: string;
 }): Promise<ActionResult<Banner>> {
   try {
     const result = await fetchApi<Banner>(API_ENDPOINTS.BANNERS.ALL, {
@@ -43,13 +66,17 @@ export async function updateBanner(
   data: {
     label: string;
     type: string;
+    position: number;
     title?: string | null;
     description?: string | null;
     website?: string | null;
     facebook?: string | null;
     instagram?: string | null;
+    telephone?: string | null;
     color?: string;
-    dateTime?: string | null;
+    startsAt?: string | null;
+    endsAt?: string | null;
+    visibleFrom: string;
   }
 ): Promise<ActionResult<Banner>> {
   try {

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { Metadata } from "next";
 import { DashboardLayoutSkeleton } from "@/components/dashboard/layout-skeleton";
 import { SidebarWrapper } from "@/components/dashboard/sidebar-wrapper";
@@ -16,14 +16,14 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const session = await getSession();
 
   const user = {
     name: session?.user?.name ?? "Admin",
     email: session?.user?.email ?? "",
     avatar: "",
   };
-  const role = (session?.user?.role as "admin" | "maintainer" | null) ?? null;
+  const role = (session?.user?.role as "admin" | "maintainer" | "operator" | null) ?? null;
 
   return (
     <TooltipProvider>

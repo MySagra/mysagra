@@ -80,7 +80,14 @@ export const GetCategoriesQuerySchema = z.object({
             if (val === 'all') return undefined; // 'undefined' tells Prisma not to filter
             return val === 'true';
         })
-        .meta({ description: "Filter included foods: true (available), false (unavailable), all" })
+        .meta({ description: "Filter included foods: true (available), false (unavailable), all" }),
+    hasStation: z.enum(['true', 'false'])
+        .optional()
+        .transform((val) => {
+            if (val === undefined) return undefined; // No filter applied
+            return val === 'true';
+        })
+        .meta({ description: "Filter categories by station presence: 'true' (has station), 'false' (no station), omitted (all)" })
 }).meta({
     id: "GetCategoriesQuery",
     description: "Query parameters for listing categories"

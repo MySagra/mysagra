@@ -20,10 +20,19 @@ export class CategoriesService {
             return await prisma.category.findMany();
         }
 
-        const { available, include, foodsAvailable } = queryParams;
+        const { available, include, foodsAvailable, hasStation } = queryParams;
 
         const whereClause: Prisma.CategoryWhereInput = { available }
         const categoriesInclude: Prisma.CategoryInclude = {};
+        
+        if(hasStation !== undefined) {
+            if(hasStation){
+                whereClause.stationId = { not: null }
+            }
+            else{ 
+                whereClause.stationId = null 
+            }
+        }
 
         if (include !== undefined) {
             categoriesInclude.foods = {

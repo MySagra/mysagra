@@ -129,7 +129,6 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
         open={detailOpen}
         onOpenChange={setDetailOpen}
         orderId={selectedOrderId}
-        cashRegisters={cashRegisters}
         onOrderUpdated={handleOrderUpdated}
       />
     </div>

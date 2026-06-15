@@ -6,18 +6,20 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import {
-  UtensilsCrossed,
-  ChefHat,
-  Leaf,
-  Printer,
-  Users,
-  Landmark,
-  ShoppingBag,
+  UtensilsCrossedIcon,
+  LayoutGridIcon,
+  Wheat,
+  PrinterIcon,
+  UsersIcon,
+  Coins,
+  ClipboardListIcon,
   ImageIcon,
   ListOrderedIcon,
+  BarChart3,
+  UtensilsIcon,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/use-session";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
@@ -26,14 +28,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const { t } = useLocale();
-  const { canManageUsers, canManageCategories, canManageBanners, canManageOrderInstructions } = useRole();
+  const { canManageUsers, canManageCategories, canManageBanners, canManageOrderInstructions, isAdmin, isMaintainer, isOperator } = useRole();
 
   const navigationCards = [
-    ...(canManageCategories
+    ...(isAdmin || isMaintainer
+      ? [{
+          title: t.dashboard.cardAnalyticsTitle,
+          description: t.dashboard.cardAnalyticsDescription,
+          icon: BarChart3,
+          href: "/dashboard/analytics",
+          color: "text-violet-600",
+          bgColor: "bg-violet-50 dark:bg-violet-950/20",
+        }]
+      : []),
+    ...(canManageCategories || isOperator
       ? [{
           title: t.dashboard.cardCategoriesTitle,
           description: t.dashboard.cardCategoriesDescription,
-          icon: ChefHat,
+          icon: LayoutGridIcon,
           href: "/dashboard/categories",
           color: "text-orange-600",
           bgColor: "bg-orange-50 dark:bg-orange-950/20",
@@ -42,7 +54,7 @@ export default function DashboardPage() {
     {
       title: t.dashboard.cardFoodsTitle,
       description: t.dashboard.cardFoodsDescription,
-      icon: UtensilsCrossed,
+      icon: UtensilsCrossedIcon,
       href: "/dashboard/foods",
       color: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/20",
@@ -50,45 +62,21 @@ export default function DashboardPage() {
     {
       title: t.dashboard.cardIngredientsTitle,
       description: t.dashboard.cardIngredientsDescription,
-      icon: Leaf,
+      icon: Wheat,
       href: "/dashboard/ingredients",
       color: "text-emerald-600",
       bgColor: "bg-emerald-50 dark:bg-emerald-950/20",
     },
-    {
-      title: t.dashboard.cardPrintersTitle,
-      description: t.dashboard.cardPrintersDescription,
-      icon: Printer,
-      href: "/dashboard/printers",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50 dark:bg-blue-950/20",
-    },
-    ...(canManageUsers
+    ...(!isOperator
       ? [{
-          title: t.dashboard.cardUsersTitle,
-          description: t.dashboard.cardUsersDescription,
-          icon: Users,
-          href: "/dashboard/users",
-          color: "text-purple-600",
-          bgColor: "bg-purple-50 dark:bg-purple-950/20",
+          title: t.dashboard.cardOrdersTitle,
+          description: t.dashboard.cardOrdersDescription,
+          icon: ClipboardListIcon,
+          href: "/dashboard/orders",
+          color: "text-pink-600",
+          bgColor: "bg-pink-50 dark:bg-pink-950/20",
         }]
       : []),
-    {
-      title: t.dashboard.cardCashRegistersTitle,
-      description: t.dashboard.cardCashRegistersDescription,
-      icon: Landmark,
-      href: "/dashboard/cash-registers",
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
-    },
-    {
-      title: t.dashboard.cardOrdersTitle,
-      description: t.dashboard.cardOrdersDescription,
-      icon: ShoppingBag,
-      href: "/dashboard/orders",
-      color: "text-pink-600",
-      bgColor: "bg-pink-50 dark:bg-pink-950/20",
-    },
     ...(canManageBanners
       ? [{
           title: t.dashboard.cardBannersTitle,
@@ -109,6 +97,42 @@ export default function DashboardPage() {
           bgColor: "bg-teal-50 dark:bg-teal-950/20",
         }]
       : []),
+    ...(isAdmin || isMaintainer || isOperator
+      ? [{
+          title: t.dashboard.cardStationsTitle,
+          description: t.dashboard.cardStationsDescription,
+          icon: UtensilsIcon,
+          href: "/dashboard/stations",
+          color: "text-amber-600",
+          bgColor: "bg-amber-50 dark:bg-amber-950/20",
+        }]
+      : []),
+    {
+      title: t.dashboard.cardPrintersTitle,
+      description: t.dashboard.cardPrintersDescription,
+      icon: PrinterIcon,
+      href: "/dashboard/printers",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50 dark:bg-blue-950/20",
+    },
+    {
+      title: t.dashboard.cardCashRegistersTitle,
+      description: t.dashboard.cardCashRegistersDescription,
+      icon: Coins,
+      href: "/dashboard/cash-registers",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
+    },
+    ...(canManageUsers
+      ? [{
+          title: t.dashboard.cardUsersTitle,
+          description: t.dashboard.cardUsersDescription,
+          icon: UsersIcon,
+          href: "/dashboard/users",
+          color: "text-purple-600",
+          bgColor: "bg-purple-50 dark:bg-purple-950/20",
+        }]
+      : []),
   ];
 
   const formatName = (name: string | null | undefined) => {
@@ -120,7 +144,7 @@ export default function DashboardPage() {
   const userName = formatName(session?.user?.name);
 
   return (
-    <><DashboardHeader title={t.nav.home} /><div className="space-y-6 p-4 md:p-8">
+    <><DashboardHeader navKey="home" /><div className="space-y-6 p-4 md:p-8">
       {/* Welcome Section */}
       <div className="flex items-center gap-4">
         <div className="shrink-0">

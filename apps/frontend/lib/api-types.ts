@@ -1,5 +1,13 @@
 // API Types for MyAmministratore
 
+export interface Session {
+  sessionId: string;
+  userAgent: string | null;
+  expiresAt: string;
+  createdAt: string;
+  revokedAt: string | null;
+}
+
 export interface LoginRequest {
   username: string;
   password: string;
@@ -127,6 +135,7 @@ export interface OrderStationState {
   status: string;
   orderId: string;
   stationId: string;
+  station?: { name: string };
 }
 
 export interface OrderDetailResponse {
@@ -143,6 +152,8 @@ export interface OrderDetailResponse {
   ticketNumber?: number | null;
   confirmedAt?: string | null;
   completedAt?: string | null;
+  user?: { username: string } | null;
+  cashRegister?: { id: string; name: string } | null;
   createdAt: string;
   updatedAt?: string;
   categorizedItems: CategorizedItems[];
@@ -210,14 +221,14 @@ export interface CashRegister {
   id: string;
   name: string;
   enabled: boolean;
-  defaultPrinterId: string;
+  defaultPrinterId: string | null;
   defaultPrinter?: Printer;
 }
 
 export interface CashRegisterRequest {
   name: string;
   enabled: boolean;
-  defaultPrinterId: string;
+  defaultPrinterId: string | null;
 }
 
 // API Keys
@@ -254,13 +265,17 @@ export interface Banner {
   id: string;
   label: string;
   type: BannerType;
+  position: number;
   title?: string | null;
   description?: string | null;
   website?: string | null;
   facebook?: string | null;
   instagram?: string | null;
+  telephone?: string | null;
   color?: string;
-  dateTime?: Date | string | null;
+  startsAt?: Date | string | null;
+  endsAt?: Date | string | null;
+  visibleFrom: Date | string;
   image: string | null;
 }
 
@@ -277,6 +292,8 @@ export const API_ENDPOINTS = {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",
     REFRESH: "/auth/refresh",
+    SESSIONS: "/auth/sessions",
+    SESSION_BY_ID: (id: string) => `/auth/session/${id}`,
   },
   STATIONS: {
     ALL: "/v1/stations",

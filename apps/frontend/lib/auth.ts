@@ -1,158 +1,67 @@
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-function parseTokenExpiry(token: string): { maxAge: number; exp: number } {
-  try {
-    const payload = JSON.parse(
-      Buffer.from(token.split(".")[1], "base64url").toString()
-    );
-    if (payload.exp) {
-      const now = Math.floor(Date.now() / 1000);
-      return { maxAge: Math.max(0, payload.exp - now), exp: payload.exp };
-    }
-  } catch {
-    // fall through to default
-  }
-  const defaultMaxAge = 12 * 60 * 60;
-  return { maxAge: defaultMaxAge, exp: Math.floor(Date.now() / 1000) + defaultMaxAge };
+export const SESSION_COOKIE = "myamministratore_session";
+export const USER_COOKIE = "myamministratore_user";
+
+export type AppRole = "admin" | "maintainer" | "operator";
+
+export interface SessionUser {
+  userId: string;
+  username: string;
+  role: AppRole;
 }
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [
-    Credentials({
-      credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" },
+// Mirror backend expiry: sessions die at the next 07:00.
+export function getSessionMaxAge(): number {
+  const now = new Date();
+  const expires = new Date();
+  expires.setHours(7, 0, 0, 0);
+  if (now.getHours() >= 7) {
+    expires.setDate(expires.getDate() + 1);
+  }
+  return Math.floor((expires.getTime() - now.getTime()) / 1000);
+}
+
+function getSecret() {
+  return new TextEncoder().encode(process.env.AUTH_SECRET!);
+}
+
+export async function signUserJwt(payload: SessionUser): Promise<string> {
+  return new SignJWT({ ...payload })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${getSessionMaxAge()}s`)
+    .sign(getSecret());
+}
+
+export async function verifyUserJwt(token: string): Promise<SessionUser> {
+  const { payload } = await jwtVerify(token, getSecret());
+  return payload as unknown as SessionUser;
+}
+
+export async function getSession(): Promise<{
+  user: { id: string; name: string; email: string; role: string };
+} | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(USER_COOKIE)?.value;
+  if (!token) return null;
+  try {
+    const payload = await verifyUserJwt(token);
+    return {
+      user: {
+        id: payload.userId,
+        name: payload.username,
+        email: `${payload.username}@myamministratore.local`,
+        role: payload.role,
       },
-      async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) {
-          return null;
-        }
+    };
+  } catch {
+    return null;
+  }
+}
 
-        try {
-          const response = await fetch(`${process.env.API_URL}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              username: credentials.username,
-              password: credentials.password,
-            }),
-          });
-
-          if (!response.ok) {
-            return null;
-          }
-
-          // Propagate the mysagra_token cookie from the backend response to the browser.
-          // The backend sets it via Set-Cookie header, but since this is a server-to-server
-          // fetch, the cookie would otherwise be lost and never reach the user's browser.
-          let tokenExpiry: number | undefined;
-
-          const setCookieHeader = response.headers.getSetCookie();
-          if (setCookieHeader) {
-            const cookieStore = await cookies();
-            for (const rawCookie of setCookieHeader) {
-              // Parse the mysagra_token cookie from the Set-Cookie header
-              if (rawCookie.startsWith("mysagra_token=")) {
-                const tokenValue = rawCookie
-                  .split(";")[0]           // "mysagra_token=<value>"
-                  .split("=")
-                  .slice(1)
-                  .join("=");              // handle '=' in token value
-
-                const { maxAge, exp } = parseTokenExpiry(tokenValue);
-                tokenExpiry = exp;
-
-                cookieStore.set("mysagra_token", tokenValue, {
-                  httpOnly: true,
-                  secure: process.env.NODE_ENV === "production",
-                  sameSite: "lax",
-                  path: "/",
-                  maxAge,
-                });
-              }
-            }
-          }
-
-          const data = await response.json();
-
-          const role = data.role as string | undefined;
-          if (role !== "admin" && role !== "maintainer") {
-            throw new Error("role_not_allowed");
-          }
-
-          return {
-            id: String(data.id || "1"),
-            name: data.username || (credentials.username as string),
-            email: `${credentials.username}@myamministratore.local`,
-            role,
-            tokenExpiry,
-          };
-        } catch (error) {
-          return null;
-        }
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        return {
-          ...token,
-          id: user.id,
-          role: (user as any).role,
-          exp: (user as any).tokenExpiry ?? token.exp,
-        };
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: "/login",
-  },
-  session: {
-    strategy: "jwt",
-    maxAge: 12 * 60 * 60, // 12 hours — matches backend JWT expiry
-  },
-  secret: process.env.AUTH_SECRET,
-  cookies: {
-    sessionToken: {
-      name: `myamministratore.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 12 * 60 * 60, // 12 hours — matches session.maxAge
-      },
-    },
-    callbackUrl: {
-      name: `myamministratore.callback-url`,
-      options: {
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 6 * 60 * 60,
-      },
-    },
-    csrfToken: {
-      name: `myamministratore.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 6 * 60 * 60,
-      },
-    },
-  },
-  debug: false,
-});
+export async function getBackendSessionId(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  return cookieStore.get(SESSION_COOKIE)?.value;
+}

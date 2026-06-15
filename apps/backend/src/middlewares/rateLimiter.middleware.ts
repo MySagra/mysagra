@@ -5,7 +5,7 @@ import { TooManyRequestsError } from "@/common/errors";
 
 const hybridKeyGenerator = (req: Request, _res: Response): string => {
     if (req.user) {
-        return `rate-limit:user:${req.user.sub}`;
+        return `rate-limit:user:${req.user.userId}`;
     }
 
     if (req.apiKey) {

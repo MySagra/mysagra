@@ -84,6 +84,10 @@ const ConfirmationDataSchema = z.object({
     customer: z.string().optional().meta({
         description: "Updated customer name",
         example: "John Doe"
+    }),
+    table: z.string().optional().meta({
+        description: "Table number or location identifier",
+        example: "Table 5"
     })
 }).meta({
     id: "ConfirmationData",
@@ -133,8 +137,8 @@ export const GetOrdersQuerySchema = z.object({
     search: z.string().optional().meta({
         description: "Search by table, customer, or display code"
     }),
-    displayCode: z.string().length(3).optional().meta({
-        description: "Filter by 3-character display code"
+    displayCode: z.string().min(3).max(5).optional().meta({
+        description: "Filter by 3 to 5 character display code"
     }),
     page: z.coerce.number().int().positive().default(1).meta({
         description: "Page number for pagination"

@@ -17,6 +17,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CashRegistersTableProps {
   cashRegisters: CashRegister[];
@@ -35,6 +37,7 @@ export function CashRegistersTable({
   onToggle,
 }: CashRegistersTableProps) {
   const { t } = useLocale();
+  const { isReadOnly, isSessionLoading } = useRole();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -59,7 +62,8 @@ export function CashRegistersTable({
     localStorage.setItem("cash-registers-table-sort-direction", sortDirection);
   }, [sortColumn, sortDirection]);
 
-  function getPrinterName(printerId: string): string {
+  function getPrinterName(printerId: string | null): string | null {
+    if (!printerId) return null;
     const printer = printers.find((p) => p.id === printerId);
     return printer?.name || printerId;
   }
@@ -91,8 +95,8 @@ export function CashRegistersTable({
           bValue = b.name.toLowerCase();
           break;
         case "printer":
-          aValue = (a.defaultPrinter?.name || getPrinterName(a.defaultPrinterId)).toLowerCase();
-          bValue = (b.defaultPrinter?.name || getPrinterName(b.defaultPrinterId)).toLowerCase();
+          aValue = (a.defaultPrinter?.name || getPrinterName(a.defaultPrinterId) || "").toLowerCase();
+          bValue = (b.defaultPrinter?.name || getPrinterName(b.defaultPrinterId) || "").toLowerCase();
           break;
         case "enabled":
           aValue = a.enabled ? 1 : 0;
@@ -180,30 +184,33 @@ export function CashRegistersTable({
           {sortedCashRegisters.map((cr) => (
             <TableRow key={cr.id}>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(cr)}
-                >
-                  <PencilIcon className="h-4 w-4" />
-                </Button>
+                {isSessionLoading
+                  ? <Skeleton className="h-8 w-8 rounded-md" />
+                  : !isReadOnly && (
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(cr)}>
+                        <PencilIcon className="h-4 w-4" />
+                      </Button>
+                    )
+                }
               </TableCell>
               <TableCell className="font-medium max-w-48">
                 <span className="block truncate" title={cr.name}>{cr.name}</span>
               </TableCell>
               <TableCell>
-                <Badge variant="outline">
-                  {cr.defaultPrinter
-                    ? cr.defaultPrinter.name
-                    : getPrinterName(cr.defaultPrinterId)}
-                </Badge>
+                {(cr.defaultPrinter || cr.defaultPrinterId) ? (
+                  <Badge variant="outline">
+                    {cr.defaultPrinter?.name || getPrinterName(cr.defaultPrinterId)}
+                  </Badge>
+                ) : (
+                  <span className="text-muted-foreground text-sm">{t.cashRegisters.noPrinter}</span>
+                )}
               </TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center">
                   <Checkbox
                     checked={cr.enabled}
-                    disabled={togglingId === cr.id}
-                    onCheckedChange={() => handleToggle(cr)}
+                    disabled={isReadOnly || togglingId === cr.id}
+                    onCheckedChange={() => !isReadOnly && handleToggle(cr)}
                   />
                 </div>
               </TableCell>

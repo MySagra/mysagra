@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { getReports } from "@/actions/reports";
-import type { Report, GroupInterval } from "@mysagra/schemas";
+import type { Report, GroupInterval, CategoryStats, FoodStats, CashRegisterStats } from "@mysagra/schemas";
 import { MainTimeChart } from "@/components/dashboard/analytics/main-time-chart";
 import { CategoryBreakdownPie } from "@/components/dashboard/analytics/category-breakdown-pie";
 import { AvgCompletionChart } from "@/components/dashboard/analytics/avg-completion-chart";
@@ -57,25 +57,97 @@ function floorToInterval(tsMs: number, groupBy: GroupInterval): number {
   }
 }
 
+// Merge two reports (base = processed, overlay = realtime) summing all numeric fields
+function mergeReports(base: Report, overlay: Report): Report {
+  const catMap = new Map<string, CategoryStats>();
+  for (const cat of base.categoryStats) {
+    catMap.set(cat.categoryId, { ...cat, foodStats: [...cat.foodStats] });
+  }
+  for (const cat of overlay.categoryStats) {
+    const existing = catMap.get(cat.categoryId);
+    if (existing) {
+      existing.revenue = num(existing.revenue) + num(cat.revenue);
+      existing.quantity += cat.quantity;
+      const foodMap = new Map<string, FoodStats>();
+      for (const f of existing.foodStats) foodMap.set(f.foodId, { ...f });
+      for (const f of cat.foodStats) {
+        const ef = foodMap.get(f.foodId);
+        if (ef) { ef.revenue = num(ef.revenue) + num(f.revenue); ef.quantity += f.quantity; }
+        else foodMap.set(f.foodId, { ...f });
+      }
+      existing.foodStats = Array.from(foodMap.values());
+    } else {
+      catMap.set(cat.categoryId, { ...cat, foodStats: [...cat.foodStats] });
+    }
+  }
+
+  const cashMap = new Map<string, CashRegisterStats>();
+  for (const cr of base.cashRegisterStats) cashMap.set(cr.cashRegisterId, { ...cr });
+  for (const cr of overlay.cashRegisterStats) {
+    const existing = cashMap.get(cr.cashRegisterId);
+    if (existing) {
+      existing.totalRevenue = num(existing.totalRevenue) + num(cr.totalRevenue);
+      existing.totalCardRevenue = num(existing.totalCardRevenue) + num(cr.totalCardRevenue);
+      existing.totalCashRevenue = num(existing.totalCashRevenue) + num(cr.totalCashRevenue);
+    } else {
+      cashMap.set(cr.cashRegisterId, { ...cr });
+    }
+  }
+
+  let avgTime: number | null = null;
+  if (base.averageCompletitionTime != null && overlay.averageCompletitionTime != null) {
+    const total = base.totalOrders + overlay.totalOrders;
+    avgTime = total > 0
+      ? (base.averageCompletitionTime * base.totalOrders + overlay.averageCompletitionTime * overlay.totalOrders) / total
+      : null;
+  } else {
+    avgTime = base.averageCompletitionTime ?? overlay.averageCompletitionTime ?? null;
+  }
+
+  return {
+    ...base,
+    totalRevenue: num(base.totalRevenue) + num(overlay.totalRevenue),
+    totalCashRevenue: num(base.totalCashRevenue) + num(overlay.totalCashRevenue),
+    totalCardRevenue: num(base.totalCardRevenue) + num(overlay.totalCardRevenue),
+    totalOrders: base.totalOrders + overlay.totalOrders,
+    averageCompletitionTime: avgTime,
+    categoryStats: Array.from(catMap.values()),
+    cashRegisterStats: Array.from(cashMap.values()),
+  };
+}
+
 // Fill in missing time slots with zero-value entries so charts show continuous time series
 function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: GroupInterval): Report[] {
   const stepMs = intervalToMs(groupBy);
   // "all" = single bucket, no gaps to fill
   if (stepMs === 0 || reports.length === 0) return reports;
 
-  // Build a map of existing reports keyed by their timestamp floored to the interval grid
+  // Build a map of existing reports keyed by their timestamp floored to the interval grid.
+  // When two reports share a key (e.g. a processed day-report + a realtime entry), merge them.
   const reportMap = new Map<number, Report>();
   for (const r of reports) {
     const key = floorToInterval(new Date(r.timestamp).getTime(), groupBy);
-    reportMap.set(key, r);
+    const existing = reportMap.get(key);
+    if (existing) {
+      const isRealtime = String(r.id).startsWith("realtime-");
+      reportMap.set(key, isRealtime ? mergeReports(existing, r) : mergeReports(r, existing));
+    } else {
+      reportMap.set(key, r);
+    }
   }
 
   // Get the intervalInMinutes from the first report
   const intervalInMinutes = reports[0].intervalInMinutes;
 
-  // Start from the first actual report, not from dateFrom (skip leading empty slots)
-  const firstReportMs = floorToInterval(new Date(reports[0].timestamp).getTime(), groupBy);
-  const startMs = firstReportMs;
+  // Start one interval before the first slot with actual orders (skip leading server-on/zero-order slots)
+  const firstWithOrders = reports.find((r) => {
+    const v = r.totalOrders;
+    return (typeof v === "number" ? v : Number(v) || 0) > 0;
+  });
+  const fromMs = floorToInterval(dateFrom.getTime(), groupBy);
+  const startMs = firstWithOrders
+    ? Math.max(floorToInterval(new Date(firstWithOrders.timestamp).getTime(), groupBy) - stepMs, fromMs)
+    : floorToInterval(new Date(reports[0].timestamp).getTime(), groupBy);
   const endMs = floorToInterval(dateTo.getTime(), groupBy);
 
   // Generate all expected slots
@@ -371,7 +443,7 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <DashboardHeader title={t.analytics.title} />
+      <DashboardHeader navKey="analytics" />
       <div className="space-y-6 p-4 md:p-6 lg:p-8">
         {/* Filters */}
         <AnalyticsFilters
@@ -424,6 +496,7 @@ export default function AnalyticsPage() {
               <div className="w-full lg:w-[320px] shrink-0">
                 <AnalyticsSidebar
                   categories={aggregatedStats.categories}
+                  allFoods={aggregatedStats.allFoods}
                   topFoods={aggregatedStats.topFoods}
                   topFoodsByRevenue={aggregatedStats.topFoodsByRevenue}
                   cashRegisters={aggregatedStats.cashRegisters}

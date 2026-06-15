@@ -22,7 +22,7 @@ export default async function CashRegistersPage() {
 
   return (
     <>
-      <DashboardHeader title="Registratori di Cassa" />
+      <DashboardHeader navKey="cashRegisters" />
       <CashRegistersContent
         initialCashRegisters={cashRegisters}
         printers={printers}

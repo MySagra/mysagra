@@ -13,13 +13,18 @@ import { useLocale } from "@/contexts/locale-context";
 interface UsersContentProps {
   initialUsers: User[];
   roles: Role[];
+  currentUserId?: string;
 }
 
-export function UsersContent({ initialUsers, roles }: UsersContentProps) {
+export function UsersContent({ initialUsers, roles, currentUserId }: UsersContentProps) {
   const { t } = useLocale();
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>(
+    currentUserId ? initialUsers.filter((u) => u.id !== currentUserId) : initialUsers
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -38,6 +43,15 @@ export function UsersContent({ initialUsers, roles }: UsersContentProps) {
     }
     setUsers((prev) => prev.map((u) => (u.id === result.data.id ? result.data : u)));
     toast.success(t.users.toastUpdated);
+  }
+
+  function handleEdit(user: User) {
+    setEditingUser(user);
+    setEditDialogOpen(true);
+  }
+
+  function handleUpdated(updated: User) {
+    setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
   }
 
   function handleDelete(user: User) {
@@ -68,6 +82,7 @@ export function UsersContent({ initialUsers, roles }: UsersContentProps) {
           users={filteredUsers}
           roles={roles}
           onRoleChange={handleRoleChange}
+          onEdit={handleEdit}
           onDelete={handleDelete}
           updatingId={updatingId}
         />
@@ -77,6 +92,14 @@ export function UsersContent({ initialUsers, roles }: UsersContentProps) {
         onOpenChange={setCreateDialogOpen}
         roles={roles}
         onCreated={handleCreated}
+      />
+      <UserDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        roles={roles}
+        onCreated={handleCreated}
+        editingUser={editingUser ?? undefined}
+        onUpdated={handleUpdated}
       />
       <DeleteUserDialog
         open={deleteDialogOpen}

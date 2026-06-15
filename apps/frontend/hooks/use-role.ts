@@ -1,22 +1,25 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession } from "@/hooks/use-session";
 
-export type AppRole = "admin" | "maintainer";
+export type AppRole = "admin" | "maintainer" | "operator";
 
 export function useRole() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const role = (session?.user?.role as AppRole | undefined) ?? null;
 
   return {
     role,
+    isSessionLoading: status === "loading",
     isAdmin: role === "admin",
     isMaintainer: role === "maintainer",
+    isOperator: role === "operator",
+    isReadOnly: role === "operator",
     // Destructive operations — admin only
     canDelete: role === "admin",
     // Full CRUD on master data — admin only
     canManageUsers: role === "admin",
-    canViewCategories: role === "admin" || role === "maintainer",
+    canViewCategories: role === "admin" || role === "maintainer" || role === "operator",
     canEditCategories: role === "admin" || role === "maintainer",
     canManageCategories: role === "admin",
     // Create/delete printers — admin only

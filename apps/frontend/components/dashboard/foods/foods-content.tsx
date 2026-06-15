@@ -6,6 +6,8 @@ import { FoodsToolbar } from "./foods-toolbar";
 import { FoodsTable } from "./foods-table";
 import { FoodDialog } from "./food-dialog";
 import { DeleteFoodDialog } from "./delete-food-dialog";
+import { FoodsTableSkeleton } from "./foods-table-skeleton";
+import { useRole } from "@/hooks/use-role";
 
 interface FoodsContentProps {
   initialFoods: Food[];
@@ -15,6 +17,7 @@ interface FoodsContentProps {
 }
 
 export function FoodsContent({ initialFoods, categories, ingredients, printers }: FoodsContentProps) {
+  const { isSessionLoading } = useRole();
   const [foods, setFoods] = useState<Food[]>(initialFoods);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -70,6 +73,14 @@ export function FoodsContent({ initialFoods, categories, ingredients, printers }
   const categoryNames = Array.from(
     new Set(foods.map((f) => f.category?.name).filter(Boolean))
   ) as string[];
+
+  if (isSessionLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <FoodsTableSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

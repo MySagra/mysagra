@@ -14,9 +14,6 @@ const CreateUserRequest = registry.register("CreateUserRequest", CreateUserSchem
 const PatchUserRequest = registry.register("PatchUserRequest", PatchUserSchema);
 const CUIDParam = registry.register("CUIDParam", cuidParamSchema);
 
-// UpdateUserRequest is intentionally omitted — PUT /users/:id is not yet implemented.
-// TODO: restore when session management allows full user updates.
-
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 registry.registerPath({
@@ -90,22 +87,10 @@ registry.registerPath({
     },
 });
 
-// TODO: implement PUT /users/:id after session management is in place.
-// This endpoint will allow full user updates (username, password, role).
-/*
-registry.registerPath({
-    method: "put",
-    path: "/v1/users/{id}",
-    summary: "Update user by ID (not yet implemented)",
-    tags: ["Users"],
-    ...
-});
-*/
-
 registry.registerPath({
     method: "patch",
     path: "/v1/users/{id}",
-    summary: "Update user role",
+    summary: "Partially update user",
     tags: ["Users"],
     security: [{ cookieAuth: [] }],
     request: {
@@ -119,13 +104,13 @@ registry.registerPath({
     },
     responses: {
         200: {
-            description: "User role updated",
+            description: "User updated",
             content: {
                 "application/json": { schema: UserResponse },
             },
         },
         404: { description: "Not Found - User not found" },
-        400: { description: "Bad Request - Invalid role ID" },
+        400: { description: "Bad Request - Invalid input or validation error" },
         401: { description: "Unauthorized - Invalid or missing authentication" },
         403: { description: "Forbidden - Insufficient permissions" },
         429: { description: "Too Many Requests - Rate limit exceeded" },

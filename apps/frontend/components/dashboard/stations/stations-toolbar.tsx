@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StationsToolbarProps {
   searchQuery: string;
@@ -19,6 +21,7 @@ export function StationsToolbar({
   canCreate = true,
 }: StationsToolbarProps) {
   const { t } = useLocale();
+  const { isSessionLoading } = useRole();
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -31,12 +34,15 @@ export function StationsToolbar({
           className="pl-9"
         />
       </div>
-      {canCreate && (
-        <Button onClick={onCreateNew}>
-          <PlusIcon className="h-4 w-4 mr-2" />
-          {t.stations.newStation}
-        </Button>
-      )}
+      {isSessionLoading
+        ? <Skeleton className="h-9 w-36 rounded-md" />
+        : canCreate && (
+            <Button onClick={onCreateNew}>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              {t.stations.newStation}
+            </Button>
+          )
+      }
     </div>
   );
 }

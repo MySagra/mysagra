@@ -5,6 +5,7 @@ import { sagraService } from "./modules/sagra/sagra.service";
 import { reportService } from "./modules/report/report.service";
 import app from "./app";
 import { initReportWorker } from "./jobs/report-automation.job";
+import { initClearSessionsJob } from "./jobs/clear-sessions-automation.job";
 
 let server: ReturnType<typeof app.listen>
 
@@ -19,8 +20,9 @@ async function startServer() {
     // initialize report service (backfills missing reports) before worker starts
     await reportService.initReports();
 
-    // start bullMQ worker
+    // start bullMQ workers
     initReportWorker()
+    await initClearSessionsJob()
     await sagraService.scheduleAutomation()
 
     server = app.listen(env.PORT, () => {

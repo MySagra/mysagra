@@ -3,8 +3,9 @@ import { Response } from "express";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { UsersService } from "@/modules/users/users.service";
 
-import { CUIDParam, UpdateUserInput, CreateUserInput, PatchUserInput } from "@mysagra/schemas";
+import { CUIDParam, CreateUserInput, PatchUserInput } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
+import { ForbiddenError, UnauthorizedError } from "@/common/errors";
 
 export class UsersController {
     constructor(private userService: UsersService) { }
@@ -22,6 +23,9 @@ export class UsersController {
         res: Response,
     ): Promise<void> => {
         const { id } = req.validated.params;
+        if (req.user!.role !== "admin" && req.user!.userId !== id) {
+            throw new ForbiddenError("Cannot access another user's profile");
+        }
         const user = await this.userService.getUserById(id);
         res.status(200).json(user);
     })
@@ -34,21 +38,15 @@ export class UsersController {
         res.status(201).json(user);
     });
 
-    //TODO: update after session management
-    updateUser = asyncHandler(async (
-        req: TypedRequest<{ params: CUIDParam, body: UpdateUserInput }>,
-        res: Response,
-    ): Promise<void> => {
-        const { id } = req.validated.params;
-        const user = await this.userService.updateUser(id, req.validated.body)
-        res.status(200).json(user);
-    });
-
     patchUser = asyncHandler(async (
         req: TypedRequest<{ params: CUIDParam, body: PatchUserInput }>,
         res: Response,
     ): Promise<void> => {
+        if(!req.user) throw new UnauthorizedError("Not authorized");
         const { id } = req.validated.params;
+
+        if(req.user.userId !== id && req.user.role !== "admin") if(!req.user) throw new UnauthorizedError("Not authorized");
+
         const user = await this.userService.patchUser(id, req.validated.body)
         res.status(200).json(user);
     });

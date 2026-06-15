@@ -9,13 +9,14 @@ import { StationDialog } from "./stations-dialog";
 import { DeleteStationDialog } from "./delete-station-dialog";
 import { toast } from "sonner";
 import { useRole } from "@/hooks/use-role";
+import { StationsTableSkeleton } from "./stations-table-skeleton";
 
 interface StationsContentProps {
   initialStations: Station[];
 }
 
 export function StationsContent({ initialStations }: StationsContentProps) {
-  const { canManageCategories } = useRole();
+  const { canManageCategories, isSessionLoading } = useRole();
   const [stations, setStations] = useState<Station[]>(initialStations);
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -61,6 +62,14 @@ export function StationsContent({ initialStations }: StationsContentProps) {
     setStations((prev) => prev.filter((s) => s.id !== id));
     setDeleteDialogOpen(false);
     setDeletingStation(null);
+  }
+
+  if (isSessionLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <StationsTableSkeleton />
+      </div>
+    );
   }
 
   return (

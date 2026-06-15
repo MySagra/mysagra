@@ -16,7 +16,7 @@ export default async function StationsPage() {
 
   return (
     <>
-      <DashboardHeader title="Postazioni" />
+      <DashboardHeader navKey="stations" />
       <StationsContent initialStations={stations} />
     </>
   );

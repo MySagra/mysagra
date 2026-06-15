@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { PencilIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface IngredientsTableProps {
   ingredients: Ingredient[];
@@ -28,6 +30,7 @@ export function IngredientsTable({
   onEdit,
 }: IngredientsTableProps) {
   const { t } = useLocale();
+  const { isReadOnly, isSessionLoading } = useRole();
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -121,13 +124,14 @@ export function IngredientsTable({
           {sortedIngredients.map((ingredient) => (
             <TableRow key={ingredient.id}>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(ingredient)}
-                >
-                  <PencilIcon className="h-4 w-4" />
-                </Button>
+                {isSessionLoading
+                  ? <Skeleton className="h-8 w-8 rounded-md" />
+                  : !isReadOnly && (
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(ingredient)}>
+                        <PencilIcon className="h-4 w-4" />
+                      </Button>
+                    )
+                }
               </TableCell>
               <TableCell className="font-medium">{ingredient.name}</TableCell>
               <TableCell>{formatDecimal(ingredient.surcharge)}</TableCell>

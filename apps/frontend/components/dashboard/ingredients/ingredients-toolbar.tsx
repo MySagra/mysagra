@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
+import { useRole } from "@/hooks/use-role";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface IngredientsToolbarProps {
   searchQuery: string;
@@ -17,6 +19,7 @@ export function IngredientsToolbar({
   onCreateNew,
 }: IngredientsToolbarProps) {
   const { t } = useLocale();
+  const { isReadOnly, isSessionLoading } = useRole();
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -29,10 +32,15 @@ export function IngredientsToolbar({
           className="pl-9"
         />
       </div>
-      <Button onClick={onCreateNew}>
-        <PlusIcon className="h-4 w-4 mr-2" />
-        {t.ingredients.newIngredient}
-      </Button>
+      {isSessionLoading
+        ? <Skeleton className="h-9 w-36 rounded-md" />
+        : !isReadOnly && (
+            <Button onClick={onCreateNew}>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              {t.ingredients.newIngredient}
+            </Button>
+          )
+      }
     </div>
   );
 }

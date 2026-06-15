@@ -2,8 +2,9 @@ import { Response } from "express";
 import { AuthService } from "@/modules/auth/auth.service";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { env } from "@/config/env";
-import { LoginRequest } from "@mysagra/schemas";
+import { LoginRequest, RevokeSessionParams } from "@mysagra/schemas";
 import { TypedRequest } from "@/types/request";
+import { UnauthorizedError } from "@/common/errors";
 
 export class AuthController {
     constructor(private authService: AuthService) { }
@@ -13,38 +14,62 @@ export class AuthController {
         res: Response,
     ): Promise<void> => {
         const { username, password } = req.validated.body;
-        const user = await this.authService.getUser(username);
-        const token = await this.authService.login(user, password);
+        const { sessionPayload, sessionId, expiresAt } = await this.authService.login(username, password, req.headers["user-agent"]);
 
-        res.cookie('mysagra_token', token, {
+        res.cookie('mysagra_session', sessionId, {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
-            maxAge: 12 * 60 * 60 * 1000
+            expires: expiresAt
         });
 
-        res.status(200).json({
-            id: user.id,
-            username: user.username,
-            role: user.role.name
-        });
+        res.status(200).json(sessionPayload);
     });
 
     logout = asyncHandler(async (
         req: TypedRequest<{}>,
         res: Response,
     ): Promise<void> => {
-        const token = req.cookies.mysagra_token;
+        const session = req.cookies.mysagra_session;
 
-        res.clearCookie('mysagra_token', {
+        res.clearCookie('mysagra_session', {
             path: '/',
             sameSite: 'lax',
             secure: env.NODE_ENV === 'production',
             httpOnly: true
         });
 
-        await this.authService.logout(token);
+        if (session) {
+            await this.authService.logout(session);
+        }
+
         res.status(200).json({ message: "Logged out successfully" });
+    });
+
+    getSessions = asyncHandler(async (
+        req: TypedRequest<{}>,
+        res: Response,
+    ): Promise<void> => {
+        if(!req.user) throw new UnauthorizedError("Not authorized");
+
+        const userId = req.user.userId;
+        const sessions = await this.authService.getSessions(userId);
+
+        res.status(200).json(sessions);
+    });
+
+    revokeSession = asyncHandler(async (
+        req: TypedRequest<{ params: RevokeSessionParams }>,
+        res: Response,
+    ): Promise<void> => {
+        if(!req.user) throw new UnauthorizedError("Not authorized");
+
+        const userId = req.user.userId
+        const { sessionId } = req.validated.params
+        
+        await this.authService.revokeSession(userId, sessionId);
+
+        res.status(204).json();
     });
 }

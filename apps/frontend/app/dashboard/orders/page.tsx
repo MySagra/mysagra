@@ -35,7 +35,7 @@ export default async function OrdersPage({
 
   return (
     <>
-      <DashboardHeader title="Ordini" />
+      <DashboardHeader navKey="orders" />
       <OrdersContent initialData={ordersData} cashRegisters={cashRegisters} initialOnlyDiscounted={onlyDiscounted} />
     </>
   );

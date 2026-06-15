@@ -9,6 +9,7 @@ import { CategoryDialog } from "./category-dialog";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import { toast } from "sonner";
 import { useRole } from "@/hooks/use-role";
+import { CategoriesTableSkeleton } from "./categories-table-skeleton";
 
 interface CategoriesContentProps {
   initialCategories: Category[];
@@ -17,7 +18,7 @@ interface CategoriesContentProps {
 }
 
 export function CategoriesContent({ initialCategories, printers, stations }: CategoriesContentProps) {
-  const { canManageCategories } = useRole();
+  const { canManageCategories, isSessionLoading } = useRole();
   const [categories, setCategories] = useState<Category[]>(
     [...initialCategories].sort((a, b) => a.position - b.position)
   );
@@ -107,6 +108,14 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
   function handleResetOrder() {
     setCategories([...initialCategories].sort((a, b) => a.position - b.position));
     setHasOrderChanged(false);
+  }
+
+  if (isSessionLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <CategoriesTableSkeleton />
+      </div>
+    );
   }
 
   return (

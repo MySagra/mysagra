@@ -10,7 +10,7 @@ export const initReportWorker = () => {
         async (job: Job) => {
             const now = new Date();
 
-            logger.info(`[Worker] Starting scheduled report for Sagra: ${job.data.sagraId}`);
+            logger.info(`[Worker-${worker.name}] Starting scheduled report for Sagra: ${job.data.sagraId}`);
 
             // Execute the heavy lifting (Aggregation + Purge)
             await reportService.generateReport()
@@ -23,8 +23,7 @@ export const initReportWorker = () => {
             concurrency: 1
         }
     );
-
     worker.on('failed', (job, err) => {
-        logger.error(`[Worker] Job ${job?.id} failed with error: ${err.message}`);
+        logger.error(`[Worker-${worker.name}] Job ${job?.id} failed with error: ${err.message}`);
     });
 }

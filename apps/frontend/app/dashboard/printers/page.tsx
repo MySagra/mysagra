@@ -15,7 +15,7 @@ export default async function PrintersPage() {
 
   return (
     <>
-      <DashboardHeader title="Stampanti" />
+      <DashboardHeader navKey="printers" />
       <PrintersContent initialPrinters={printers} />
     </>
   );

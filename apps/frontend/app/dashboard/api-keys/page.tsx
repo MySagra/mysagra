@@ -15,7 +15,7 @@ export default async function ApiKeysPage() {
 
   return (
     <>
-      <DashboardHeader title="API Keys" />
+      <DashboardHeader navKey="apiKeys" />
       <ApiKeysContent initialApiKeys={apiKeys} />
     </>
   );

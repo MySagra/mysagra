@@ -1,9 +1,9 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SetupWizard } from "@/components/setup/setup-wizard";
 
 export default async function SetupPage() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session) {
     redirect("/login");
