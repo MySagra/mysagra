@@ -98,7 +98,8 @@ async function main() {
                 description: "Thank you for choosing us!",
                 website: "https://mysagra.com",
                 type: "SPONSOR",
-                image: "banner-mysagra-default.png"
+                image: "banner-mysagra-default.png",
+                position: 0
             }
         })
 
