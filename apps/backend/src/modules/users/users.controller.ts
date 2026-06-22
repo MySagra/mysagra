@@ -42,10 +42,16 @@ export class UsersController {
         req: TypedRequest<{ params: CUIDParam, body: PatchUserInput }>,
         res: Response,
     ): Promise<void> => {
-        if(!req.user) throw new UnauthorizedError("Not authorized");
+        if (!req.user) throw new UnauthorizedError("Not authorized");
         const { id } = req.validated.params;
 
-        if(req.user.userId !== id && req.user.role !== "admin") if(!req.user) throw new UnauthorizedError("Not authorized");
+        if (req.user.userId !== id && req.user.role !== "admin") {
+            throw new ForbiddenError("Cannot modify another user");
+        }
+
+        if (req.validated.body.role && req.user.role !== "admin") {
+            throw new ForbiddenError("Cannot modify your own role");
+        }
 
         const user = await this.userService.patchUser(id, req.validated.body)
         res.status(200).json(user);

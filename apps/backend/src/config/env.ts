@@ -12,7 +12,6 @@ const envSchema = z.object({
     ),
     DATABASE_URL: z.string(),
     PEPPER: z.string(),
-    JWT_SECRET: z.string(),
     ALLOWED_ORIGINS: z.preprocess(
         (val) => typeof val === 'string' ? val.split(',').map(url => url.trim()) : [],
         z.array(z.url())
@@ -38,7 +37,6 @@ export const env = {
     PORT: data.PORT || 4300,
     DATABASE_URL: data.DATABASE_URL,
     PEPPER: data.PEPPER,
-    JWT_SECRET: data.JWT_SECRET,
     ALLOWED_ORIGINS: data.ALLOWED_ORIGINS,
     TRUST_PROXY_LEVEL: data.TRUST_PROXY_LEVEL,
     REDIS_URL: data.REDIS_URL,
