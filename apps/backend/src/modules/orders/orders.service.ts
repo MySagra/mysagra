@@ -1,9 +1,9 @@
 import {
     Channel,
     ConfirmOrderInput,
-    CreateOrder,
+    CreateOrderInput,
     EventName,
-    GetOrdersQueryParams,
+    GetOrdersQuery,
     OrderItem,
     OrderStatus,
     ReprintOrder
@@ -181,7 +181,7 @@ export class OrdersService {
         });
     }
 
-    async getOrders(queryParams: GetOrdersQueryParams) {
+    async getOrders(queryParams: GetOrdersQuery) {
         const { limit, page, include } = queryParams;
         const skip = (page - 1) * limit;
 
@@ -309,7 +309,7 @@ export class OrdersService {
         return { ...orderBaseData, categorizedItems: Array.from(categoryMap.values()) };
     }
 
-    async createOrder(order: CreateOrder) {
+    async createOrder(order: CreateOrderInput) {
         const { orderItems, confirm } = order;
 
         const createdOrder = await prisma.$transaction(async (tx) => {
@@ -319,8 +319,13 @@ export class OrdersService {
                 select: { id: true, price: true }
             });
 
-            if (foods.length !== new Set(foodIds).size) {
-                throw new Error("One or more requested products do not exist or are invalid");
+            const foundIds = new Set(foods.map(f => f.id));
+            const missingIds = [...new Set(foodIds)].filter(id => !foundIds.has(id));
+
+            if (missingIds.length > 0) {
+                throw new BadRequestError(
+                    `Unknown or invalid products: ${missingIds.join(", ")}`
+                );
             }
 
             const foodMap = new Map(foods.map(f => [f.id, f.price]));
@@ -723,7 +728,7 @@ export class OrdersService {
 
                 // Select all distinct printers in an order
                 const printers: { printerId: string }[] = await tx.$queryRaw
-                `
+                    `
                     SELECT DISTINCT f.printerId
                     FROM orders o JOIN order_items oi ON o.id = oi.orderId
                     JOIN foods f ON oi.foodId = f.id

@@ -24,6 +24,7 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
 import { Skeleton } from "@/components/ui/skeleton";
+import { APP_VERSION } from "@/lib/version";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -158,6 +159,9 @@ export default function DashboardPage() {
             {t.dashboard.welcomeSubtitle}
           </p>
         </div>
+        <span className="ml-auto self-start text-xs text-muted-foreground tabular-nums">
+          v{APP_VERSION}
+        </span>
       </div>
 
       {/* Navigation Cards */}

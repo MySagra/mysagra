@@ -85,6 +85,11 @@ RUN chmod +x ./entrypoint.sh
 
 USER express
 
+# Application version, injected from the release git tag at build time
+# (see .github/workflows/publish.yml). Defaults to a dev placeholder.
+ARG APP_VERSION=0.0.0-dev
+ENV APP_VERSION=$APP_VERSION
+
 EXPOSE 4300
 ENV NODE_ENV=production
 ENV PORT=4300

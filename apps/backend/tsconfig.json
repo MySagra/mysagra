@@ -5,7 +5,6 @@
     "moduleResolution": "bundler",
     "lib": ["ES2022"],
 
-    "rootDir": "./src",
     "paths": {
       "@/*": ["./src/*"],
       "@generated/*": ["./src/generated/*"]
@@ -30,6 +29,6 @@
     "require": ["tsconfig-paths/register"],
     "files": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

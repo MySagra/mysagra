@@ -4,7 +4,6 @@ class CodeGenerationError extends Error {
     }
 }
 
-
 class DisplayCodeGenerator {
     private static readonly ALPHABET = "ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789";
     private static readonly BASE = this.ALPHABET.length;

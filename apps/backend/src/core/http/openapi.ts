@@ -2,7 +2,10 @@ import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from "@aste
 import { z } from "zod";
 import swaggerUi from 'swagger-ui-express'
 import { Application, Request, Response } from "express";
-import { env } from "./env";
+import { env } from "@/config/env";
+
+import { SESSION_COOKIE } from "@/common/constants";
+import { APP_VERSION } from "@/config/version";
 
 extendZodWithOpenApi(z);
 
@@ -10,14 +13,16 @@ export const registry = new OpenAPIRegistry();
 
 registry.registerComponent('securitySchemes', 'cookieAuth', {
     type: 'apiKey',
-    scheme: 'cookie',
-    name: 'mysagra_token'
+    in: 'cookie',
+    name: SESSION_COOKIE,
+    description: 'HTTP-only session cookie, set automatically on login',
 })
 
 registry.registerComponent('securitySchemes', 'apiKeyAuth', {
     type: 'apiKey',
     in: 'header',
-    name: 'X-API-KEY'
+    name: 'X-API-KEY',
+    description: 'API key sent via the X-API-KEY header',
 })
 
 export function generateOpenApiDocument() {
@@ -26,7 +31,7 @@ export function generateOpenApiDocument() {
     return generator.generateDocument({
         openapi: '3.0.0',
         info: {
-            version: '1.4.2',
+            version: APP_VERSION,
             title: 'MySagra API',
             description: 'API documentation dynamically generated with Zod and OpenAPI'
         },

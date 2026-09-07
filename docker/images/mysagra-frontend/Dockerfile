@@ -25,6 +25,11 @@ RUN pnpm install --frozen-lockfile
 
 # Environment variables
 COPY .env* ./
+
+# Application version, injected from the release git tag at build time
+# (see .github/workflows/publish.yml). Next.js inlines NEXT_PUBLIC_* at build.
+ARG APP_VERSION=0.0.0-dev
+ENV NEXT_PUBLIC_APP_VERSION=$APP_VERSION
  
 # Build the project
 COPY --from=builder /app/out/full/ .

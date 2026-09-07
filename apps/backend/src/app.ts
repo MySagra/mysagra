@@ -15,7 +15,8 @@ import { corsOptions } from './config/corsOptions';
 import routes from "./routes"
 
 //docs
-import { setupSwagger } from './config/swagger';
+import { setupSwagger } from './core/http';
+import { APP_VERSION } from './config/version';
 
 // middlewares
 import { requestId } from './middlewares/requestId';
@@ -82,6 +83,7 @@ app.use('/uploads', express.static(path.join(publicDir, 'uploads')));
 app.get("/health", (req, res) => {
     res.json({
         status: "ok",
+        version: APP_VERSION,
         timestamp: new Date(),
         uptime: process.uptime(),
         memoryUsage: process.memoryUsage(),

@@ -5,7 +5,12 @@ import { ApiError } from "@/common/errors";
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        console.log(err)
+        logger.warn("Prisma known request error", {
+            requestId: req.requestId,
+            code: err.code,
+            meta: err.meta,
+            context: "ErrorHandler",
+        });
         switch (err.code) {
             case "P2002": {
                 const target = (err.meta?.target as string[]) || ["field"];
@@ -40,7 +45,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
         }
     }
 
-    if(err instanceof ApiError) {
+    if (err instanceof ApiError) {
         res.status(err.statusCode).json({
             message: err.message,
             error: err.name
@@ -52,10 +57,11 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     logger.error({
         message: err.message,
         stack: err.stack,
+        requestId: req.requestId,
         context: "ErrorHandler",
     });
     res.status(500).json(
-        { 
+        {
             message: "Internal error, retry later",
             error: "ServerError"
         }

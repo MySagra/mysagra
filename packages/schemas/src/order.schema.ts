@@ -329,11 +329,11 @@ export const ReprintOrderSchema = z.object({
 export type OrderStatus = z.infer<typeof OrderStatusSchema>
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>
 
-export type CreateOrder = z.infer<typeof CreateOrderSchema>
+export type CreateOrderInput = z.infer<typeof CreateOrderSchema>
 export type ConfirmOrderInput = z.infer<typeof ConfirmOrderSchema>
 export type PatchOrderInput = z.infer<typeof PatchOrderSchema>
 
-export type GetOrdersQueryParams = z.infer<typeof GetOrdersQuerySchema>
+export type GetOrdersQuery = z.infer<typeof GetOrdersQuerySchema>
 export type OrderIdParam = z.infer<typeof OrderIdParamSchema>
 export type OrderResponse = z.infer<typeof OrderResponseSchema>
 export type OrderItemInput = z.infer<typeof OrderItemInputSchema>

@@ -1,7 +1,7 @@
 import { prisma, Prisma } from "@mysagra/database";
 import {
-    GetFoodsQueryParams,
-    GetFoodQueryParams,
+    GetFoodsQuery,
+    GetFoodQuery,
     CreateFoodInput,
     PatchFoodInput,
     UpdateFoodInput
@@ -36,7 +36,7 @@ export class FoodsService {
         };
     }
 
-    async getFoods(queryParams: GetFoodsQueryParams) {
+    async getFoods(queryParams: GetFoodsQuery) {
         const whereClause: Prisma.FoodWhereInput = {}
 
         if (queryParams.available !== undefined) {
@@ -72,7 +72,7 @@ export class FoodsService {
         return foods;
     }
 
-    async getFoodById(id: string, queryParams: GetFoodQueryParams) {
+    async getFoodById(id: string, queryParams: GetFoodQuery) {
         const { include } = queryParams;
         const food = await prisma.food.findUnique({
             where: {
