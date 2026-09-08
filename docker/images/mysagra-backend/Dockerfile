@@ -4,10 +4,12 @@
 FROM node:lts-alpine AS base
 
 # ────────────────────────────────────────────────────
-# pnpm_base: pnpm 10 (shared by builder + installer)
+# pnpm_base: pnpm 12 (shared by builder + installer)
+# Must match the root package.json "packageManager" field so that the
+# overrides in pnpm-workspace.yaml and the lockfile are read correctly.
 # ────────────────────────────────────────────────────
 FROM base AS pnpm_base
-RUN corepack enable && corepack prepare pnpm@10.32.0 --activate
+RUN corepack enable && corepack prepare pnpm@12.3.4 --activate
 
 # ────────────────────────────────────────────────────
 # builder: minimal monorepo snapshot via turbo prune
@@ -16,7 +18,7 @@ FROM pnpm_base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY . .
-RUN pnpm dlx turbo@^2 prune mysagra-backend --docker
+RUN pnpm dlx turbo@2.10.12 prune mysagra-backend --docker
 
 # ────────────────────────────────────────────────────
 # installer: dependencies + Prisma v7 client generation

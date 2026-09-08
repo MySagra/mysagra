@@ -96,7 +96,7 @@ services:
       - seccomp=unconfined
     user: mysql
   redis:
-    image: redis:8.6.1-alpine
+    image: redis:8.8.0-alpine
     container_name: mysagra_redis
     restart: always
     ports:
