@@ -24,11 +24,6 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true
   },
-  "ts-node": {
-    "transpileOnly": true,
-    "require": ["tsconfig-paths/register"],
-    "files": true
-  },
   "include": ["src/**/*", "test/**/*"],
   "exclude": ["node_modules", "dist"]
 }

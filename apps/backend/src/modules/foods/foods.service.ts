@@ -274,19 +274,25 @@ export class FoodsService {
 
             let categoryUpdated = null;
 
-            if (patchedFood.available === true) {
+            const hasDifferentAvailability = await tx.food.count({
+                where: {
+                    categoryId: patchedFood.categoryId,
+                    available: { not: patchedFood.available },
+                },
+            });
+
+            if (patchedFood.available || hasDifferentAvailability === 0) {
                 const updateBatch = await tx.category.updateMany({
                     where: {
-                        id: patchedFood.categoryId,
-                        available: false
+                        id: patchedFood.categoryId
                     },
-                    data: { available: true }
+                    data: { available: patchedFood.available }
                 });
 
                 if (updateBatch.count > 0) {
                     categoryUpdated = {
                         id: patchedFood.categoryId,
-                        available: true
+                        available: patchedFood.available
                     };
                 }
             }
