@@ -149,6 +149,12 @@ export class ReportService {
         return Math.round(Number(value) * 100) / 100;
     }
 
+    // `timestamp` stores the END of the interval; the report logically belongs to
+    // its START: timestamp - intervalInMinutes.
+    private _getReportStart(report: { timestamp: Date; intervalInMinutes: number }): Date {
+        return new Date(report.timestamp.getTime() - report.intervalInMinutes * 60000);
+    }
+
     private async _generateOrderStats(tx: Prisma.TransactionClient, from: Date, to: Date): Promise<OrderStats[]> {
         return await tx.$queryRaw
             `
@@ -315,11 +321,12 @@ export class ReportService {
             query.to = new Date()
         }
 
-        const rawReports = await prisma.report.findMany({
+        // Widen the fetch (start = timestamp - interval implies timestamp > from),
+        // then filter in JS on the effective start time.
+        const rawReportsRaw = await prisma.report.findMany({
             where: {
                 timestamp: {
-                    gte: query.from,
-                    lte: query.to
+                    gt: query.from
                 }
             },
             include: {
@@ -333,13 +340,21 @@ export class ReportService {
             orderBy: { timestamp: 'asc' }
         });
 
+        const rawReports = rawReportsRaw.filter((r) => {
+            const start = this._getReportStart(r);
+            return start >= query.from && start <= query.to!;
+        });
+
         // Get real-time stats for current interval
         const realtimeStats = await this._getRealTimeStats(query.from, query.to, saveLiveData);
         const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), query.groupBy);
 
         if (query.groupBy === '1h') {
-            // For 1h grouping, append real-time data
-            return realtimeBucket ? [...rawReports, realtimeBucket] : rawReports;
+            const shifted = rawReports.map((r) => ({
+                ...r,
+                timestamp: this._getReportStart(r)
+            }));
+            return realtimeBucket ? [...shifted, realtimeBucket] : shifted;
         }
 
         const buckets = new Map<number, Report>();
@@ -349,7 +364,7 @@ export class ReportService {
         const reportsToProcess = rawReports;
 
         for (const report of reportsToProcess) {
-            const bucketKey = this.getBucketTimestamp(report.timestamp, query.groupBy);
+            const bucketKey = this.getBucketTimestamp(this._getReportStart(report), query.groupBy);
 
             if (!buckets.has(bucketKey)) {
                 buckets.set(bucketKey, {

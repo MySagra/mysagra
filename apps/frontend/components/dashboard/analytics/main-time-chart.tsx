@@ -29,6 +29,15 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
   const { t } = useLocale();
   const timezone = useTimezone();
   const [mode, setMode] = useState<ChartMode>("revenue");
+  const [hiddenPayment, setHiddenPayment] = useState<{ cash: boolean; card: boolean }>({ cash: false, card: false });
+
+  const togglePayment = (key: "cash" | "card") =>
+    setHiddenPayment((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      // Prevent hiding both series at once
+      if (next.cash && next.card) return prev;
+      return next;
+    });
 
   // Payment breakdown is disabled for category/food filters, but allowed for cash register filters
   const paymentDisabled = isFiltered && !isCashRegisterFilter;
@@ -200,8 +209,12 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
                 <XAxis dataKey="time" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => `€${v}`} />
                 <ChartTooltip content={<ChartTooltipContent formatter={(value) => `€${Number(value).toFixed(2)}`} />} />
-                <Area type="monotone" dataKey="totalCashRevenue" stackId="1" stroke="hsl(142, 76%, 36%)" fill="url(#mainCashGradient)" strokeWidth={2} />
-                <Area type="monotone" dataKey="totalCardRevenue" stackId="1" stroke="hsl(217, 91%, 60%)" fill="url(#mainCardGradient)" strokeWidth={2} />
+                {!hiddenPayment.cash && (
+                  <Area type="monotone" dataKey="totalCashRevenue" stroke="hsl(142, 76%, 36%)" fill="url(#mainCashGradient)" strokeWidth={2} activeDot={{ r: 4 }} />
+                )}
+                {!hiddenPayment.card && (
+                  <Area type="monotone" dataKey="totalCardRevenue" stroke="hsl(217, 91%, 60%)" fill="url(#mainCardGradient)" strokeWidth={2} activeDot={{ r: 4 }} />
+                )}
               </AreaChart>
             </ChartContainer>
             {/* Payment legend with colors and percentages */}
@@ -214,18 +227,34 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
               const fmt = (v: number) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(v);
               return (
                 <div className="flex items-center justify-center gap-6 mt-1">
-                  <div className="flex items-center gap-2 text-sm">
+                  <button
+                    type="button"
+                    onClick={() => togglePayment("cash")}
+                    aria-pressed={!hiddenPayment.cash}
+                    className={cn(
+                      "flex items-center gap-2 text-sm rounded-md px-2 py-1 transition-opacity hover:bg-muted/50 cursor-pointer",
+                      hiddenPayment.cash && "opacity-40"
+                    )}
+                  >
                     <div className="h-3 w-3 rounded-full" style={{ backgroundColor: "hsl(142, 76%, 36%)" }} />
-                    <span className="text-muted-foreground">{t.analytics.cash}</span>
+                    <span className={cn("text-muted-foreground", hiddenPayment.cash && "line-through")}>{t.analytics.cash}</span>
                     <span className="font-semibold">{fmt(totalCash)}</span>
                     <span className="text-muted-foreground text-xs">({cashPct}%)</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => togglePayment("card")}
+                    aria-pressed={!hiddenPayment.card}
+                    className={cn(
+                      "flex items-center gap-2 text-sm rounded-md px-2 py-1 transition-opacity hover:bg-muted/50 cursor-pointer",
+                      hiddenPayment.card && "opacity-40"
+                    )}
+                  >
                     <div className="h-3 w-3 rounded-full" style={{ backgroundColor: "hsl(217, 91%, 60%)" }} />
-                    <span className="text-muted-foreground">{t.analytics.card}</span>
+                    <span className={cn("text-muted-foreground", hiddenPayment.card && "line-through")}>{t.analytics.card}</span>
                     <span className="font-semibold">{fmt(totalCard)}</span>
                     <span className="text-muted-foreground text-xs">({cardPct}%)</span>
-                  </div>
+                  </button>
                 </div>
               );
             })()}
