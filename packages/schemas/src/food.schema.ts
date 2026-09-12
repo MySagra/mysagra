@@ -113,6 +113,10 @@ export const FoodResponseSchema = z.object({
         description: "Unique identifier for the food item"
     }),
     ...FoodBase,
+    // description column is nullable in the DB, so the API may return null
+    description: z.string().max(250).optional().nullable().meta({
+        description: "Food item description"
+    }),
     ingredients: z.array(IngredientResponseSchema).nullish().meta({
         description: "Associated ingredients"
     })

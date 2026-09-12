@@ -64,7 +64,11 @@ export const PrinterResponseSchema = z.object({
     id: z.cuid().meta({
         description: "Unique identifier for the printer"
     }),
-    ...PrinterBase
+    ...PrinterBase,
+    // description column is nullable in the DB, so the API may return null
+    description: z.string().max(250).optional().nullable().meta({
+        description: "Optional description of the printer's location or purpose"
+    })
 }).meta({
     id: "PrinterResponse",
     description: "Printer entity with all details"
