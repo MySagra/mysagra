@@ -21,6 +21,7 @@ import {
 import { Logo } from "@/components/logo";
 import { useSession } from "@/hooks/use-session";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { GeneralClosureButton } from "@/components/dashboard/general-closure-dialog";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -159,10 +160,16 @@ export default function DashboardPage() {
             {t.dashboard.welcomeSubtitle}
           </p>
         </div>
-        <span className="ml-auto self-start text-xs text-muted-foreground tabular-nums">
-          v{APP_VERSION}
-        </span>
+        <div className="ml-auto flex flex-col items-end gap-2 self-start">
+          <span className="text-xs text-muted-foreground tabular-nums">
+            v{APP_VERSION}
+          </span>
+          <GeneralClosureButton className="hidden sm:inline-flex" />
+        </div>
       </div>
+
+      {/* Daily closure: full width on mobile */}
+      <GeneralClosureButton size="default" className="w-full sm:hidden" />
 
       {/* Navigation Cards */}
       <div>

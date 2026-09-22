@@ -208,7 +208,24 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="time" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => `€${v}`} />
-                <ChartTooltip content={<ChartTooltipContent formatter={(value) => `€${Number(value).toFixed(2)}`} />} />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value, name) => {
+                        const cfg = paymentConfig[name as keyof typeof paymentConfig];
+                        return (
+                          <div className="flex w-full items-center gap-2">
+                            <div className="h-2.5 w-2.5 shrink-0 rounded-[2px]" style={{ backgroundColor: cfg?.color }} />
+                            <span className="text-muted-foreground">{cfg?.label}</span>
+                            <span className="ml-auto font-mono font-medium tabular-nums text-foreground">
+                              €{Number(value).toFixed(2)}
+                            </span>
+                          </div>
+                        );
+                      }}
+                    />
+                  }
+                />
                 {!hiddenPayment.cash && (
                   <Area type="monotone" dataKey="totalCashRevenue" stroke="hsl(142, 76%, 36%)" fill="url(#mainCashGradient)" strokeWidth={2} activeDot={{ r: 4 }} />
                 )}

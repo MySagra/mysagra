@@ -1,17 +1,17 @@
 import { getOrders } from "@/actions/orders";
-import { getCashRegisters } from "@/actions/cash-registers";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { OrdersContent } from "@/components/dashboard/orders/orders-content";
-import { PaginatedOrders, CashRegister } from "@/lib/api-types";
+import { parsePageState, pageStateToQuery } from "@/components/dashboard/orders/advanced-filters";
+import { PaginatedOrders } from "@/lib/api-types";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default async function OrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ onlyDiscounted?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { onlyDiscounted: onlyDiscountedParam } = await searchParams;
-  const onlyDiscounted = onlyDiscountedParam === "true";
+  // Search/filters live in the URL: a reload sends the same GET to the backend
+  const pageState = parsePageState(await searchParams);
 
   let ordersData: PaginatedOrders = {
     data: [],
@@ -21,13 +21,9 @@ export default async function OrdersPage({
       totalItems: 0,
     },
   };
-  let cashRegisters: CashRegister[] = [];
 
   try {
-    [ordersData, cashRegisters] = await Promise.all([
-      getOrders({ page: 1, limit: 20, onlyDiscounted: onlyDiscounted || undefined }),
-      getCashRegisters(),
-    ]);
+    ordersData = await getOrders({ ...pageStateToQuery(pageState), page: pageState.page, limit: 20 });
   } catch (error) {
     if (isRedirectError(error)) throw error;
     // fallback to empty
@@ -36,7 +32,7 @@ export default async function OrdersPage({
   return (
     <>
       <DashboardHeader navKey="orders" />
-      <OrdersContent initialData={ordersData} cashRegisters={cashRegisters} initialOnlyDiscounted={onlyDiscounted} />
+      <OrdersContent initialData={ordersData} initialState={pageState} />
     </>
   );
 }

@@ -203,7 +203,7 @@ export interface Printer {
   ip?: string | null;
   mac?: string | null;
   port: number;
-  description?: string;
+  description?: string | null;
   status: "ONLINE" | "OFFLINE" | "ERROR";
 }
 
@@ -348,5 +348,6 @@ export const API_ENDPOINTS = {
   },
   REPORTS: {
     ALL: "/v1/reports",
+    GENERAL_CLOSURE: "/v1/reports/general-closure",
   },
 } as const;

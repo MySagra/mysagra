@@ -140,6 +140,9 @@ export const GetOrdersQuerySchema = z.object({
     displayCode: z.string().min(3).max(5).optional().meta({
         description: "Filter by 3 to 5 character display code"
     }),
+    ticketNumber: z.coerce.number().int().positive().optional().meta({
+        description: "Filter by ticket number (the kitchen order ticket / comanda number)"
+    }),
     page: z.coerce.number().int().positive().default(1).meta({
         description: "Page number for pagination"
     }),

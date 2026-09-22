@@ -1,24 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { CashRegister, OrderListResponse, OrderStatus, PaginatedOrders } from "@/lib/api-types";
+import { useEffect, useRef, useState } from "react";
+import { OrderListResponse, PaginatedOrders } from "@/lib/api-types";
 import { OrdersToolbar } from "./orders-toolbar";
 import { OrdersTable } from "./orders-table";
 import { OrderDetailDialog } from "./order-detail-dialog";
+import { OrdersAdvancedSearchDialog } from "./orders-advanced-search-dialog";
+import {
+  EMPTY_ADVANCED_FILTERS,
+  countActiveFilters,
+  loadStoredFilters,
+  pageStateToQuery,
+  pageStateToSearchParams,
+  storeFilters,
+  type AdvancedOrderFilters,
+  type OrdersPageState,
+} from "./advanced-filters";
 import { getOrders } from "@/actions/orders";
 import { toast } from "sonner";
 
+const MIN_LOADING_MS = 250;
+
 interface OrdersContentProps {
   initialData: PaginatedOrders;
-  cashRegisters?: CashRegister[];
-  dateFrom?: Date;
-  dateTo?: Date;
-  initialOnlyDiscounted?: boolean;
+  /** Page state parsed from the URL by the server page (same filters as initialData) */
+  initialState: OrdersPageState;
 }
 
-export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateTo, initialOnlyDiscounted = false }: OrdersContentProps) {
-  const router = useRouter();
+export function OrdersContent({ initialData, initialState }: OrdersContentProps) {
   const [orders, setOrders] = useState<OrderListResponse[]>(
     initialData?.data ?? []
   );
@@ -27,68 +36,71 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
     totalPages: 0,
     totalItems: 0,
   });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [onlyDiscounted, setOnlyDiscounted] = useState(initialOnlyDiscounted);
+  // Search, advanced filters and page currently applied (mirrored in the URL)
+  const [pageState, setPageState] = useState<OrdersPageState>(initialState);
+  // Last filters submitted in the dialog: prefill it on reopen, even after clearing
+  const [dialogFilters, setDialogFilters] = useState<AdvancedOrderFilters>(
+    initialState.advanced ?? EMPTY_ADVANCED_FILTERS
+  );
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const latestRequest = useRef(0);
 
-  async function loadOrders(params: {
-    search?: string;
-    status?: string;
-    page?: number;
-    onlyDiscounted?: boolean;
-  }) {
+  // No filters in the URL: prefill the dialog with the last submitted ones
+  useEffect(() => {
+    if (initialState.advanced) return;
+    const stored = loadStoredFilters();
+    if (stored) setDialogFilters(stored);
+  }, [initialState.advanced]);
+
+  async function loadOrders(state: OrdersPageState) {
+    const requestId = ++latestRequest.current;
     setIsLoading(true);
     try {
-      const statusArr =
-        params.status && params.status !== "all"
-          ? [params.status as OrderStatus]
-          : undefined;
-
-      const data = await getOrders({
-        search: params.search || undefined,
-        status: statusArr,
-        page: params.page || 1,
-        limit: 20,
-        onlyDiscounted: params.onlyDiscounted || undefined,
-      });
-
+      // Minimum wait so the loading state never flickers on fast responses
+      const [data] = await Promise.all([
+        getOrders({ ...pageStateToQuery(state), page: state.page, limit: 20 }),
+        new Promise((resolve) => setTimeout(resolve, MIN_LOADING_MS)),
+      ]);
+      // A newer search started meanwhile: drop this stale response
+      if (requestId !== latestRequest.current) return;
       setOrders(data.data);
       setPagination(data.pagination);
-    } catch (error) {
-      toast.error("Error loading orders");
+    } catch {
+      if (requestId === latestRequest.current) toast.error("Error loading orders");
     } finally {
-      setIsLoading(false);
+      if (requestId === latestRequest.current) setIsLoading(false);
     }
   }
 
-  function handleSearch(query: string) {
-    setSearchQuery(query);
-    loadOrders({ search: query, status: statusFilter, onlyDiscounted });
+  // Applies a new state: URL first (so F5 repeats the same GET), then fetch
+  function applyState(state: OrdersPageState) {
+    setPageState(state);
+    const query = pageStateToSearchParams(state).toString();
+    // History API keeps Next's router in sync without a server round-trip
+    window.history.replaceState(null, "", query ? `?${query}` : window.location.pathname);
+    loadOrders(state);
   }
 
-  function handleStatusFilter(status: string) {
-    setStatusFilter(status);
-    loadOrders({ search: searchQuery, status, onlyDiscounted });
+  // Standard search: only the `search` param, advanced filters are not applied
+  function handleSearch(search: string) {
+    applyState({ search, advanced: null, page: 1 });
   }
 
-  function handleOnlyDiscountedChange(value: boolean) {
-    setOnlyDiscounted(value);
-    const params = new URLSearchParams(window.location.search);
-    if (value) {
-      params.set("onlyDiscounted", "true");
-    } else {
-      params.delete("onlyDiscounted");
-    }
-    const query = params.toString();
-    router.replace(query ? `?${query}` : window.location.pathname, { scroll: false });
-    loadOrders({ search: searchQuery, status: statusFilter, onlyDiscounted: value });
+  function handleApplyAdvanced(filters: AdvancedOrderFilters) {
+    setDialogFilters(filters);
+    storeFilters(filters);
+    applyState({ search: "", advanced: countActiveFilters(filters) > 0 ? filters : null, page: 1 });
+  }
+
+  function handleClearAdvanced() {
+    applyState({ search: "", advanced: null, page: 1 });
   }
 
   function handlePageChange(page: number) {
-    loadOrders({ search: searchQuery, status: statusFilter, page, onlyDiscounted });
+    applyState({ ...pageState, page });
   }
 
   function handleViewDetail(order: OrderListResponse) {
@@ -96,24 +108,24 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
     setDetailOpen(true);
   }
 
-  function handleOrderUpdated() {
-    loadOrders({ search: searchQuery, status: statusFilter, page: pagination.currentPage, onlyDiscounted });
+  function handleRefresh() {
+    loadOrders({ ...pageState, page: pagination.currentPage });
   }
 
-  function handleRefresh() {
-    loadOrders({ search: searchQuery, status: statusFilter, page: pagination.currentPage, onlyDiscounted });
-  }
+  const advancedActive = pageState.advanced !== null;
+  const shownFilters = pageState.advanced ?? dialogFilters;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
       <div className="max-w-4xl mx-auto w-full space-y-4">
         <OrdersToolbar
-          searchQuery={searchQuery}
+          searchQuery={pageState.search}
           onSearchChange={handleSearch}
-          statusFilter={statusFilter}
-          onStatusFilterChange={handleStatusFilter}
-          onlyDiscounted={onlyDiscounted}
-          onOnlyDiscountedChange={handleOnlyDiscountedChange}
+          onOpenAdvanced={() => setAdvancedOpen(true)}
+          advancedActive={advancedActive}
+          advancedFilters={shownFilters}
+          advancedCount={countActiveFilters(shownFilters)}
+          onClearAdvanced={handleClearAdvanced}
           onRefresh={handleRefresh}
           isLoading={isLoading}
         />
@@ -129,7 +141,13 @@ export function OrdersContent({ initialData, cashRegisters = [], dateFrom, dateT
         open={detailOpen}
         onOpenChange={setDetailOpen}
         orderId={selectedOrderId}
-        onOrderUpdated={handleOrderUpdated}
+        onOrderUpdated={handleRefresh}
+      />
+      <OrdersAdvancedSearchDialog
+        open={advancedOpen}
+        onOpenChange={setAdvancedOpen}
+        filters={shownFilters}
+        onApply={handleApplyAdvanced}
       />
     </div>
   );

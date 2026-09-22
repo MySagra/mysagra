@@ -222,6 +222,10 @@ export class OrdersService {
             where.displayCode = queryParams.displayCode
         }
 
+        if(queryParams.ticketNumber) {
+            where.ticketNumber = queryParams.ticketNumber
+        }
+
         const query = await prisma.$transaction(async (tx) => {
             const count = await tx.order.count({
                 where: where

@@ -57,17 +57,21 @@ const OrderDetailSchema = z.object({
 export async function getOrders(params?: {
   search?: string;
   displayCode?: string;
+  ticketNumber?: number;
   page?: number;
   limit?: number;
   status?: OrderStatus[];
   dateFrom?: string;
   dateTo?: string;
   onlyDiscounted?: boolean;
+  sortBy?: "createdAt" | "confirmedAt" | "completedAt";
 }): Promise<PaginatedOrders> {
   const searchParams = new URLSearchParams();
   if (params?.search) searchParams.set("search", params.search);
   if (params?.displayCode)
     searchParams.set("displayCode", params.displayCode);
+  if (params?.ticketNumber)
+    searchParams.set("ticketNumber", String(params.ticketNumber));
   if (params?.page) searchParams.set("page", String(params.page));
   if (params?.limit) searchParams.set("limit", String(params.limit));
   if (params?.status) {
@@ -76,6 +80,7 @@ export async function getOrders(params?: {
   if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
   if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
   if (params?.onlyDiscounted) searchParams.set("onlyDiscounted", "true");
+  if (params?.sortBy) searchParams.set("sortBy", params.sortBy);
 
   const query = searchParams.toString();
   const endpoint = `${API_ENDPOINTS.ORDERS.ALL}${query ? `?${query}` : ""}`;
