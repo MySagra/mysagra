@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { GeneralClosureButton } from "@/components/dashboard/general-closure-dialog";
 import { useLocale } from "@/contexts/locale-context";
 import { getReports } from "@/actions/reports";
 import type { Report, GroupInterval, CategoryStats, FoodStats, CashRegisterStats } from "@mysagra/schemas";
@@ -443,7 +444,7 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <DashboardHeader navKey="analytics" />
+      <DashboardHeader navKey="analytics" actions={<GeneralClosureButton />} />
       <div className="space-y-6 p-4 md:p-6 lg:p-8">
         {/* Filters */}
         <AnalyticsFilters

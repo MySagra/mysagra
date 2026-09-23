@@ -174,16 +174,6 @@ export function OrdersTable({
     );
   }
 
-  if (!sortedOrders || (sortedOrders.length === 0 && !isLoading)) {
-    return (
-      <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
-        <p className="text-muted-foreground text-sm">
-          {t.orders.noOrdersFound}
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-md border overflow-hidden">
@@ -260,6 +250,12 @@ export function OrdersTable({
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8">
                   <p className="text-muted-foreground">{t.common.loading}</p>
+                </TableCell>
+              </TableRow>
+            ) : !sortedOrders || sortedOrders.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={8} className="text-center py-8">
+                  <p className="text-muted-foreground text-sm">{t.orders.noOrdersFound}</p>
                 </TableCell>
               </TableRow>
             ) : (

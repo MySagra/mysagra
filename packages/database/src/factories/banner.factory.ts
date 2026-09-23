@@ -5,14 +5,18 @@ import type { BannerType } from "../generated/prisma_client/enums";
 export interface CreateBannerInput {
   label?: string;
   type?: BannerType;
+  position?: number;
   title?: string | null;
   description?: string | null;
   website?: string | null;
   instagram?: string | null;
   facebook?: string | null;
+  telephone?: string | null;
   image?: string | null;
   color?: string;
-  dateTime?: Date | null;
+  startsAt?: Date | null;
+  endsAt?: Date | null;
+  visibleFrom?: Date;
 }
 
 export async function createBanner(
@@ -22,10 +26,18 @@ export async function createBanner(
   const type: BannerType =
     overrides.type ?? faker.helpers.arrayElement(["EVENT", "SPONSOR"] as const);
 
+  const startsAt =
+    overrides.startsAt !== undefined
+      ? overrides.startsAt
+      : type === "EVENT"
+        ? faker.date.future({ years: 1 })
+        : null;
+
   return prisma.banner.create({
     data: {
       label: overrides.label ?? faker.company.name(),
       type,
+      position: overrides.position ?? faker.number.int({ min: 0, max: 10 }),
       title:
         overrides.title !== undefined
           ? overrides.title
@@ -58,16 +70,26 @@ export async function createBanner(
               () => `https://www.facebook.com/${faker.internet.username()}`,
               { probability: 0.4 }
             ) ?? null,
+      telephone:
+        overrides.telephone !== undefined
+          ? overrides.telephone
+          : faker.helpers.maybe(() => faker.phone.number(), {
+              probability: 0.4,
+            }) ?? null,
       image: overrides.image ?? null,
       color:
         overrides.color ??
         faker.color.rgb({ format: "hex" }).replace("#", ""),
-      dateTime:
-        overrides.dateTime !== undefined
-          ? overrides.dateTime
-          : type === "EVENT"
-            ? faker.date.future({ years: 1 })
+      startsAt,
+      endsAt:
+        overrides.endsAt !== undefined
+          ? overrides.endsAt
+          : startsAt
+            ? new Date(startsAt.getTime() + faker.number.int({ min: 3600000, max: 86400000 }))
             : null,
+      ...(overrides.visibleFrom !== undefined
+        ? { visibleFrom: overrides.visibleFrom }
+        : {}),
     },
   });
 }

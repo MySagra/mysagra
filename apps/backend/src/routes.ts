@@ -1,39 +1,35 @@
-import { Router } from "express";
+import { registerModules } from "@/core/http";
 
-import authRouter from "@/modules/auth/auth.route";
-import cashRegistersRouter from "@/modules/cash-registers/cash-registers.route";
-import categoriesRouter from "@/modules/categories/categories.route";
-import eventsRouter from "@/modules/events/events.route";
-import foodsRouter from "@/modules/foods/foods.routes";
-import ingredientsRouter from "@/modules/ingredients/ingredients.route";
-import ordersRouter from "@/modules/orders/orders.route";
-import printersRouter from "@/modules/printers/printers.route";
-import rolesRouter from "@/modules/roles/roles.route";
-import usersRouter from "@/modules/users/users.route";
-import apiKeysRouter from "@/modules/api-keys/api-keys.route"
-import bannerRouter from "@/modules/banner/banner.route"
-import reportRouter from "@/modules/report/report.route"
-import orderInstructionsRoute from "@/modules/order-instructions/order-instruction.route"
-import stationRoute from "@/modules/station/stations.route"
-import { apiLimiter, authLimiter } from "./middlewares/rateLimiter.middleware";
+import { authModule } from "@/modules/auth/auth.route";
+import { eventsModule } from "@/modules/events/events.route";
+import { cashRegistersModule } from "@/modules/cash-registers/cash-registers.route";
+import { categoriesModule } from "@/modules/categories/categories.route";
+import { foodsModule } from "@/modules/foods/foods.routes";
+import { ingredientsModule } from "@/modules/ingredients/ingredients.route";
+import { ordersModule } from "@/modules/orders/orders.route";
+import { printersModule } from "@/modules/printers/printers.route";
+import { rolesModule } from "@/modules/roles/roles.route";
+import { usersModule } from "@/modules/users/users.route";
+import { apiKeysModule } from "@/modules/api-keys/api-keys.route";
+import { bannerModule } from "@/modules/banner/banner.route";
+import { reportModule } from "@/modules/report/report.route";
+import { orderInstructionsModule } from "@/modules/order-instructions/order-instruction.route";
+import { stationsModule } from "@/modules/station/stations.route";
 
-const router = Router();
-
-router.use("/auth", authLimiter, authRouter);
-router.use("/events", apiLimiter, eventsRouter);
-
-router.use("/v1/cash-registers", apiLimiter, cashRegistersRouter);
-router.use("/v1/categories", apiLimiter, categoriesRouter);
-router.use("/v1/foods", apiLimiter, foodsRouter);
-router.use("/v1/ingredients", apiLimiter, ingredientsRouter);
-router.use("/v1/orders", apiLimiter, ordersRouter);
-router.use("/v1/printers", apiLimiter, printersRouter);
-router.use("/v1/roles", apiLimiter, rolesRouter);
-router.use("/v1/users", apiLimiter, usersRouter);
-router.use("/v1/api-keys", apiLimiter, apiKeysRouter);
-router.use("/v1/banners", apiLimiter, bannerRouter);
-router.use("/v1/reports", apiLimiter, reportRouter);
-router.use("/v1/order-instructions", apiLimiter, orderInstructionsRoute);
-router.use("/v1/stations", apiLimiter, stationRoute);
-
-export default router;
+export default registerModules([
+    authModule,
+    eventsModule,
+    cashRegistersModule,
+    categoriesModule,
+    foodsModule,
+    ingredientsModule,
+    ordersModule,
+    printersModule,
+    rolesModule,
+    usersModule,
+    apiKeysModule,
+    bannerModule,
+    reportModule,
+    orderInstructionsModule,
+    stationsModule,
+]);

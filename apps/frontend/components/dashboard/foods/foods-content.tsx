@@ -25,6 +25,9 @@ export function FoodsContent({ initialFoods, categories, ingredients, printers }
   const [editingFood, setEditingFood] = useState<Food | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingFood, setDeletingFood] = useState<Food | null>(null);
+  // Variabile temporanea: mantiene come default l'ultima categoria usata
+  // nella creazione di una pietanza.
+  const [lastUsedCategoryId, setLastUsedCategoryId] = useState<string | null>(null);
 
   const filteredFoods = foods.filter((food) => {
     const matchesSearch = food.name
@@ -55,6 +58,7 @@ export function FoodsContent({ initialFoods, categories, ingredients, printers }
       setFoods((prev) => prev.map((f) => (f.id === saved.id ? saved : f)));
     } else {
       setFoods((prev) => [...prev, saved]);
+      setLastUsedCategoryId(saved.categoryId);
     }
     setDialogOpen(false);
     setEditingFood(null);
@@ -106,6 +110,7 @@ export function FoodsContent({ initialFoods, categories, ingredients, printers }
         categories={categories}
         ingredients={ingredients}
         printers={printers}
+        defaultCategoryId={lastUsedCategoryId}
         onSaved={handleSaved}
         onDelete={handleDelete}
       />

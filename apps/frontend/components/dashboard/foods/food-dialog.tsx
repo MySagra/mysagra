@@ -51,6 +51,7 @@ interface FoodDialogProps {
   categories: Category[];
   ingredients: Ingredient[];
   printers: Printer[];
+  defaultCategoryId?: string | null;
   onSaved: (food: Food) => void;
   onDelete?: (food: Food) => void;
 }
@@ -62,6 +63,7 @@ export function FoodDialog({
   categories,
   ingredients,
   printers,
+  defaultCategoryId,
   onSaved,
   onDelete,
 }: FoodDialogProps) {
@@ -114,18 +116,20 @@ export function FoodDialog({
       setSelectedIngredients(food.ingredients?.map(ing => ing.id) || []);
       setSelectedPrinterId(food.printerId || null);
     } else {
+      const defaultCategory =
+        categories.find((c) => c.id === defaultCategoryId) || categories[0];
       form.reset({
         name: "",
         description: "",
         price: 0.01,
-        categoryId: categories[0]?.id || "",
-        available: true,
+        categoryId: defaultCategory?.id || "",
+        available: defaultCategory?.available ?? true,
       });
       setSelectedIngredients([]);
-      setSelectedPrinterId(null);
+      setSelectedPrinterId(defaultCategory?.printerId || null);
     }
     setIngredientSearch("");
-  }, [food, open, categories, form]);
+  }, [food, open, categories, defaultCategoryId, form]);
 
   const filteredIngredients = ingredients.filter(ing =>
     ing.name.toLowerCase().includes(ingredientSearch.toLowerCase())
@@ -277,7 +281,19 @@ export function FoodDialog({
                           <FormControl>
                             <Select
                               value={field.value}
-                              onValueChange={field.onChange}
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                                // Solo in creazione: precompila stampante e
+                                // disponibilità dalla categoria scelta. L'utente
+                                // può comunque modificarli manualmente.
+                                if (!isEditing) {
+                                  const category = categories.find((c) => c.id === value);
+                                  if (category) {
+                                    form.setValue("available", category.available);
+                                    setSelectedPrinterId(category.printerId || null);
+                                  }
+                                }
+                              }}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder={t.foods.categorySelectPlaceholder} />

@@ -1,8 +1,8 @@
 import { prisma, Prisma } from "@mysagra/database";
 import {
     CreateCashRegisterInput,
-    GetCashRegisterQueryParams,
-    PatchCashRegister,
+    GetCashRegisterQuery,
+    PatchCashRegisterInput,
     UpdateCashRegisterInput
 } from "@mysagra/schemas";
 import { NotFoundError } from "@/common/errors";
@@ -11,7 +11,7 @@ import { EventsService } from "../events/events.service";
 export class CashRegistersService {
     private printerEvent = EventsService.getInstance('printer');
     
-    async getCashRegisters(queryParams?: GetCashRegisterQueryParams) {
+    async getCashRegisters(queryParams?: GetCashRegisterQuery) {
         const where: Prisma.CashRegisterWhereInput = {};
         const include: Prisma.CashRegisterInclude = {}
 
@@ -29,7 +29,7 @@ export class CashRegistersService {
         });
     }
 
-    async getCashRegisterById(id: string, queryParams?: GetCashRegisterQueryParams) {
+    async getCashRegisterById(id: string, queryParams?: GetCashRegisterQuery) {
         const include: Prisma.CashRegisterInclude = {}
 
         if (queryParams?.include === "printer") {
@@ -65,7 +65,7 @@ export class CashRegistersService {
         })
     }
 
-    async patchCashRegister(id: string, patchCashRegister: PatchCashRegister){
+    async patchCashRegister(id: string, patchCashRegister: PatchCashRegisterInput){
         return await prisma.cashRegister.update({
             where: {
                 id
