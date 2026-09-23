@@ -238,11 +238,14 @@ export class OrdersService {
                     [queryParams.sortBy]: 'desc'
                 },
                 include: {
-                    orderStationStates: include === "ordersStationsStates" ? {
+                    orderStationStates: include?.includes("ordersStationsStates") ? {
                         select: {
                             stationId: true,
                             status: true
                         }
+                    } : false,
+                    orderItems: include?.includes("items") ? {
+                        omit: { orderId: true }
                     } : false
                 }
             })
