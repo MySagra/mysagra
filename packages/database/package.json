@@ -22,7 +22,7 @@
     "studio": "prisma studio"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.4.0",
+    "@faker-js/faker": "^10.6.0",
     "@types/bcrypt": "^5.0.2",
     "dotenv": "^16.6.1",
     "prisma": "^7.0.0",

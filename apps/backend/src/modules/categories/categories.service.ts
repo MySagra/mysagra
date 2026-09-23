@@ -193,19 +193,12 @@ export class CategoriesService {
     }
 
     async deleteCategory(id: string) {
-        try {
-            const category = await prisma.category.delete({
-                where: {
-                    id
-                }
-            });
+        const category = await prisma.category.delete({
+            where: { id }
+        });
 
-            if (category.image) {
-                CategoriesService.imageService.delete(category.image)
-            }
-            return null;
-        } catch (error) {
-            return null;
+        if (category.image) {
+            CategoriesService.imageService.delete(category.image);
         }
     }
 

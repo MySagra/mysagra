@@ -65,6 +65,6 @@ export const CashRegisterResponseSchema = z.object({
 
 export type CreateCashRegisterInput = z.infer<typeof CreateCashRegisterSchema>
 export type UpdateCashRegisterInput = z.infer<typeof UpdateCashRegisterSchema>
-export type PatchCashRegister = z.infer<typeof PatchCashRegisterSchema>
-export type GetCashRegisterQueryParams = z.infer<typeof GetCashRegisterQuerySchema>
+export type PatchCashRegisterInput = z.infer<typeof PatchCashRegisterSchema>
+export type GetCashRegisterQuery = z.infer<typeof GetCashRegisterQuerySchema>
 export type CashRegisterResponse = z.infer<typeof CashRegisterResponseSchema>

@@ -35,6 +35,6 @@ export const OrderInstructionResponseSchema = OrderInstructionBaseSchema.extend(
     })
 })
 
-export type CreateOrderInstruction = z.infer<typeof CreateOrderInstructionSchema>
-export type UpdateOrderInstruction = z.infer<typeof UpdateOrderInstructionSchema>
-export type OrderInstructionResponseSchema = z.infer<typeof OrderInstructionResponseSchema>
+export type CreateOrderInstructionInput = z.infer<typeof CreateOrderInstructionSchema>
+export type UpdateOrderInstructionInput = z.infer<typeof UpdateOrderInstructionSchema>
+export type OrderInstructionResponse = z.infer<typeof OrderInstructionResponseSchema>

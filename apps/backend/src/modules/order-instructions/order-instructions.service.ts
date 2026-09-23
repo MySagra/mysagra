@@ -1,5 +1,5 @@
 import { prisma } from "@mysagra/database";
-import { CreateOrderInstruction, UpdateOrderInstruction } from "@mysagra/schemas"
+import { CreateOrderInstructionInput, UpdateOrderInstructionInput } from "@mysagra/schemas"
 import { NotFoundError } from "@/common/errors";
 
 export class OrderInstructionsService {
@@ -25,7 +25,7 @@ export class OrderInstructionsService {
         return orderInstruction;
     }
 
-    async createOrderInstruction(orderInstruction: CreateOrderInstruction) {
+    async createOrderInstruction(orderInstruction: CreateOrderInstructionInput) {
         let position = orderInstruction.position;
         if (position === undefined) {
             const maxPosition = await prisma.orderInstruction.aggregate({
@@ -42,7 +42,7 @@ export class OrderInstructionsService {
         })
     }
 
-    async updateOrderInstruction(id: string, orderInstruction: UpdateOrderInstruction) {
+    async updateOrderInstruction(id: string, orderInstruction: UpdateOrderInstructionInput) {
         return await prisma.orderInstruction.update({
             where: {
                 id

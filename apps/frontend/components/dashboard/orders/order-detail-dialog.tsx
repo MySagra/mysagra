@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { OrderDetailResponse } from '@/lib/api-types';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -16,9 +16,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import {
   FileText, Printer, Trash2, User, LayoutGrid, Hash, Ticket,
-  CalendarPlus, CalendarCheck, CreditCard, MonitorCheck, Clock,
-  CircleCheck, PackageCheck, ShoppingBag, XIcon, GitMerge, Activity,
-  ArrowRight,
+  CalendarPlus, CalendarCheck, CreditCard, MonitorCheck,
+  PackageCheck, Activity, ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -26,17 +25,7 @@ import { getOrderById, deleteOrder, reprintOrder } from '@/actions/orders';
 import { useLocale } from '@/contexts/locale-context';
 import { useTimezone } from '@/contexts/timezone-context';
 import { useRole } from '@/hooks/use-role';
-
-// ─── Status config ───────────────────────────────────────────────────────────
-
-const statusConfig: Record<string, { icon: React.ReactNode; colorClass: string; bgClass: string }> = {
-  PENDING:   { icon: <Clock className="h-4 w-4" />,        colorClass: 'text-yellow-600 dark:text-yellow-400', bgClass: 'bg-yellow-500/10 border-yellow-500/30' },
-  CONFIRMED: { icon: <CircleCheck className="h-4 w-4" />,  colorClass: 'text-primary',                         bgClass: 'bg-primary/10 border-primary/30' },
-  COMPLETED: { icon: <PackageCheck className="h-4 w-4" />, colorClass: 'text-green-600 dark:text-green-400',   bgClass: 'bg-green-500/10 border-green-500/30' },
-  PICKED_UP: { icon: <ShoppingBag className="h-4 w-4" />,  colorClass: 'text-green-700 dark:text-green-500',   bgClass: 'bg-green-600/10 border-green-600/30' },
-  CANCELLED: { icon: <XIcon className="h-4 w-4" />,        colorClass: 'text-destructive',                     bgClass: 'bg-destructive/10 border-destructive/30' },
-  PARTIAL:   { icon: <GitMerge className="h-4 w-4" />,     colorClass: 'text-orange-600 dark:text-orange-400', bgClass: 'bg-orange-500/10 border-orange-500/30' },
-};
+import { statusConfig } from './order-status';
 
 // ─── Reprint Dialog ──────────────────────────────────────────────────────────
 
@@ -174,9 +163,10 @@ interface OrderDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOrderUpdated?: () => void;
+  showNumbers?: boolean;
 }
 
-export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated }: OrderDetailDialogProps) {
+export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated, showNumbers = false }: OrderDetailDialogProps) {
   const { t } = useLocale();
   const timezone = useTimezone();
   const { canDelete } = useRole();
@@ -254,7 +244,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-150 max-h-[90vh] flex flex-col select-none">
+        <DialogContent className="sm:max-w-150 max-h-[90dvh] flex flex-col select-none">
 
           {/* ── Header ───────────────────────────────────────────── */}
           <DialogHeader>
@@ -289,7 +279,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
             {loading ? (
               <OrderDetailSkeleton />
             ) : order ? (
-              <div className="space-y-3 pr-1">
+              <div className="space-y-3 pr-3">
 
                 {/* ── Hero card ────────────────────────────────────── */}
                 {(() => {
@@ -300,10 +290,10 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
 
                   return (
                     <div className={cn('rounded-xl border px-4 py-3.5', cfg?.bgClass ?? 'bg-muted border-border')}>
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start justify-between gap-3">
                         <div className="space-y-2 min-w-0">
                           <div className={cn('flex items-center gap-1.5 font-semibold text-sm', cfg?.colorClass)}>
-                            {cfg?.icon}
+                            {cfg && <cfg.icon className="h-4 w-4" />}
                             {getStatusLabel(order.status)}
                             {order.confirmedAt && (
                               <span className="text-xs font-normal opacity-70 ml-0.5">
@@ -319,10 +309,10 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                           )}
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 tabular-nums leading-none tracking-tight">
+                          <p className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 tabular-nums leading-none tracking-tight whitespace-nowrap">
                             {parseFloat(order.total || order.subTotal).toFixed(2)} €
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1.5 tabular-nums">
+                          <p className="text-xs text-muted-foreground mt-1.5 tabular-nums whitespace-nowrap">
                             {totalProducts} {totalProducts === 1 ? 'prodotto' : 'prodotti'} · {totalUnits} {totalUnits === 1 ? 'unità' : 'unità'}
                           </p>
                         </div>
@@ -333,58 +323,33 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
 
                 {/* ── Timeline ─────────────────────────────────────── */}
                 {(() => {
-                  const confirmedCfg = statusConfig['CONFIRMED'];
-                  const completedCfg = statusConfig['COMPLETED'];
-                  const Connector = () => (
-                    <div className="flex items-center gap-0.5 text-muted-foreground/25 shrink-0 px-2">
-                      <div className="h-px w-3 bg-current" />
-                      <ArrowRight className="h-2.5 w-2.5" />
-                    </div>
-                  );
+                  const steps = [
+                    { key: 'created',   icon: CalendarPlus,  label: t.orders.detailCreationDate,     date: order.createdAt,   colorClass: undefined },
+                    { key: 'confirmed', icon: CalendarCheck, label: t.orders.detailConfirmationDate, date: order.confirmedAt, colorClass: statusConfig['CONFIRMED'].colorClass },
+                    { key: 'completed', icon: PackageCheck,  label: t.orders.detailCompletionDate,   date: order.completedAt, colorClass: statusConfig['COMPLETED'].colorClass },
+                  ].filter((step) => !!step.date);
+
                   return (
-                    <div className="flex items-center rounded-lg border bg-muted/30 px-4 py-3">
-                      {/* Created — neutral */}
-                      <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
-                        <CalendarPlus className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold leading-none text-center">
-                          {t.orders.detailCreationDate}
-                        </p>
-                        <p className="text-xs font-semibold tabular-nums text-center leading-none">
-                          {fmtDate(order.createdAt)}
-                        </p>
-                      </div>
-
-                      {/* Confirmed — only if confirmedAt exists */}
-                      {order.confirmedAt && (
-                        <>
-                          <Connector />
-                          <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
-                            <CalendarCheck className={cn('h-4 w-4', confirmedCfg.colorClass)} />
-                            <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold leading-none text-center">
-                              {t.orders.detailConfirmationDate}
+                    <div className="flex flex-col divide-y rounded-lg border bg-muted/30 sm:flex-row sm:items-center sm:divide-y-0 sm:px-4 sm:py-3">
+                      {steps.map(({ key, icon: Icon, label, date, colorClass }, index) => (
+                        <Fragment key={key}>
+                          {index > 0 && (
+                            <div className="hidden sm:flex items-center gap-0.5 text-muted-foreground/25 shrink-0 px-2">
+                              <div className="h-px w-3 bg-current" />
+                              <ArrowRight className="h-2.5 w-2.5" />
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2.5 px-3.5 py-2.5 sm:flex-1 sm:min-w-0 sm:flex-col sm:gap-1.5 sm:p-0">
+                            <Icon className={cn('h-4 w-4 shrink-0', colorClass ?? 'text-muted-foreground')} />
+                            <p className="flex-1 text-[10px] sm:text-[9px] text-muted-foreground uppercase tracking-widest font-bold leading-none sm:flex-none sm:text-center">
+                              {label}
                             </p>
-                            <p className={cn('text-xs font-semibold tabular-nums text-center leading-none', confirmedCfg.colorClass)}>
-                              {fmtDate(order.confirmedAt)}
+                            <p className={cn('text-xs font-semibold tabular-nums leading-none sm:text-center', colorClass)}>
+                              {fmtDate(date!)}
                             </p>
                           </div>
-                        </>
-                      )}
-
-                      {/* Completed — green, only if present */}
-                      {order.completedAt && (
-                        <>
-                          <Connector />
-                          <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
-                            <PackageCheck className={cn('h-4 w-4', completedCfg.colorClass)} />
-                            <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold leading-none text-center">
-                              {t.orders.detailCompletionDate}
-                            </p>
-                            <p className={cn('text-xs font-semibold tabular-nums text-center leading-none', completedCfg.colorClass)}>
-                              {fmtDate(order.completedAt)}
-                            </p>
-                          </div>
-                        </>
-                      )}
+                        </Fragment>
+                      ))}
                     </div>
                   );
                 })()}
@@ -399,12 +364,12 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                   ];
 
                   return (
-                    <div className="grid grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border">
                       {cells.map(({ icon, label, value, mono }) => (
-                        <div key={label} className="flex flex-col gap-1 bg-background p-3">
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            {icon}
-                            <span className="text-[10px] uppercase tracking-wider font-semibold">{label}</span>
+                        <div key={label} className="flex min-w-0 flex-col gap-1 bg-background p-3">
+                          <div className="flex min-w-0 items-center gap-1 text-muted-foreground">
+                            <span className="shrink-0">{icon}</span>
+                            <span className="truncate text-[10px] uppercase tracking-wider font-semibold">{label}</span>
                           </div>
                           <p
                             className={cn('text-sm font-semibold leading-snug truncate', mono && 'font-mono text-amber-600 dark:text-amber-400')}
@@ -523,7 +488,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                           >
                             <span className="text-sm font-semibold truncate">{stationLabel}</span>
                             <span className={cn('flex items-center gap-1.5 text-xs font-semibold shrink-0 ml-2', cfg?.colorClass)}>
-                              {cfg?.icon}
+                              {cfg && <cfg.icon className="h-4 w-4" />}
                               {getStationStatusLabel(ss.status)}
                             </span>
                           </div>
@@ -547,8 +512,8 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
                   onClick={() => setShowDeleteConfirm(true)}
                   disabled={deleting || loading}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  {deleting ? t.orders.deleting : t.common.delete}
+                  <Trash2 className="h-4 w-4 sm:mr-2" />
+                  <span className="sr-only sm:not-sr-only">{deleting ? t.orders.deleting : t.common.delete}</span>
                 </Button>
               )}
               <div className="flex items-center gap-2 ml-auto">
@@ -583,7 +548,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
           <AlertDialogHeader>
             <AlertDialogTitle>{t.orders.confirmDeletionTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t.orders.confirmDeletionDescription} <span className="font-bold">{order?.displayCode}</span>?
+              {t.orders.confirmDeletionDescription} <span className="font-bold">{showNumbers ? (order?.ticketNumber ?? order?.displayCode) : order?.displayCode}</span>?
               <br />
               {t.orders.cannotUndo}
             </AlertDialogDescription>

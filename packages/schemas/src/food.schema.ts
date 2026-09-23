@@ -113,6 +113,10 @@ export const FoodResponseSchema = z.object({
         description: "Unique identifier for the food item"
     }),
     ...FoodBase,
+    // description column is nullable in the DB, so the API may return null
+    description: z.string().max(250).optional().nullable().meta({
+        description: "Food item description"
+    }),
     ingredients: z.array(IngredientResponseSchema).nullish().meta({
         description: "Associated ingredients"
     })
@@ -124,6 +128,6 @@ export const FoodResponseSchema = z.object({
 export type CreateFoodInput = z.infer<typeof CreateFoodSchema>
 export type UpdateFoodInput = z.infer<typeof UpdateFoodSchema>
 export type PatchFoodInput = z.infer<typeof PatchFoodSchema>
-export type GetFoodsQueryParams = z.infer<typeof GetFoodsQuerySchema>;
-export type GetFoodQueryParams = z.infer<typeof GetFoodQuerySchema>;
+export type GetFoodsQuery = z.infer<typeof GetFoodsQuerySchema>;
+export type GetFoodQuery = z.infer<typeof GetFoodQuerySchema>;
 export type FoodResponse = z.infer<typeof FoodResponseSchema>;

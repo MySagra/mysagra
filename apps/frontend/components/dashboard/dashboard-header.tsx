@@ -12,15 +12,19 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useLocale } from "@/contexts/locale-context";
 import { Translations } from "@/lib/i18n";
+import type { ReactNode } from "react";
 
 interface DashboardHeaderProps {
   navKey: keyof Translations["nav"];
   parentHref?: string;
+  /** Right-aligned header actions */
+  actions?: ReactNode;
 }
 
 export function DashboardHeader({
   navKey,
   parentHref = "/dashboard",
+  actions,
 }: DashboardHeaderProps) {
   const { t } = useLocale();
 
@@ -44,6 +48,7 @@ export function DashboardHeader({
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+      {actions && <div className="ml-auto flex items-center gap-2 px-4">{actions}</div>}
     </header>
   );
 }
