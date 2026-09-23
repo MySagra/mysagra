@@ -120,6 +120,7 @@ export type PaymentMethod = "CASH" | "CARD";
 export interface OrderListResponse {
   id: string;
   displayCode: string;
+  ticketNumber?: number | null;
   table: string;
   customer: string;
   subTotal: string;

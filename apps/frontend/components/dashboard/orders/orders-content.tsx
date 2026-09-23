@@ -25,9 +25,11 @@ interface OrdersContentProps {
   initialData: PaginatedOrders;
   /** Page state parsed from the URL by the server page (same filters as initialData) */
   initialState: OrdersPageState;
+  /** Show the ticket number instead of the display code (SHOW_NUMBERS env var) */
+  showNumbers?: boolean;
 }
 
-export function OrdersContent({ initialData, initialState }: OrdersContentProps) {
+export function OrdersContent({ initialData, initialState, showNumbers = false }: OrdersContentProps) {
   const [orders, setOrders] = useState<OrderListResponse[]>(
     initialData?.data ?? []
   );
@@ -135,6 +137,7 @@ export function OrdersContent({ initialData, initialState }: OrdersContentProps)
           isLoading={isLoading}
           onViewDetail={handleViewDetail}
           onPageChange={handlePageChange}
+          showNumbers={showNumbers}
         />
       </div>
       <OrderDetailDialog
@@ -142,6 +145,7 @@ export function OrdersContent({ initialData, initialState }: OrdersContentProps)
         onOpenChange={setDetailOpen}
         orderId={selectedOrderId}
         onOrderUpdated={handleRefresh}
+        showNumbers={showNumbers}
       />
       <OrdersAdvancedSearchDialog
         open={advancedOpen}

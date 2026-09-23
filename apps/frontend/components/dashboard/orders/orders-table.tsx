@@ -27,9 +27,10 @@ interface OrdersTableProps {
   isLoading: boolean;
   onViewDetail: (order: OrderListResponse) => void;
   onPageChange: (page: number) => void;
+  showNumbers?: boolean;
 }
 
-type SortColumn = "displayCode" | "customer" | "table" | "total" | "discount" | "status" | "createdAt" | null;
+type SortColumn = "displayCode" | "ticketNumber" | "customer" | "table" | "total" | "discount" | "status" | "createdAt" | null;
 type SortDirection = "asc" | "desc";
 
 const statusIcons: Record<string, React.ReactNode> = {
@@ -47,6 +48,7 @@ export function OrdersTable({
   isLoading,
   onViewDetail,
   onPageChange,
+  showNumbers = false,
 }: OrdersTableProps) {
   const { t } = useLocale();
   const timezone = useTimezone();
@@ -107,6 +109,10 @@ export function OrdersTable({
         case "displayCode":
           aValue = a.displayCode;
           bValue = b.displayCode;
+          break;
+        case "ticketNumber":
+          aValue = a.ticketNumber ?? 0;
+          bValue = b.ticketNumber ?? 0;
           break;
         case "customer":
           aValue = a.customer.toLowerCase();
@@ -188,13 +194,23 @@ export function OrdersTable({
                   <SortIcon column="status" />
                 </button>
               </TableHead>
-              <TableHead className="w-20">
+              {/* Mobile shows only one of code/ticket (SHOW_NUMBERS), desktop shows both */}
+              <TableHead className={showNumbers ? "w-20 hidden sm:table-cell" : "w-20"}>
                 <button
                   onClick={() => handleSort("displayCode")}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
                 >
                   {t.orders.columnCode}
                   <SortIcon column="displayCode" />
+                </button>
+              </TableHead>
+              <TableHead className={showNumbers ? "w-20" : "w-20 hidden sm:table-cell"}>
+                <button
+                  onClick={() => handleSort("ticketNumber")}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  {t.orders.detailTicket}
+                  <SortIcon column="ticketNumber" />
                 </button>
               </TableHead>
               <TableHead className="hidden sm:table-cell">
@@ -248,13 +264,13 @@ export function OrdersTable({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={9} className="text-center py-8">
                   <p className="text-muted-foreground">{t.common.loading}</p>
                 </TableCell>
               </TableRow>
             ) : !sortedOrders || sortedOrders.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={9} className="text-center py-8">
                   <p className="text-muted-foreground text-sm">{t.orders.noOrdersFound}</p>
                 </TableCell>
               </TableRow>
@@ -275,9 +291,14 @@ export function OrdersTable({
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className={showNumbers ? "hidden sm:table-cell" : undefined}>
                     <Badge variant="outline" className="font-mono">
                       {order.displayCode}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className={showNumbers ? undefined : "hidden sm:table-cell"}>
+                    <Badge variant="outline" className="font-mono min-w-10">
+                      {order.ticketNumber ?? "—"}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium max-w-48 hidden sm:table-cell">

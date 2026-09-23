@@ -12,6 +12,8 @@ export default async function OrdersPage({
 }) {
   // Search/filters live in the URL: a reload sends the same GET to the backend
   const pageState = parsePageState(await searchParams);
+  // Server-only env var: show the ticket number instead of the display code
+  const showNumbers = process.env.SHOW_NUMBERS === "true";
 
   let ordersData: PaginatedOrders = {
     data: [],
@@ -32,7 +34,7 @@ export default async function OrdersPage({
   return (
     <>
       <DashboardHeader navKey="orders" />
-      <OrdersContent initialData={ordersData} initialState={pageState} />
+      <OrdersContent initialData={ordersData} initialState={pageState} showNumbers={showNumbers} />
     </>
   );
 }

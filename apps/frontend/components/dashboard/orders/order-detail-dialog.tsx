@@ -163,9 +163,10 @@ interface OrderDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOrderUpdated?: () => void;
+  showNumbers?: boolean;
 }
 
-export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated }: OrderDetailDialogProps) {
+export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated, showNumbers = false }: OrderDetailDialogProps) {
   const { t } = useLocale();
   const timezone = useTimezone();
   const { canDelete } = useRole();
@@ -547,7 +548,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated 
           <AlertDialogHeader>
             <AlertDialogTitle>{t.orders.confirmDeletionTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t.orders.confirmDeletionDescription} <span className="font-bold">{order?.displayCode}</span>?
+              {t.orders.confirmDeletionDescription} <span className="font-bold">{showNumbers ? (order?.ticketNumber ?? order?.displayCode) : order?.displayCode}</span>?
               <br />
               {t.orders.cannotUndo}
             </AlertDialogDescription>
