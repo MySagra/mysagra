@@ -19,6 +19,7 @@ export class OrdersService {
     private cashierEvent = EventsService.getInstance('cashier');
     private displayEvent = EventsService.getInstance('display');
     private printerEvent = EventsService.getInstance('printer');
+    private ticketEvent = EventsService.getInstance('ticket');
 
     private async _getNextTicketNumber(): Promise<number> {
         const today = new Date().toISOString().split('T')[0];
@@ -222,7 +223,7 @@ export class OrdersService {
             where.displayCode = queryParams.displayCode
         }
 
-        if(queryParams.ticketNumber) {
+        if (queryParams.ticketNumber) {
             where.ticketNumber = queryParams.ticketNumber
         }
 
@@ -492,7 +493,8 @@ export class OrdersService {
                 "confirmed-order"
             )
 
-            this.printerEvent.broadcastEvent(
+            EventsService.broadcastEvents(
+                [this.printerEvent, this.ticketEvent],
                 createdOrder,
                 "confirmed-order"
             );
@@ -665,11 +667,11 @@ export class OrdersService {
             "confirmed-order"
         )
 
-        this.printerEvent.broadcastEvent(
+        EventsService.broadcastEvents(
+            [this.printerEvent, this.ticketEvent],
             confirmedOrder,
             "confirmed-order"
-        );
-
+        )
 
         return confirmedOrder;
     }
@@ -698,7 +700,7 @@ export class OrdersService {
             return order;
         })
         EventsService.broadcastEvents(
-            [this.displayEvent, this.cashierEvent],
+            [this.displayEvent, this.cashierEvent, this.ticketEvent],
             {
                 id,
                 ticketNumber: patchedOrder.ticketNumber,
@@ -744,7 +746,7 @@ export class OrdersService {
                 const printerIds = printers.map(p => p.printerId)
 
                 EventsService.broadcastEvents(
-                    [this.displayEvent, this.cashierEvent],
+                    [this.displayEvent, this.cashierEvent, this.ticketEvent],
                     {
                         id,
                         ticketNumber: updatedOrder.ticketNumber,

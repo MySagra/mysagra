@@ -12,7 +12,7 @@ const routes: RouteDefinition[] = [
         summary: "Subscribe to Server-Sent Events (SSE)",
         description:
             "Establishes a persistent SSE connection to receive real-time updates for the specified channel " +
-            "(`cashier`, `display`, `printer`). Keep-alive comments are sent every 15 seconds; data messages are " +
+            "(`cashier`, `display`, `printer`, `ticket`). Keep-alive comments are sent every 15 seconds; data messages are " +
             "delivered as `data: {JSON}\\n\\n`.",
         security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
         middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_"])],
