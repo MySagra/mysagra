@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const ChannelSchema = z.enum(["cashier", "display", "printer"]).meta({
+const ChannelSchema = z.enum(["cashier", "display", "printer", "ticket"]).meta({
     id: "Channel",
     description: "Event channel/destination",
     example: "cashier"

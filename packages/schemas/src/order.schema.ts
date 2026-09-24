@@ -169,7 +169,15 @@ export const GetOrdersQuerySchema = z.object({
     dateTo: z.coerce.date().optional().meta({
         description: "Filter orders created before this date"
     }),
-    include: z.enum(["ordersStationsStates"]).optional()
+    include: z.preprocess(
+        (val) => {
+            if (!val) return undefined;
+            return Array.isArray(val) ? val : [val];
+        },
+        z.array(z.enum(["ordersStationsStates", "items"])).optional().meta({
+            description: "Relations to include"
+        })
+    )
 }).meta({
     id: "GetOrdersQuery",
     description: "Query parameters for listing orders"

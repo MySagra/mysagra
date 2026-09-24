@@ -71,7 +71,8 @@ export function FoodsContent({ initialFoods, categories, ingredients, printers }
   }
 
   function handleToggled(updated: Food) {
-    setFoods((prev) => prev.map((f) => (f.id === updated.id ? updated : f)));
+    // La PATCH non restituisce le relazioni: mantiene categoria e ingredienti già caricati
+    setFoods((prev) => prev.map((f) => (f.id === updated.id ? { ...f, ...updated, category: updated.category ?? f.category, ingredients: updated.ingredients ?? f.ingredients } : f)));
   }
 
   const categoryNames = Array.from(

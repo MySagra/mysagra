@@ -119,6 +119,15 @@ export const FoodResponseSchema = z.object({
     }),
     ingredients: z.array(IngredientResponseSchema).nullish().meta({
         description: "Associated ingredients"
+    }),
+    // Defined inline: importing CategoryResponseSchema would create a circular import
+    category: z.object({
+        id: z.cuid(),
+        name: z.string(),
+        available: z.boolean(),
+        position: z.number().int(),
+    }).optional().meta({
+        description: "Category the food item belongs to"
     })
 }).meta({
     id: "FoodResponse",
