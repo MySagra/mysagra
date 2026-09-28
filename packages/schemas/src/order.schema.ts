@@ -1,5 +1,5 @@
 import { z } from 'zod'
-
+import { decimalString } from './common.schema'
 
 export const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "PARTIAL", "COMPLETED", "PICKED_UP", "CANCELLED"]).meta({
     id: "OrderStatus",
@@ -43,15 +43,9 @@ export const OrderItemSchema = z.object({
         description: "Special instructions"
     }),
     foodId: z.cuid(),
-    unitPrice: z.number().meta({
-        description: "Price per unit at order time"
-    }),
-    surcharge: z.number().default(0).meta({
-        description: "Additional charge"
-    }),
-    total: z.number().meta({
-        description: "Total price for this item"
-    })
+    unitPrice: decimalString("Price per unit at order time"),
+    unitSurcharge: decimalString("Surcharge per unit at order time"),
+    total: decimalString("Total price for this item")
 }).meta({
     id: "OrderItem",
     description: "Order item entity with food reference"
@@ -61,7 +55,7 @@ export const OrderItemResponseSchema = OrderItemSchema.omit({ foodId: true }).ex
     food: z.object({
         id: z.string().meta({ description: "Food item identifier" }),
         name: z.string().meta({ description: "Food item name" }),
-        price: z.number().meta({ description: "Food item base price" })
+        price: decimalString("Food item base price")
     }).optional().meta({ description: "Food item details" })
 }).meta({
     id: "OrderItemResponse",
@@ -225,18 +219,10 @@ export const OrderResponseSchema = z.object({
     completedAt: z.date().nullish().meta({
         description: "Timestamp when order was completed"
     }),
-    subTotal: z.number().meta({
-        description: "Sub-total before discounts/charges"
-    }),
-    total: z.number().meta({
-        description: "Final total amount"
-    }),
-    discount: z.number().meta({
-        description: "Total discount applied"
-    }),
-    surcharge: z.number().meta({
-        description: "Total additional charges"
-    }),
+    subTotal: decimalString("Sub-total before discounts/charges"),
+    total: decimalString("Final total amount"),
+    discount: decimalString("Total discount applied"),
+    surcharge: decimalString("Total additional charges"),
     paymentMethod: PaymentMethodSchema.nullish().meta({
         description: "Payment method used"
     }),
@@ -268,7 +254,7 @@ export const FoodDetailSchema = z.object({
     id: z.cuid().meta({ description: "Food item identifier" }),
     name: z.string().meta({ description: "Food item name" }),
     description: z.string().nullish().meta({ description: "Food item description" }),
-    price: z.number().meta({ description: "Food item base price" }),
+    price: decimalString("Food item base price"),
     printerId: z.string().nullish().meta({ description: "Printer assigned to this food item" }),
     ingredients: z.array(IngredientSchema).meta({ description: "List of ingredients" })
 }).meta({
@@ -280,9 +266,9 @@ export const CategorizedOrderItemSchema = z.object({
     id: z.cuid().meta({ description: "Order item identifier" }),
     quantity: z.number().int().meta({ description: "Quantity ordered" }),
     notes: z.string().nullish().meta({ description: "Special instructions for this item" }),
-    total: z.number().meta({ description: "Total price for this item" }),
-    unitPrice: z.number().meta({ description: "Price per unit at order time" }),
-    unitSurcharge: z.number().meta({ description: "Surcharge per unit at order time" }),
+    total: decimalString("Total price for this item"),
+    unitPrice: decimalString("Price per unit at order time"),
+    unitSurcharge: decimalString("Surcharge per unit at order time"),
     food: FoodDetailSchema
 }).meta({
     id: "CategorizedOrderItem",
@@ -310,10 +296,10 @@ export const OrderDetailResponseSchema = z.object({
     createdAt: z.date().meta({ description: "Order creation timestamp" }),
     confirmedAt: z.date().nullish().meta({ description: "Timestamp when order was confirmed" }),
     completedAt: z.date().nullish().meta({ description: "Timestamp when order was completed" }),
-    subTotal: z.number().meta({ description: "Sub-total before discounts/surcharges" }),
-    total: z.number().meta({ description: "Final total amount" }),
-    discount: z.number().meta({ description: "Total discount applied" }),
-    surcharge: z.number().meta({ description: "Total surcharge applied" }),
+    subTotal: decimalString("Sub-total before discounts/surcharges"),
+    total: decimalString("Final total amount"),
+    discount: decimalString("Total discount applied"),
+    surcharge: decimalString("Total surcharge applied"),
     paymentMethod: PaymentMethodSchema.nullish().meta({ description: "Payment method used" }),
     userId: z.string().nullish().meta({ description: "ID of the user who confirmed the order" }),
     cashRegisterId: z.string().nullish().meta({ description: "Cash register that processed the order" }),

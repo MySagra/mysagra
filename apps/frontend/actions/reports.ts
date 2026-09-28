@@ -3,7 +3,8 @@
 import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS } from "@/lib/api-types";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
-import { GetStatsResponseSchema, type GetStatsResponse, type GroupInterval } from "@mysagra/schemas";
+import type { GroupInterval } from "@mysagra/schemas";
+import { GetStatsResponseSchema, type GetStatsResponse } from "@/lib/api-schemas";
 
 export async function getReports(params: {
   from: string;

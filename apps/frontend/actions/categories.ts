@@ -4,7 +4,7 @@ import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS, Category } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { CategoryResponseSchema } from "@mysagra/schemas";
+import { CategorySchema as CategoryResponseSchema } from "@/lib/api-schemas";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 export async function getCategories(): Promise<Category[]> {
