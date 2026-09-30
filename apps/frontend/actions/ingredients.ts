@@ -24,7 +24,7 @@ export async function createIngredient(data: {
       method: "POST",
       body: JSON.stringify(data),
     }, IngredientResponseSchema);
-    revalidatePath("/dashboard/ingredients");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nella creazione dell'ingrediente") };
@@ -44,7 +44,7 @@ export async function updateIngredient(
       },
       IngredientResponseSchema
     );
-    revalidatePath("/dashboard/ingredients");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento dell'ingrediente") };
@@ -56,7 +56,7 @@ export async function deleteIngredient(id: string): Promise<ActionResult<void>> 
     await fetchApi(API_ENDPOINTS.INGREDIENTS.BY_ID(id), {
       method: "DELETE",
     });
-    revalidatePath("/dashboard/ingredients");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: undefined };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione dell'ingrediente") };

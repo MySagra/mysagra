@@ -27,7 +27,7 @@ export async function createCategory(data: {
       method: "POST",
       body: JSON.stringify(data),
     }, CategoryResponseSchema);
-    revalidatePath("/dashboard/categories");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nella creazione della categoria") };
@@ -62,7 +62,7 @@ export async function updateCategory(
       body: JSON.stringify(payload),
     }, CategoryResponseSchema);
 
-    revalidatePath("/dashboard/categories");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento della categoria") };
@@ -84,7 +84,7 @@ export async function reorderCategories(
     );
     results.push(result);
   }
-  revalidatePath("/dashboard/categories");
+  revalidatePath("/dashboard/menu");
   return results;
 }
 
@@ -96,7 +96,7 @@ export async function toggleCategoryAvailability(
     method: "PATCH",
     body: JSON.stringify({ available }),
   }, CategoryResponseSchema);
-  revalidatePath("/dashboard/categories");
+  revalidatePath("/dashboard/menu");
   return result;
 }
 
@@ -105,7 +105,7 @@ export async function deleteCategory(id: string): Promise<ActionResult<void>> {
     await fetchApi(API_ENDPOINTS.CATEGORIES.BY_ID(id), {
       method: "DELETE",
     });
-    revalidatePath("/dashboard/categories");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: undefined };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione della categoria") };
@@ -118,7 +118,7 @@ export async function uploadCategoryImage(id: string, formData: FormData): Promi
       method: "PATCH",
       body: formData,
     });
-    revalidatePath("/dashboard/categories");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: undefined };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nel caricamento dell'immagine") };

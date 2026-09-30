@@ -39,6 +39,10 @@ interface IngredientDialogProps {
   ingredient: Ingredient | null;
   onSaved: (ingredient: Ingredient) => void;
   onDelete?: (ingredient: Ingredient) => void;
+  /** Prefilled name when creating from the dish editor search */
+  defaultName?: string;
+  /** Number of dishes using this ingredient, shown as a surcharge warning */
+  usageCount?: number;
 }
 
 export function IngredientDialog({
@@ -47,6 +51,8 @@ export function IngredientDialog({
   ingredient,
   onSaved,
   onDelete,
+  defaultName,
+  usageCount = 0,
 }: IngredientDialogProps) {
   const { t } = useLocale();
   const { canDelete } = useRole();
@@ -79,11 +85,11 @@ export function IngredientDialog({
       });
     } else {
       form.reset({
-        name: "",
+        name: defaultName ?? "",
         surcharge: "0.50",
       });
     }
-  }, [ingredient, open, form]);
+  }, [ingredient, open, form, defaultName]);
 
   async function onSubmit(values: IngredientFormValues) {
     const surcharge = parseDecimal(values.surcharge);
@@ -145,6 +151,11 @@ export function IngredientDialog({
                             inputMode="decimal"
                           />
                         </FormControl>
+                        {isEditing && usageCount > 1 && (
+                          <p className="text-xs text-amber-600 dark:text-amber-400">
+                            {t.menu.surchargeSharedWarning}
+                          </p>
+                        )}
                         <FormMessage />
                       </Field>
                     </FormItem>

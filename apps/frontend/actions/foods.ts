@@ -43,7 +43,7 @@ export async function createFood(data: FoodRequest): Promise<ActionResult<Food>>
       method: "POST",
       body: JSON.stringify(data),
     }, FoodSchema);
-    revalidatePath("/dashboard/foods");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nella creazione della pietanza") };
@@ -56,7 +56,7 @@ export async function updateFood(id: string, data: FoodRequest): Promise<ActionR
       method: "PUT",
       body: JSON.stringify(data),
     }, FoodSchema);
-    revalidatePath("/dashboard/foods");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento della pietanza") };
@@ -71,7 +71,7 @@ export async function toggleFoodAvailability(
     method: "PATCH",
     body: JSON.stringify({ available }),
   }, FoodSchema);
-  revalidatePath("/dashboard/foods");
+  revalidatePath("/dashboard/menu");
   return result;
 }
 
@@ -80,7 +80,7 @@ export async function deleteFood(id: string): Promise<ActionResult<void>> {
     await fetchApi(API_ENDPOINTS.FOODS.BY_ID(id), {
       method: "DELETE",
     });
-    revalidatePath("/dashboard/foods");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: undefined };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione della pietanza") };

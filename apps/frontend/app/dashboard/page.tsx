@@ -7,8 +7,6 @@ import {
 } from "@/components/ui/card";
 import {
   UtensilsCrossedIcon,
-  LayoutGridIcon,
-  Wheat,
   PrinterIcon,
   UsersIcon,
   Coins,
@@ -30,7 +28,7 @@ import { APP_VERSION } from "@/lib/version";
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const { t } = useLocale();
-  const { canManageUsers, canManageCategories, canManageBanners, canManageOrderInstructions, isAdmin, isMaintainer, isOperator } = useRole();
+  const { canManageUsers, canManageBanners, canManageOrderInstructions, isAdmin, isMaintainer, isOperator } = useRole();
 
   const navigationCards = [
     ...(isAdmin || isMaintainer
@@ -43,31 +41,13 @@ export default function DashboardPage() {
           bgColor: "bg-violet-50 dark:bg-violet-950/20",
         }]
       : []),
-    ...(canManageCategories || isOperator
-      ? [{
-          title: t.dashboard.cardCategoriesTitle,
-          description: t.dashboard.cardCategoriesDescription,
-          icon: LayoutGridIcon,
-          href: "/dashboard/categories",
-          color: "text-orange-600",
-          bgColor: "bg-orange-50 dark:bg-orange-950/20",
-        }]
-      : []),
     {
-      title: t.dashboard.cardFoodsTitle,
-      description: t.dashboard.cardFoodsDescription,
+      title: t.dashboard.cardMenuTitle,
+      description: t.dashboard.cardMenuDescription,
       icon: UtensilsCrossedIcon,
-      href: "/dashboard/foods",
+      href: "/dashboard/menu",
       color: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/20",
-    },
-    {
-      title: t.dashboard.cardIngredientsTitle,
-      description: t.dashboard.cardIngredientsDescription,
-      icon: Wheat,
-      href: "/dashboard/ingredients",
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50 dark:bg-emerald-950/20",
     },
     ...(!isOperator
       ? [{

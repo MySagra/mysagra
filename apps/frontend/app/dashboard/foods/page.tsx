@@ -1,37 +1,6 @@
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { FoodsContent } from "@/components/dashboard/foods/foods-content";
-import { getFoods } from "@/actions/foods";
-import { getCategories } from "@/actions/categories";
-import { getIngredients } from "@/actions/ingredients";
-import { getPrinters } from "@/actions/printers";
-import { Food, Category, Ingredient, Printer } from "@/lib/api-types";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { redirect } from "next/navigation";
 
-export default async function FoodsPage() {
-  let foods: Food[] = [];
-  let categories: Category[] = [];
-  let ingredients: Ingredient[] = [];
-  let printers: Printer[] = [];
-
-  try {
-    [foods, categories, ingredients, printers] = await Promise.all([
-      getFoods({ include: "ingredients" }),
-      getCategories(),
-      getIngredients(),
-      getPrinters(),
-    ]);
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    foods = [];
-    categories = [];
-    ingredients = [];
-    printers = [];
-  }
-
-  return (
-    <>
-      <DashboardHeader navKey="foods" />
-      <FoodsContent initialFoods={foods} categories={categories} ingredients={ingredients} printers={printers} />
-    </>
-  );
+// Legacy route: categorie, piatti e aggiunte ora vivono nella pagina Menù
+export default function LegacyMenuRoute() {
+  redirect("/dashboard/menu");
 }

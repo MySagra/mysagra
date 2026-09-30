@@ -16,10 +16,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {
-  LayoutGridIcon,
   UtensilsCrossedIcon,
   ClipboardListIcon,
-  Wheat,
   PrinterIcon,
   UsersIcon,
   Coins,
@@ -64,18 +62,10 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         : []),
     ],
     cucina: [
-      ...(isAdmin || isMaintainer || isOperator
-        ? [{ title: t.nav.categories, url: "/dashboard/categories", icon: LayoutGridIcon }]
-        : []),
       {
-        title: t.nav.foods,
-        url: "/dashboard/foods",
+        title: t.nav.menu,
+        url: "/dashboard/menu",
         icon: UtensilsCrossedIcon,
-      },
-      {
-        title: t.nav.ingredients,
-        url: "/dashboard/ingredients",
-        icon: Wheat,
       },
     ],
     ordini: [

@@ -46,6 +46,7 @@ export default async function middleware(req: NextRequest) {
   if (isLoggedIn && role === "operator") {
     const allowed = [
       "/dashboard",
+      "/dashboard/menu",
       "/dashboard/categories",
       "/dashboard/foods",
       "/dashboard/ingredients",
