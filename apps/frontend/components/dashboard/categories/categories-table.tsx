@@ -29,7 +29,6 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
@@ -48,7 +47,8 @@ interface CategoriesTableProps {
   stations: Station[];
   onEdit: (category: Category) => void;
   onToggle: (updated: Category) => void;
-  onReorder: (reordered: Category[]) => void;
+  onReorder: (activeId: string, overId: string) => void;
+  isReorderDisabled?: boolean;
 }
 
 function ImageCell({ image, name }: { image?: string | null; name: string }) {
@@ -107,6 +107,7 @@ function SortableRow({
   dragLabel,
   isReadOnly,
   isSessionLoading,
+  isReorderDisabled,
 }: {
   category: Category;
   printers: Printer[];
@@ -117,6 +118,7 @@ function SortableRow({
   dragLabel: string;
   isReadOnly: boolean;
   isSessionLoading: boolean;
+  isReorderDisabled: boolean;
 }) {
   const {
     attributes,
@@ -126,7 +128,7 @@ function SortableRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: category.id });
+  } = useSortable({ id: category.id, disabled: isReorderDisabled });
 
   const style = isDragging
     ? { opacity: 0, position: "relative" as const }
@@ -172,7 +174,7 @@ function SortableRow({
       <TableCell className="w-10 text-right">
         {isSessionLoading
           ? <Skeleton className="h-6 w-4 rounded-md mx-auto" />
-          : !isReadOnly && (
+          : !isReadOnly && !isReorderDisabled && (
               <button
                 ref={setActivatorNodeRef}
                 {...attributes}
@@ -196,6 +198,7 @@ export function CategoriesTable({
   onEdit,
   onToggle,
   onReorder,
+  isReorderDisabled = false,
 }: CategoriesTableProps) {
   const { t } = useLocale();
   const { isReadOnly, isSessionLoading } = useRole();
@@ -215,15 +218,14 @@ export function CategoriesTable({
 
   async function handleToggle(category: Category) {
     setTogglingId(category.id);
-    try {
-      const updated = await toggleCategoryAvailability(category.id, !category.available);
-      onToggle(updated);
+    const result = await toggleCategoryAvailability(category.id, !category.available);
+    if (result.ok) {
+      onToggle(result.data);
       toast.success(`"${category.name}" ${t.categories.toastUpdated}`);
-    } catch {
-      toast.error(t.categories.toastErrorUpdate);
-    } finally {
-      setTogglingId(null);
+    } else {
+      toast.error(result.error || t.categories.toastErrorUpdate);
     }
+    setTogglingId(null);
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -235,15 +237,7 @@ export function CategoriesTable({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = categories.findIndex((c) => c.id === active.id);
-    const newIndex = categories.findIndex((c) => c.id === over.id);
-
-    const reordered = arrayMove(categories, oldIndex, newIndex).map((cat, index) => ({
-      ...cat,
-      position: index,
-    }));
-
-    onReorder(reordered);
+    onReorder(active.id as string, over.id as string);
   }
 
   if (categories.length === 0) {
@@ -299,7 +293,7 @@ export function CategoriesTable({
                 <TableCell className="w-10 text-right">
                   {isSessionLoading
                     ? <Skeleton className="h-6 w-4 rounded-md mx-auto" />
-                    : !isReadOnly && (
+                    : !isReadOnly && !isReorderDisabled && (
                         <div className="p-1">
                           <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
                         </div>
@@ -345,6 +339,7 @@ export function CategoriesTable({
                   dragLabel={t.categories.dragToReorder}
                   isReadOnly={isReadOnly}
                   isSessionLoading={isSessionLoading}
+                  isReorderDisabled={isReorderDisabled}
                 />
               ))}
             </TableBody>
