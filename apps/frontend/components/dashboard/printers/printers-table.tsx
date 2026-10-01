@@ -32,7 +32,7 @@ interface PrintersTableProps {
   onStatusUpdate: (updated: Printer) => void;
 }
 
-type SortColumn = "name" | "ip" | "mac" | "port" | "description" | "status" | null;
+type SortColumn = "name" | "ip" | "port" | "description" | "status" | null;
 type SortDirection = "asc" | "desc";
 
 const statusVariants: Record<
@@ -110,10 +110,6 @@ export function PrintersTable({
         case "ip":
           aValue = a.ip ?? "";
           bValue = b.ip ?? "";
-          break;
-        case "mac":
-          aValue = a.mac ?? "";
-          bValue = b.mac ?? "";
           break;
         case "port":
           aValue = a.port;
@@ -198,15 +194,6 @@ export function PrintersTable({
                 <SortIcon column="ip" />
               </button>
             </TableHead>
-            <TableHead className="w-40 hidden lg:table-cell">
-              <button
-                onClick={() => handleSort("mac")}
-                className="flex items-center hover:text-foreground transition-colors font-medium"
-              >
-                {t.printers.columnMac}
-                <SortIcon column="mac" />
-              </button>
-            </TableHead>
             <TableHead className="w-20 hidden md:table-cell">
               <button
                 onClick={() => handleSort("port")}
@@ -253,7 +240,6 @@ export function PrintersTable({
                 <span className="block truncate" title={printer.name}>{printer.name}</span>
               </TableCell>
               <TableCell className="font-mono text-sm hidden md:table-cell">{printer.ip || "-"}</TableCell>
-              <TableCell className="font-mono text-sm hidden lg:table-cell">{printer.mac || "-"}</TableCell>
               <TableCell className="text-center hidden md:table-cell">{printer.port}</TableCell>
               <TableCell className="text-muted-foreground text-sm hidden md:table-cell max-w-48">
                 <span className="block truncate" title={printer.description ?? undefined}>{printer.description || "-"}</span>

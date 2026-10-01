@@ -1,0 +1,64 @@
+// stats
+model Report {
+  id                String   @id @default(cuid())
+  timestamp         DateTime
+  intervalInMinutes Int      @default(60) // explain the duration of this report
+
+  totalRevenue     Decimal @db.Decimal(10, 2)
+  totalCashRevenue Decimal @db.Decimal(10, 2)
+  totalCardRevenue Decimal @db.Decimal(10, 2)
+  totalOrders      Int
+
+  averageCompletionTime Int? // in ms, null when no order was completed in the interval
+
+  categoryStats     CategoryStats[]
+  cashRegisterStats CashRegisterStats[]
+
+  @@map("reports")
+}
+
+model CashRegisterStats {
+  id       String @id @default(cuid())
+  reportId String
+
+  cashRegisterId   String
+  cashRegisterName String
+
+  totalRevenue     Decimal @db.Decimal(10, 2)
+  totalCardRevenue Decimal @db.Decimal(10, 2)
+  totalCashRevenue Decimal @db.Decimal(10, 2)
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@map("cash_register_stats")
+}
+
+model CategoryStats {
+  id       String @id @default(cuid())
+  reportId String
+
+  categoryId   String
+  categoryName String // use the category denormalized for mantain the original name in this period
+  revenue      Decimal @db.Decimal(10, 2)
+  quantity     Int
+
+  report    Report      @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  foodStats FoodStats[]
+
+  @@map("category_stats")
+}
+
+model FoodStats {
+  id              String @id @default(cuid())
+  categoryStatsId String
+
+  foodId   String
+  foodName String // use the food denormalized for mantain the original name in this period
+
+  revenue  Decimal @db.Decimal(10, 2)
+  quantity Int
+
+  categoryStats CategoryStats @relation(fields: [categoryStatsId], references: [id], onDelete: Cascade)
+
+  @@map("food_stats")
+}

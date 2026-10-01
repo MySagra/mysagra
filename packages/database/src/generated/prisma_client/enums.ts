@@ -9,6 +9,22 @@
 * 🟢 You can import this file directly.
 */
 
+export const KeyTypes = {
+  PRINTER: 'PRINTER',
+  WEBAPP: 'WEBAPP'
+} as const
+
+export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]
+
+
+export const BannerType = {
+  EVENT: 'EVENT',
+  SPONSOR: 'SPONSOR'
+} as const
+
+export type BannerType = (typeof BannerType)[keyof typeof BannerType]
+
+
 export const OrderStatus = {
   PENDING: 'PENDING',
   CONFIRMED: 'CONFIRMED',
@@ -36,19 +52,3 @@ export const PrinterStatus = {
 } as const
 
 export type PrinterStatus = (typeof PrinterStatus)[keyof typeof PrinterStatus]
-
-
-export const KeyTypes = {
-  PRINTER: 'PRINTER',
-  WEBAPP: 'WEBAPP'
-} as const
-
-export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]
-
-
-export const BannerType = {
-  EVENT: 'EVENT',
-  SPONSOR: 'SPONSOR'
-} as const
-
-export type BannerType = (typeof BannerType)[keyof typeof BannerType]

@@ -4,7 +4,7 @@ import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS, Station } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { StationResponseSchema } from "@mysagra/schemas";
+import { StationSchema as StationResponseSchema } from "@/lib/api-schemas";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 export async function getStations(): Promise<Station[]> {

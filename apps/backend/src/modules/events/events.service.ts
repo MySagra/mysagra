@@ -13,16 +13,15 @@ export class EventsService {
     private async _recoverOrders(lastEventId: string, client: Response) {
         const lastEventDate = new Date(Number(lastEventId));
 
-        const confirmedOrders = await prisma.order.findMany({
+        const confirmedOrders = (await prisma.confirmedOrder.findMany({
             where: {
                 confirmedAt: { gte: lastEventDate }
             },
             select: {
-                id: true,
-                displayCode: true,
-                ticketNumber: true
+                ticketNumber: true,
+                order: { select: { id: true, displayCode: true } }
             }
-        });
+        })).map(({ ticketNumber, order }) => ({ ...order, ticketNumber }));
 
         for (const o of confirmedOrders) {
             const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
@@ -52,17 +51,17 @@ export class EventsService {
             this.broadcastEvent(o, "order-station-status-update", undefined, client);
         }
 
-        const updatedOrders = await prisma.order.findMany({
+        const updatedOrders = (await prisma.order.findMany({
             where: {
                 updatedAt: { gte: lastEventDate }
             },
             select: {
                 id: true,
                 displayCode: true,
-                ticketNumber: true,
-                status: true
+                status: true,
+                confirmedOrder: { select: { ticketNumber: true } }
             }
-        });
+        })).map(({ confirmedOrder, ...order }) => ({ ...order, ticketNumber: confirmedOrder?.ticketNumber ?? null }));
 
         for (const o of updatedOrders) {
             if (o.status === "CANCELLED") {

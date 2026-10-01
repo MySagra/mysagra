@@ -4,7 +4,7 @@ import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS, Food, FoodRequest } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { FoodResponseSchema } from "@mysagra/schemas";
+import { FoodSchema as FoodResponseSchema } from "@/lib/api-schemas";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 // Cast to ZodType<Food> since schema allows null for ingredients but interface uses undefined

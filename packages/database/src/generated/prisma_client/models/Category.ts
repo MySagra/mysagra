@@ -367,16 +367,6 @@ export type CategoryUncheckedUpdateManyInput = {
   stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type CategoryListRelationFilter = {
-  every?: Prisma.CategoryWhereInput
-  some?: Prisma.CategoryWhereInput
-  none?: Prisma.CategoryWhereInput
-}
-
-export type CategoryOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type CategoryOrderByRelevanceInput = {
   fields: Prisma.CategoryOrderByRelevanceFieldEnum | Prisma.CategoryOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
@@ -426,6 +416,34 @@ export type CategoryScalarRelationFilter = {
   isNot?: Prisma.CategoryWhereInput
 }
 
+export type CategoryListRelationFilter = {
+  every?: Prisma.CategoryWhereInput
+  some?: Prisma.CategoryWhereInput
+  none?: Prisma.CategoryWhereInput
+}
+
+export type CategoryOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
+export type CategoryCreateNestedOneWithoutFoodsInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutFoodsInput, Prisma.CategoryUncheckedCreateWithoutFoodsInput>
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutFoodsInput
+  connect?: Prisma.CategoryWhereUniqueInput
+}
+
+export type CategoryUpdateOneRequiredWithoutFoodsNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutFoodsInput, Prisma.CategoryUncheckedCreateWithoutFoodsInput>
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutFoodsInput
+  upsert?: Prisma.CategoryUpsertWithoutFoodsInput
+  connect?: Prisma.CategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutFoodsInput, Prisma.CategoryUpdateWithoutFoodsInput>, Prisma.CategoryUncheckedUpdateWithoutFoodsInput>
+}
+
 export type CategoryCreateNestedManyWithoutStationInput = {
   create?: Prisma.XOR<Prisma.CategoryCreateWithoutStationInput, Prisma.CategoryUncheckedCreateWithoutStationInput> | Prisma.CategoryCreateWithoutStationInput[] | Prisma.CategoryUncheckedCreateWithoutStationInput[]
   connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutStationInput | Prisma.CategoryCreateOrConnectWithoutStationInput[]
@@ -468,28 +486,6 @@ export type CategoryUncheckedUpdateManyWithoutStationNestedInput = {
   deleteMany?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
-export type CategoryCreateNestedOneWithoutFoodsInput = {
-  create?: Prisma.XOR<Prisma.CategoryCreateWithoutFoodsInput, Prisma.CategoryUncheckedCreateWithoutFoodsInput>
-  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutFoodsInput
-  connect?: Prisma.CategoryWhereUniqueInput
-}
-
-export type CategoryUpdateOneRequiredWithoutFoodsNestedInput = {
-  create?: Prisma.XOR<Prisma.CategoryCreateWithoutFoodsInput, Prisma.CategoryUncheckedCreateWithoutFoodsInput>
-  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutFoodsInput
-  upsert?: Prisma.CategoryUpsertWithoutFoodsInput
-  connect?: Prisma.CategoryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutFoodsInput, Prisma.CategoryUpdateWithoutFoodsInput>, Prisma.CategoryUncheckedUpdateWithoutFoodsInput>
-}
-
 export type CategoryCreateNestedManyWithoutPrinterInput = {
   create?: Prisma.XOR<Prisma.CategoryCreateWithoutPrinterInput, Prisma.CategoryUncheckedCreateWithoutPrinterInput> | Prisma.CategoryCreateWithoutPrinterInput[] | Prisma.CategoryUncheckedCreateWithoutPrinterInput[]
   connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutPrinterInput | Prisma.CategoryCreateOrConnectWithoutPrinterInput[]
@@ -530,6 +526,62 @@ export type CategoryUncheckedUpdateManyWithoutPrinterNestedInput = {
   update?: Prisma.CategoryUpdateWithWhereUniqueWithoutPrinterInput | Prisma.CategoryUpdateWithWhereUniqueWithoutPrinterInput[]
   updateMany?: Prisma.CategoryUpdateManyWithWhereWithoutPrinterInput | Prisma.CategoryUpdateManyWithWhereWithoutPrinterInput[]
   deleteMany?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
+}
+
+export type CategoryCreateWithoutFoodsInput = {
+  id?: string
+  name: string
+  available?: boolean
+  position?: number
+  image?: string | null
+  printer?: Prisma.PrinterCreateNestedOneWithoutCategoriesInput
+  station?: Prisma.StationCreateNestedOneWithoutCategoriesInput
+}
+
+export type CategoryUncheckedCreateWithoutFoodsInput = {
+  id?: string
+  name: string
+  available?: boolean
+  position?: number
+  image?: string | null
+  printerId?: string | null
+  stationId?: string | null
+}
+
+export type CategoryCreateOrConnectWithoutFoodsInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutFoodsInput, Prisma.CategoryUncheckedCreateWithoutFoodsInput>
+}
+
+export type CategoryUpsertWithoutFoodsInput = {
+  update: Prisma.XOR<Prisma.CategoryUpdateWithoutFoodsInput, Prisma.CategoryUncheckedUpdateWithoutFoodsInput>
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutFoodsInput, Prisma.CategoryUncheckedCreateWithoutFoodsInput>
+  where?: Prisma.CategoryWhereInput
+}
+
+export type CategoryUpdateToOneWithWhereWithoutFoodsInput = {
+  where?: Prisma.CategoryWhereInput
+  data: Prisma.XOR<Prisma.CategoryUpdateWithoutFoodsInput, Prisma.CategoryUncheckedUpdateWithoutFoodsInput>
+}
+
+export type CategoryUpdateWithoutFoodsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  printer?: Prisma.PrinterUpdateOneWithoutCategoriesNestedInput
+  station?: Prisma.StationUpdateOneWithoutCategoriesNestedInput
+}
+
+export type CategoryUncheckedUpdateWithoutFoodsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  available?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  printerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CategoryCreateWithoutStationInput = {
@@ -589,62 +641,6 @@ export type CategoryScalarWhereInput = {
   image?: Prisma.StringNullableFilter<"Category"> | string | null
   printerId?: Prisma.StringNullableFilter<"Category"> | string | null
   stationId?: Prisma.StringNullableFilter<"Category"> | string | null
-}
-
-export type CategoryCreateWithoutFoodsInput = {
-  id?: string
-  name: string
-  available?: boolean
-  position?: number
-  image?: string | null
-  printer?: Prisma.PrinterCreateNestedOneWithoutCategoriesInput
-  station?: Prisma.StationCreateNestedOneWithoutCategoriesInput
-}
-
-export type CategoryUncheckedCreateWithoutFoodsInput = {
-  id?: string
-  name: string
-  available?: boolean
-  position?: number
-  image?: string | null
-  printerId?: string | null
-  stationId?: string | null
-}
-
-export type CategoryCreateOrConnectWithoutFoodsInput = {
-  where: Prisma.CategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.CategoryCreateWithoutFoodsInput, Prisma.CategoryUncheckedCreateWithoutFoodsInput>
-}
-
-export type CategoryUpsertWithoutFoodsInput = {
-  update: Prisma.XOR<Prisma.CategoryUpdateWithoutFoodsInput, Prisma.CategoryUncheckedUpdateWithoutFoodsInput>
-  create: Prisma.XOR<Prisma.CategoryCreateWithoutFoodsInput, Prisma.CategoryUncheckedCreateWithoutFoodsInput>
-  where?: Prisma.CategoryWhereInput
-}
-
-export type CategoryUpdateToOneWithWhereWithoutFoodsInput = {
-  where?: Prisma.CategoryWhereInput
-  data: Prisma.XOR<Prisma.CategoryUpdateWithoutFoodsInput, Prisma.CategoryUncheckedUpdateWithoutFoodsInput>
-}
-
-export type CategoryUpdateWithoutFoodsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  available?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  position?: Prisma.IntFieldUpdateOperationsInput | number
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  printer?: Prisma.PrinterUpdateOneWithoutCategoriesNestedInput
-  station?: Prisma.StationUpdateOneWithoutCategoriesNestedInput
-}
-
-export type CategoryUncheckedUpdateWithoutFoodsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  available?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  position?: Prisma.IntFieldUpdateOperationsInput | number
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  printerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CategoryCreateWithoutPrinterInput = {

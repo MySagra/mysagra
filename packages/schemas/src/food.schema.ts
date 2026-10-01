@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { IngredientResponseSchema } from "./ingredient.schema"
+import { decimalString } from "./common.schema"
 
 const FoodIngredientInputSchema = z.object({
     id: z.cuid().meta({
@@ -113,6 +114,7 @@ export const FoodResponseSchema = z.object({
         description: "Unique identifier for the food item"
     }),
     ...FoodBase,
+    price: decimalString("Price in currency units"),
     // description column is nullable in the DB, so the API may return null
     description: z.string().max(250).optional().nullable().meta({
         description: "Food item description"

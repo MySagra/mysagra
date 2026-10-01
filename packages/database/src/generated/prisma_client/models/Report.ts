@@ -32,7 +32,7 @@ export type ReportAvgAggregateOutputType = {
   totalCashRevenue: runtime.Decimal | null
   totalCardRevenue: runtime.Decimal | null
   totalOrders: number | null
-  averageCompletitionTime: number | null
+  averageCompletionTime: number | null
 }
 
 export type ReportSumAggregateOutputType = {
@@ -41,7 +41,7 @@ export type ReportSumAggregateOutputType = {
   totalCashRevenue: runtime.Decimal | null
   totalCardRevenue: runtime.Decimal | null
   totalOrders: number | null
-  averageCompletitionTime: number | null
+  averageCompletionTime: number | null
 }
 
 export type ReportMinAggregateOutputType = {
@@ -52,7 +52,7 @@ export type ReportMinAggregateOutputType = {
   totalCashRevenue: runtime.Decimal | null
   totalCardRevenue: runtime.Decimal | null
   totalOrders: number | null
-  averageCompletitionTime: number | null
+  averageCompletionTime: number | null
 }
 
 export type ReportMaxAggregateOutputType = {
@@ -63,7 +63,7 @@ export type ReportMaxAggregateOutputType = {
   totalCashRevenue: runtime.Decimal | null
   totalCardRevenue: runtime.Decimal | null
   totalOrders: number | null
-  averageCompletitionTime: number | null
+  averageCompletionTime: number | null
 }
 
 export type ReportCountAggregateOutputType = {
@@ -74,7 +74,7 @@ export type ReportCountAggregateOutputType = {
   totalCashRevenue: number
   totalCardRevenue: number
   totalOrders: number
-  averageCompletitionTime: number
+  averageCompletionTime: number
   _all: number
 }
 
@@ -85,7 +85,7 @@ export type ReportAvgAggregateInputType = {
   totalCashRevenue?: true
   totalCardRevenue?: true
   totalOrders?: true
-  averageCompletitionTime?: true
+  averageCompletionTime?: true
 }
 
 export type ReportSumAggregateInputType = {
@@ -94,7 +94,7 @@ export type ReportSumAggregateInputType = {
   totalCashRevenue?: true
   totalCardRevenue?: true
   totalOrders?: true
-  averageCompletitionTime?: true
+  averageCompletionTime?: true
 }
 
 export type ReportMinAggregateInputType = {
@@ -105,7 +105,7 @@ export type ReportMinAggregateInputType = {
   totalCashRevenue?: true
   totalCardRevenue?: true
   totalOrders?: true
-  averageCompletitionTime?: true
+  averageCompletionTime?: true
 }
 
 export type ReportMaxAggregateInputType = {
@@ -116,7 +116,7 @@ export type ReportMaxAggregateInputType = {
   totalCashRevenue?: true
   totalCardRevenue?: true
   totalOrders?: true
-  averageCompletitionTime?: true
+  averageCompletionTime?: true
 }
 
 export type ReportCountAggregateInputType = {
@@ -127,7 +127,7 @@ export type ReportCountAggregateInputType = {
   totalCashRevenue?: true
   totalCardRevenue?: true
   totalOrders?: true
-  averageCompletitionTime?: true
+  averageCompletionTime?: true
   _all?: true
 }
 
@@ -225,7 +225,7 @@ export type ReportGroupByOutputType = {
   totalCashRevenue: runtime.Decimal
   totalCardRevenue: runtime.Decimal
   totalOrders: number
-  averageCompletitionTime: number | null
+  averageCompletionTime: number | null
   _count: ReportCountAggregateOutputType | null
   _avg: ReportAvgAggregateOutputType | null
   _sum: ReportSumAggregateOutputType | null
@@ -259,7 +259,7 @@ export type ReportWhereInput = {
   totalCashRevenue?: Prisma.DecimalFilter<"Report"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFilter<"Report"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFilter<"Report"> | number
-  averageCompletitionTime?: Prisma.IntNullableFilter<"Report"> | number | null
+  averageCompletionTime?: Prisma.IntNullableFilter<"Report"> | number | null
   categoryStats?: Prisma.CategoryStatsListRelationFilter
   cashRegisterStats?: Prisma.CashRegisterStatsListRelationFilter
 }
@@ -272,7 +272,7 @@ export type ReportOrderByWithRelationInput = {
   totalCashRevenue?: Prisma.SortOrder
   totalCardRevenue?: Prisma.SortOrder
   totalOrders?: Prisma.SortOrder
-  averageCompletitionTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  averageCompletionTime?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryStats?: Prisma.CategoryStatsOrderByRelationAggregateInput
   cashRegisterStats?: Prisma.CashRegisterStatsOrderByRelationAggregateInput
   _relevance?: Prisma.ReportOrderByRelevanceInput
@@ -289,7 +289,7 @@ export type ReportWhereUniqueInput = Prisma.AtLeast<{
   totalCashRevenue?: Prisma.DecimalFilter<"Report"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFilter<"Report"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFilter<"Report"> | number
-  averageCompletitionTime?: Prisma.IntNullableFilter<"Report"> | number | null
+  averageCompletionTime?: Prisma.IntNullableFilter<"Report"> | number | null
   categoryStats?: Prisma.CategoryStatsListRelationFilter
   cashRegisterStats?: Prisma.CashRegisterStatsListRelationFilter
 }, "id">
@@ -302,7 +302,7 @@ export type ReportOrderByWithAggregationInput = {
   totalCashRevenue?: Prisma.SortOrder
   totalCardRevenue?: Prisma.SortOrder
   totalOrders?: Prisma.SortOrder
-  averageCompletitionTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  averageCompletionTime?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReportCountOrderByAggregateInput
   _avg?: Prisma.ReportAvgOrderByAggregateInput
   _max?: Prisma.ReportMaxOrderByAggregateInput
@@ -321,7 +321,7 @@ export type ReportScalarWhereWithAggregatesInput = {
   totalCashRevenue?: Prisma.DecimalWithAggregatesFilter<"Report"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalWithAggregatesFilter<"Report"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntWithAggregatesFilter<"Report"> | number
-  averageCompletitionTime?: Prisma.IntNullableWithAggregatesFilter<"Report"> | number | null
+  averageCompletionTime?: Prisma.IntNullableWithAggregatesFilter<"Report"> | number | null
 }
 
 export type ReportCreateInput = {
@@ -332,7 +332,7 @@ export type ReportCreateInput = {
   totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
-  averageCompletitionTime?: number | null
+  averageCompletionTime?: number | null
   categoryStats?: Prisma.CategoryStatsCreateNestedManyWithoutReportInput
   cashRegisterStats?: Prisma.CashRegisterStatsCreateNestedManyWithoutReportInput
 }
@@ -345,7 +345,7 @@ export type ReportUncheckedCreateInput = {
   totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
-  averageCompletitionTime?: number | null
+  averageCompletionTime?: number | null
   categoryStats?: Prisma.CategoryStatsUncheckedCreateNestedManyWithoutReportInput
   cashRegisterStats?: Prisma.CashRegisterStatsUncheckedCreateNestedManyWithoutReportInput
 }
@@ -358,7 +358,7 @@ export type ReportUpdateInput = {
   totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
-  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  averageCompletionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   categoryStats?: Prisma.CategoryStatsUpdateManyWithoutReportNestedInput
   cashRegisterStats?: Prisma.CashRegisterStatsUpdateManyWithoutReportNestedInput
 }
@@ -371,7 +371,7 @@ export type ReportUncheckedUpdateInput = {
   totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
-  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  averageCompletionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   categoryStats?: Prisma.CategoryStatsUncheckedUpdateManyWithoutReportNestedInput
   cashRegisterStats?: Prisma.CashRegisterStatsUncheckedUpdateManyWithoutReportNestedInput
 }
@@ -384,7 +384,7 @@ export type ReportCreateManyInput = {
   totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
-  averageCompletitionTime?: number | null
+  averageCompletionTime?: number | null
 }
 
 export type ReportUpdateManyMutationInput = {
@@ -395,7 +395,7 @@ export type ReportUpdateManyMutationInput = {
   totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
-  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  averageCompletionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReportUncheckedUpdateManyInput = {
@@ -406,7 +406,7 @@ export type ReportUncheckedUpdateManyInput = {
   totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
-  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  averageCompletionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReportOrderByRelevanceInput = {
@@ -423,7 +423,7 @@ export type ReportCountOrderByAggregateInput = {
   totalCashRevenue?: Prisma.SortOrder
   totalCardRevenue?: Prisma.SortOrder
   totalOrders?: Prisma.SortOrder
-  averageCompletitionTime?: Prisma.SortOrder
+  averageCompletionTime?: Prisma.SortOrder
 }
 
 export type ReportAvgOrderByAggregateInput = {
@@ -432,7 +432,7 @@ export type ReportAvgOrderByAggregateInput = {
   totalCashRevenue?: Prisma.SortOrder
   totalCardRevenue?: Prisma.SortOrder
   totalOrders?: Prisma.SortOrder
-  averageCompletitionTime?: Prisma.SortOrder
+  averageCompletionTime?: Prisma.SortOrder
 }
 
 export type ReportMaxOrderByAggregateInput = {
@@ -443,7 +443,7 @@ export type ReportMaxOrderByAggregateInput = {
   totalCashRevenue?: Prisma.SortOrder
   totalCardRevenue?: Prisma.SortOrder
   totalOrders?: Prisma.SortOrder
-  averageCompletitionTime?: Prisma.SortOrder
+  averageCompletionTime?: Prisma.SortOrder
 }
 
 export type ReportMinOrderByAggregateInput = {
@@ -454,7 +454,7 @@ export type ReportMinOrderByAggregateInput = {
   totalCashRevenue?: Prisma.SortOrder
   totalCardRevenue?: Prisma.SortOrder
   totalOrders?: Prisma.SortOrder
-  averageCompletitionTime?: Prisma.SortOrder
+  averageCompletionTime?: Prisma.SortOrder
 }
 
 export type ReportSumOrderByAggregateInput = {
@@ -463,12 +463,20 @@ export type ReportSumOrderByAggregateInput = {
   totalCashRevenue?: Prisma.SortOrder
   totalCardRevenue?: Prisma.SortOrder
   totalOrders?: Prisma.SortOrder
-  averageCompletitionTime?: Prisma.SortOrder
+  averageCompletionTime?: Prisma.SortOrder
 }
 
 export type ReportScalarRelationFilter = {
   is?: Prisma.ReportWhereInput
   isNot?: Prisma.ReportWhereInput
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type ReportCreateNestedOneWithoutCashRegisterStatsInput = {
@@ -507,7 +515,7 @@ export type ReportCreateWithoutCashRegisterStatsInput = {
   totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
-  averageCompletitionTime?: number | null
+  averageCompletionTime?: number | null
   categoryStats?: Prisma.CategoryStatsCreateNestedManyWithoutReportInput
 }
 
@@ -519,7 +527,7 @@ export type ReportUncheckedCreateWithoutCashRegisterStatsInput = {
   totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
-  averageCompletitionTime?: number | null
+  averageCompletionTime?: number | null
   categoryStats?: Prisma.CategoryStatsUncheckedCreateNestedManyWithoutReportInput
 }
 
@@ -547,7 +555,7 @@ export type ReportUpdateWithoutCashRegisterStatsInput = {
   totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
-  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  averageCompletionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   categoryStats?: Prisma.CategoryStatsUpdateManyWithoutReportNestedInput
 }
 
@@ -559,7 +567,7 @@ export type ReportUncheckedUpdateWithoutCashRegisterStatsInput = {
   totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
-  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  averageCompletionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   categoryStats?: Prisma.CategoryStatsUncheckedUpdateManyWithoutReportNestedInput
 }
 
@@ -571,7 +579,7 @@ export type ReportCreateWithoutCategoryStatsInput = {
   totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
-  averageCompletitionTime?: number | null
+  averageCompletionTime?: number | null
   cashRegisterStats?: Prisma.CashRegisterStatsCreateNestedManyWithoutReportInput
 }
 
@@ -583,7 +591,7 @@ export type ReportUncheckedCreateWithoutCategoryStatsInput = {
   totalCashRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders: number
-  averageCompletitionTime?: number | null
+  averageCompletionTime?: number | null
   cashRegisterStats?: Prisma.CashRegisterStatsUncheckedCreateNestedManyWithoutReportInput
 }
 
@@ -611,7 +619,7 @@ export type ReportUpdateWithoutCategoryStatsInput = {
   totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
-  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  averageCompletionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cashRegisterStats?: Prisma.CashRegisterStatsUpdateManyWithoutReportNestedInput
 }
 
@@ -623,7 +631,7 @@ export type ReportUncheckedUpdateWithoutCategoryStatsInput = {
   totalCashRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalCardRevenue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalOrders?: Prisma.IntFieldUpdateOperationsInput | number
-  averageCompletitionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  averageCompletionTime?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cashRegisterStats?: Prisma.CashRegisterStatsUncheckedUpdateManyWithoutReportNestedInput
 }
 
@@ -675,7 +683,7 @@ export type ReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   totalCashRevenue?: boolean
   totalCardRevenue?: boolean
   totalOrders?: boolean
-  averageCompletitionTime?: boolean
+  averageCompletionTime?: boolean
   categoryStats?: boolean | Prisma.Report$categoryStatsArgs<ExtArgs>
   cashRegisterStats?: boolean | Prisma.Report$cashRegisterStatsArgs<ExtArgs>
   _count?: boolean | Prisma.ReportCountOutputTypeDefaultArgs<ExtArgs>
@@ -691,10 +699,10 @@ export type ReportSelectScalar = {
   totalCashRevenue?: boolean
   totalCardRevenue?: boolean
   totalOrders?: boolean
-  averageCompletitionTime?: boolean
+  averageCompletionTime?: boolean
 }
 
-export type ReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "timestamp" | "intervalInMinutes" | "totalRevenue" | "totalCashRevenue" | "totalCardRevenue" | "totalOrders" | "averageCompletitionTime", ExtArgs["result"]["report"]>
+export type ReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "timestamp" | "intervalInMinutes" | "totalRevenue" | "totalCashRevenue" | "totalCardRevenue" | "totalOrders" | "averageCompletionTime", ExtArgs["result"]["report"]>
 export type ReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categoryStats?: boolean | Prisma.Report$categoryStatsArgs<ExtArgs>
   cashRegisterStats?: boolean | Prisma.Report$cashRegisterStatsArgs<ExtArgs>
@@ -715,7 +723,7 @@ export type $ReportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     totalCashRevenue: runtime.Decimal
     totalCardRevenue: runtime.Decimal
     totalOrders: number
-    averageCompletitionTime: number | null
+    averageCompletionTime: number | null
   }, ExtArgs["result"]["report"]>
   composites: {}
 }
@@ -1094,7 +1102,7 @@ export interface ReportFieldRefs {
   readonly totalCashRevenue: Prisma.FieldRef<"Report", 'Decimal'>
   readonly totalCardRevenue: Prisma.FieldRef<"Report", 'Decimal'>
   readonly totalOrders: Prisma.FieldRef<"Report", 'Int'>
-  readonly averageCompletitionTime: Prisma.FieldRef<"Report", 'Int'>
+  readonly averageCompletionTime: Prisma.FieldRef<"Report", 'Int'>
 }
     
 

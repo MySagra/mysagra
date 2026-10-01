@@ -29,11 +29,11 @@ export async function createOrderItem(
       unitSurcharge,
       total,
       notes:
-        input.notes !== undefined
+        (input.notes !== undefined
           ? input.notes
           : faker.helpers.maybe(() => faker.lorem.sentence({ min: 2, max: 6 }), {
               probability: 0.2,
-            }) ?? null,
+            })) ?? "",
     },
   });
 }

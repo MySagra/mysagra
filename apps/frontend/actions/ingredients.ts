@@ -4,7 +4,7 @@ import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS, Ingredient } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { IngredientResponseSchema } from "@mysagra/schemas";
+import { IngredientSchema as IngredientResponseSchema } from "@/lib/api-schemas";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 export async function getIngredients(): Promise<Ingredient[]> {

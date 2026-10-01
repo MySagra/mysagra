@@ -2,10 +2,18 @@ import { Prisma, prisma } from "@mysagra/database"
 import { sagraService } from "../sagra/sagra.service"
 import { OrderStats, CategoryStats, FoodStats, GeneralClosureInput } from "@mysagra/schemas"
 import { GetReportsQuery, GroupInterval } from "@mysagra/schemas"
-import { Report } from "@mysagra/schemas"
 import { logger } from "@/config/logger"
 import { EventsService } from "../events/events.service"
 import { BadRequestError } from "@/common/errors"
+
+const reportWithStatsInclude = {
+    categoryStats: { include: { foodStats: true } },
+    cashRegisterStats: true
+} satisfies Prisma.ReportInclude
+
+type ReportWithStats = Prisma.ReportGetPayload<{ include: typeof reportWithStatsInclude }>
+
+const ZERO = new Prisma.Decimal(0)
 
 export class ReportService {
     private static instance: ReportService
@@ -29,8 +37,7 @@ export class ReportService {
         const to = new Date();
 
         if (!lastReport) {
-            from = await prisma.order.findFirst({
-                where: { NOT: { confirmedAt: null } },
+            from = await prisma.confirmedOrder.findFirst({
                 orderBy: { confirmedAt: "asc" }
             }).then(async (order) => {
                 return order?.confirmedAt
@@ -106,17 +113,17 @@ export class ReportService {
                 data: {
                     timestamp: to,
                     intervalInMinutes: actualInterval,
-                    totalRevenue: this._round(Number(orderStats.totalRevenue)),
-                    totalCashRevenue: this._round(Number(orderStats.totalCashRevenue)),
-                    totalCardRevenue: this._round(Number(orderStats.totalCardRevenue)),
+                    totalRevenue: this._money(orderStats.totalRevenue),
+                    totalCashRevenue: this._money(orderStats.totalCashRevenue),
+                    totalCardRevenue: this._money(orderStats.totalCardRevenue),
                     totalOrders: Number(orderStats.totalOrders), // Convert BigInt to Number
-                    averageCompletitionTime: Math.round(orderStats.averageCompletitionTime || 0),
+                    averageCompletionTime: orderStats.averageCompletionTime != null ? Math.round(Number(orderStats.averageCompletionTime)) : null,
 
                     categoryStats: {
                         create: categoryStatsRaw.map((c: any) => ({
                             categoryId: c.categoryId,
                             categoryName: c.categoryName,
-                            revenue: this._round(Number(c.revenue)),
+                            revenue: this._money(c.revenue),
                             quantity: Number(c.quantity),
                             foodStats: {
                                 create: foodStatsRaw
@@ -124,7 +131,7 @@ export class ReportService {
                                     .map((f: any) => ({
                                         foodId: f.foodId,
                                         foodName: f.foodName,
-                                        revenue: this._round(Number(f.revenue)),
+                                        revenue: this._money(f.revenue),
                                         quantity: Number(f.quantity)
                                     }))
                             }
@@ -134,9 +141,9 @@ export class ReportService {
                         create: cashRegisterStatsRaw.map((cr: any) => ({
                             cashRegisterId: cr.cashRegisterId,
                             cashRegisterName: cr.cashRegisterName,
-                            totalRevenue: this._round(Number(cr.totalRevenue)),
-                            totalCardRevenue: this._round(Number(cr.totalCardRevenue)),
-                            totalCashRevenue: this._round(Number(cr.totalCashRevenue))
+                            totalRevenue: this._money(cr.totalRevenue),
+                            totalCardRevenue: this._money(cr.totalCardRevenue),
+                            totalCashRevenue: this._money(cr.totalCashRevenue)
                         }))
                     }
                 }
@@ -145,8 +152,9 @@ export class ReportService {
         })
     }
 
-    private _round(value: number | string): number {
-        return Math.round(Number(value) * 100) / 100;
+    // Money columns are Decimal(10, 2): raw SUM() results are rounded the same way.
+    private _money(value: Prisma.Decimal | string | number): Prisma.Decimal {
+        return new Prisma.Decimal(value).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
     }
 
     // `timestamp` stores the END of the interval; the report logically belongs to
@@ -161,15 +169,16 @@ export class ReportService {
                 SELECT
                 ${to} as timestamp,
                 CEIL((UNIX_TIMESTAMP(${to}) - UNIX_TIMESTAMP(${from})) / 60) as intervalInMinutes,
-                IFNULL(SUM(o.total), 0) as totalRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CASH', o.total, 0)), 0) as totalCashRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CARD', o.total, 0)), 0) as totalCardRevenue,
+                IFNULL(SUM(co.total), 0) as totalRevenue,
+                IFNULL(SUM(IF(co.paymentMethod = 'CASH', co.total, 0)), 0) as totalCashRevenue,
+                IFNULL(SUM(IF(co.paymentMethod = 'CARD', co.total, 0)), 0) as totalCardRevenue,
                 COUNT(DISTINCT o.id) as totalOrders,
-                IFNULL(AVG(IF(o.completedAt IS NOT NULL, (UNIX_TIMESTAMP(o.completedAt) - UNIX_TIMESTAMP(o.createdAt)) * 1000, NULL)), 0) as averageCompletitionTime
+                AVG(IF(co.completedAt IS NOT NULL, (UNIX_TIMESTAMP(co.completedAt) - UNIX_TIMESTAMP(o.createdAt)) * 1000, NULL)) as averageCompletionTime
                 FROM orders o
-                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
-                AND o.confirmedAt >= ${from}
-                AND o.confirmedAt < ${to};
+                INNER JOIN confirmed_orders co ON co.orderId = o.id
+                WHERE o.status IN ('CONFIRMED', 'PARTIAL', 'PICKED_UP', 'COMPLETED')
+                AND co.confirmedAt >= ${from}
+                AND co.confirmedAt < ${to};
             `
     }
 
@@ -185,9 +194,10 @@ export class ReportService {
                 INNER JOIN foods f ON c.id = f.categoryId
                 INNER JOIN order_items oi ON f.id = oi.foodId
                 INNER JOIN orders o ON oi.orderId = o.id
-                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
-                AND o.confirmedAt >= ${from}
-                AND o.confirmedAt < ${to}
+                INNER JOIN confirmed_orders co ON co.orderId = o.id
+                WHERE o.status IN ('CONFIRMED', 'PARTIAL', 'PICKED_UP', 'COMPLETED')
+                AND co.confirmedAt >= ${from}
+                AND co.confirmedAt < ${to}
                 GROUP BY c.id, c.name;
             `
     }
@@ -204,10 +214,11 @@ export class ReportService {
                 FROM foods f
                 INNER JOIN order_items oi ON f.id = oi.foodId
                 INNER JOIN orders o ON oi.orderId = o.id
+                INNER JOIN confirmed_orders co ON co.orderId = o.id
                 INNER JOIN categories c ON f.categoryId = c.id
-                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
-                AND o.confirmedAt >= ${from}
-                AND o.confirmedAt < ${to}
+                WHERE o.status IN ('CONFIRMED', 'PARTIAL', 'PICKED_UP', 'COMPLETED')
+                AND co.confirmedAt >= ${from}
+                AND co.confirmedAt < ${to}
                 GROUP BY f.id, f.name;
             `
     }
@@ -218,14 +229,15 @@ export class ReportService {
                 SELECT
                 cr.id as cashRegisterId,
                 cr.name as cashRegisterName,
-                IFNULL(SUM(o.total), 0) as totalRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CARD', o.total, 0)), 0) as totalCardRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CASH', o.total, 0)), 0) as totalCashRevenue
+                IFNULL(SUM(co.total), 0) as totalRevenue,
+                IFNULL(SUM(IF(co.paymentMethod = 'CARD', co.total, 0)), 0) as totalCardRevenue,
+                IFNULL(SUM(IF(co.paymentMethod = 'CASH', co.total, 0)), 0) as totalCashRevenue
                 FROM cash_registers cr
-                LEFT JOIN orders o ON cr.id = o.cashRegisterId
-                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
-                AND o.confirmedAt >= ${from}
-                AND o.confirmedAt < ${to}
+                LEFT JOIN confirmed_orders co ON cr.id = co.cashRegisterId
+                LEFT JOIN orders o ON o.id = co.orderId
+                WHERE o.status IN ('CONFIRMED', 'PARTIAL', 'PICKED_UP', 'COMPLETED')
+                AND co.confirmedAt >= ${from}
+                AND co.confirmedAt < ${to}
                 GROUP BY cr.id, cr.name;
             `
     }
@@ -267,7 +279,7 @@ export class ReportService {
         };
     }
 
-    private _formatRealtimeReport(realtimeStats: any, timestamp: Date, interval: string): Report | null {
+    private _formatRealtimeReport(realtimeStats: any, timestamp: Date): ReportWithStats | null {
         const orderStats = realtimeStats.orderStats;
 
         // Only include real-time data if there are orders
@@ -275,21 +287,23 @@ export class ReportService {
             return null;
         }
 
-        const report: Report = {
-            id: `realtime-${timestamp.getTime()}`,
+        const reportId = `realtime-${timestamp.getTime()}`;
+
+        return {
+            id: reportId,
             timestamp: timestamp,
             intervalInMinutes: Number(orderStats.intervalInMinutes),
-            totalRevenue: this._round(Number(orderStats.totalRevenue)),
-            totalCashRevenue: this._round(Number(orderStats.totalCashRevenue)),
-            totalCardRevenue: this._round(Number(orderStats.totalCardRevenue)),
+            totalRevenue: this._money(orderStats.totalRevenue),
+            totalCashRevenue: this._money(orderStats.totalCashRevenue),
+            totalCardRevenue: this._money(orderStats.totalCardRevenue),
             totalOrders: Number(orderStats.totalOrders),
-            averageCompletitionTime: orderStats.averageCompletitionTime ? Math.round(Number(orderStats.averageCompletitionTime)) : undefined,
+            averageCompletionTime: orderStats.averageCompletionTime ? Math.round(Number(orderStats.averageCompletionTime)) : null,
             categoryStats: realtimeStats.categoryStatsRaw.map((c: any) => ({
                 id: `realtime-cat-${c.categoryId}`,
-                reportId: `realtime-${timestamp.getTime()}`,
+                reportId,
                 categoryId: c.categoryId,
                 categoryName: c.categoryName,
-                revenue: this._round(Number(c.revenue)),
+                revenue: this._money(c.revenue),
                 quantity: Number(c.quantity),
                 foodStats: realtimeStats.foodStatsRaw
                     .filter((f: any) => f.categoryId === c.categoryId)
@@ -298,25 +312,62 @@ export class ReportService {
                         categoryStatsId: `realtime-cat-${c.categoryId}`,
                         foodId: f.foodId,
                         foodName: f.foodName,
-                        revenue: this._round(Number(f.revenue)),
+                        revenue: this._money(f.revenue),
                         quantity: Number(f.quantity)
                     }))
             })),
             cashRegisterStats: realtimeStats.cashRegisterStatsRaw.map((cr: any) => ({
                 id: `realtime-cr-${cr.cashRegisterId}`,
-                reportId: `realtime-${timestamp.getTime()}`,
+                reportId,
                 cashRegisterId: cr.cashRegisterId,
                 cashRegisterName: cr.cashRegisterName,
-                totalRevenue: this._round(Number(cr.totalRevenue)),
-                totalCardRevenue: this._round(Number(cr.totalCardRevenue)),
-                totalCashRevenue: this._round(Number(cr.totalCashRevenue))
+                totalRevenue: this._money(cr.totalRevenue),
+                totalCardRevenue: this._money(cr.totalCardRevenue),
+                totalCashRevenue: this._money(cr.totalCashRevenue)
             }))
         };
-
-        return report;
     }
 
-    async getReports(query: GetReportsQuery, saveLiveData = false) {
+    // Adds a stored report into an aggregation bucket, merging stats by category, food and cash register.
+    private _mergeIntoBucket(bucket: ReportWithStats, report: ReportWithStats) {
+        bucket.totalRevenue = bucket.totalRevenue.add(report.totalRevenue);
+        bucket.totalCashRevenue = bucket.totalCashRevenue.add(report.totalCashRevenue);
+        bucket.totalCardRevenue = bucket.totalCardRevenue.add(report.totalCardRevenue);
+        bucket.totalOrders += report.totalOrders;
+
+        for (const catStat of report.categoryStats) {
+            let category = bucket.categoryStats.find(c => c.categoryId === catStat.categoryId);
+            if (!category) {
+                category = { ...catStat, revenue: ZERO, quantity: 0, foodStats: [] };
+                bucket.categoryStats.push(category);
+            }
+            category.revenue = category.revenue.add(catStat.revenue);
+            category.quantity += catStat.quantity;
+
+            for (const foodStat of catStat.foodStats) {
+                let food = category.foodStats.find(f => f.foodId === foodStat.foodId);
+                if (!food) {
+                    food = { ...foodStat, revenue: ZERO, quantity: 0 };
+                    category.foodStats.push(food);
+                }
+                food.revenue = food.revenue.add(foodStat.revenue);
+                food.quantity += foodStat.quantity;
+            }
+        }
+
+        for (const crStat of report.cashRegisterStats) {
+            let cashRegister = bucket.cashRegisterStats.find(cr => cr.cashRegisterId === crStat.cashRegisterId);
+            if (!cashRegister) {
+                cashRegister = { ...crStat, totalRevenue: ZERO, totalCardRevenue: ZERO, totalCashRevenue: ZERO };
+                bucket.cashRegisterStats.push(cashRegister);
+            }
+            cashRegister.totalRevenue = cashRegister.totalRevenue.add(crStat.totalRevenue);
+            cashRegister.totalCardRevenue = cashRegister.totalCardRevenue.add(crStat.totalCardRevenue);
+            cashRegister.totalCashRevenue = cashRegister.totalCashRevenue.add(crStat.totalCashRevenue);
+        }
+    }
+
+    async getReports(query: GetReportsQuery, saveLiveData = false): Promise<ReportWithStats[]> {
         if (!query.to) {
             query.to = new Date()
         }
@@ -329,14 +380,7 @@ export class ReportService {
                     gt: query.from
                 }
             },
-            include: {
-                categoryStats: {
-                    include: {
-                        foodStats: true
-                    }
-                },
-                cashRegisterStats: true
-            },
+            include: reportWithStatsInclude,
             orderBy: { timestamp: 'asc' }
         });
 
@@ -347,7 +391,7 @@ export class ReportService {
 
         // Get real-time stats for current interval
         const realtimeStats = await this._getRealTimeStats(query.from, query.to, saveLiveData);
-        const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date(), query.groupBy);
+        const realtimeBucket = this._formatRealtimeReport(realtimeStats, new Date());
 
         if (query.groupBy === '1h') {
             const shifted = rawReports.map((r) => ({
@@ -357,163 +401,45 @@ export class ReportService {
             return realtimeBucket ? [...shifted, realtimeBucket] : shifted;
         }
 
-        const buckets = new Map<number, Report>();
-        const bucketCompletitionTimeWeighted = new Map<number, number>();
+        const buckets = new Map<number, ReportWithStats>();
+        const bucketCompletionTimeWeighted = new Map<number, number>();
 
         // Process only raw reports for aggregation (exclude real-time from aggregation)
-        const reportsToProcess = rawReports;
-
-        for (const report of reportsToProcess) {
+        for (const report of rawReports) {
             const bucketKey = this.getBucketTimestamp(this._getReportStart(report), query.groupBy);
 
-            if (!buckets.has(bucketKey)) {
-                buckets.set(bucketKey, {
+            let bucket = buckets.get(bucketKey);
+            if (!bucket) {
+                bucket = {
                     id: bucketKey.toString(),
                     timestamp: new Date(bucketKey),
-                    totalRevenue: 0,
-                    totalCashRevenue: 0,
-                    totalCardRevenue: 0,
+                    totalRevenue: ZERO,
+                    totalCashRevenue: ZERO,
+                    totalCardRevenue: ZERO,
                     totalOrders: 0,
+                    averageCompletionTime: null,
                     categoryStats: [],
                     cashRegisterStats: [],
                     intervalInMinutes: bucketKey
-                })
-                bucketCompletitionTimeWeighted.set(bucketKey, 0);
+                };
+                buckets.set(bucketKey, bucket);
             }
 
-            const currentBucket = buckets.get(bucketKey);
-
-            if (!currentBucket) continue;
-
-            // Sum all totals
-            currentBucket.totalRevenue += Number(report.totalRevenue);
-            currentBucket.totalCashRevenue += Number(report.totalCashRevenue);
-            currentBucket.totalCardRevenue += Number(report.totalCardRevenue);
-            currentBucket.totalOrders += report.totalOrders;
+            this._mergeIntoBucket(bucket, report);
 
             // Weighted average for completion time
-            bucketCompletitionTimeWeighted.set(
+            bucketCompletionTimeWeighted.set(
                 bucketKey,
-                (bucketCompletitionTimeWeighted.get(bucketKey) || 0) + ((report.averageCompletitionTime || 0) * report.totalOrders)
+                (bucketCompletionTimeWeighted.get(bucketKey) || 0) + ((report.averageCompletionTime || 0) * report.totalOrders)
             );
-
-            // Aggregate categoryStats
-            const categoryStatsMap = new Map<string, any>();
-
-            // Initialize with existing categoryStats from bucket
-            for (const catStat of currentBucket.categoryStats) {
-                categoryStatsMap.set(catStat.categoryId, {
-                    id: catStat.id,
-                    reportId: catStat.reportId,
-                    categoryId: catStat.categoryId,
-                    categoryName: catStat.categoryName,
-                    revenue: Number(catStat.revenue),
-                    quantity: catStat.quantity,
-                    foodStats: [...catStat.foodStats]
-                });
-            }
-
-            // Aggregate from current report
-            for (const catStat of report.categoryStats) {
-                if (!categoryStatsMap.has(catStat.categoryId)) {
-                    categoryStatsMap.set(catStat.categoryId, {
-                        id: catStat.id,
-                        reportId: catStat.reportId,
-                        categoryId: catStat.categoryId,
-                        categoryName: catStat.categoryName,
-                        revenue: 0,
-                        quantity: 0,
-                        foodStats: []
-                    });
-                }
-
-                const aggregatedCategory = categoryStatsMap.get(catStat.categoryId)!;
-                aggregatedCategory.revenue += Number(catStat.revenue);
-                aggregatedCategory.quantity += catStat.quantity;
-
-                // Aggregate foodStats within category
-                const foodStatsMap = new Map<string, any>();
-
-                for (const foodStat of aggregatedCategory.foodStats) {
-                    foodStatsMap.set(foodStat.foodId, {
-                        id: foodStat.id,
-                        categoryStatsId: foodStat.categoryStatsId,
-                        foodId: foodStat.foodId,
-                        foodName: foodStat.foodName,
-                        revenue: Number(foodStat.revenue),
-                        quantity: foodStat.quantity
-                    });
-                }
-
-                for (const foodStat of catStat.foodStats) {
-                    if (!foodStatsMap.has(foodStat.foodId)) {
-                        foodStatsMap.set(foodStat.foodId, {
-                            id: foodStat.id,
-                            categoryStatsId: foodStat.categoryStatsId,
-                            foodId: foodStat.foodId,
-                            foodName: foodStat.foodName,
-                            revenue: 0,
-                            quantity: 0
-                        });
-                    }
-
-                    const aggregatedFood = foodStatsMap.get(foodStat.foodId)!;
-                    aggregatedFood.revenue += Number(foodStat.revenue);
-                    aggregatedFood.quantity += foodStat.quantity;
-                }
-
-                aggregatedCategory.foodStats = Array.from(foodStatsMap.values());
-            }
-
-            currentBucket.categoryStats = Array.from(categoryStatsMap.values());
-
-            // Aggregate cashRegisterStats
-            const cashRegisterStatsMap = new Map<string, any>();
-
-            // Initialize with existing cashRegisterStats from bucket
-            for (const crStat of currentBucket.cashRegisterStats) {
-                cashRegisterStatsMap.set(crStat.cashRegisterId, {
-                    id: crStat.id,
-                    reportId: crStat.reportId,
-                    cashRegisterId: crStat.cashRegisterId,
-                    cashRegisterName: crStat.cashRegisterName,
-                    totalRevenue: Number(crStat.totalRevenue),
-                    totalCardRevenue: Number(crStat.totalCardRevenue),
-                    totalCashRevenue: Number(crStat.totalCashRevenue)
-                });
-            }
-
-            // Aggregate from current report
-            for (const crStat of report.cashRegisterStats) {
-                if (!cashRegisterStatsMap.has(crStat.cashRegisterId)) {
-                    cashRegisterStatsMap.set(crStat.cashRegisterId, {
-                        id: crStat.id,
-                        reportId: crStat.reportId,
-                        cashRegisterId: crStat.cashRegisterId,
-                        cashRegisterName: crStat.cashRegisterName,
-                        totalRevenue: 0,
-                        totalCardRevenue: 0,
-                        totalCashRevenue: 0
-                    });
-                }
-
-                const aggregatedCR = cashRegisterStatsMap.get(crStat.cashRegisterId)!;
-                aggregatedCR.totalRevenue += Number(crStat.totalRevenue);
-                aggregatedCR.totalCardRevenue += Number(crStat.totalCardRevenue);
-                aggregatedCR.totalCashRevenue += Number(crStat.totalCashRevenue);
-            }
-
-            currentBucket.cashRegisterStats = Array.from(cashRegisterStatsMap.values());
         }
 
         const aggregatedReports = Array.from(buckets.values())
             .map(bucket => {
-                if (bucket.totalOrders > 0) {
-                    const weightedTotal = bucketCompletitionTimeWeighted.get(bucket.timestamp.getTime());
-                    bucket.averageCompletitionTime = weightedTotal ? Math.round(weightedTotal / bucket.totalOrders) : undefined;
-                } else {
-                    bucket.averageCompletitionTime = undefined;
-                }
+                const weightedTotal = bucketCompletionTimeWeighted.get(bucket.timestamp.getTime());
+                bucket.averageCompletionTime = bucket.totalOrders > 0 && weightedTotal
+                    ? Math.round(weightedTotal / bucket.totalOrders)
+                    : null;
                 return bucket;
             })
             .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
@@ -527,14 +453,7 @@ export class ReportService {
             where: {
                 id
             },
-            include: {
-                categoryStats: {
-                    include: {
-                        foodStats: true
-                    }
-                },
-                cashRegisterStats: true
-            }
+            include: reportWithStatsInclude
         })
     }
 

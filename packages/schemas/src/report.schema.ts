@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { decimalString } from "./common.schema"
 
 export const GroupIntervalSchema = z.enum(["1h", "4h", "12h", "day", "all"])
 
@@ -14,11 +15,11 @@ export type GetReportsQuery = z.infer<typeof GetReportsQuerySchema>
 export const OrderStatsSchema = z.object({
   timestamp: z.date(),
   intervalInMinutes: z.number(),
-  totalRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
-  totalCashRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
-  totalCardRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
+  totalRevenue: decimalString("Total revenue"),
+  totalCashRevenue: decimalString("Revenue paid by cash"),
+  totalCardRevenue: decimalString("Revenue paid by card"),
   totalOrders: z.number(),
-  averageCompletitionTime: z.number().nullable().optional()
+  averageCompletionTime: z.number().nullable().optional()
 })
 
 export type OrderStats = z.infer<typeof OrderStatsSchema>
@@ -29,7 +30,7 @@ export const FoodStatsSchema = z.object({
   categoryStatsId: z.cuid(),
   foodId: z.cuid(),
   foodName: z.string(),
-  revenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
+  revenue: decimalString("Revenue"),
   quantity: z.number()
 })
 
@@ -40,7 +41,7 @@ export const CategoryStatsSchema = z.object({
   reportId: z.cuid(),
   categoryId: z.cuid(),
   categoryName: z.string(),
-  revenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
+  revenue: decimalString("Revenue"),
   quantity: z.number(),
   foodStats: z.array(FoodStatsSchema)
 })
@@ -52,9 +53,9 @@ export const CashRegisterStatsSchema = z.object({
   reportId: z.cuid(),
   cashRegisterId: z.cuid(),
   cashRegisterName: z.string(),
-  totalRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
-  totalCardRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
-  totalCashRevenue: z.union([z.number(), z.string()]).transform(val => Number(val))
+  totalRevenue: decimalString("Total revenue"),
+  totalCardRevenue: decimalString("Revenue paid by card"),
+  totalCashRevenue: decimalString("Revenue paid by cash")
 })
 
 export type CashRegisterStats = z.infer<typeof CashRegisterStatsSchema>
@@ -63,11 +64,11 @@ export const ReportSchema = z.object({
   id: z.cuid(),
   timestamp: z.coerce.date(),
   intervalInMinutes: z.number(),
-  totalRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
-  totalCashRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
-  totalCardRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
+  totalRevenue: decimalString("Total revenue"),
+  totalCashRevenue: decimalString("Revenue paid by cash"),
+  totalCardRevenue: decimalString("Revenue paid by card"),
   totalOrders: z.number(),
-  averageCompletitionTime: z.number().nullable().optional(),
+  averageCompletionTime: z.number().nullable().optional(),
   categoryStats: z.array(CategoryStatsSchema),
   cashRegisterStats: z.array(CashRegisterStatsSchema)
 })

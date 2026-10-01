@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Sagras
- * const sagras = await prisma.sagra.findMany()
+ * // Fetch zero or more Roles
+ * const roles = await prisma.role.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -42,15 +42,35 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model Sagra
+ * Model Role
  * 
  */
-export type Sagra = Prisma.SagraModel
+export type Role = Prisma.RoleModel
 /**
- * Model Station
+ * Model User
  * 
  */
-export type Station = Prisma.StationModel
+export type User = Prisma.UserModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = Prisma.ApiKeyModel
+/**
+ * Model Banner
+ * 
+ */
+export type Banner = Prisma.BannerModel
+/**
+ * Model OrderInstruction
+ * 
+ */
+export type OrderInstruction = Prisma.OrderInstructionModel
 /**
  * Model Category
  * 
@@ -77,6 +97,11 @@ export type FoodIngredient = Prisma.FoodIngredientModel
  */
 export type Order = Prisma.OrderModel
 /**
+ * Model ConfirmedOrder
+ * 
+ */
+export type ConfirmedOrder = Prisma.ConfirmedOrderModel
+/**
  * Model OrderStationStatus
  * 
  */
@@ -87,20 +112,10 @@ export type OrderStationStatus = Prisma.OrderStationStatusModel
  */
 export type OrderItem = Prisma.OrderItemModel
 /**
- * Model Role
+ * Model Station
  * 
  */
-export type Role = Prisma.RoleModel
-/**
- * Model User
- * 
- */
-export type User = Prisma.UserModel
-/**
- * Model Session
- * 
- */
-export type Session = Prisma.SessionModel
+export type Station = Prisma.StationModel
 /**
  * Model Printer
  * 
@@ -111,21 +126,6 @@ export type Printer = Prisma.PrinterModel
  * 
  */
 export type CashRegister = Prisma.CashRegisterModel
-/**
- * Model ApiKey
- * 
- */
-export type ApiKey = Prisma.ApiKeyModel
-/**
- * Model Banner
- * 
- */
-export type Banner = Prisma.BannerModel
-/**
- * Model OrderInstruction
- * 
- */
-export type OrderInstruction = Prisma.OrderInstructionModel
 /**
  * Model Report
  * 
@@ -146,3 +146,8 @@ export type CategoryStats = Prisma.CategoryStatsModel
  * 
  */
 export type FoodStats = Prisma.FoodStatsModel
+/**
+ * Model Sagra
+ * 
+ */
+export type Sagra = Prisma.SagraModel

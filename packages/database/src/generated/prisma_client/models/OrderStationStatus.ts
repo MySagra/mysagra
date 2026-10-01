@@ -182,7 +182,7 @@ export type OrderStationStatusWhereInput = {
   orderId?: Prisma.StringFilter<"OrderStationStatus"> | string
   stationId?: Prisma.StringFilter<"OrderStationStatus"> | string
   updatedAt?: Prisma.DateTimeFilter<"OrderStationStatus"> | Date | string
-  order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
+  confirmedOrder?: Prisma.XOR<Prisma.ConfirmedOrderScalarRelationFilter, Prisma.ConfirmedOrderWhereInput>
   station?: Prisma.XOR<Prisma.StationScalarRelationFilter, Prisma.StationWhereInput>
 }
 
@@ -192,7 +192,7 @@ export type OrderStationStatusOrderByWithRelationInput = {
   orderId?: Prisma.SortOrder
   stationId?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  order?: Prisma.OrderOrderByWithRelationInput
+  confirmedOrder?: Prisma.ConfirmedOrderOrderByWithRelationInput
   station?: Prisma.StationOrderByWithRelationInput
   _relevance?: Prisma.OrderStationStatusOrderByRelevanceInput
 }
@@ -207,7 +207,7 @@ export type OrderStationStatusWhereUniqueInput = Prisma.AtLeast<{
   orderId?: Prisma.StringFilter<"OrderStationStatus"> | string
   stationId?: Prisma.StringFilter<"OrderStationStatus"> | string
   updatedAt?: Prisma.DateTimeFilter<"OrderStationStatus"> | Date | string
-  order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
+  confirmedOrder?: Prisma.XOR<Prisma.ConfirmedOrderScalarRelationFilter, Prisma.ConfirmedOrderWhereInput>
   station?: Prisma.XOR<Prisma.StationScalarRelationFilter, Prisma.StationWhereInput>
 }, "id" | "orderId_stationId">
 
@@ -237,7 +237,7 @@ export type OrderStationStatusCreateInput = {
   id?: string
   status: $Enums.OrderStatus
   updatedAt?: Date | string
-  order: Prisma.OrderCreateNestedOneWithoutOrderStationStatesInput
+  confirmedOrder: Prisma.ConfirmedOrderCreateNestedOneWithoutOrderStationStatesInput
   station: Prisma.StationCreateNestedOneWithoutOrderStationStatesInput
 }
 
@@ -253,7 +253,7 @@ export type OrderStationStatusUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  order?: Prisma.OrderUpdateOneRequiredWithoutOrderStationStatesNestedInput
+  confirmedOrder?: Prisma.ConfirmedOrderUpdateOneRequiredWithoutOrderStationStatesNestedInput
   station?: Prisma.StationUpdateOneRequiredWithoutOrderStationStatesNestedInput
 }
 
@@ -332,6 +332,48 @@ export type OrderStationStatusMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type OrderStationStatusCreateNestedManyWithoutConfirmedOrderInput = {
+  create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput> | Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput[]
+  connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput | Prisma.OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput[]
+  createMany?: Prisma.OrderStationStatusCreateManyConfirmedOrderInputEnvelope
+  connect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+}
+
+export type OrderStationStatusUncheckedCreateNestedManyWithoutConfirmedOrderInput = {
+  create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput> | Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput[]
+  connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput | Prisma.OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput[]
+  createMany?: Prisma.OrderStationStatusCreateManyConfirmedOrderInputEnvelope
+  connect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+}
+
+export type OrderStationStatusUpdateManyWithoutConfirmedOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput> | Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput[]
+  connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput | Prisma.OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput[]
+  upsert?: Prisma.OrderStationStatusUpsertWithWhereUniqueWithoutConfirmedOrderInput | Prisma.OrderStationStatusUpsertWithWhereUniqueWithoutConfirmedOrderInput[]
+  createMany?: Prisma.OrderStationStatusCreateManyConfirmedOrderInputEnvelope
+  set?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+  disconnect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+  delete?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+  connect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+  update?: Prisma.OrderStationStatusUpdateWithWhereUniqueWithoutConfirmedOrderInput | Prisma.OrderStationStatusUpdateWithWhereUniqueWithoutConfirmedOrderInput[]
+  updateMany?: Prisma.OrderStationStatusUpdateManyWithWhereWithoutConfirmedOrderInput | Prisma.OrderStationStatusUpdateManyWithWhereWithoutConfirmedOrderInput[]
+  deleteMany?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
+}
+
+export type OrderStationStatusUncheckedUpdateManyWithoutConfirmedOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput> | Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput[]
+  connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput | Prisma.OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput[]
+  upsert?: Prisma.OrderStationStatusUpsertWithWhereUniqueWithoutConfirmedOrderInput | Prisma.OrderStationStatusUpsertWithWhereUniqueWithoutConfirmedOrderInput[]
+  createMany?: Prisma.OrderStationStatusCreateManyConfirmedOrderInputEnvelope
+  set?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+  disconnect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+  delete?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+  connect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+  update?: Prisma.OrderStationStatusUpdateWithWhereUniqueWithoutConfirmedOrderInput | Prisma.OrderStationStatusUpdateWithWhereUniqueWithoutConfirmedOrderInput[]
+  updateMany?: Prisma.OrderStationStatusUpdateManyWithWhereWithoutConfirmedOrderInput | Prisma.OrderStationStatusUpdateManyWithWhereWithoutConfirmedOrderInput[]
+  deleteMany?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
+}
+
 export type OrderStationStatusCreateNestedManyWithoutStationInput = {
   create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutStationInput, Prisma.OrderStationStatusUncheckedCreateWithoutStationInput> | Prisma.OrderStationStatusCreateWithoutStationInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutStationInput[]
   connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutStationInput | Prisma.OrderStationStatusCreateOrConnectWithoutStationInput[]
@@ -374,53 +416,62 @@ export type OrderStationStatusUncheckedUpdateManyWithoutStationNestedInput = {
   deleteMany?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
 }
 
-export type OrderStationStatusCreateNestedManyWithoutOrderInput = {
-  create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput> | Prisma.OrderStationStatusCreateWithoutOrderInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput[]
-  connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutOrderInput | Prisma.OrderStationStatusCreateOrConnectWithoutOrderInput[]
-  createMany?: Prisma.OrderStationStatusCreateManyOrderInputEnvelope
-  connect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+export type OrderStationStatusCreateWithoutConfirmedOrderInput = {
+  id?: string
+  status: $Enums.OrderStatus
+  updatedAt?: Date | string
+  station: Prisma.StationCreateNestedOneWithoutOrderStationStatesInput
 }
 
-export type OrderStationStatusUncheckedCreateNestedManyWithoutOrderInput = {
-  create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput> | Prisma.OrderStationStatusCreateWithoutOrderInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput[]
-  connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutOrderInput | Prisma.OrderStationStatusCreateOrConnectWithoutOrderInput[]
-  createMany?: Prisma.OrderStationStatusCreateManyOrderInputEnvelope
-  connect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
+export type OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput = {
+  id?: string
+  status: $Enums.OrderStatus
+  stationId: string
+  updatedAt?: Date | string
 }
 
-export type OrderStationStatusUpdateManyWithoutOrderNestedInput = {
-  create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput> | Prisma.OrderStationStatusCreateWithoutOrderInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput[]
-  connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutOrderInput | Prisma.OrderStationStatusCreateOrConnectWithoutOrderInput[]
-  upsert?: Prisma.OrderStationStatusUpsertWithWhereUniqueWithoutOrderInput | Prisma.OrderStationStatusUpsertWithWhereUniqueWithoutOrderInput[]
-  createMany?: Prisma.OrderStationStatusCreateManyOrderInputEnvelope
-  set?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
-  disconnect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
-  delete?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
-  connect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
-  update?: Prisma.OrderStationStatusUpdateWithWhereUniqueWithoutOrderInput | Prisma.OrderStationStatusUpdateWithWhereUniqueWithoutOrderInput[]
-  updateMany?: Prisma.OrderStationStatusUpdateManyWithWhereWithoutOrderInput | Prisma.OrderStationStatusUpdateManyWithWhereWithoutOrderInput[]
-  deleteMany?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
+export type OrderStationStatusCreateOrConnectWithoutConfirmedOrderInput = {
+  where: Prisma.OrderStationStatusWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput>
 }
 
-export type OrderStationStatusUncheckedUpdateManyWithoutOrderNestedInput = {
-  create?: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput> | Prisma.OrderStationStatusCreateWithoutOrderInput[] | Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput[]
-  connectOrCreate?: Prisma.OrderStationStatusCreateOrConnectWithoutOrderInput | Prisma.OrderStationStatusCreateOrConnectWithoutOrderInput[]
-  upsert?: Prisma.OrderStationStatusUpsertWithWhereUniqueWithoutOrderInput | Prisma.OrderStationStatusUpsertWithWhereUniqueWithoutOrderInput[]
-  createMany?: Prisma.OrderStationStatusCreateManyOrderInputEnvelope
-  set?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
-  disconnect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
-  delete?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
-  connect?: Prisma.OrderStationStatusWhereUniqueInput | Prisma.OrderStationStatusWhereUniqueInput[]
-  update?: Prisma.OrderStationStatusUpdateWithWhereUniqueWithoutOrderInput | Prisma.OrderStationStatusUpdateWithWhereUniqueWithoutOrderInput[]
-  updateMany?: Prisma.OrderStationStatusUpdateManyWithWhereWithoutOrderInput | Prisma.OrderStationStatusUpdateManyWithWhereWithoutOrderInput[]
-  deleteMany?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
+export type OrderStationStatusCreateManyConfirmedOrderInputEnvelope = {
+  data: Prisma.OrderStationStatusCreateManyConfirmedOrderInput | Prisma.OrderStationStatusCreateManyConfirmedOrderInput[]
+  skipDuplicates?: boolean
+}
+
+export type OrderStationStatusUpsertWithWhereUniqueWithoutConfirmedOrderInput = {
+  where: Prisma.OrderStationStatusWhereUniqueInput
+  update: Prisma.XOR<Prisma.OrderStationStatusUpdateWithoutConfirmedOrderInput, Prisma.OrderStationStatusUncheckedUpdateWithoutConfirmedOrderInput>
+  create: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutConfirmedOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutConfirmedOrderInput>
+}
+
+export type OrderStationStatusUpdateWithWhereUniqueWithoutConfirmedOrderInput = {
+  where: Prisma.OrderStationStatusWhereUniqueInput
+  data: Prisma.XOR<Prisma.OrderStationStatusUpdateWithoutConfirmedOrderInput, Prisma.OrderStationStatusUncheckedUpdateWithoutConfirmedOrderInput>
+}
+
+export type OrderStationStatusUpdateManyWithWhereWithoutConfirmedOrderInput = {
+  where: Prisma.OrderStationStatusScalarWhereInput
+  data: Prisma.XOR<Prisma.OrderStationStatusUpdateManyMutationInput, Prisma.OrderStationStatusUncheckedUpdateManyWithoutConfirmedOrderInput>
+}
+
+export type OrderStationStatusScalarWhereInput = {
+  AND?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
+  OR?: Prisma.OrderStationStatusScalarWhereInput[]
+  NOT?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
+  id?: Prisma.StringFilter<"OrderStationStatus"> | string
+  status?: Prisma.EnumOrderStatusFilter<"OrderStationStatus"> | $Enums.OrderStatus
+  orderId?: Prisma.StringFilter<"OrderStationStatus"> | string
+  stationId?: Prisma.StringFilter<"OrderStationStatus"> | string
+  updatedAt?: Prisma.DateTimeFilter<"OrderStationStatus"> | Date | string
 }
 
 export type OrderStationStatusCreateWithoutStationInput = {
   id?: string
   status: $Enums.OrderStatus
   updatedAt?: Date | string
-  order: Prisma.OrderCreateNestedOneWithoutOrderStationStatesInput
+  confirmedOrder: Prisma.ConfirmedOrderCreateNestedOneWithoutOrderStationStatesInput
 }
 
 export type OrderStationStatusUncheckedCreateWithoutStationInput = {
@@ -456,55 +507,32 @@ export type OrderStationStatusUpdateManyWithWhereWithoutStationInput = {
   data: Prisma.XOR<Prisma.OrderStationStatusUpdateManyMutationInput, Prisma.OrderStationStatusUncheckedUpdateManyWithoutStationInput>
 }
 
-export type OrderStationStatusScalarWhereInput = {
-  AND?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
-  OR?: Prisma.OrderStationStatusScalarWhereInput[]
-  NOT?: Prisma.OrderStationStatusScalarWhereInput | Prisma.OrderStationStatusScalarWhereInput[]
-  id?: Prisma.StringFilter<"OrderStationStatus"> | string
-  status?: Prisma.EnumOrderStatusFilter<"OrderStationStatus"> | $Enums.OrderStatus
-  orderId?: Prisma.StringFilter<"OrderStationStatus"> | string
-  stationId?: Prisma.StringFilter<"OrderStationStatus"> | string
-  updatedAt?: Prisma.DateTimeFilter<"OrderStationStatus"> | Date | string
-}
-
-export type OrderStationStatusCreateWithoutOrderInput = {
-  id?: string
-  status: $Enums.OrderStatus
-  updatedAt?: Date | string
-  station: Prisma.StationCreateNestedOneWithoutOrderStationStatesInput
-}
-
-export type OrderStationStatusUncheckedCreateWithoutOrderInput = {
+export type OrderStationStatusCreateManyConfirmedOrderInput = {
   id?: string
   status: $Enums.OrderStatus
   stationId: string
   updatedAt?: Date | string
 }
 
-export type OrderStationStatusCreateOrConnectWithoutOrderInput = {
-  where: Prisma.OrderStationStatusWhereUniqueInput
-  create: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput>
+export type OrderStationStatusUpdateWithoutConfirmedOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  station?: Prisma.StationUpdateOneRequiredWithoutOrderStationStatesNestedInput
 }
 
-export type OrderStationStatusCreateManyOrderInputEnvelope = {
-  data: Prisma.OrderStationStatusCreateManyOrderInput | Prisma.OrderStationStatusCreateManyOrderInput[]
-  skipDuplicates?: boolean
+export type OrderStationStatusUncheckedUpdateWithoutConfirmedOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  stationId?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type OrderStationStatusUpsertWithWhereUniqueWithoutOrderInput = {
-  where: Prisma.OrderStationStatusWhereUniqueInput
-  update: Prisma.XOR<Prisma.OrderStationStatusUpdateWithoutOrderInput, Prisma.OrderStationStatusUncheckedUpdateWithoutOrderInput>
-  create: Prisma.XOR<Prisma.OrderStationStatusCreateWithoutOrderInput, Prisma.OrderStationStatusUncheckedCreateWithoutOrderInput>
-}
-
-export type OrderStationStatusUpdateWithWhereUniqueWithoutOrderInput = {
-  where: Prisma.OrderStationStatusWhereUniqueInput
-  data: Prisma.XOR<Prisma.OrderStationStatusUpdateWithoutOrderInput, Prisma.OrderStationStatusUncheckedUpdateWithoutOrderInput>
-}
-
-export type OrderStationStatusUpdateManyWithWhereWithoutOrderInput = {
-  where: Prisma.OrderStationStatusScalarWhereInput
-  data: Prisma.XOR<Prisma.OrderStationStatusUpdateManyMutationInput, Prisma.OrderStationStatusUncheckedUpdateManyWithoutOrderInput>
+export type OrderStationStatusUncheckedUpdateManyWithoutConfirmedOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  stationId?: Prisma.StringFieldUpdateOperationsInput | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type OrderStationStatusCreateManyStationInput = {
@@ -518,7 +546,7 @@ export type OrderStationStatusUpdateWithoutStationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  order?: Prisma.OrderUpdateOneRequiredWithoutOrderStationStatesNestedInput
+  confirmedOrder?: Prisma.ConfirmedOrderUpdateOneRequiredWithoutOrderStationStatesNestedInput
 }
 
 export type OrderStationStatusUncheckedUpdateWithoutStationInput = {
@@ -535,34 +563,6 @@ export type OrderStationStatusUncheckedUpdateManyWithoutStationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type OrderStationStatusCreateManyOrderInput = {
-  id?: string
-  status: $Enums.OrderStatus
-  stationId: string
-  updatedAt?: Date | string
-}
-
-export type OrderStationStatusUpdateWithoutOrderInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  station?: Prisma.StationUpdateOneRequiredWithoutOrderStationStatesNestedInput
-}
-
-export type OrderStationStatusUncheckedUpdateWithoutOrderInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
-  stationId?: Prisma.StringFieldUpdateOperationsInput | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type OrderStationStatusUncheckedUpdateManyWithoutOrderInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
-  stationId?: Prisma.StringFieldUpdateOperationsInput | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
 
 
 export type OrderStationStatusSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -571,7 +571,7 @@ export type OrderStationStatusSelect<ExtArgs extends runtime.Types.Extensions.In
   orderId?: boolean
   stationId?: boolean
   updatedAt?: boolean
-  order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
+  confirmedOrder?: boolean | Prisma.ConfirmedOrderDefaultArgs<ExtArgs>
   station?: boolean | Prisma.StationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orderStationStatus"]>
 
@@ -587,14 +587,14 @@ export type OrderStationStatusSelectScalar = {
 
 export type OrderStationStatusOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "orderId" | "stationId" | "updatedAt", ExtArgs["result"]["orderStationStatus"]>
 export type OrderStationStatusInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
+  confirmedOrder?: boolean | Prisma.ConfirmedOrderDefaultArgs<ExtArgs>
   station?: boolean | Prisma.StationDefaultArgs<ExtArgs>
 }
 
 export type $OrderStationStatusPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "OrderStationStatus"
   objects: {
-    order: Prisma.$OrderPayload<ExtArgs>
+    confirmedOrder: Prisma.$ConfirmedOrderPayload<ExtArgs>
     station: Prisma.$StationPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -943,7 +943,7 @@ readonly fields: OrderStationStatusFieldRefs;
  */
 export interface Prisma__OrderStationStatusClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  order<T extends Prisma.OrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderDefaultArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  confirmedOrder<T extends Prisma.ConfirmedOrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ConfirmedOrderDefaultArgs<ExtArgs>>): Prisma.Prisma__ConfirmedOrderClient<runtime.Types.Result.GetResult<Prisma.$ConfirmedOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   station<T extends Prisma.StationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StationDefaultArgs<ExtArgs>>): Prisma.Prisma__StationClient<runtime.Types.Result.GetResult<Prisma.$StationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.

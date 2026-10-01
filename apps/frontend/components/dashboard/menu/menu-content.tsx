@@ -258,34 +258,30 @@ export function MenuContent({
   async function toggleCategory(category: Category) {
     const next = !category.available;
     setPending(category.id, true);
-    try {
-      const updated = await toggleCategoryAvailability(category.id, next);
+    const result = await toggleCategoryAvailability(category.id, next);
+    if (result.ok) {
+      const updated = result.data;
       setCategories((prev) => prev.map((c) => (c.id === updated.id ? { ...c, ...updated } : c)));
       setFoods((prev) => applyCategoryToFoods(prev, updated));
       toast.success(fill(next ? t.menu.toastNowAvailable : t.menu.toastNowUnavailable, { name: category.name }));
-    } catch {
-      toast.error(t.categories.toastErrorUpdate);
-    } finally {
-      setPending(category.id, false);
+    } else {
+      toast.error(result.error || t.categories.toastErrorUpdate);
     }
+    setPending(category.id, false);
   }
 
   // ── Categories ─────────────────────────────────────────────────────
   async function handleReorder(reordered: Category[]) {
     const previous = categories;
-    const withPositions = reordered.map((c, index) => ({ ...c, position: index }));
-    const changed = withPositions.filter(
-      (c) => previous.find((p) => p.id === c.id)?.position !== c.position
-    );
-    setCategories(withPositions);
-    try {
-      await reorderCategories(changed);
-      // Il PUT della categoria riapplica disponibilità e stampante ai piatti
-      setFoods((prev) => changed.reduce(applyCategoryToFoods, prev));
+    // optimistic update, the server answers with the saved order
+    setCategories(reordered.map((c, index) => ({ ...c, position: index })));
+    const result = await reorderCategories(reordered.map((c) => c.id));
+    if (result.ok) {
+      setCategories(result.data);
       toast.success(t.menu.orderSaved);
-    } catch {
+    } else {
       setCategories(previous);
-      toast.error(t.menu.orderError);
+      toast.error(result.error || t.menu.orderError);
     }
   }
 
@@ -742,7 +738,6 @@ export function MenuContent({
         stations={stations}
         onSaved={handleCategorySaved}
         onDelete={canManageCategories ? setDeletingCategory : undefined}
-        categoriesCount={categories.length}
       />
       <DeleteCategoryDialog
         open={!!deletingCategory}

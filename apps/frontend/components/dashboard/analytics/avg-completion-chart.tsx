@@ -9,7 +9,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import type { Report } from "@mysagra/schemas";
+import type { Report } from "@/lib/api-schemas";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { Clock } from "lucide-react";
@@ -30,10 +30,10 @@ export function AvgCompletionChart({ reports }: AvgCompletionChartProps) {
   };
 
   const data = reports
-    .filter((r) => r.averageCompletitionTime != null)
+    .filter((r) => r.averageCompletionTime != null)
     .map((r) => ({
       time: format(new Date(r.timestamp), "HH:mm dd/MM", { locale: dateLocale }),
-      avgTime: Math.round((r.averageCompletitionTime ?? 0) / 60000 * 10) / 10, // Convert ms to minutes
+      avgTime: Math.round((r.averageCompletionTime ?? 0) / 60000 * 10) / 10, // Convert ms to minutes
     }));
 
   if (data.length === 0) {

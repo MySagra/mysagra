@@ -1,10 +1,8 @@
 import {
-    Channel,
     ConfirmOrderInput,
     CreateOrderInput,
-    EventName,
     GetOrdersQuery,
-    OrderItem,
+    OrderItemInput,
     OrderStatus,
     ReprintOrder
 } from "@mysagra/schemas";
@@ -13,8 +11,111 @@ import { EventsService } from "../events/events.service";
 import { prisma, Prisma } from "@mysagra/database";
 import { redisConnection } from "@/lib/redis";
 import { BadRequestError, NotFoundError } from "@/common/errors";
-
 import { displayCodeGenerator } from "@/lib/displayCodeGenerator";
+import { flattenOrder } from "./orders.mapper";
+
+type Decimal = Prisma.Decimal;
+type DbClient = Prisma.TransactionClient;
+type DecimalInput = Decimal | number | string;
+
+const ZERO = new Prisma.Decimal(0);
+
+// Money columns are Decimal(10, 2): round every computed amount the same way the DB would store it.
+const money = (value: DecimalInput) =>
+    new Prisma.Decimal(value).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+
+const sum = (values: Decimal[]) => values.reduce((acc, value) => acc.add(value), ZERO);
+
+// Ticket numbers restart every "service day", which ends at this hour (server local time).
+const TICKET_RESET_HOUR = 6;
+const TICKET_COUNTER_TTL_SECONDS = 2 * 24 * 60 * 60;
+const ORDER_COUNTER_KEY = "order_count";
+const DISPLAY_CODE_MAX_ATTEMPTS = 5;
+
+const STATUS_RANK: Record<OrderStatus, number> = {
+    PENDING: 0,
+    CONFIRMED: 1,
+    PARTIAL: 2,
+    COMPLETED: 3,
+    PICKED_UP: 4,
+    CANCELLED: 5
+};
+
+const orderWithItemsInclude = {
+    confirmedOrder: true,
+    orderItems: {
+        select: {
+            id: true,
+            orderId: true,
+            foodId: true,
+            quantity: true,
+            notes: true,
+            unitPrice: true,
+            unitSurcharge: true,
+            total: true,
+            food: {
+                select: {
+                    id: true,
+                    name: true,
+                    printerId: true,
+                    category: {
+                        select: {
+                            id: true,
+                            name: true,
+                            station: true
+                        }
+                    }
+                }
+            }
+        }
+    }
+} satisfies Prisma.OrderInclude;
+
+type OrderSummary = { id: string; displayCode: string; ticketNumber: number | null; status: OrderStatus };
+
+type PricedItem = {
+    foodId: string;
+    quantity: number;
+    notes: string;
+    unitPrice: Decimal;
+    unitSurcharge: Decimal;
+    total: Decimal;
+};
+
+type PricedItems = {
+    items: PricedItem[];
+    subTotal: Decimal;
+    surcharge: Decimal;
+    stationIds: string[];
+};
+
+type CancelledOrder = Prisma.OrderGetPayload<{
+    include: {
+        confirmedOrder: true;
+        orderItems: {
+            select: {
+                foodId: true;
+                quantity: true;
+                total: true;
+                food: { select: { categoryId: true; printerId: true } };
+            };
+        };
+    };
+}>;
+
+// COMPLETED stamps the completion time, PICKED_UP keeps it, any earlier status clears it.
+function completedAtFor(status: OrderStatus): Date | null | undefined {
+    if (status === "COMPLETED") return new Date();
+    if (status === "PICKED_UP") return undefined;
+    return null;
+}
+
+function isDisplayCodeConflict(error: unknown) {
+    return error instanceof Prisma.PrismaClientKnownRequestError
+        && error.code === "P2002"
+        && JSON.stringify(error.meta ?? {}).includes("displayCode");
+}
+
 export class OrdersService {
     private cashierEvent = EventsService.getInstance('cashier');
     private displayEvent = EventsService.getInstance('display');
@@ -22,260 +123,323 @@ export class OrdersService {
     private ticketEvent = EventsService.getInstance('ticket');
 
     private async _getNextTicketNumber(): Promise<number> {
-        const today = new Date().toISOString().split('T')[0];
-        const redisKey = `ticket_counter:${today}`;
+        const serviceDay = new Date();
+        serviceDay.setHours(serviceDay.getHours() - TICKET_RESET_HOUR);
+
+        const month = String(serviceDay.getMonth() + 1).padStart(2, "0");
+        const day = String(serviceDay.getDate()).padStart(2, "0");
+        const redisKey = `ticket_counter:${serviceDay.getFullYear()}-${month}-${day}`;
 
         const ticketNumber = await redisConnection.incr(redisKey);
-
         if (ticketNumber === 1) {
-            const now = new Date();
-            const expireAt = new Date(now);
-            expireAt.setDate(expireAt.getDate() + 1);
-            expireAt.setHours(6, 0, 0, 0);
-            const secondsUntilExpiry = Math.floor((expireAt.getTime() - now.getTime()) / 1000);
-            await redisConnection.expire(redisKey, secondsUntilExpiry);
+            // The key already changes every service day, the TTL only cleans up old counters.
+            await redisConnection.expire(redisKey, TICKET_COUNTER_TTL_SECONDS);
         }
 
         return ticketNumber;
     }
 
-    private async _getOrderCount(): Promise<number> {
-        const redisKey = `order_count`;
-        let orderCount = await redisConnection.incr(redisKey);
-        if (orderCount === 1) {
-            const dbCount = await prisma.order.count();
+    private async _getNextOrderNumber(): Promise<number> {
+        const orderNumber = await redisConnection.incr(ORDER_COUNTER_KEY);
+        if (orderNumber !== 1) return orderNumber;
 
-            if (dbCount > 0) {
-                await redisConnection.set(redisKey, dbCount);
-                orderCount = dbCount
-            }
-        }
-        return orderCount;
+        // Counter lost (e.g. Redis restart): resume after the orders already stored.
+        const existingOrders = await prisma.order.count();
+        return existingOrders > 0
+            ? redisConnection.incrby(ORDER_COUNTER_KEY, existingOrders)
+            : orderNumber;
     }
 
-    private async _updateReportsOnOrderCancellation(tx: Prisma.TransactionClient, orderId: string) {
-        const order = await tx.order.findUnique({
-            where: { id: orderId },
-            include: {
-                orderItems: {
-                    include: {
-                        food: {
-                            select: {
-                                categoryId: true,
-                                name: true
-                            }
-                        }
-                    }
-                }
+    // After a counter reset the count can fall behind the highest code used (deleted PENDING
+    // orders leave gaps), so skip codes that already exist.
+    private async _withDisplayCode<T>(create: (displayCode: string) => Promise<T>): Promise<T> {
+        for (let attempt = 1; ; attempt++) {
+            const displayCode = displayCodeGenerator.encode(await this._getNextOrderNumber());
+            try {
+                return await create(displayCode);
+            } catch (error) {
+                if (attempt >= DISPLAY_CODE_MAX_ATTEMPTS || !isDisplayCodeConflict(error)) throw error;
             }
+        }
+    }
+
+    // Same food with the same notes becomes one line: order items are unique on (orderId, foodId, notes).
+    private _mergeItems(inputs: OrderItemInput[]): OrderItemInput[] {
+        const merged = new Map<string, OrderItemInput>();
+
+        for (const input of inputs) {
+            const notes = input.notes ?? "";
+            const key = `${input.foodId}|${notes}`;
+            const existing = merged.get(key);
+
+            if (existing) {
+                existing.quantity += input.quantity;
+                existing.surcharge += input.surcharge;
+            } else {
+                merged.set(key, { ...input, notes });
+            }
+        }
+
+        return [...merged.values()];
+    }
+
+    private async _priceItems(
+        rawInputs: OrderItemInput[],
+        applySurcharge: boolean,
+        client: DbClient = prisma
+    ): Promise<PricedItems> {
+        const inputs = this._mergeItems(rawInputs);
+        const foodIds = [...new Set(inputs.map(item => item.foodId))];
+        const foods = await client.food.findMany({
+            where: { id: { in: foodIds } },
+            select: { id: true, price: true, category: { select: { stationId: true } } }
         });
 
-        if (!order || !order.confirmedAt) return;
+        const foodMap = new Map(foods.map(food => [food.id, food]));
+        const missingIds = foodIds.filter(id => !foodMap.has(id));
+        if (missingIds.length > 0) {
+            throw new BadRequestError(`Unknown or invalid products: ${missingIds.join(", ")}`);
+        }
 
-        const affectedReport = await tx.report.findFirst({
-            where: {
-                timestamp: {
-                    gt: order.confirmedAt
-                }
+        const stationIds = new Set<string>();
+        const items = inputs.map((input): PricedItem => {
+            const food = foodMap.get(input.foodId)!;
+            if (food.category.stationId) stationIds.add(food.category.stationId);
+
+            // The surcharge is given for the whole line: the total keeps it exact,
+            // unitSurcharge is the rounded per-unit share.
+            const lineSurcharge = applySurcharge ? money(input.surcharge) : ZERO;
+
+            return {
+                foodId: input.foodId,
+                quantity: input.quantity,
+                notes: input.notes ?? "",
+                unitPrice: food.price,
+                unitSurcharge: money(lineSurcharge.div(input.quantity)),
+                total: money(food.price.mul(input.quantity).add(lineSurcharge))
+            };
+        });
+
+        const subTotal = sum(items.map(item => item.unitPrice.mul(item.quantity)));
+
+        return {
+            items,
+            subTotal,
+            surcharge: sum(items.map(item => item.total)).sub(subTotal),
+            stationIds: [...stationIds]
+        };
+    }
+
+    // discount and total belong to the confirmation (confirmed_orders), subTotal and surcharge to the order
+    private _computeTotals(subTotal: Decimal, surcharge: Decimal, discount: DecimalInput = 0) {
+        const discountAmount = money(discount);
+        return {
+            discount: discountAmount,
+            total: Prisma.Decimal.max(subTotal.add(surcharge).sub(discountAmount), ZERO)
+        };
+    }
+
+    // Orders whose foods have no pickup station have nothing to prepare, so they complete immediately.
+    private _confirmedStatus(hasStations: boolean): OrderStatus {
+        return hasStations ? 'CONFIRMED' : 'COMPLETED';
+    }
+
+    private _broadcastStatusUpdate(order: OrderSummary) {
+        EventsService.broadcastEvents(
+            [this.displayEvent, this.cashierEvent, this.ticketEvent],
+            {
+                id: order.id,
+                ticketNumber: order.ticketNumber,
+                displayCode: order.displayCode,
+                status: order.status
             },
+            "order-status-update"
+        );
+    }
+
+    private _broadcastConfirmedOrder(order: OrderSummary, ordersStations: string[]) {
+        const summary = {
+            displayCode: order.displayCode,
+            ticketNumber: order.ticketNumber,
+            id: order.id
+        };
+
+        this.cashierEvent.broadcastEvent(summary, "confirmed-order");
+        this.displayEvent.broadcastEvent({ ...summary, ordersStations }, "confirmed-order");
+        EventsService.broadcastEvents([this.printerEvent, this.ticketEvent], order, "confirmed-order");
+
+        if (order.status === 'COMPLETED') this._broadcastStatusUpdate(order);
+    }
+
+    private _deriveOrderStatus(statuses: OrderStatus[]): OrderStatus {
+        const uniqueStatuses = new Set(statuses);
+
+        if (uniqueStatuses.size === 1) return statuses[0];
+        if (uniqueStatuses.has("CONFIRMED")) return "PARTIAL";
+
+        return statuses.reduce((lowest, status) =>
+            STATUS_RANK[status] < STATUS_RANK[lowest] ? status : lowest
+        );
+    }
+
+    private async _updateReportsOnOrderCancellation(tx: DbClient, order: CancelledOrder) {
+        const confirmation = order.confirmedOrder;
+        if (!confirmation) return;
+
+        const report = await tx.report.findFirst({
+            where: { timestamp: { gt: confirmation.confirmedAt } },
             orderBy: { timestamp: 'asc' },
-            include: {
-                categoryStats: {
-                    include: {
-                        foodStats: true
-                    }
-                },
-                cashRegisterStats: true
-            }
+            select: { id: true, timestamp: true, intervalInMinutes: true }
         });
+        if (!report) return;
 
-        if (!affectedReport) return;
+        const reportStartTime = new Date(report.timestamp.getTime() - report.intervalInMinutes * 60 * 1000);
+        if (confirmation.confirmedAt < reportStartTime) return;
 
-        const reportStartTime = new Date(affectedReport.timestamp.getTime() - affectedReport.intervalInMinutes * 60 * 1000);
-        if (order.confirmedAt < reportStartTime) return;
+        type Stat = { revenue: Decimal; quantity: number };
+        const categoryStats = new Map<string, Stat & { foods: Map<string, Stat> }>();
 
-        const orderTotal = Number(order.total);
-        const orderCashRevenue = order.paymentMethod === 'CASH' ? orderTotal : 0;
-        const orderCardRevenue = order.paymentMethod === 'CARD' ? orderTotal : 0;
-
-        const updatedCategoryStats = affectedReport.categoryStats.map(catStat => {
-            const itemsInCategory = order.orderItems.filter(item => item.food.categoryId === catStat.categoryId);
-
-            if (itemsInCategory.length === 0) {
-                return catStat;
+        for (const item of order.orderItems) {
+            let category = categoryStats.get(item.food.categoryId);
+            if (!category) {
+                category = { revenue: ZERO, quantity: 0, foods: new Map() };
+                categoryStats.set(item.food.categoryId, category);
             }
+            category.revenue = category.revenue.add(item.total);
+            category.quantity += item.quantity;
 
-            const categoryRevenue = itemsInCategory.reduce((sum, item) => sum + Number(item.total), 0);
-            const categoryQuantity = itemsInCategory.reduce((sum, item) => sum + item.quantity, 0);
+            const food = category.foods.get(item.foodId) ?? { revenue: ZERO, quantity: 0 };
+            food.revenue = food.revenue.add(item.total);
+            food.quantity += item.quantity;
+            category.foods.set(item.foodId, food);
+        }
 
-            return {
-                ...catStat,
-                revenue: Number(catStat.revenue) - categoryRevenue,
-                quantity: catStat.quantity - categoryQuantity,
-                foodStats: catStat.foodStats.map(foodStat => {
-                    const matchingItems = itemsInCategory.filter(item => item.foodId === foodStat.foodId);
-
-                    if (matchingItems.length === 0) {
-                        return foodStat;
-                    }
-
-                    const foodRevenue = matchingItems.reduce((sum, item) => sum + Number(item.total), 0);
-                    const foodQuantity = matchingItems.reduce((sum, item) => sum + item.quantity, 0);
-
-                    return {
-                        ...foodStat,
-                        revenue: Number(foodStat.revenue) - foodRevenue,
-                        quantity: foodStat.quantity - foodQuantity
-                    };
-                })
-            };
-        });
-
-        const updatedCashRegisterStats = affectedReport.cashRegisterStats.map(crStat => {
-            if (order.cashRegisterId !== crStat.cashRegisterId) {
-                return crStat;
-            }
-
-            return {
-                ...crStat,
-                totalRevenue: Number(crStat.totalRevenue) - orderTotal,
-                totalCashRevenue: Number(crStat.totalCashRevenue) - orderCashRevenue,
-                totalCardRevenue: Number(crStat.totalCardRevenue) - orderCardRevenue
-            };
-        });
+        const revenueDecrements = {
+            totalRevenue: { decrement: confirmation.total },
+            totalCashRevenue: { decrement: confirmation.paymentMethod === 'CASH' ? confirmation.total : ZERO },
+            totalCardRevenue: { decrement: confirmation.paymentMethod === 'CARD' ? confirmation.total : ZERO }
+        };
 
         await tx.report.update({
-            where: { id: affectedReport.id },
-            data: {
-                totalRevenue: Number(affectedReport.totalRevenue) - orderTotal,
-                totalCashRevenue: Number(affectedReport.totalCashRevenue) - orderCashRevenue,
-                totalCardRevenue: Number(affectedReport.totalCardRevenue) - orderCardRevenue,
-                totalOrders: affectedReport.totalOrders - 1,
-                categoryStats: {
-                    deleteMany: {},
-                    create: updatedCategoryStats.map(catStat => ({
-                        categoryId: catStat.categoryId,
-                        categoryName: catStat.categoryName,
-                        revenue: catStat.revenue,
-                        quantity: catStat.quantity,
-                        foodStats: {
-                            create: catStat.foodStats.map(foodStat => ({
-                                foodId: foodStat.foodId,
-                                foodName: foodStat.foodName,
-                                revenue: foodStat.revenue,
-                                quantity: foodStat.quantity
-                            }))
-                        }
-                    }))
-                },
-                cashRegisterStats: {
-                    deleteMany: {},
-                    create: updatedCashRegisterStats.map(crStat => ({
-                        cashRegisterId: crStat.cashRegisterId,
-                        cashRegisterName: crStat.cashRegisterName,
-                        totalRevenue: crStat.totalRevenue,
-                        totalCashRevenue: crStat.totalCashRevenue,
-                        totalCardRevenue: crStat.totalCardRevenue
-                    }))
-                }
-            }
+            where: { id: report.id },
+            data: { ...revenueDecrements, totalOrders: { decrement: 1 } }
         });
+
+        if (confirmation.cashRegisterId) {
+            await tx.cashRegisterStats.updateMany({
+                where: { reportId: report.id, cashRegisterId: confirmation.cashRegisterId },
+                data: revenueDecrements
+            });
+        }
+
+        for (const [categoryId, category] of categoryStats) {
+            await tx.categoryStats.updateMany({
+                where: { reportId: report.id, categoryId },
+                data: {
+                    revenue: { decrement: category.revenue },
+                    quantity: { decrement: category.quantity }
+                }
+            });
+
+            for (const [foodId, food] of category.foods) {
+                await tx.foodStats.updateMany({
+                    where: { foodId, categoryStats: { reportId: report.id, categoryId } },
+                    data: {
+                        revenue: { decrement: food.revenue },
+                        quantity: { decrement: food.quantity }
+                    }
+                });
+            }
+        }
     }
 
     async getOrders(queryParams: GetOrdersQuery) {
-        const { limit, page, include } = queryParams;
-        const skip = (page - 1) * limit;
+        const { limit, page, include, search } = queryParams;
 
-        const where: Prisma.OrderWhereInput = {};
+        const includeStationStates = Boolean(include?.includes("ordersStationsStates"));
 
-        if (queryParams.onlyDiscounted) {
-            where.discount = { gt: 0 }
-        }
+        const confirmedWhere: Prisma.ConfirmedOrderWhereInput = {
+            ticketNumber: queryParams.ticketNumber,
+            discount: queryParams.onlyDiscounted ? { gt: 0 } : undefined
+        };
 
-        if (queryParams.search) {
+        const where: Prisma.OrderWhereInput = {
+            status: queryParams.status ? { in: queryParams.status } : undefined,
+            displayCode: queryParams.displayCode,
+            confirmedOrder: queryParams.ticketNumber || queryParams.onlyDiscounted
+                ? { is: confirmedWhere }
+                : undefined
+        };
+
+        if (search) {
+            const searchedTicket = Number.parseInt(search);
             where.OR = [
-                { displayCode: { contains: queryParams.search } },
-                { table: { contains: queryParams.search } },
-                { customer: { contains: queryParams.search } },
-                ...(!isNaN(parseInt(queryParams.search))
-                    ? [{ ticketNumber: { equals: parseInt(queryParams.search) } }]
-                    : [])
-            ]
+                { displayCode: { contains: search } },
+                { table: { contains: search } },
+                { customer: { contains: search } },
+                ...(Number.isNaN(searchedTicket) ? [] : [{ confirmedOrder: { is: { ticketNumber: searchedTicket } } }])
+            ];
         }
 
         if (queryParams.dateFrom || queryParams.dateTo) {
-            where.createdAt = {}
-            if (queryParams.dateFrom) {
-                where.createdAt.gte = queryParams.dateFrom
-            }
-            if (queryParams.dateTo) {
-                where.createdAt.lte = queryParams.dateTo
-            }
+            where.createdAt = { gte: queryParams.dateFrom, lte: queryParams.dateTo };
         }
 
-        if (queryParams.status) {
-            where.status = {
-                in: queryParams.status
-            }
-        }
+        // confirmedAt and completedAt live on the confirmation
+        const orderBy: Prisma.OrderOrderByWithRelationInput = queryParams.sortBy === 'createdAt'
+            ? { createdAt: 'desc' }
+            : { confirmedOrder: { [queryParams.sortBy]: 'desc' } };
 
-        if (queryParams.displayCode) {
-            where.displayCode = queryParams.displayCode
-        }
-
-        if (queryParams.ticketNumber) {
-            where.ticketNumber = queryParams.ticketNumber
-        }
-
-        const query = await prisma.$transaction(async (tx) => {
-            const count = await tx.order.count({
-                where: where
-            });
-            const orders = await tx.order.findMany({
-                where: where,
-                skip: skip,
+        const [count, orders] = await prisma.$transaction([
+            prisma.order.count({ where }),
+            prisma.order.findMany({
+                where,
+                skip: (page - 1) * limit,
                 take: limit,
-                orderBy: {
-                    [queryParams.sortBy]: 'desc'
-                },
+                orderBy,
                 include: {
-                    orderStationStates: include?.includes("ordersStationsStates") ? {
-                        select: {
-                            stationId: true,
-                            status: true
+                    confirmedOrder: {
+                        include: {
+                            orderStationStates: includeStationStates
+                                ? { select: { stationId: true, status: true } }
+                                : false
                         }
-                    } : false,
-                    orderItems: include?.includes("items") ? {
-                        omit: { orderId: true }
-                    } : false
+                    },
+                    orderItems: include?.includes("items")
+                        ? { omit: { orderId: true } }
+                        : false
                 }
             })
-            return {
-                count,
-                orders
-            }
-        })
+        ]);
 
         return {
-            data: query.orders,
+            data: orders.map(order => {
+                const flat = flattenOrder(order);
+                return includeStationStates ? { orderStationStates: [], ...flat } : flat;
+            }),
             pagination: {
-                totalItems: query.count,
+                totalItems: count,
                 currentPage: page,
-                totalPages: Math.ceil(query.count / limit)
+                totalPages: Math.ceil(count / limit)
             }
-        }
+        };
     }
 
     async getOrderById(id: string) {
         const order = await prisma.order.findUnique({
             where: { id },
-            omit: { userId: true, cashRegisterId: true },
             include: {
-                orderStationStates: { include: { station: true } },
-                user: { omit: { password: true } },
-                cashRegister: true,
+                confirmedOrder: {
+                    omit: { userId: true, cashRegisterId: true },
+                    include: {
+                        orderStationStates: { include: { station: true } },
+                        user: { omit: { password: true } },
+                        cashRegister: true
+                    }
+                },
                 orderItems: {
                     orderBy: { food: { categoryId: 'asc' } },
+                    omit: { orderId: true, foodId: true },
                     include: {
                         food: {
                             omit: { available: true, categoryId: true },
@@ -289,11 +453,15 @@ export class OrdersService {
             }
         });
 
-        if (!order) throw new NotFoundError("Order not found")
+        if (!order) throw new NotFoundError("Order not found");
 
-        const categoryMap = new Map<string, { category: { id: string; name: string }; items: unknown[] }>();
+        const { orderItems, ...orderData } = order;
+        const categoryMap = new Map<string, {
+            category: { id: string; name: string };
+            items: Array<Omit<typeof orderItems[number], "food"> & { food: object }>;
+        }>();
 
-        for (const { id: itemId, quantity, notes, total, unitPrice, unitSurcharge, food } of order.orderItems) {
+        for (const { food, ...item } of orderItems) {
             const { category, foodIngredients, ...foodData } = food;
 
             let group = categoryMap.get(category.id);
@@ -303,596 +471,368 @@ export class OrdersService {
             }
 
             group.items.push({
-                id: itemId,
-                quantity,
-                notes,
-                total,
-                unitPrice,
-                unitSurcharge,
+                ...item,
                 food: { ...foodData, ingredients: foodIngredients.map(fi => fi.ingredient) }
             });
         }
 
-        const { orderItems: _, ...orderBaseData } = order;
-        return { ...orderBaseData, categorizedItems: Array.from(categoryMap.values()) };
+        return {
+            // pending orders have no confirmation: keep the same keys as confirmed ones
+            orderStationStates: [],
+            user: null,
+            cashRegister: null,
+            ...flattenOrder(orderData),
+            categorizedItems: [...categoryMap.values()]
+        };
     }
 
-    async createOrder(order: CreateOrderInput) {
-        const { orderItems, confirm } = order;
+    async createOrder(input: CreateOrderInput) {
+        const { orderItems, confirm } = input;
 
-        const createdOrder = await prisma.$transaction(async (tx) => {
-            const foodIds = orderItems.map(item => item.foodId);
-            const foods = await tx.food.findMany({
-                where: { id: { in: foodIds } },
-                select: { id: true, price: true }
-            });
+        const priced = await this._priceItems(orderItems, Boolean(confirm));
+        const status: OrderStatus = confirm ? this._confirmedStatus(priced.stationIds.length > 0) : 'PENDING';
+        const ticketNumber = confirm ? await this._getNextTicketNumber() : null;
 
-            const foundIds = new Set(foods.map(f => f.id));
-            const missingIds = [...new Set(foodIds)].filter(id => !foundIds.has(id));
-
-            if (missingIds.length > 0) {
-                throw new BadRequestError(
-                    `Unknown or invalid products: ${missingIds.join(", ")}`
-                );
-            }
-
-            const foodMap = new Map(foods.map(f => [f.id, f.price]));
-            let subTotal = new Prisma.Decimal(0);
-            let totalSurcharge = new Prisma.Decimal(0);
-            const createOrderItems: Array<OrderItem> = []
-
-            orderItems.forEach(item => {
-                const price = foodMap.get(item.foodId)!;
-
-                const surcharge = confirm ? item.surcharge : 0
-
-                const createItem = {
-                    id: "",
-                    foodId: item.foodId,
-                    quantity: item.quantity,
-                    notes: item.notes,
-                    unitPrice: price.toNumber(),
-                    surcharge: surcharge,
-                    total: surcharge + price.toNumber() * item.quantity
+        // confirmation data and station states exist only for confirmed orders
+        const confirmedOrder: Prisma.ConfirmedOrderUncheckedCreateWithoutOrderInput | undefined = confirm
+            ? {
+                ticketNumber: ticketNumber!,
+                completedAt: completedAtFor(status),
+                paymentMethod: confirm.paymentMethod,
+                userId: confirm.userId ?? null,
+                cashRegisterId: confirm.cashRegisterId,
+                ...this._computeTotals(priced.subTotal, priced.surcharge, confirm.discount),
+                orderStationStates: {
+                    createMany: { data: priced.stationIds.map(stationId => ({ stationId, status })) }
                 }
-
-                createOrderItems.push(createItem)
-                subTotal = subTotal.add(createItem.unitPrice * createItem.quantity);
-                totalSurcharge = totalSurcharge.add(surcharge);
-            });
-
-            let total = subTotal;
-            let finalStatus: OrderStatus = 'PENDING';
-            let ticketNumber = null;
-            let confirmedAt = null;
-            let userId = null;
-            let cashRegisterId = null;
-
-            if (confirm) {
-                const discount = new Prisma.Decimal(confirm.discount || 0);
-                const surcharge = new Prisma.Decimal(totalSurcharge || 0);
-                total = subTotal.add(surcharge).sub(discount);
-
-                if (total.isNegative()) total = new Prisma.Decimal(0);
-
-                finalStatus = 'CONFIRMED';
-                confirmedAt = new Date();
-
-                ticketNumber = await this._getNextTicketNumber();
-
-                userId = confirm.userId
-                cashRegisterId = confirm.cashRegisterId
             }
+            : undefined;
 
-            const createdOrder = await tx.order.create({
+        const createdOrder = flattenOrder(await this._withDisplayCode(displayCode =>
+            prisma.order.create({
                 data: {
-                    table: order.table.toString(),
-                    customer: order.customer,
-                    subTotal: subTotal,
-                    displayCode: displayCodeGenerator.encode(await this._getOrderCount()),
-
-                    status: finalStatus,
-                    confirmedAt: confirmedAt,
-                    ticketNumber: ticketNumber,
-
-                    paymentMethod: confirm?.paymentMethod || null,
-                    discount: confirm?.discount || 0,
-                    surcharge: totalSurcharge || 0,
-                    total: total,
-
-                    userId: userId,
-                    cashRegisterId: cashRegisterId
-                },
-            });
-
-            //create order items
-            await tx.orderItem.createMany({
-                data: createOrderItems.map(item => ({
-                    orderId: createdOrder.id,
-                    foodId: item.foodId,
-                    quantity: item.quantity,
-                    notes: item.notes || null,
-                    unitPrice: item.unitPrice!,
-                    unitSurcharge: item.surcharge / item.quantity,
-                    total: item.total!
-                }))
-            });
-
-            const stationIds = await tx.$queryRaw<Array<{ stationId: string }>>`
-                SELECT DISTINCT s.id as stationId
-                FROM orders o JOIN order_items oi ON o.id = oi.orderId
-                JOIN foods f ON oi.foodId = f.id
-                JOIN categories c ON c.id = f.categoryId
-                JOIN stations s ON s.id = c.stationId
-                WHERE o.id = ${createdOrder.id}
-            `
-
-            await tx.orderStationStatus.createMany({
-                data: stationIds.map(({ stationId }) => ({
-                    orderId: createdOrder.id,
-                    stationId,
-                    status: finalStatus
-                }))
-            })
-
-            return await tx.order.findUnique({
-                where: { id: createdOrder.id },
-                include: {
+                    displayCode,
+                    table: input.table ?? null,
+                    customer: input.customer ?? null,
+                    status,
+                    subTotal: priced.subTotal,
+                    surcharge: priced.surcharge,
                     orderItems: {
-                        select: {
-                            id: true,
-                            orderId: true,
-                            quantity: true,
-                            notes: true,
-                            unitPrice: true,
-                            unitSurcharge: true,
-                            total: true,
-                            food: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    printerId: true,
-                                    category: {
-                                        select: {
-                                            id: true,
-                                            name: true,
-                                            station: true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        })
+                        createMany: { data: priced.items }
+                    },
+                    confirmedOrder: confirmedOrder ? { create: confirmedOrder } : undefined
+                },
+                include: orderWithItemsInclude
+            })
+        ));
 
         if (confirm) {
-            this.cashierEvent.broadcastEvent(
-                {
-                    displayCode: createdOrder?.displayCode,
-                    ticketNumber: createdOrder?.ticketNumber,
-                    id: createdOrder?.id
-                },
-                "confirmed-order"
-            )
-
-            const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
-                SELECT DISTINCT os.stationId
-                FROM orders_stations_states os
-                WHERE os.orderId = ${createdOrder?.id}
-            `).map(({ stationId }) => stationId)
-
-            this.displayEvent.broadcastEvent(
-                {
-                    displayCode: createdOrder?.displayCode,
-                    ticketNumber: createdOrder?.ticketNumber,
-                    id: createdOrder?.id,
-                    ordersStations
-                },
-                "confirmed-order"
-            )
-
-            EventsService.broadcastEvents(
-                [this.printerEvent, this.ticketEvent],
-                createdOrder,
-                "confirmed-order"
-            );
+            this._broadcastConfirmedOrder(createdOrder, priced.stationIds);
+        } else {
+            this.cashierEvent.broadcastEvent(createdOrder, "new-order");
         }
 
-        // cashier only event
-        if (!confirm) {
-            this.cashierEvent.broadcastEvent(createdOrder, "new-order")
-        }
-
-        if (!createdOrder) return null;
-
-        const { orderItems: items, ...orderData } = createdOrder;
         return {
-            ...orderData,
-            orderItems: items.map(({ food, ...item }) => ({
-                ...item,
-                foodId: food.id
-            }))
+            ...createdOrder,
+            orderItems: createdOrder.orderItems.map(({ food, ...item }) => item)
         };
     }
 
     async confirmOrder(orderId: string, confirm: ConfirmOrderInput) {
-        const confirmedOrder = await prisma.$transaction(async (tx) => {
-            const existingOrder = await tx.order.findUnique({
-                where: { id: orderId },
-                include: { orderItems: { include: { food: true } } }
+        const { orderStationStates, ...confirmedOrder } = await prisma.$transaction(async (tx) => {
+            // Claiming the order with a conditional update makes concurrent confirmations fail.
+            const claimed = await tx.order.updateMany({
+                where: { id: orderId, status: 'PENDING' },
+                data: { status: 'CONFIRMED' }
             });
 
-            if (!existingOrder) throw new Error("Order not found");
-            if (existingOrder.status !== 'PENDING') throw new Error("Order is already confirmed");
-
-            let subTotal = new Prisma.Decimal(0);
-            let totalSurcharge = new Prisma.Decimal(0);
-
-            if (confirm.orderItems && confirm.orderItems.length > 0) {
-                await tx.orderItem.deleteMany({ where: { orderId } });
-
-                const foodIds = confirm.orderItems.map(item => item.foodId);
-                const foods = await tx.food.findMany({
-                    where: { id: { in: foodIds } },
-                    select: { id: true, price: true }
-                });
-
-                if (foods.length !== new Set(foodIds).size) {
-                    throw new Error("One or more products do not exist or are not available");
-                }
-
-                const foodMap = new Map(foods.map(f => [f.id, f.price]));
-                const createOrderItems: Array<OrderItem> = [];
-
-                confirm.orderItems.forEach(item => {
-                    const price = foodMap.get(item.foodId)!;
-                    const createItem = {
-                        id: "",
-                        foodId: item.foodId,
-                        quantity: item.quantity,
-                        notes: item.notes,
-                        unitPrice: price.toNumber(),
-                        surcharge: item.surcharge,
-                        total: item.surcharge + price.toNumber() * item.quantity
-                    };
-
-                    createOrderItems.push(createItem);
-                    subTotal = subTotal.add(createItem.unitPrice * createItem.quantity);
-                    totalSurcharge = totalSurcharge.add(item.surcharge);
-                });
-
-                await tx.orderItem.createMany({
-                    data: createOrderItems.map(item => ({
-                        orderId: orderId,
-                        foodId: item.foodId,
-                        quantity: item.quantity,
-                        notes: item.notes || null,
-                        unitPrice: item.unitPrice!,
-                        unitSurcharge: item.surcharge / item.quantity,
-                        total: item.total!
-                    }))
-                });
-
-            } else {
-                existingOrder.orderItems.forEach(item => {
-                    subTotal = subTotal.add(item.food.price.mul(item.quantity));
-                });
+            if (claimed.count === 0) {
+                const exists = await tx.order.count({ where: { id: orderId } });
+                throw exists
+                    ? new BadRequestError("Order is already confirmed")
+                    : new NotFoundError("Order not found");
             }
 
-            const discount = new Prisma.Decimal(confirm.discount || 0);
+            let itemsData: Pick<Prisma.OrderUpdateInput, "orderItems"> = {};
+            let subTotal: Decimal;
+            let surcharge: Decimal;
+            let stationIds: string[];
 
-            let total = subTotal.add(totalSurcharge).sub(discount)
-            if (total.isNegative()) total = new Prisma.Decimal(0);
+            if (confirm.orderItems?.length) {
+                const priced = await this._priceItems(confirm.orderItems, true, tx);
+                ({ subTotal, surcharge, stationIds } = priced);
+                itemsData = {
+                    orderItems: {
+                        deleteMany: {},
+                        createMany: { data: priced.items }
+                    }
+                };
+            } else {
+                // Keep the prices snapshotted when the order was created.
+                const items = await tx.orderItem.findMany({
+                    where: { orderId },
+                    select: {
+                        unitPrice: true,
+                        quantity: true,
+                        total: true,
+                        food: { select: { category: { select: { stationId: true } } } }
+                    }
+                });
+                subTotal = sum(items.map(item => item.unitPrice.mul(item.quantity)));
+                surcharge = sum(items.map(item => item.total)).sub(subTotal);
 
-            const ticketNumber = await this._getNextTicketNumber();
-            const updatedOrder = await tx.order.update({
+                // pending orders have no station states yet: derive the stations from the items
+                const stations = new Set(items.map(item => item.food.category.stationId));
+                stations.delete(null);
+                stationIds = [...stations] as string[];
+            }
+
+            const status = this._confirmedStatus(stationIds.length > 0);
+
+            const order = await tx.order.update({
                 where: { id: orderId },
                 data: {
-                    status: 'CONFIRMED',
-                    confirmedAt: new Date(),
-                    ticketNumber: ticketNumber,
-                    paymentMethod: confirm.paymentMethod,
-                    discount: confirm.discount || 0,
-                    surcharge: totalSurcharge || 0,
-                    subTotal: subTotal,
-                    total: total,
-                    userId: confirm.userId,
-                    cashRegisterId: confirm.cashRegisterId,
+                    status,
+                    subTotal,
+                    surcharge,
                     customer: confirm.customer,
-                    table: confirm.table
-                },
-                include: {
-                    orderItems: {
-                        select: {
-                            id: true,
-                            orderId: true,
-                            quantity: true,
-                            notes: true,
-                            unitPrice: true,
-                            unitSurcharge: true,
-                            total: true,
-                            food: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    printerId: true,
-                                    category: {
-                                        select: {
-                                            id: true,
-                                            name: true,
-                                            station: true
-                                        }
-                                    }
-                                }
+                    table: confirm.table,
+                    ...itemsData,
+                    confirmedOrder: {
+                        create: {
+                            ticketNumber: await this._getNextTicketNumber(),
+                            completedAt: completedAtFor(status),
+                            paymentMethod: confirm.paymentMethod,
+                            userId: confirm.userId ?? null,
+                            cashRegisterId: confirm.cashRegisterId,
+                            ...this._computeTotals(subTotal, surcharge, confirm.discount),
+                            orderStationStates: {
+                                createMany: { data: stationIds.map(stationId => ({ stationId, status })) }
                             }
                         }
                     }
+                },
+                include: {
+                    ...orderWithItemsInclude,
+                    confirmedOrder: { include: { orderStationStates: { select: { stationId: true } } } }
                 }
             });
 
-            await tx.orderStationStatus.updateMany({
-                where: { orderId },
-                data: {
-                    status: "CONFIRMED"
-                }
-            })
-
-            return updatedOrder;
+            const { confirmedOrder, ...base } = order;
+            return { ...flattenOrder({ ...base, confirmedOrder }), orderStationStates: confirmedOrder!.orderStationStates };
         });
 
-        this.cashierEvent.broadcastEvent(
-            {
-                displayCode: confirmedOrder.displayCode,
-                ticketNumber: confirmedOrder.ticketNumber,
-                id: confirmedOrder.id
-            },
-            "confirmed-order"
-        )
-
-        const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
-            SELECT DISTINCT os.stationId
-            FROM orders_stations_states os
-            WHERE os.orderId = ${confirmedOrder?.id}
-        `).map(({ stationId }) => stationId)
-
-        this.displayEvent.broadcastEvent(
-            {
-                displayCode: confirmedOrder.displayCode,
-                ticketNumber: confirmedOrder.ticketNumber,
-                id: confirmedOrder.id,
-                ordersStations
-            },
-            "confirmed-order"
-        )
-
-        EventsService.broadcastEvents(
-            [this.printerEvent, this.ticketEvent],
-            confirmedOrder,
-            "confirmed-order"
-        )
+        this._broadcastConfirmedOrder(confirmedOrder, orderStationStates.map(({ stationId }) => stationId));
 
         return confirmedOrder;
     }
 
     async updateStatus(id: string, status: OrderStatus) {
-        if (status == "CANCELLED") {
-            return await this.deleteOrder(id)
+        if (status === "CANCELLED") {
+            return this.deleteOrder(id);
         }
 
-        const patchedOrder = await prisma.$transaction(async tx => {
-            const order = await tx.order.update({
-                where: {
-                    id
-                },
+        const patchedOrder = await prisma.$transaction(async (tx) => {
+            const existing = await tx.order.findUnique({
+                where: { id },
+                select: { confirmedOrder: { select: { orderId: true } } }
+            });
+
+            if (!existing) throw new NotFoundError("Order not found");
+
+            // PENDING <=> no confirmation data
+            const isConfirmed = Boolean(existing.confirmedOrder);
+            if (isConfirmed === (status === "PENDING")) {
+                throw new BadRequestError(isConfirmed
+                    ? "A confirmed order can't go back to PENDING"
+                    : "Pending orders must be confirmed first");
+            }
+
+            return flattenOrder(await tx.order.update({
+                where: { id },
                 data: {
                     status,
-                    completedAt: status === "COMPLETED" ? new Date() : null
+                    confirmedOrder: isConfirmed
+                        ? {
+                            update: {
+                                completedAt: completedAtFor(status),
+                                orderStationStates: {
+                                    updateMany: { where: {}, data: { status } }
+                                }
+                            }
+                        }
+                        : undefined
+                },
+                include: { confirmedOrder: true }
+            }));
+        });
+
+        this._broadcastStatusUpdate(patchedOrder);
+
+        return patchedOrder;
+    }
+
+    async deleteOrder(id: string) {
+        const cancellation = await prisma.$transaction(async (tx) => {
+            const order = await tx.order.findUnique({
+                where: { id },
+                include: {
+                    confirmedOrder: true,
+                    orderItems: {
+                        select: {
+                            foodId: true,
+                            quantity: true,
+                            total: true,
+                            food: { select: { categoryId: true, printerId: true } }
+                        }
+                    }
                 }
-            })
+            });
 
-            await tx.orderStationStatus.updateMany({
-                where: { orderId: order.id },
-                data: { status }
-            })
+            if (!order) throw new NotFoundError("Order not found");
+            if (order.status === "CANCELLED") throw new BadRequestError("Order is already cancelled");
 
-            return order;
-        })
+            if (order.status === "PENDING") {
+                await tx.order.delete({ where: { id } });
+                return null;
+            }
+
+            await this._updateReportsOnOrderCancellation(tx, order);
+
+            const cancelledOrder = flattenOrder(await tx.order.update({
+                where: { id },
+                data: {
+                    status: "CANCELLED",
+                    confirmedOrder: order.confirmedOrder
+                        ? {
+                            update: {
+                                orderStationStates: {
+                                    updateMany: { where: {}, data: { status: "CANCELLED" } }
+                                }
+                            }
+                        }
+                        : undefined
+                },
+                include: { confirmedOrder: true }
+            }));
+
+            const printers = new Set(order.orderItems.map(item => item.food.printerId));
+            printers.delete(null);
+
+            return { cancelledOrder, printers: [...printers] };
+        });
+
+        if (!cancellation) return null;
+
+        const { cancelledOrder, printers } = cancellation;
+
         EventsService.broadcastEvents(
             [this.displayEvent, this.cashierEvent, this.ticketEvent],
             {
                 id,
-                ticketNumber: patchedOrder.ticketNumber,
-                displayCode: patchedOrder.displayCode,
-                status
+                ticketNumber: cancelledOrder.ticketNumber,
+                displayCode: cancelledOrder.displayCode,
+                status: cancelledOrder.status
             },
-            "order-status-update"
+            "order-cancelled"
         );
-        return patchedOrder;
-    }
-
-
-    async deleteOrder(id: string) {
-        return await prisma.$transaction(async (tx) => {
-            const order = await tx.order.findUnique({
-                where: { id },
-                select: { status: true, ticketNumber: true, displayCode: true }
-            });
-
-            if (!order) return null;
-
-            if (order.status !== "PENDING") {
-                await this._updateReportsOnOrderCancellation(tx, id);
-
-                const updatedOrder = await tx.order.update({
-                    where: { id },
-                    data: { status: "CANCELLED" }
-                });
-
-                await tx.orderStationStatus.updateMany({
-                    where: { orderId: id },
-                    data: { status: "CANCELLED" }
-                })
-
-                // Select all distinct printers in an order
-                const printers: { printerId: string }[] = await tx.$queryRaw
-                    `
-                    SELECT DISTINCT f.printerId
-                    FROM orders o JOIN order_items oi ON o.id = oi.orderId
-                    JOIN foods f ON oi.foodId = f.id
-                    WHERE o.id = ${id}
-                `
-                const printerIds = printers.map(p => p.printerId)
-
-                EventsService.broadcastEvents(
-                    [this.displayEvent, this.cashierEvent, this.ticketEvent],
-                    {
-                        id,
-                        ticketNumber: updatedOrder.ticketNumber,
-                        displayCode: updatedOrder.displayCode,
-                        status: updatedOrder.status
-                    },
-                    "order-cancelled"
-                );
-
-                this.printerEvent.broadcastEvent(
-                    {
-                        orderId: id,
-                        ticketNumber: updatedOrder.ticketNumber,
-                        displayCode: updatedOrder.displayCode,
-                        customer: updatedOrder.customer,
-                        table: updatedOrder.table,
-                        status: updatedOrder.status,
-                        printers: printerIds
-                    },
-                    "order-cancelled"
-                );
-
-                return updatedOrder;
-            }
-
-            await tx.order.delete({
-                where: { id }
-            });
-
-            return null;
-        });
-    }
-
-    async reprintOrder(id: string, reprint: ReprintOrder) {
-        const order = await prisma.order.findUnique({
-            where: {
-                id
-            },
-            include: {
-                orderItems: {
-                    include: {
-                        food: {
-                            select: {
-                                id: true,
-                                name: true,
-                                printerId: true,
-                                category: {
-                                    select: {
-                                        id: true,
-                                        name: true,
-                                        station: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-            }
-        })
-
-        if (!order) {
-            throw new NotFoundError("Order not found")
-        }
-
-        if (order.status === "PENDING") {
-            throw new BadRequestError("Pending orders can't be reprinted");
-        }
-
-        let reprintOrderItems: typeof order.orderItems = []
-
-        if (reprint.orderItems) {
-            reprintOrderItems = order.orderItems.filter((item) => reprint.orderItems?.some(reprintItem => reprintItem === item.id))
-        }
-
-        if (reprint.orderItems && reprintOrderItems.length !== reprint.orderItems.length) {
-            throw new Error("Some order items were not found");
-        }
-
-        const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
-            SELECT DISTINCT os.stationId
-            FROM orders_stations_states os
-            WHERE os.orderId = ${order?.id}
-        `).map(({ stationId }) => stationId)
 
         this.printerEvent.broadcastEvent(
             {
-                ...order,
-                reprintOrderItems,
-                reprintReceipt: reprint.reprintReceipt,
-                ordersStations
+                orderId: id,
+                ticketNumber: cancelledOrder.ticketNumber,
+                displayCode: cancelledOrder.displayCode,
+                customer: cancelledOrder.customer,
+                table: cancelledOrder.table,
+                status: cancelledOrder.status,
+                printers
             },
-            "reprint-order"
+            "order-cancelled"
         );
 
-        return {
+        return cancelledOrder;
+    }
+
+    async reprintOrder(id: string, reprint: ReprintOrder) {
+        const result = await prisma.order.findUnique({
+            where: { id },
+            include: {
+                ...orderWithItemsInclude,
+                confirmedOrder: { include: { orderStationStates: { select: { stationId: true } } } }
+            }
+        });
+
+        if (!result) throw new NotFoundError("Order not found");
+        if (result.status === "PENDING" || !result.confirmedOrder) throw new BadRequestError("Pending orders can't be reprinted");
+
+        const { orderStationStates, ...confirmation } = result.confirmedOrder;
+        const order = flattenOrder({ ...result, confirmedOrder: confirmation });
+
+        const requestedIds = new Set(reprint.orderItems ?? []);
+        const reprintOrderItems = order.orderItems.filter(item => requestedIds.has(item.id));
+
+        if (reprintOrderItems.length !== requestedIds.size) {
+            throw new BadRequestError("Some order items were not found");
+        }
+
+        const reprinted = {
             ...order,
             reprintOrderItems,
             reprintReceipt: reprint.reprintReceipt
         };
+
+        this.printerEvent.broadcastEvent(
+            {
+                ...reprinted,
+                ordersStations: orderStationStates.map(({ stationId }) => stationId)
+            },
+            "reprint-order"
+        );
+
+        return reprinted;
     }
 
     async updateOrderStationStatus(orderId: string, stationId: string, status: OrderStatus) {
-        return await prisma.$transaction(async tx => {
-            const patchedOrderStation = await tx.orderStationStatus.update({
-                where: {
-                    orderId_stationId: { orderId, stationId }
-                },
+        const { patched: patchedOrderStation, updatedOrder } = await prisma.$transaction(async tx => {
+            const patched = await tx.orderStationStatus.update({
+                where: { orderId_stationId: { orderId, stationId } },
                 data: { status }
-            })
+            });
 
-            const orderStationsStates = await tx.orderStationStatus.findMany({
-                where: { orderId }
-            })
+            const stationStates = await tx.orderStationStatus.findMany({
+                where: { orderId },
+                select: { status: true }
+            });
+            const orderStatus = this._deriveOrderStatus(stationStates.map(state => state.status));
 
-            const statuses = orderStationsStates.map(oss => oss.status);
-            const uniqueStatuses = new Set(statuses);
+            const order = await tx.order.findUniqueOrThrow({
+                where: { id: orderId },
+                select: { status: true }
+            });
 
-            let newOrderStatus: OrderStatus;
+            // Only touch the order when its status really changes, so completedAt is not re-stamped.
+            if (order.status === orderStatus) return { patched, updatedOrder: null };
 
-            if (uniqueStatuses.size === 1) {
-                newOrderStatus = statuses[0];
-            } else if (uniqueStatuses.has('CONFIRMED')) {
-                newOrderStatus = 'PARTIAL';
-            } else {
-                const statusStrength = { PENDING: 0, CONFIRMED: 1, PARTIAL: 2, COMPLETED: 3, PICKED_UP: 4, CANCELLED: 5 };
-                newOrderStatus = statuses.sort((a, b) => statusStrength[a as OrderStatus] - statusStrength[b as OrderStatus])[0] as OrderStatus;
-            }
-
-            await tx.order.update({
+            // station states exist only for confirmed orders, so the confirmation is always there
+            const updatedOrder = flattenOrder(await tx.order.update({
                 where: { id: orderId },
                 data: {
-                    status: newOrderStatus,
-                    completedAt: newOrderStatus === "COMPLETED" ? new Date() : null
-                }
-            })
-
-            this.displayEvent.broadcastEvent(
-                {
-                    orderId,
-                    stationId,
-                    status
+                    status: orderStatus,
+                    confirmedOrder: { update: { completedAt: completedAtFor(orderStatus) } }
                 },
-                "order-station-status-update"
-            );
+                include: { confirmedOrder: true }
+            }));
 
-            return patchedOrderStation;
-        })
+            return { patched, updatedOrder };
+        });
+
+        this.displayEvent.broadcastEvent(
+            { orderId, stationId, status },
+            "order-station-status-update"
+        );
+
+        if (updatedOrder) this._broadcastStatusUpdate(updatedOrder);
+
+        return patchedOrderStation;
     }
 }

@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MacAddressInput } from "@/components/ui/mac-address-input";
 import { Button } from "@/components/ui/button";
 import {
   FormField,
@@ -56,11 +55,6 @@ export function PrinterDialog({
       .regex(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, t.printers.ipInvalid)
       .optional()
       .or(z.literal("")),
-    mac: z
-      .string()
-      .regex(/^([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}$/, t.printers.macInvalid)
-      .optional()
-      .or(z.literal("")),
     port: z.coerce
       .number()
       .int()
@@ -79,7 +73,6 @@ export function PrinterDialog({
     defaultValues: {
       name: "",
       ip: "",
-      mac: "",
       port: 9100,
       description: "",
     },
@@ -96,7 +89,6 @@ export function PrinterDialog({
       form.reset({
         name: printer.name,
         ip: printer.ip ?? "",
-        mac: printer.mac ?? "",
         port: printer.port,
         description: printer.description || "",
       });
@@ -104,7 +96,6 @@ export function PrinterDialog({
       form.reset({
         name: "",
         ip: "",
-        mac: "",
         port: 9100,
         description: "",
       });
@@ -113,14 +104,11 @@ export function PrinterDialog({
 
   async function onSubmit(values: PrinterFormValues) {
     const ipTrimmed = (values.ip as string | undefined)?.trim();
-    const macTrimmed = (values.mac as string | undefined)?.trim();
     const ip = ipTrimmed ? ipTrimmed : null;
-    const mac = macTrimmed ? macTrimmed : null;
     const description = (values.description as string | undefined)?.trim() ?? "";
     const data = {
       name: values.name.trim(),
       ip,
-      mac,
       port: values.port as number,
       description,
     };
@@ -178,24 +166,6 @@ export function PrinterDialog({
                         <FieldLabel>{t.printers.ipLabel}</FieldLabel>
                         <FormControl>
                           <Input {...field} placeholder="192.168.1.100" />
-                        </FormControl>
-                        <FormMessage />
-                      </Field>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="mac"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Field>
-                        <FieldLabel>{t.printers.macLabel}</FieldLabel>
-                        <FormControl>
-                          <MacAddressInput
-                            value={field.value as string ?? ""}
-                            onChange={field.onChange}
-                          />
                         </FormControl>
                         <FormMessage />
                       </Field>

@@ -4,8 +4,8 @@ import type { OrderStatus, PaymentMethod } from "../generated/prisma_client/enum
 
 export interface CreateOrderInput {
   displayCode?: string;
-  table?: string;
-  customer?: string;
+  table?: string | null;
+  customer?: string | null;
   status?: OrderStatus;
   paymentMethod?: PaymentMethod | null;
   subTotal: number;
@@ -99,37 +99,18 @@ export async function createOrder(
     now = baseDate;
   }
 
-  return prisma.order.create({
-    data: {
-      displayCode: input.displayCode ?? generateDisplayCode(),
-      table: input.table ?? `Tavolo ${faker.number.int({ min: 1, max: 50 })}`,
-      customer: input.customer ?? faker.person.fullName(),
-      status,
-      paymentMethod:
-        input.paymentMethod !== undefined
-          ? input.paymentMethod
-          : isConfirmed
-            ? faker.helpers.arrayElement(["CASH", "CARD"] as const)
-            : null,
-      subTotal: input.subTotal,
+  // confirmation data lives in confirmed_orders, only for non-pending orders
+  const confirmedOrder = isConfirmed
+    ? {
+      ticketNumber: input.ticketNumber ?? faker.number.int({ min: 1, max: 999 }),
+      paymentMethod: input.paymentMethod ?? faker.helpers.arrayElement(["CASH", "CARD"] as const),
       discount: input.discount ?? 0,
-      surcharge: input.surcharge ?? 0,
       total: input.total,
       userId: input.userId ?? null,
       cashRegisterId: input.cashRegisterId ?? null,
-      ticketNumber:
-        input.ticketNumber !== undefined
-          ? input.ticketNumber
-          : isConfirmed
-            ? faker.number.int({ min: 1, max: 999 })
-            : null,
-      createdAt: now,
       confirmedAt:
-        input.confirmedAt !== undefined
-          ? input.confirmedAt
-          : isConfirmed
-            ? new Date(now.getTime() + faker.number.int({ min: 60000, max: 600000 }))
-            : null,
+        input.confirmedAt ??
+        new Date(now.getTime() + faker.number.int({ min: 60000, max: 600000 })),
       completedAt:
         input.completedAt !== undefined
           ? input.completedAt
@@ -138,6 +119,20 @@ export async function createOrder(
               now.getTime() + faker.number.int({ min: 600000, max: 1800000 })
             )
             : null,
+    }
+    : undefined;
+
+  return prisma.order.create({
+    data: {
+      displayCode: input.displayCode ?? generateDisplayCode(),
+      table: input.table !== undefined ? input.table : `Tavolo ${faker.number.int({ min: 1, max: 50 })}`,
+      customer: input.customer !== undefined ? input.customer : faker.person.fullName(),
+      status,
+      subTotal: input.subTotal,
+      surcharge: input.surcharge ?? 0,
+      createdAt: now,
+      confirmedOrder: confirmedOrder ? { create: confirmedOrder } : undefined,
     },
+    include: { confirmedOrder: true },
   });
 }

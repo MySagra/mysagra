@@ -51,27 +51,28 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Sagra: 'Sagra',
-  Station: 'Station',
+  Role: 'Role',
+  User: 'User',
+  Session: 'Session',
+  ApiKey: 'ApiKey',
+  Banner: 'Banner',
+  OrderInstruction: 'OrderInstruction',
   Category: 'Category',
   Ingredient: 'Ingredient',
   Food: 'Food',
   FoodIngredient: 'FoodIngredient',
   Order: 'Order',
+  ConfirmedOrder: 'ConfirmedOrder',
   OrderStationStatus: 'OrderStationStatus',
   OrderItem: 'OrderItem',
-  Role: 'Role',
-  User: 'User',
-  Session: 'Session',
+  Station: 'Station',
   Printer: 'Printer',
   CashRegister: 'CashRegister',
-  ApiKey: 'ApiKey',
-  Banner: 'Banner',
-  OrderInstruction: 'OrderInstruction',
   Report: 'Report',
   CashRegisterStats: 'CashRegisterStats',
   CategoryStats: 'CategoryStats',
-  FoodStats: 'FoodStats'
+  FoodStats: 'FoodStats',
+  Sagra: 'Sagra'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -90,22 +91,80 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const SagraScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  lastClosingAt: 'lastClosingAt',
-  statsIntervalMinutes: 'statsIntervalMinutes'
-} as const
-
-export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
-
-
-export const StationScalarFieldEnum = {
+export const RoleScalarFieldEnum = {
   id: 'id',
   name: 'name'
 } as const
 
-export type StationScalarFieldEnum = (typeof StationScalarFieldEnum)[keyof typeof StationScalarFieldEnum]
+export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id',
+  username: 'username',
+  password: 'password',
+  roleId: 'roleId'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  sessionId: 'sessionId',
+  userId: 'userId',
+  userAgent: 'userAgent',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+
+
+export const ApiKeyScalarFieldEnum = {
+  id: 'id',
+  hashKey: 'hashKey',
+  prefix: 'prefix',
+  lastDigits: 'lastDigits',
+  type: 'type',
+  name: 'name',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
+export const BannerScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  type: 'type',
+  position: 'position',
+  title: 'title',
+  description: 'description',
+  website: 'website',
+  instagram: 'instagram',
+  facebook: 'facebook',
+  telephone: 'telephone',
+  image: 'image',
+  color: 'color',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  visibleFrom: 'visibleFrom'
+} as const
+
+export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
+
+
+export const OrderInstructionScalarFieldEnum = {
+  id: 'id',
+  text: 'text',
+  position: 'position'
+} as const
+
+export type OrderInstructionScalarFieldEnum = (typeof OrderInstructionScalarFieldEnum)[keyof typeof OrderInstructionScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {
@@ -156,22 +215,29 @@ export const OrderScalarFieldEnum = {
   displayCode: 'displayCode',
   table: 'table',
   customer: 'customer',
+  status: 'status',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  subTotal: 'subTotal',
+  surcharge: 'surcharge'
+} as const
+
+export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const ConfirmedOrderScalarFieldEnum = {
+  orderId: 'orderId',
   confirmedAt: 'confirmedAt',
   completedAt: 'completedAt',
-  updatedAt: 'updatedAt',
   ticketNumber: 'ticketNumber',
-  status: 'status',
   paymentMethod: 'paymentMethod',
-  subTotal: 'subTotal',
   discount: 'discount',
-  surcharge: 'surcharge',
   total: 'total',
   userId: 'userId',
   cashRegisterId: 'cashRegisterId'
 } as const
 
-export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+export type ConfirmedOrderScalarFieldEnum = (typeof ConfirmedOrderScalarFieldEnum)[keyof typeof ConfirmedOrderScalarFieldEnum]
 
 
 export const OrderStationStatusScalarFieldEnum = {
@@ -199,42 +265,18 @@ export const OrderItemScalarFieldEnum = {
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
 
 
-export const RoleScalarFieldEnum = {
+export const StationScalarFieldEnum = {
   id: 'id',
   name: 'name'
 } as const
 
-export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
-
-
-export const UserScalarFieldEnum = {
-  id: 'id',
-  username: 'username',
-  password: 'password',
-  roleId: 'roleId'
-} as const
-
-export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const SessionScalarFieldEnum = {
-  sessionId: 'sessionId',
-  userId: 'userId',
-  userAgent: 'userAgent',
-  expiresAt: 'expiresAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  revokedAt: 'revokedAt'
-} as const
-
-export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+export type StationScalarFieldEnum = (typeof StationScalarFieldEnum)[keyof typeof StationScalarFieldEnum]
 
 
 export const PrinterScalarFieldEnum = {
   id: 'id',
   name: 'name',
   ip: 'ip',
-  mac: 'mac',
   port: 'port',
   description: 'description',
   status: 'status'
@@ -253,51 +295,6 @@ export const CashRegisterScalarFieldEnum = {
 export type CashRegisterScalarFieldEnum = (typeof CashRegisterScalarFieldEnum)[keyof typeof CashRegisterScalarFieldEnum]
 
 
-export const ApiKeyScalarFieldEnum = {
-  id: 'id',
-  hash_key: 'hash_key',
-  prefix: 'prefix',
-  last_digits: 'last_digits',
-  type: 'type',
-  name: 'name',
-  createdAt: 'createdAt',
-  lastUsedAt: 'lastUsedAt',
-  revokedAt: 'revokedAt'
-} as const
-
-export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
-
-
-export const BannerScalarFieldEnum = {
-  id: 'id',
-  label: 'label',
-  type: 'type',
-  position: 'position',
-  title: 'title',
-  description: 'description',
-  website: 'website',
-  instagram: 'instagram',
-  facebook: 'facebook',
-  telephone: 'telephone',
-  image: 'image',
-  color: 'color',
-  startsAt: 'startsAt',
-  endsAt: 'endsAt',
-  visibleFrom: 'visibleFrom'
-} as const
-
-export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
-
-
-export const OrderInstructionScalarFieldEnum = {
-  id: 'id',
-  text: 'text',
-  position: 'position'
-} as const
-
-export type OrderInstructionScalarFieldEnum = (typeof OrderInstructionScalarFieldEnum)[keyof typeof OrderInstructionScalarFieldEnum]
-
-
 export const ReportScalarFieldEnum = {
   id: 'id',
   timestamp: 'timestamp',
@@ -306,7 +303,7 @@ export const ReportScalarFieldEnum = {
   totalCashRevenue: 'totalCashRevenue',
   totalCardRevenue: 'totalCardRevenue',
   totalOrders: 'totalOrders',
-  averageCompletitionTime: 'averageCompletitionTime'
+  averageCompletionTime: 'averageCompletionTime'
 } as const
 
 export type ReportScalarFieldEnum = (typeof ReportScalarFieldEnum)[keyof typeof ReportScalarFieldEnum]
@@ -349,6 +346,16 @@ export const FoodStatsScalarFieldEnum = {
 export type FoodStatsScalarFieldEnum = (typeof FoodStatsScalarFieldEnum)[keyof typeof FoodStatsScalarFieldEnum]
 
 
+export const SagraScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  lastClosingAt: 'lastClosingAt',
+  statsIntervalMinutes: 'statsIntervalMinutes'
+} as const
+
+export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -357,20 +364,22 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const SagraOrderByRelevanceFieldEnum = {
+export const RoleOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name'
 } as const
 
-export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
+export type RoleOrderByRelevanceFieldEnum = (typeof RoleOrderByRelevanceFieldEnum)[keyof typeof RoleOrderByRelevanceFieldEnum]
 
 
-export const StationOrderByRelevanceFieldEnum = {
+export const UserOrderByRelevanceFieldEnum = {
   id: 'id',
-  name: 'name'
+  username: 'username',
+  password: 'password',
+  roleId: 'roleId'
 } as const
 
-export type StationOrderByRelevanceFieldEnum = (typeof StationOrderByRelevanceFieldEnum)[keyof typeof StationOrderByRelevanceFieldEnum]
+export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
 
 
 export const NullsOrder = {
@@ -379,6 +388,50 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const SessionOrderByRelevanceFieldEnum = {
+  sessionId: 'sessionId',
+  userId: 'userId',
+  userAgent: 'userAgent'
+} as const
+
+export type SessionOrderByRelevanceFieldEnum = (typeof SessionOrderByRelevanceFieldEnum)[keyof typeof SessionOrderByRelevanceFieldEnum]
+
+
+export const ApiKeyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  hashKey: 'hashKey',
+  prefix: 'prefix',
+  lastDigits: 'lastDigits',
+  name: 'name'
+} as const
+
+export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
+
+
+export const BannerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  label: 'label',
+  title: 'title',
+  description: 'description',
+  website: 'website',
+  instagram: 'instagram',
+  facebook: 'facebook',
+  telephone: 'telephone',
+  image: 'image',
+  color: 'color'
+} as const
+
+export type BannerOrderByRelevanceFieldEnum = (typeof BannerOrderByRelevanceFieldEnum)[keyof typeof BannerOrderByRelevanceFieldEnum]
+
+
+export const OrderInstructionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  text: 'text'
+} as const
+
+export type OrderInstructionOrderByRelevanceFieldEnum = (typeof OrderInstructionOrderByRelevanceFieldEnum)[keyof typeof OrderInstructionOrderByRelevanceFieldEnum]
 
 
 export const CategoryOrderByRelevanceFieldEnum = {
@@ -423,12 +476,19 @@ export const OrderOrderByRelevanceFieldEnum = {
   id: 'id',
   displayCode: 'displayCode',
   table: 'table',
-  customer: 'customer',
+  customer: 'customer'
+} as const
+
+export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldEnum)[keyof typeof OrderOrderByRelevanceFieldEnum]
+
+
+export const ConfirmedOrderOrderByRelevanceFieldEnum = {
+  orderId: 'orderId',
   userId: 'userId',
   cashRegisterId: 'cashRegisterId'
 } as const
 
-export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldEnum)[keyof typeof OrderOrderByRelevanceFieldEnum]
+export type ConfirmedOrderOrderByRelevanceFieldEnum = (typeof ConfirmedOrderOrderByRelevanceFieldEnum)[keyof typeof ConfirmedOrderOrderByRelevanceFieldEnum]
 
 
 export const OrderStationStatusOrderByRelevanceFieldEnum = {
@@ -450,38 +510,18 @@ export const OrderItemOrderByRelevanceFieldEnum = {
 export type OrderItemOrderByRelevanceFieldEnum = (typeof OrderItemOrderByRelevanceFieldEnum)[keyof typeof OrderItemOrderByRelevanceFieldEnum]
 
 
-export const RoleOrderByRelevanceFieldEnum = {
+export const StationOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name'
 } as const
 
-export type RoleOrderByRelevanceFieldEnum = (typeof RoleOrderByRelevanceFieldEnum)[keyof typeof RoleOrderByRelevanceFieldEnum]
-
-
-export const UserOrderByRelevanceFieldEnum = {
-  id: 'id',
-  username: 'username',
-  password: 'password',
-  roleId: 'roleId'
-} as const
-
-export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
-
-
-export const SessionOrderByRelevanceFieldEnum = {
-  sessionId: 'sessionId',
-  userId: 'userId',
-  userAgent: 'userAgent'
-} as const
-
-export type SessionOrderByRelevanceFieldEnum = (typeof SessionOrderByRelevanceFieldEnum)[keyof typeof SessionOrderByRelevanceFieldEnum]
+export type StationOrderByRelevanceFieldEnum = (typeof StationOrderByRelevanceFieldEnum)[keyof typeof StationOrderByRelevanceFieldEnum]
 
 
 export const PrinterOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
   ip: 'ip',
-  mac: 'mac',
   description: 'description'
 } as const
 
@@ -495,41 +535,6 @@ export const CashRegisterOrderByRelevanceFieldEnum = {
 } as const
 
 export type CashRegisterOrderByRelevanceFieldEnum = (typeof CashRegisterOrderByRelevanceFieldEnum)[keyof typeof CashRegisterOrderByRelevanceFieldEnum]
-
-
-export const ApiKeyOrderByRelevanceFieldEnum = {
-  id: 'id',
-  hash_key: 'hash_key',
-  prefix: 'prefix',
-  last_digits: 'last_digits',
-  name: 'name'
-} as const
-
-export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
-
-
-export const BannerOrderByRelevanceFieldEnum = {
-  id: 'id',
-  label: 'label',
-  title: 'title',
-  description: 'description',
-  website: 'website',
-  instagram: 'instagram',
-  facebook: 'facebook',
-  telephone: 'telephone',
-  image: 'image',
-  color: 'color'
-} as const
-
-export type BannerOrderByRelevanceFieldEnum = (typeof BannerOrderByRelevanceFieldEnum)[keyof typeof BannerOrderByRelevanceFieldEnum]
-
-
-export const OrderInstructionOrderByRelevanceFieldEnum = {
-  id: 'id',
-  text: 'text'
-} as const
-
-export type OrderInstructionOrderByRelevanceFieldEnum = (typeof OrderInstructionOrderByRelevanceFieldEnum)[keyof typeof OrderInstructionOrderByRelevanceFieldEnum]
 
 
 export const ReportOrderByRelevanceFieldEnum = {
@@ -567,4 +572,12 @@ export const FoodStatsOrderByRelevanceFieldEnum = {
 } as const
 
 export type FoodStatsOrderByRelevanceFieldEnum = (typeof FoodStatsOrderByRelevanceFieldEnum)[keyof typeof FoodStatsOrderByRelevanceFieldEnum]
+
+
+export const SagraOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
 

@@ -24,7 +24,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2Icon, ImageIcon, UploadIcon, CropIcon } from "lucide-react";
+import { Trash2Icon, ImageIcon, UploadIcon, CropIcon, InfoIcon } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ImageCropDialog } from "./image-crop-dialog";
 import {
   Empty,
@@ -65,7 +66,6 @@ interface CategoryDialogProps {
   stations?: Station[];
   onSaved: (category: Category) => void;
   onDelete?: (category: Category) => void;
-  categoriesCount?: number;
 }
 
 const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
@@ -78,7 +78,6 @@ export function CategoryDialog({
   stations = [],
   onSaved,
   onDelete,
-  categoriesCount = 0,
 }: CategoryDialogProps) {
   const { t } = useLocale();
   const isEditing = !!category;
@@ -221,7 +220,7 @@ export function CategoryDialog({
       toast.success(t.categories.toastUpdated);
       savedCategory = result.data;
     } else {
-      const result = await createCategory({ ...data, position: categoriesCount });
+      const result = await createCategory(data);
       if (!result.ok) { toast.error(result.error); return; }
       toast.success(t.categories.toastCreated);
       savedCategory = result.data;
@@ -362,6 +361,13 @@ export function CategoryDialog({
                     )}
                   />
                 </Field>
+
+                <Alert role="note" className="bg-muted/40 border-dashed">
+                  <InfoIcon className="size-3.5" />
+                  <AlertDescription className="text-xs">
+                    {t.categories.propagationHint}
+                  </AlertDescription>
+                </Alert>
 
                 <Field>
                   <FieldLabel>{t.categories.imageLabel}</FieldLabel>
