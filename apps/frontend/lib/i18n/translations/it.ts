@@ -194,6 +194,7 @@ export const it = {
     stationSelectPlaceholder: "Seleziona postazione di ritiro",
     noStation: "Nessuna postazione di ritiro",
     defaultPrinterLabel: "Stampante Predefinita",
+    propagationHint: "Disponibilità e stampante vengono applicate a tutti i piatti della categoria.",
     printerSelectPlaceholder: "Seleziona stampante",
     noPrinter: "Nessuna stampante",
     imageLabel: "Immagine",

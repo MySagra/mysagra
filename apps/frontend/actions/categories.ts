@@ -4,7 +4,7 @@ import { fetchApi } from "@/lib/api";
 import { API_ENDPOINTS, Category } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { CategoryResponseSchema } from "@mysagra/schemas";
+import { CategorySchema as CategoryResponseSchema } from "@/lib/api-schemas";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 export async function getCategories(): Promise<Category[]> {
@@ -69,35 +69,33 @@ export async function updateCategory(
   }
 }
 
-export async function reorderCategories(
-  categories: { id: string; name: string; available: boolean; position: number; printerId?: string | null; stationId?: string | null }[]
-): Promise<Category[]> {
-  const results: Category[] = [];
-  for (const { id, name, available, position, printerId, stationId } of categories) {
-    const result = await fetchApi<Category>(
-      API_ENDPOINTS.CATEGORIES.BY_ID(id),
-      {
-        method: "PUT",
-        body: JSON.stringify({ name, available, position, printerId: printerId ?? null, stationId: stationId ?? null }),
-      },
-      CategoryResponseSchema
-    );
-    results.push(result);
+export async function reorderCategories(ids: string[]): Promise<ActionResult<Category[]>> {
+  try {
+    const result = await fetchApi<Category[]>(API_ENDPOINTS.CATEGORIES.ORDER, {
+      method: "PUT",
+      body: JSON.stringify({ ids }),
+    }, z.array(CategoryResponseSchema));
+    revalidatePath("/dashboard/categories");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore durante il salvataggio dell'ordine") };
   }
-  revalidatePath("/dashboard/categories");
-  return results;
 }
 
 export async function toggleCategoryAvailability(
   id: string,
   available: boolean
-): Promise<Category> {
-  const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id), {
-    method: "PATCH",
-    body: JSON.stringify({ available }),
-  }, CategoryResponseSchema);
-  revalidatePath("/dashboard/categories");
-  return result;
+): Promise<ActionResult<Category>> {
+  try {
+    const result = await fetchApi<Category>(API_ENDPOINTS.CATEGORIES.BY_ID(id), {
+      method: "PATCH",
+      body: JSON.stringify({ available }),
+    }, CategoryResponseSchema);
+    revalidatePath("/dashboard/categories");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento della disponibilità") };
+  }
 }
 
 export async function deleteCategory(id: string): Promise<ActionResult<void>> {

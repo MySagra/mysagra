@@ -9,7 +9,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import type { Report } from "@mysagra/schemas";
+import type { Report } from "@/lib/api-schemas";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { Clock } from "lucide-react";

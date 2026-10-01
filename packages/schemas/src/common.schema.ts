@@ -1,5 +1,8 @@
 import { z } from 'zod'
 
+// Money values are Decimal(10, 2) columns, serialized as strings to keep their precision.
+export const decimalString = (description: string) =>
+    z.string().regex(/^-?\d+(\.\d+)?$/).meta({ description, example: "12.5" })
 
 export const idParamSchema = z.object({
     id: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().int().min(1)).meta({

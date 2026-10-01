@@ -21,7 +21,7 @@ import {
 const service = new OrdersService();
 
 const PaginatedOrdersResponseSchema = z.object({
-    orders: OrdersResponseSchema,
+    data: OrdersResponseSchema,
     pagination: z.object({
         totalItems: z.number().int().meta({ description: "Items per page", example: 20 }),
         currentPage: z.number().int().meta({ description: "Current page", example: 1 }),

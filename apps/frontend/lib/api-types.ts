@@ -300,6 +300,7 @@ export const API_ENDPOINTS = {
   },
   CATEGORIES: {
     ALL: "/v1/categories",
+    ORDER: "/v1/categories/order",
     BY_ID: (id: string) => `/v1/categories/${id}`,
     IMAGE: (id: string) => `/v1/categories/${id}/image`,
   },
