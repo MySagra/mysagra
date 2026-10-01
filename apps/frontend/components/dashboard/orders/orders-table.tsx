@@ -115,12 +115,12 @@ export function OrdersTable({
           bValue = b.ticketNumber ?? 0;
           break;
         case "customer":
-          aValue = a.customer.toLowerCase();
-          bValue = b.customer.toLowerCase();
+          aValue = (a.customer ?? "").toLowerCase();
+          bValue = (b.customer ?? "").toLowerCase();
           break;
         case "table":
-          aValue = a.table;
-          bValue = b.table;
+          aValue = a.table ?? "";
+          bValue = b.table ?? "";
           break;
         case "total":
           aValue = parseFloat(a.total);
@@ -302,9 +302,9 @@ export function OrdersTable({
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium max-w-48 hidden sm:table-cell">
-                    <span className="block truncate" title={order.customer}>{order.customer}</span>
+                    <span className="block truncate" title={order.customer ?? undefined}>{order.customer ?? "—"}</span>
                   </TableCell>
-                  <TableCell className="text-center hidden sm:table-cell">{order.table === 'NO_TABLE_PRESET' ? '--' : order.table}</TableCell>
+                  <TableCell className="text-center hidden sm:table-cell">{order.table ?? "—"}</TableCell>
                   <TableCell className="text-right text-muted-foreground text-sm hidden md:table-cell">
                     {parseFloat(order.discount) > 0 ? `-€${order.discount}` : "—"}
                   </TableCell>

@@ -15,6 +15,35 @@ import { redisConnection } from "@/lib/redis";
 import { BadRequestError, NotFoundError } from "@/common/errors";
 
 import { displayCodeGenerator } from "@/lib/displayCodeGenerator";
+import { flattenOrder } from "./orders.mapper";
+
+// items returned together with a created/confirmed order (printers and tickets need food and station)
+const orderItemsWithFood = {
+    select: {
+        id: true,
+        orderId: true,
+        quantity: true,
+        notes: true,
+        unitPrice: true,
+        unitSurcharge: true,
+        total: true,
+        food: {
+            select: {
+                id: true,
+                name: true,
+                printerId: true,
+                category: {
+                    select: {
+                        id: true,
+                        name: true,
+                        station: true
+                    }
+                }
+            }
+        }
+    }
+} satisfies Prisma.Order$orderItemsArgs;
+
 export class OrdersService {
     private cashierEvent = EventsService.getInstance('cashier');
     private displayEvent = EventsService.getInstance('display');
@@ -53,10 +82,51 @@ export class OrdersService {
         return orderCount;
     }
 
+    // same food with same notes becomes a single row (unique orderId + foodId + notes)
+    private _mergeOrderItems<T extends { foodId: string; quantity: number; notes?: string | null; surcharge: number }>(items: T[]): T[] {
+        const merged = new Map<string, T>();
+
+        for (const item of items) {
+            const notes = item.notes ?? "";
+            const key = `${item.foodId}|${notes}`;
+            const existing = merged.get(key);
+
+            if (existing) {
+                existing.quantity += item.quantity;
+                existing.surcharge += item.surcharge;
+            } else {
+                merged.set(key, { ...item, notes });
+            }
+        }
+
+        return Array.from(merged.values());
+    }
+
+    // station states exist only for confirmed orders
+    private async _createStationStates(tx: Prisma.TransactionClient, orderId: string, status: OrderStatus) {
+        const stationIds = await tx.$queryRaw<Array<{ stationId: string }>>`
+            SELECT DISTINCT s.id as stationId
+            FROM order_items oi
+            JOIN foods f ON oi.foodId = f.id
+            JOIN categories c ON c.id = f.categoryId
+            JOIN stations s ON s.id = c.stationId
+            WHERE oi.orderId = ${orderId}
+        `
+
+        await tx.orderStationStatus.createMany({
+            data: stationIds.map(({ stationId }) => ({
+                orderId,
+                stationId,
+                status
+            }))
+        })
+    }
+
     private async _updateReportsOnOrderCancellation(tx: Prisma.TransactionClient, orderId: string) {
         const order = await tx.order.findUnique({
             where: { id: orderId },
             include: {
+                confirmedOrder: true,
                 orderItems: {
                     include: {
                         food: {
@@ -70,12 +140,13 @@ export class OrdersService {
             }
         });
 
-        if (!order || !order.confirmedAt) return;
+        const confirmation = order?.confirmedOrder;
+        if (!order || !confirmation) return;
 
         const affectedReport = await tx.report.findFirst({
             where: {
                 timestamp: {
-                    gt: order.confirmedAt
+                    gt: confirmation.confirmedAt
                 }
             },
             orderBy: { timestamp: 'asc' },
@@ -92,11 +163,11 @@ export class OrdersService {
         if (!affectedReport) return;
 
         const reportStartTime = new Date(affectedReport.timestamp.getTime() - affectedReport.intervalInMinutes * 60 * 1000);
-        if (order.confirmedAt < reportStartTime) return;
+        if (confirmation.confirmedAt < reportStartTime) return;
 
-        const orderTotal = Number(order.total);
-        const orderCashRevenue = order.paymentMethod === 'CASH' ? orderTotal : 0;
-        const orderCardRevenue = order.paymentMethod === 'CARD' ? orderTotal : 0;
+        const orderTotal = Number(confirmation.total);
+        const orderCashRevenue = confirmation.paymentMethod === 'CASH' ? orderTotal : 0;
+        const orderCardRevenue = confirmation.paymentMethod === 'CARD' ? orderTotal : 0;
 
         const updatedCategoryStats = affectedReport.categoryStats.map(catStat => {
             const itemsInCategory = order.orderItems.filter(item => item.food.categoryId === catStat.categoryId);
@@ -132,7 +203,7 @@ export class OrdersService {
         });
 
         const updatedCashRegisterStats = affectedReport.cashRegisterStats.map(crStat => {
-            if (order.cashRegisterId !== crStat.cashRegisterId) {
+            if (confirmation.cashRegisterId !== crStat.cashRegisterId) {
                 return crStat;
             }
 
@@ -187,9 +258,10 @@ export class OrdersService {
         const skip = (page - 1) * limit;
 
         const where: Prisma.OrderWhereInput = {};
+        const confirmedWhere: Prisma.ConfirmedOrderWhereInput = {};
 
         if (queryParams.onlyDiscounted) {
-            where.discount = { gt: 0 }
+            confirmedWhere.discount = { gt: 0 }
         }
 
         if (queryParams.search) {
@@ -198,7 +270,7 @@ export class OrdersService {
                 { table: { contains: queryParams.search } },
                 { customer: { contains: queryParams.search } },
                 ...(!isNaN(parseInt(queryParams.search))
-                    ? [{ ticketNumber: { equals: parseInt(queryParams.search) } }]
+                    ? [{ confirmedOrder: { is: { ticketNumber: { equals: parseInt(queryParams.search) } } } }]
                     : [])
             ]
         }
@@ -224,8 +296,17 @@ export class OrdersService {
         }
 
         if (queryParams.ticketNumber) {
-            where.ticketNumber = queryParams.ticketNumber
+            confirmedWhere.ticketNumber = queryParams.ticketNumber
         }
+
+        if (Object.keys(confirmedWhere).length > 0) {
+            where.confirmedOrder = { is: confirmedWhere }
+        }
+
+        const includeStationStates = !!include?.includes("ordersStationsStates");
+        const orderBy: Prisma.OrderOrderByWithRelationInput = queryParams.sortBy === 'createdAt'
+            ? { createdAt: 'desc' }
+            : { confirmedOrder: { [queryParams.sortBy]: 'desc' } };
 
         const query = await prisma.$transaction(async (tx) => {
             const count = await tx.order.count({
@@ -235,16 +316,18 @@ export class OrdersService {
                 where: where,
                 skip: skip,
                 take: limit,
-                orderBy: {
-                    [queryParams.sortBy]: 'desc'
-                },
+                orderBy,
                 include: {
-                    orderStationStates: include?.includes("ordersStationsStates") ? {
-                        select: {
-                            stationId: true,
-                            status: true
+                    confirmedOrder: {
+                        include: {
+                            orderStationStates: includeStationStates ? {
+                                select: {
+                                    stationId: true,
+                                    status: true
+                                }
+                            } : false
                         }
-                    } : false,
+                    },
                     orderItems: include?.includes("items") ? {
                         omit: { orderId: true }
                     } : false
@@ -257,7 +340,10 @@ export class OrdersService {
         })
 
         return {
-            data: query.orders,
+            data: query.orders.map(order => {
+                const flat = flattenOrder(order);
+                return includeStationStates ? { orderStationStates: [], ...flat } : flat;
+            }),
             pagination: {
                 totalItems: query.count,
                 currentPage: page,
@@ -269,11 +355,15 @@ export class OrdersService {
     async getOrderById(id: string) {
         const order = await prisma.order.findUnique({
             where: { id },
-            omit: { userId: true, cashRegisterId: true },
             include: {
-                orderStationStates: { include: { station: true } },
-                user: { omit: { password: true } },
-                cashRegister: true,
+                confirmedOrder: {
+                    omit: { userId: true, cashRegisterId: true },
+                    include: {
+                        orderStationStates: { include: { station: true } },
+                        user: { omit: { password: true } },
+                        cashRegister: true
+                    }
+                },
                 orderItems: {
                     orderBy: { food: { categoryId: 'asc' } },
                     include: {
@@ -314,11 +404,18 @@ export class OrdersService {
         }
 
         const { orderItems: _, ...orderBaseData } = order;
-        return { ...orderBaseData, categorizedItems: Array.from(categoryMap.values()) };
+        return {
+            orderStationStates: [],
+            user: null,
+            cashRegister: null,
+            ...flattenOrder(orderBaseData),
+            categorizedItems: Array.from(categoryMap.values())
+        };
     }
 
     async createOrder(order: CreateOrderInput) {
-        const { orderItems, confirm } = order;
+        const { confirm } = order;
+        const orderItems = this._mergeOrderItems(order.orderItems);
 
         const createdOrder = await prisma.$transaction(async (tx) => {
             const foodIds = orderItems.map(item => item.foodId);
@@ -361,47 +458,33 @@ export class OrdersService {
                 totalSurcharge = totalSurcharge.add(surcharge);
             });
 
-            let total = subTotal;
-            let finalStatus: OrderStatus = 'PENDING';
-            let ticketNumber = null;
-            let confirmedAt = null;
-            let userId = null;
-            let cashRegisterId = null;
+            let confirmedOrder: Prisma.ConfirmedOrderCreateWithoutOrderInput | undefined;
 
             if (confirm) {
                 const discount = new Prisma.Decimal(confirm.discount || 0);
-                const surcharge = new Prisma.Decimal(totalSurcharge || 0);
-                total = subTotal.add(surcharge).sub(discount);
+                let total = subTotal.add(totalSurcharge).sub(discount);
 
                 if (total.isNegative()) total = new Prisma.Decimal(0);
 
-                finalStatus = 'CONFIRMED';
-                confirmedAt = new Date();
-
-                ticketNumber = await this._getNextTicketNumber();
-
-                userId = confirm.userId
-                cashRegisterId = confirm.cashRegisterId
+                confirmedOrder = {
+                    ticketNumber: await this._getNextTicketNumber(),
+                    paymentMethod: confirm.paymentMethod,
+                    discount: discount,
+                    total: total,
+                    user: confirm.userId ? { connect: { id: confirm.userId } } : undefined,
+                    cashRegister: { connect: { id: confirm.cashRegisterId } }
+                }
             }
 
             const createdOrder = await tx.order.create({
                 data: {
-                    table: order.table.toString(),
-                    customer: order.customer,
+                    table: order.table ?? null,
+                    customer: order.customer ?? null,
                     subTotal: subTotal,
+                    surcharge: totalSurcharge,
                     displayCode: displayCodeGenerator.encode(await this._getOrderCount()),
-
-                    status: finalStatus,
-                    confirmedAt: confirmedAt,
-                    ticketNumber: ticketNumber,
-
-                    paymentMethod: confirm?.paymentMethod || null,
-                    discount: confirm?.discount || 0,
-                    surcharge: totalSurcharge || 0,
-                    total: total,
-
-                    userId: userId,
-                    cashRegisterId: cashRegisterId
+                    status: confirm ? 'CONFIRMED' : 'PENDING',
+                    confirmedOrder: confirmedOrder ? { create: confirmedOrder } : undefined
                 },
             });
 
@@ -411,68 +494,34 @@ export class OrdersService {
                     orderId: createdOrder.id,
                     foodId: item.foodId,
                     quantity: item.quantity,
-                    notes: item.notes || null,
+                    notes: item.notes ?? "",
                     unitPrice: item.unitPrice!,
                     unitSurcharge: item.surcharge / item.quantity,
                     total: item.total!
                 }))
             });
 
-            const stationIds = await tx.$queryRaw<Array<{ stationId: string }>>`
-                SELECT DISTINCT s.id as stationId
-                FROM orders o JOIN order_items oi ON o.id = oi.orderId
-                JOIN foods f ON oi.foodId = f.id
-                JOIN categories c ON c.id = f.categoryId
-                JOIN stations s ON s.id = c.stationId
-                WHERE o.id = ${createdOrder.id}
-            `
+            if (confirm) {
+                await this._createStationStates(tx, createdOrder.id, 'CONFIRMED');
+            }
 
-            await tx.orderStationStatus.createMany({
-                data: stationIds.map(({ stationId }) => ({
-                    orderId: createdOrder.id,
-                    stationId,
-                    status: finalStatus
-                }))
-            })
-
-            return await tx.order.findUnique({
+            const fullOrder = await tx.order.findUniqueOrThrow({
                 where: { id: createdOrder.id },
                 include: {
-                    orderItems: {
-                        select: {
-                            id: true,
-                            orderId: true,
-                            quantity: true,
-                            notes: true,
-                            unitPrice: true,
-                            unitSurcharge: true,
-                            total: true,
-                            food: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    printerId: true,
-                                    category: {
-                                        select: {
-                                            id: true,
-                                            name: true,
-                                            station: true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    confirmedOrder: true,
+                    orderItems: orderItemsWithFood
                 }
             });
+
+            return flattenOrder(fullOrder);
         })
 
         if (confirm) {
             this.cashierEvent.broadcastEvent(
                 {
-                    displayCode: createdOrder?.displayCode,
-                    ticketNumber: createdOrder?.ticketNumber,
-                    id: createdOrder?.id
+                    displayCode: createdOrder.displayCode,
+                    ticketNumber: createdOrder.ticketNumber,
+                    id: createdOrder.id
                 },
                 "confirmed-order"
             )
@@ -480,14 +529,14 @@ export class OrdersService {
             const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
                 SELECT DISTINCT os.stationId
                 FROM orders_stations_states os
-                WHERE os.orderId = ${createdOrder?.id}
+                WHERE os.orderId = ${createdOrder.id}
             `).map(({ stationId }) => stationId)
 
             this.displayEvent.broadcastEvent(
                 {
-                    displayCode: createdOrder?.displayCode,
-                    ticketNumber: createdOrder?.ticketNumber,
-                    id: createdOrder?.id,
+                    displayCode: createdOrder.displayCode,
+                    ticketNumber: createdOrder.ticketNumber,
+                    id: createdOrder.id,
                     ordersStations
                 },
                 "confirmed-order"
@@ -505,8 +554,6 @@ export class OrdersService {
             this.cashierEvent.broadcastEvent(createdOrder, "new-order")
         }
 
-        if (!createdOrder) return null;
-
         const { orderItems: items, ...orderData } = createdOrder;
         return {
             ...orderData,
@@ -521,11 +568,11 @@ export class OrdersService {
         const confirmedOrder = await prisma.$transaction(async (tx) => {
             const existingOrder = await tx.order.findUnique({
                 where: { id: orderId },
-                include: { orderItems: { include: { food: true } } }
+                include: { confirmedOrder: true, orderItems: { include: { food: true } } }
             });
 
             if (!existingOrder) throw new Error("Order not found");
-            if (existingOrder.status !== 'PENDING') throw new Error("Order is already confirmed");
+            if (existingOrder.status !== 'PENDING' || existingOrder.confirmedOrder) throw new Error("Order is already confirmed");
 
             let subTotal = new Prisma.Decimal(0);
             let totalSurcharge = new Prisma.Decimal(0);
@@ -546,7 +593,7 @@ export class OrdersService {
                 const foodMap = new Map(foods.map(f => [f.id, f.price]));
                 const createOrderItems: Array<OrderItem> = [];
 
-                confirm.orderItems.forEach(item => {
+                this._mergeOrderItems(confirm.orderItems).forEach(item => {
                     const price = foodMap.get(item.foodId)!;
                     const createItem = {
                         id: "",
@@ -568,7 +615,7 @@ export class OrdersService {
                         orderId: orderId,
                         foodId: item.foodId,
                         quantity: item.quantity,
-                        notes: item.notes || null,
+                        notes: item.notes ?? "",
                         unitPrice: item.unitPrice!,
                         unitSurcharge: item.surcharge / item.quantity,
                         total: item.total!
@@ -586,60 +633,38 @@ export class OrdersService {
             let total = subTotal.add(totalSurcharge).sub(discount)
             if (total.isNegative()) total = new Prisma.Decimal(0);
 
-            const ticketNumber = await this._getNextTicketNumber();
-            const updatedOrder = await tx.order.update({
+            await tx.order.update({
                 where: { id: orderId },
                 data: {
                     status: 'CONFIRMED',
-                    confirmedAt: new Date(),
-                    ticketNumber: ticketNumber,
-                    paymentMethod: confirm.paymentMethod,
-                    discount: confirm.discount || 0,
-                    surcharge: totalSurcharge || 0,
+                    surcharge: totalSurcharge,
                     subTotal: subTotal,
-                    total: total,
-                    userId: confirm.userId,
-                    cashRegisterId: confirm.cashRegisterId,
                     customer: confirm.customer,
-                    table: confirm.table
-                },
-                include: {
-                    orderItems: {
-                        select: {
-                            id: true,
-                            orderId: true,
-                            quantity: true,
-                            notes: true,
-                            unitPrice: true,
-                            unitSurcharge: true,
-                            total: true,
-                            food: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    printerId: true,
-                                    category: {
-                                        select: {
-                                            id: true,
-                                            name: true,
-                                            station: true
-                                        }
-                                    }
-                                }
-                            }
+                    table: confirm.table,
+                    confirmedOrder: {
+                        create: {
+                            ticketNumber: await this._getNextTicketNumber(),
+                            paymentMethod: confirm.paymentMethod,
+                            discount: discount,
+                            total: total,
+                            user: confirm.userId ? { connect: { id: confirm.userId } } : undefined,
+                            cashRegister: { connect: { id: confirm.cashRegisterId } }
                         }
                     }
                 }
             });
 
-            await tx.orderStationStatus.updateMany({
-                where: { orderId },
-                data: {
-                    status: "CONFIRMED"
-                }
-            })
+            await this._createStationStates(tx, orderId, 'CONFIRMED');
 
-            return updatedOrder;
+            const updatedOrder = await tx.order.findUniqueOrThrow({
+                where: { id: orderId },
+                include: {
+                    confirmedOrder: true,
+                    orderItems: orderItemsWithFood
+                }
+            });
+
+            return flattenOrder(updatedOrder);
         });
 
         this.cashierEvent.broadcastEvent(
@@ -654,7 +679,7 @@ export class OrdersService {
         const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
             SELECT DISTINCT os.stationId
             FROM orders_stations_states os
-            WHERE os.orderId = ${confirmedOrder?.id}
+            WHERE os.orderId = ${confirmedOrder.id}
         `).map(({ stationId }) => stationId)
 
         this.displayEvent.broadcastEvent(
@@ -682,14 +707,30 @@ export class OrdersService {
         }
 
         const patchedOrder = await prisma.$transaction(async tx => {
+            const existing = await tx.order.findUnique({
+                where: { id },
+                select: { confirmedOrder: { select: { orderId: true } } }
+            });
+
+            if (!existing) throw new NotFoundError("Order not found");
+
+            // PENDING <=> no confirmation data
+            const isConfirmed = !!existing.confirmedOrder;
+            if (isConfirmed === (status === "PENDING")) {
+                throw new BadRequestError(isConfirmed
+                    ? "A confirmed order can't go back to PENDING"
+                    : "Pending orders must be confirmed first");
+            }
+
             const order = await tx.order.update({
-                where: {
-                    id
-                },
+                where: { id },
                 data: {
                     status,
-                    completedAt: status === "COMPLETED" ? new Date() : null
-                }
+                    confirmedOrder: isConfirmed ? {
+                        update: { completedAt: status === "COMPLETED" ? new Date() : null }
+                    } : undefined
+                },
+                include: { confirmedOrder: true }
             })
 
             await tx.orderStationStatus.updateMany({
@@ -697,7 +738,7 @@ export class OrdersService {
                 data: { status }
             })
 
-            return order;
+            return flattenOrder(order);
         })
         EventsService.broadcastEvents(
             [this.displayEvent, this.cashierEvent, this.ticketEvent],
@@ -717,7 +758,7 @@ export class OrdersService {
         return await prisma.$transaction(async (tx) => {
             const order = await tx.order.findUnique({
                 where: { id },
-                select: { status: true, ticketNumber: true, displayCode: true }
+                select: { status: true }
             });
 
             if (!order) return null;
@@ -725,10 +766,11 @@ export class OrdersService {
             if (order.status !== "PENDING") {
                 await this._updateReportsOnOrderCancellation(tx, id);
 
-                const updatedOrder = await tx.order.update({
+                const updatedOrder = flattenOrder(await tx.order.update({
                     where: { id },
-                    data: { status: "CANCELLED" }
-                });
+                    data: { status: "CANCELLED" },
+                    include: { confirmedOrder: true }
+                }));
 
                 await tx.orderStationStatus.updateMany({
                     where: { orderId: id },
@@ -739,9 +781,9 @@ export class OrdersService {
                 const printers: { printerId: string }[] = await tx.$queryRaw
                     `
                     SELECT DISTINCT f.printerId
-                    FROM orders o JOIN order_items oi ON o.id = oi.orderId
+                    FROM order_items oi
                     JOIN foods f ON oi.foodId = f.id
-                    WHERE o.id = ${id}
+                    WHERE oi.orderId = ${id}
                 `
                 const printerIds = printers.map(p => p.printerId)
 
@@ -781,11 +823,12 @@ export class OrdersService {
     }
 
     async reprintOrder(id: string, reprint: ReprintOrder) {
-        const order = await prisma.order.findUnique({
+        const foundOrder = await prisma.order.findUnique({
             where: {
                 id
             },
             include: {
+                confirmedOrder: true,
                 orderItems: {
                     include: {
                         food: {
@@ -807,9 +850,11 @@ export class OrdersService {
             }
         })
 
-        if (!order) {
+        if (!foundOrder) {
             throw new NotFoundError("Order not found")
         }
+
+        const order = flattenOrder(foundOrder);
 
         if (order.status === "PENDING") {
             throw new BadRequestError("Pending orders can't be reprinted");
@@ -828,7 +873,7 @@ export class OrdersService {
         const ordersStations = (await prisma.$queryRaw<Array<{ stationId: string }>>`
             SELECT DISTINCT os.stationId
             FROM orders_stations_states os
-            WHERE os.orderId = ${order?.id}
+            WHERE os.orderId = ${order.id}
         `).map(({ stationId }) => stationId)
 
         this.printerEvent.broadcastEvent(
@@ -875,11 +920,14 @@ export class OrdersService {
                 newOrderStatus = statuses.sort((a, b) => statusStrength[a as OrderStatus] - statusStrength[b as OrderStatus])[0] as OrderStatus;
             }
 
+            // station states exist only for confirmed orders, so the confirmation row is always there
             await tx.order.update({
                 where: { id: orderId },
                 data: {
                     status: newOrderStatus,
-                    completedAt: newOrderStatus === "COMPLETED" ? new Date() : null
+                    confirmedOrder: {
+                        update: { completedAt: newOrderStatus === "COMPLETED" ? new Date() : null }
+                    }
                 }
             })
 

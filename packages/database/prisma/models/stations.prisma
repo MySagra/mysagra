@@ -1,0 +1,43 @@
+model Station {
+  id   String @id @default(cuid())
+  name String @unique @db.VarChar(100)
+
+  categories         Category[]
+  orderStationStates OrderStationStatus[]
+
+  @@map("stations")
+}
+
+enum PrinterStatus {
+  ONLINE
+  OFFLINE
+  ERROR
+}
+
+model Printer {
+  id          String        @id @default(cuid())
+  name        String        @unique @db.VarChar(100)
+  ip          String?
+  port        Int           @default(9100)
+  description String?       @db.VarChar(250)
+  status      PrinterStatus @default(ONLINE)
+
+  cashRegisters CashRegister[]
+  foods         Food[]
+  categories    Category[]
+
+  @@map("printers")
+}
+
+model CashRegister {
+  id      String  @id @default(cuid())
+  name    String  @unique @db.VarChar(100)
+  enabled Boolean @default(true)
+
+  defaultPrinterId String?
+  defaultPrinter   Printer? @relation(fields: [defaultPrinterId], references: [id])
+
+  confirmedOrders ConfirmedOrder[]
+
+  @@map("cash_registers")
+}

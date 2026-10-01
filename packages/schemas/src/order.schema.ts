@@ -81,12 +81,12 @@ const ConfirmationDataSchema = z.object({
     discount: z.number().min(0).default(0).meta({
         description: "Discount amount applied"
     }),
-    customer: z.string().optional().meta({
-        description: "Updated customer name",
+    customer: z.string().min(1).nullish().meta({
+        description: "Updated customer name (null removes it)",
         example: "John Doe"
     }),
-    table: z.string().optional().meta({
-        description: "Table number or location identifier",
+    table: z.string().min(1).nullish().meta({
+        description: "Table number or location identifier (null removes it)",
         example: "Table 5"
     })
 }).meta({
@@ -95,12 +95,12 @@ const ConfirmationDataSchema = z.object({
 })
 
 export const CreateOrderSchema = z.object({
-    table: z.string().min(1).meta({
-        description: "Table number or location identifier",
+    table: z.string().min(1).nullish().meta({
+        description: "Table number or location identifier, null when not used",
         example: "Table 5"
     }),
-    customer: z.string().min(1).meta({
-        description: "Customer name",
+    customer: z.string().min(1).nullish().meta({
+        description: "Customer name, null when not used",
         example: "John Doe"
     }),
     orderItems: z.array(OrderItemInputSchema)
@@ -207,11 +207,11 @@ export const OrderResponseSchema = z.object({
     ticketNumber: z.number().int().nullish().meta({
         description: "Kitchen printer ticket number"
     }),
-    table: z.string().meta({
-        description: "Table/location identifier"
+    table: z.string().nullable().meta({
+        description: "Table/location identifier, null when not used"
     }),
-    customer: z.string().meta({
-        description: "Customer name"
+    customer: z.string().nullable().meta({
+        description: "Customer name, null when not used"
     }),
     status: OrderStatusSchema.meta({
         description: "Current order status"
@@ -304,8 +304,8 @@ export const OrderDetailResponseSchema = z.object({
     id: z.cuid().meta({ description: "Unique order identifier" }),
     displayCode: z.string().meta({ description: "Customer-facing display code", example: "A1B" }),
     ticketNumber: z.number().int().nullish().meta({ description: "Kitchen printer ticket number" }),
-    table: z.string().meta({ description: "Table/location identifier" }),
-    customer: z.string().meta({ description: "Customer name" }),
+    table: z.string().nullable().meta({ description: "Table/location identifier, null when not used" }),
+    customer: z.string().nullable().meta({ description: "Customer name, null when not used" }),
     status: OrderStatusSchema.meta({ description: "Current order status" }),
     createdAt: z.date().meta({ description: "Order creation timestamp" }),
     confirmedAt: z.date().nullish().meta({ description: "Timestamp when order was confirmed" }),

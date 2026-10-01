@@ -1,0 +1,56 @@
+model Category {
+  id        String  @id @default(cuid())
+  name      String  @unique @db.VarChar(100)
+  available Boolean @default(true)
+  position  Int     @default(0)
+  image     String?
+  foods     Food[]
+
+  printerId String?
+  printer   Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
+
+  stationId String?
+  station   Station? @relation(fields: [stationId], references: [id], onDelete: SetNull)
+
+  @@map("categories")
+}
+
+model Ingredient {
+  id        String  @id @default(cuid())
+  name      String  @unique @db.VarChar(100)
+  surcharge Decimal @default(0.50) @db.Decimal(10, 2)
+
+  foodIngredients FoodIngredient[]
+
+  @@map("ingredients")
+}
+
+model Food {
+  id          String  @id @default(cuid())
+  name        String  @unique @db.VarChar(100)
+  description String? @db.VarChar(250)
+  price       Decimal @db.Decimal(10, 2)
+  available   Boolean @default(true)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  orderItems      OrderItem[]
+  foodIngredients FoodIngredient[]
+
+  printerId String?
+  printer   Printer? @relation(fields: [printerId], references: [id], onDelete: SetNull)
+
+  @@map("foods")
+}
+
+model FoodIngredient {
+  food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId String
+
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  ingredientId String
+
+  @@id([foodId, ingredientId])
+  @@map("food_ingredients")
+}

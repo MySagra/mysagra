@@ -255,13 +255,15 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
             <DialogDescription asChild>
               {order ? (
                 <span className="flex items-center gap-2 flex-wrap">
-                  <span className="flex items-center gap-1">
-                    <User className="h-3.5 w-3.5 shrink-0" />
-                    <span>{order.customer}</span>
-                  </span>
-                  {order.table && order.table !== 'NO_TABLE_PRESET' && (
+                  {order.customer && (
+                    <span className="flex items-center gap-1">
+                      <User className="h-3.5 w-3.5 shrink-0" />
+                      <span>{order.customer}</span>
+                    </span>
+                  )}
+                  {order.table && (
                     <>
-                      <span className="text-muted-foreground/30">·</span>
+                      {order.customer && <span className="text-muted-foreground/30">·</span>}
                       <span className="flex items-center gap-1">
                         <LayoutGrid className="h-3.5 w-3.5 shrink-0" />
                         <span>Tavolo {order.table}</span>

@@ -96,7 +96,7 @@ export function CreateApiKeyDialog({
       id: apiKeyRes.id,
       type: apiKeyRes.type,
       prefix: apiKeyRes.type === "PRINTER" ? "ms_pt_" : "ms_wb_",
-      last_digits: apiKeyRes.apiKey.slice(-4),
+      lastDigits: apiKeyRes.apiKey.slice(-4),
       name: values.name.trim(),
       createdAt: new Date(apiKeyRes.createdAt),
       lastUsedAt: null,

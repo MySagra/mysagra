@@ -5,7 +5,7 @@ export const ApiKeyPrefixSchema = z.enum(["ms_pt_", "ms_wb_"])
 
 export const ApiKeyBaseResponseSchema = z.object({
     id: z.cuid(),
-    last_digits: z.string().length(4),
+    lastDigits: z.string().length(4),
     type: ApiKeyTypeSchema,
     prefix: ApiKeyPrefixSchema,
 

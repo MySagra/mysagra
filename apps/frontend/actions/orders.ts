@@ -17,8 +17,8 @@ const OrderStatusSchema = z.enum(["PENDING", "CONFIRMED", "COMPLETED", "PICKED_U
 const OrderListItemSchema = z.object({
   id: z.coerce.string(),
   displayCode: z.string(),
-  table: z.string(),
-  customer: z.string(),
+  table: z.string().nullable(),
+  customer: z.string().nullable(),
   subTotal: z.coerce.string(),
   total: z.coerce.string(),
   discount: z.coerce.string(),
@@ -39,8 +39,8 @@ const PaginatedOrdersSchema = z.object({
 const OrderDetailSchema = z.object({
   id: z.coerce.string(),
   displayCode: z.string(),
-  table: z.string(),
-  customer: z.string(),
+  table: z.string().nullable(),
+  customer: z.string().nullable(),
   subTotal: z.coerce.string(),
   total: z.coerce.string().optional(),
   status: OrderStatusSchema,

@@ -26,9 +26,9 @@ export type AggregateApiKey = {
 
 export type ApiKeyMinAggregateOutputType = {
   id: string | null
-  hash_key: string | null
+  hashKey: string | null
   prefix: string | null
-  last_digits: string | null
+  lastDigits: string | null
   type: $Enums.KeyTypes | null
   name: string | null
   createdAt: Date | null
@@ -38,9 +38,9 @@ export type ApiKeyMinAggregateOutputType = {
 
 export type ApiKeyMaxAggregateOutputType = {
   id: string | null
-  hash_key: string | null
+  hashKey: string | null
   prefix: string | null
-  last_digits: string | null
+  lastDigits: string | null
   type: $Enums.KeyTypes | null
   name: string | null
   createdAt: Date | null
@@ -50,9 +50,9 @@ export type ApiKeyMaxAggregateOutputType = {
 
 export type ApiKeyCountAggregateOutputType = {
   id: number
-  hash_key: number
+  hashKey: number
   prefix: number
-  last_digits: number
+  lastDigits: number
   type: number
   name: number
   createdAt: number
@@ -64,9 +64,9 @@ export type ApiKeyCountAggregateOutputType = {
 
 export type ApiKeyMinAggregateInputType = {
   id?: true
-  hash_key?: true
+  hashKey?: true
   prefix?: true
-  last_digits?: true
+  lastDigits?: true
   type?: true
   name?: true
   createdAt?: true
@@ -76,9 +76,9 @@ export type ApiKeyMinAggregateInputType = {
 
 export type ApiKeyMaxAggregateInputType = {
   id?: true
-  hash_key?: true
+  hashKey?: true
   prefix?: true
-  last_digits?: true
+  lastDigits?: true
   type?: true
   name?: true
   createdAt?: true
@@ -88,9 +88,9 @@ export type ApiKeyMaxAggregateInputType = {
 
 export type ApiKeyCountAggregateInputType = {
   id?: true
-  hash_key?: true
+  hashKey?: true
   prefix?: true
-  last_digits?: true
+  lastDigits?: true
   type?: true
   name?: true
   createdAt?: true
@@ -173,9 +173,9 @@ export type ApiKeyGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type ApiKeyGroupByOutputType = {
   id: string
-  hash_key: string
+  hashKey: string
   prefix: string
-  last_digits: string
+  lastDigits: string
   type: $Enums.KeyTypes
   name: string
   createdAt: Date
@@ -206,9 +206,9 @@ export type ApiKeyWhereInput = {
   OR?: Prisma.ApiKeyWhereInput[]
   NOT?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
   id?: Prisma.StringFilter<"ApiKey"> | string
-  hash_key?: Prisma.StringFilter<"ApiKey"> | string
+  hashKey?: Prisma.StringFilter<"ApiKey"> | string
   prefix?: Prisma.StringFilter<"ApiKey"> | string
-  last_digits?: Prisma.StringFilter<"ApiKey"> | string
+  lastDigits?: Prisma.StringFilter<"ApiKey"> | string
   type?: Prisma.EnumKeyTypesFilter<"ApiKey"> | $Enums.KeyTypes
   name?: Prisma.StringFilter<"ApiKey"> | string
   createdAt?: Prisma.DateTimeFilter<"ApiKey"> | Date | string
@@ -218,9 +218,9 @@ export type ApiKeyWhereInput = {
 
 export type ApiKeyOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  hash_key?: Prisma.SortOrder
+  hashKey?: Prisma.SortOrder
   prefix?: Prisma.SortOrder
-  last_digits?: Prisma.SortOrder
+  lastDigits?: Prisma.SortOrder
   type?: Prisma.SortOrder
   name?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -231,24 +231,24 @@ export type ApiKeyOrderByWithRelationInput = {
 
 export type ApiKeyWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  hash_key?: string
+  hashKey?: string
   AND?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
   OR?: Prisma.ApiKeyWhereInput[]
   NOT?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
   prefix?: Prisma.StringFilter<"ApiKey"> | string
-  last_digits?: Prisma.StringFilter<"ApiKey"> | string
+  lastDigits?: Prisma.StringFilter<"ApiKey"> | string
   type?: Prisma.EnumKeyTypesFilter<"ApiKey"> | $Enums.KeyTypes
   name?: Prisma.StringFilter<"ApiKey"> | string
   createdAt?: Prisma.DateTimeFilter<"ApiKey"> | Date | string
   lastUsedAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
-}, "id" | "hash_key">
+}, "id" | "hashKey">
 
 export type ApiKeyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  hash_key?: Prisma.SortOrder
+  hashKey?: Prisma.SortOrder
   prefix?: Prisma.SortOrder
-  last_digits?: Prisma.SortOrder
+  lastDigits?: Prisma.SortOrder
   type?: Prisma.SortOrder
   name?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -264,9 +264,9 @@ export type ApiKeyScalarWhereWithAggregatesInput = {
   OR?: Prisma.ApiKeyScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ApiKeyScalarWhereWithAggregatesInput | Prisma.ApiKeyScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
-  hash_key?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
+  hashKey?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
   prefix?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
-  last_digits?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
+  lastDigits?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
   type?: Prisma.EnumKeyTypesWithAggregatesFilter<"ApiKey"> | $Enums.KeyTypes
   name?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
@@ -276,9 +276,9 @@ export type ApiKeyScalarWhereWithAggregatesInput = {
 
 export type ApiKeyCreateInput = {
   id?: string
-  hash_key: string
+  hashKey: string
   prefix: string
-  last_digits: string
+  lastDigits: string
   type: $Enums.KeyTypes
   name: string
   createdAt?: Date | string
@@ -288,9 +288,9 @@ export type ApiKeyCreateInput = {
 
 export type ApiKeyUncheckedCreateInput = {
   id?: string
-  hash_key: string
+  hashKey: string
   prefix: string
-  last_digits: string
+  lastDigits: string
   type: $Enums.KeyTypes
   name: string
   createdAt?: Date | string
@@ -300,9 +300,9 @@ export type ApiKeyUncheckedCreateInput = {
 
 export type ApiKeyUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  hash_key?: Prisma.StringFieldUpdateOperationsInput | string
+  hashKey?: Prisma.StringFieldUpdateOperationsInput | string
   prefix?: Prisma.StringFieldUpdateOperationsInput | string
-  last_digits?: Prisma.StringFieldUpdateOperationsInput | string
+  lastDigits?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumKeyTypesFieldUpdateOperationsInput | $Enums.KeyTypes
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -312,9 +312,9 @@ export type ApiKeyUpdateInput = {
 
 export type ApiKeyUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  hash_key?: Prisma.StringFieldUpdateOperationsInput | string
+  hashKey?: Prisma.StringFieldUpdateOperationsInput | string
   prefix?: Prisma.StringFieldUpdateOperationsInput | string
-  last_digits?: Prisma.StringFieldUpdateOperationsInput | string
+  lastDigits?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumKeyTypesFieldUpdateOperationsInput | $Enums.KeyTypes
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -324,9 +324,9 @@ export type ApiKeyUncheckedUpdateInput = {
 
 export type ApiKeyCreateManyInput = {
   id?: string
-  hash_key: string
+  hashKey: string
   prefix: string
-  last_digits: string
+  lastDigits: string
   type: $Enums.KeyTypes
   name: string
   createdAt?: Date | string
@@ -336,9 +336,9 @@ export type ApiKeyCreateManyInput = {
 
 export type ApiKeyUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  hash_key?: Prisma.StringFieldUpdateOperationsInput | string
+  hashKey?: Prisma.StringFieldUpdateOperationsInput | string
   prefix?: Prisma.StringFieldUpdateOperationsInput | string
-  last_digits?: Prisma.StringFieldUpdateOperationsInput | string
+  lastDigits?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumKeyTypesFieldUpdateOperationsInput | $Enums.KeyTypes
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -348,9 +348,9 @@ export type ApiKeyUpdateManyMutationInput = {
 
 export type ApiKeyUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  hash_key?: Prisma.StringFieldUpdateOperationsInput | string
+  hashKey?: Prisma.StringFieldUpdateOperationsInput | string
   prefix?: Prisma.StringFieldUpdateOperationsInput | string
-  last_digits?: Prisma.StringFieldUpdateOperationsInput | string
+  lastDigits?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumKeyTypesFieldUpdateOperationsInput | $Enums.KeyTypes
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -366,9 +366,9 @@ export type ApiKeyOrderByRelevanceInput = {
 
 export type ApiKeyCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  hash_key?: Prisma.SortOrder
+  hashKey?: Prisma.SortOrder
   prefix?: Prisma.SortOrder
-  last_digits?: Prisma.SortOrder
+  lastDigits?: Prisma.SortOrder
   type?: Prisma.SortOrder
   name?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -378,9 +378,9 @@ export type ApiKeyCountOrderByAggregateInput = {
 
 export type ApiKeyMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  hash_key?: Prisma.SortOrder
+  hashKey?: Prisma.SortOrder
   prefix?: Prisma.SortOrder
-  last_digits?: Prisma.SortOrder
+  lastDigits?: Prisma.SortOrder
   type?: Prisma.SortOrder
   name?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -390,9 +390,9 @@ export type ApiKeyMaxOrderByAggregateInput = {
 
 export type ApiKeyMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  hash_key?: Prisma.SortOrder
+  hashKey?: Prisma.SortOrder
   prefix?: Prisma.SortOrder
-  last_digits?: Prisma.SortOrder
+  lastDigits?: Prisma.SortOrder
   type?: Prisma.SortOrder
   name?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -408,9 +408,9 @@ export type EnumKeyTypesFieldUpdateOperationsInput = {
 
 export type ApiKeySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  hash_key?: boolean
+  hashKey?: boolean
   prefix?: boolean
-  last_digits?: boolean
+  lastDigits?: boolean
   type?: boolean
   name?: boolean
   createdAt?: boolean
@@ -422,9 +422,9 @@ export type ApiKeySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 
 export type ApiKeySelectScalar = {
   id?: boolean
-  hash_key?: boolean
+  hashKey?: boolean
   prefix?: boolean
-  last_digits?: boolean
+  lastDigits?: boolean
   type?: boolean
   name?: boolean
   createdAt?: boolean
@@ -432,16 +432,16 @@ export type ApiKeySelectScalar = {
   revokedAt?: boolean
 }
 
-export type ApiKeyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "hash_key" | "prefix" | "last_digits" | "type" | "name" | "createdAt" | "lastUsedAt" | "revokedAt", ExtArgs["result"]["apiKey"]>
+export type ApiKeyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "hashKey" | "prefix" | "lastDigits" | "type" | "name" | "createdAt" | "lastUsedAt" | "revokedAt", ExtArgs["result"]["apiKey"]>
 
 export type $ApiKeyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ApiKey"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    hash_key: string
+    hashKey: string
     prefix: string
-    last_digits: string
+    lastDigits: string
     type: $Enums.KeyTypes
     name: string
     createdAt: Date
@@ -817,9 +817,9 @@ export interface Prisma__ApiKeyClient<T, Null = never, ExtArgs extends runtime.T
  */
 export interface ApiKeyFieldRefs {
   readonly id: Prisma.FieldRef<"ApiKey", 'String'>
-  readonly hash_key: Prisma.FieldRef<"ApiKey", 'String'>
+  readonly hashKey: Prisma.FieldRef<"ApiKey", 'String'>
   readonly prefix: Prisma.FieldRef<"ApiKey", 'String'>
-  readonly last_digits: Prisma.FieldRef<"ApiKey", 'String'>
+  readonly lastDigits: Prisma.FieldRef<"ApiKey", 'String'>
   readonly type: Prisma.FieldRef<"ApiKey", 'KeyTypes'>
   readonly name: Prisma.FieldRef<"ApiKey", 'String'>
   readonly createdAt: Prisma.FieldRef<"ApiKey", 'DateTime'>

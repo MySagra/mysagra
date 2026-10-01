@@ -239,6 +239,16 @@ export type StationUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
+export type StationNullableScalarRelationFilter = {
+  is?: Prisma.StationWhereInput | null
+  isNot?: Prisma.StationWhereInput | null
+}
+
+export type StationScalarRelationFilter = {
+  is?: Prisma.StationWhereInput
+  isNot?: Prisma.StationWhereInput
+}
+
 export type StationOrderByRelevanceInput = {
   fields: Prisma.StationOrderByRelevanceFieldEnum | Prisma.StationOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
@@ -258,16 +268,6 @@ export type StationMaxOrderByAggregateInput = {
 export type StationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-}
-
-export type StationNullableScalarRelationFilter = {
-  is?: Prisma.StationWhereInput | null
-  isNot?: Prisma.StationWhereInput | null
-}
-
-export type StationScalarRelationFilter = {
-  is?: Prisma.StationWhereInput
-  isNot?: Prisma.StationWhereInput
 }
 
 export type StationCreateNestedOneWithoutCategoriesInput = {

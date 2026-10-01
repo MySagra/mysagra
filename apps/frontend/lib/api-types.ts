@@ -121,8 +121,8 @@ export interface OrderListResponse {
   id: string;
   displayCode: string;
   ticketNumber?: number | null;
-  table: string;
-  customer: string;
+  table: string | null;
+  customer: string | null;
   subTotal: string;
   total: string;
   discount: string;
@@ -142,8 +142,8 @@ export interface OrderStationState {
 export interface OrderDetailResponse {
   id: string;
   displayCode: string;
-  table: string;
-  customer: string;
+  table: string | null;
+  customer: string | null;
   subTotal: string;
   total?: string;
   status: OrderStatus;
@@ -202,7 +202,6 @@ export interface Printer {
   id: string;
   name: string;
   ip?: string | null;
-  mac?: string | null;
   port: number;
   description?: string | null;
   status: "ONLINE" | "OFFLINE" | "ERROR";
@@ -211,7 +210,6 @@ export interface Printer {
 export interface PrinterRequest {
   name: string;
   ip?: string | null;
-  mac?: string | null;
   port: number;
   description?: string;
   status?: "ONLINE" | "OFFLINE" | "ERROR";
@@ -238,7 +236,7 @@ export type ApiKeyPrefix = "ms_pt_" | "ms_wb_";
 
 export interface ApiKey {
   id: string;
-  last_digits: string;
+  lastDigits: string;
   type: ApiKeyType;
   prefix: ApiKeyPrefix;
   name: string;

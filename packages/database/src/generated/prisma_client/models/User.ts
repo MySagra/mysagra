@@ -175,7 +175,7 @@ export type UserWhereInput = {
   password?: Prisma.StringFilter<"User"> | string
   roleId?: Prisma.StringFilter<"User"> | string
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
-  orders?: Prisma.OrderListRelationFilter
+  confirmedOrders?: Prisma.ConfirmedOrderListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }
 
@@ -185,7 +185,7 @@ export type UserOrderByWithRelationInput = {
   password?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   role?: Prisma.RoleOrderByWithRelationInput
-  orders?: Prisma.OrderOrderByRelationAggregateInput
+  confirmedOrders?: Prisma.ConfirmedOrderOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
@@ -199,7 +199,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   password?: Prisma.StringFilter<"User"> | string
   roleId?: Prisma.StringFilter<"User"> | string
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
-  orders?: Prisma.OrderListRelationFilter
+  confirmedOrders?: Prisma.ConfirmedOrderListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }, "id" | "username">
 
@@ -228,7 +228,7 @@ export type UserCreateInput = {
   username: string
   password: string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  confirmedOrders?: Prisma.ConfirmedOrderCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
@@ -237,7 +237,7 @@ export type UserUncheckedCreateInput = {
   username: string
   password: string
   roleId: string
-  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -246,7 +246,7 @@ export type UserUpdateInput = {
   username?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
@@ -255,7 +255,7 @@ export type UserUncheckedUpdateInput = {
   username?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
-  orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -277,11 +277,6 @@ export type UserUncheckedUpdateManyInput = {
   username?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
-}
-
-export type UserNullableScalarRelationFilter = {
-  is?: Prisma.UserWhereInput | null
-  isNot?: Prisma.UserWhereInput | null
 }
 
 export type UserListRelationFilter = {
@@ -326,20 +321,9 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
-export type UserCreateNestedOneWithoutOrdersInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutOrdersInput, Prisma.UserUncheckedCreateWithoutOrdersInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOrdersInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutOrdersNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutOrdersInput, Prisma.UserUncheckedCreateWithoutOrdersInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOrdersInput
-  upsert?: Prisma.UserUpsertWithoutOrdersInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOrdersInput, Prisma.UserUpdateWithoutOrdersInput>, Prisma.UserUncheckedUpdateWithoutOrdersInput>
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
 }
 
 export type UserCreateNestedManyWithoutRoleInput = {
@@ -398,59 +382,27 @@ export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
 }
 
-export type UserCreateWithoutOrdersInput = {
-  id?: string
-  username: string
-  password: string
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+export type UserCreateNestedOneWithoutConfirmedOrdersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConfirmedOrdersInput, Prisma.UserUncheckedCreateWithoutConfirmedOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConfirmedOrdersInput
+  connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUncheckedCreateWithoutOrdersInput = {
-  id?: string
-  username: string
-  password: string
-  roleId: string
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutOrdersInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutOrdersInput, Prisma.UserUncheckedCreateWithoutOrdersInput>
-}
-
-export type UserUpsertWithoutOrdersInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutOrdersInput, Prisma.UserUncheckedUpdateWithoutOrdersInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutOrdersInput, Prisma.UserUncheckedCreateWithoutOrdersInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutOrdersInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutOrdersInput, Prisma.UserUncheckedUpdateWithoutOrdersInput>
-}
-
-export type UserUpdateWithoutOrdersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutOrdersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+export type UserUpdateOneWithoutConfirmedOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConfirmedOrdersInput, Prisma.UserUncheckedCreateWithoutConfirmedOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConfirmedOrdersInput
+  upsert?: Prisma.UserUpsertWithoutConfirmedOrdersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutConfirmedOrdersInput, Prisma.UserUpdateWithoutConfirmedOrdersInput>, Prisma.UserUncheckedUpdateWithoutConfirmedOrdersInput>
 }
 
 export type UserCreateWithoutRoleInput = {
   id?: string
   username: string
   password: string
-  orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  confirmedOrders?: Prisma.ConfirmedOrderCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
@@ -458,7 +410,7 @@ export type UserUncheckedCreateWithoutRoleInput = {
   id?: string
   username: string
   password: string
-  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -503,7 +455,7 @@ export type UserCreateWithoutSessionsInput = {
   username: string
   password: string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  confirmedOrders?: Prisma.ConfirmedOrderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -511,7 +463,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   username: string
   password: string
   roleId: string
-  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -535,7 +487,7 @@ export type UserUpdateWithoutSessionsInput = {
   username?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -543,7 +495,55 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   username?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
-  orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutConfirmedOrdersInput = {
+  id?: string
+  username: string
+  password: string
+  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutConfirmedOrdersInput = {
+  id?: string
+  username: string
+  password: string
+  roleId: string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutConfirmedOrdersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutConfirmedOrdersInput, Prisma.UserUncheckedCreateWithoutConfirmedOrdersInput>
+}
+
+export type UserUpsertWithoutConfirmedOrdersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutConfirmedOrdersInput, Prisma.UserUncheckedUpdateWithoutConfirmedOrdersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutConfirmedOrdersInput, Prisma.UserUncheckedCreateWithoutConfirmedOrdersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutConfirmedOrdersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutConfirmedOrdersInput, Prisma.UserUncheckedUpdateWithoutConfirmedOrdersInput>
+}
+
+export type UserUpdateWithoutConfirmedOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutConfirmedOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.StringFieldUpdateOperationsInput | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyRoleInput = {
@@ -556,7 +556,7 @@ export type UserUpdateWithoutRoleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
@@ -564,7 +564,7 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -580,12 +580,12 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
  */
 
 export type UserCountOutputType = {
-  orders: number
+  confirmedOrders: number
   sessions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  orders?: boolean | UserCountOutputTypeCountOrdersArgs
+  confirmedOrders?: boolean | UserCountOutputTypeCountConfirmedOrdersArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
 }
 
@@ -602,8 +602,8 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.OrderWhereInput
+export type UserCountOutputTypeCountConfirmedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ConfirmedOrderWhereInput
 }
 
 /**
@@ -620,7 +620,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   password?: boolean
   roleId?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
-  orders?: boolean | Prisma.User$ordersArgs<ExtArgs>
+  confirmedOrders?: boolean | Prisma.User$confirmedOrdersArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -637,7 +637,7 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "password" | "roleId", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
-  orders?: boolean | Prisma.User$ordersArgs<ExtArgs>
+  confirmedOrders?: boolean | Prisma.User$confirmedOrdersArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -646,7 +646,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     role: Prisma.$RolePayload<ExtArgs>
-    orders: Prisma.$OrderPayload<ExtArgs>[]
+    confirmedOrders: Prisma.$ConfirmedOrderPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -995,7 +995,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  orders<T extends Prisma.User$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  confirmedOrders<T extends Prisma.User$confirmedOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$confirmedOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConfirmedOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1373,27 +1373,27 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.orders
+ * User.confirmedOrders
  */
-export type User$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$confirmedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Order
+   * Select specific fields to fetch from the ConfirmedOrder
    */
-  select?: Prisma.OrderSelect<ExtArgs> | null
+  select?: Prisma.ConfirmedOrderSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Order
+   * Omit specific fields from the ConfirmedOrder
    */
-  omit?: Prisma.OrderOmit<ExtArgs> | null
+  omit?: Prisma.ConfirmedOrderOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.OrderInclude<ExtArgs> | null
-  where?: Prisma.OrderWhereInput
-  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
-  cursor?: Prisma.OrderWhereUniqueInput
+  include?: Prisma.ConfirmedOrderInclude<ExtArgs> | null
+  where?: Prisma.ConfirmedOrderWhereInput
+  orderBy?: Prisma.ConfirmedOrderOrderByWithRelationInput | Prisma.ConfirmedOrderOrderByWithRelationInput[]
+  cursor?: Prisma.ConfirmedOrderWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+  distinct?: Prisma.ConfirmedOrderScalarFieldEnum | Prisma.ConfirmedOrderScalarFieldEnum[]
 }
 
 /**

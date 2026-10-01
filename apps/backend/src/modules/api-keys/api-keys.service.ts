@@ -7,14 +7,14 @@ export class ApiKeysService {
 
     async getAPIKeys() {
         return await prisma.apiKey.findMany({
-            omit: { hash_key: true }
+            omit: { hashKey: true }
         });
     }
 
     async getAPIKey(id: string) {
         return await prisma.apiKey.findUnique({
             where: { id },
-            omit: { hash_key: true }
+            omit: { hashKey: true }
         })
     }
 
@@ -24,10 +24,10 @@ export class ApiKeysService {
 
         const newKey = await prisma.apiKey.create({
             data: {
-                hash_key: await this.hashApiKey(prefix + key),
+                hashKey: await this.hashApiKey(prefix + key),
                 name: input.name,
                 type: input.type,
-                last_digits: key.slice(-4),
+                lastDigits: key.slice(-4),
                 prefix: prefix
             }
         })
@@ -49,7 +49,7 @@ export class ApiKeysService {
                 revokedAt: new Date()
             }
         })
-        const redisKey = `apiKey:${key.hash_key}`;
+        const redisKey = `apiKey:${key.hashKey}`;
         await redisConnection.setex(redisKey, env.REDIS_CACHE_TTL, JSON.stringify({ status: 'REVOKED' }));
         return key;
     }

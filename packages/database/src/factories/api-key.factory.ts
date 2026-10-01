@@ -17,14 +17,14 @@ export async function createApiKey(
   const prefix = type === "PRINTER" ? "ms_pt_" : "ms_wb_";
   const rawKey = faker.string.alphanumeric(32);
   const fullKey = `${prefix}${rawKey}`;
-  const last_digits = rawKey.slice(-4);
-  const hash_key = await bcrypt.hash(fullKey, 10);
+  const lastDigits = rawKey.slice(-4);
+  const hashKey = await bcrypt.hash(fullKey, 10);
 
   const apiKey = await prisma.apiKey.create({
     data: {
-      hash_key,
+      hashKey,
       prefix,
-      last_digits,
+      lastDigits,
       type,
       name: overrides.name ?? faker.company.buzzPhrase(),
       createdAt: faker.date.recent({ days: 90 }),

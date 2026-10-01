@@ -96,13 +96,13 @@ function mergeReports(base: Report, overlay: Report): Report {
   }
 
   let avgTime: number | null = null;
-  if (base.averageCompletitionTime != null && overlay.averageCompletitionTime != null) {
+  if (base.averageCompletionTime != null && overlay.averageCompletionTime != null) {
     const total = base.totalOrders + overlay.totalOrders;
     avgTime = total > 0
-      ? (base.averageCompletitionTime * base.totalOrders + overlay.averageCompletitionTime * overlay.totalOrders) / total
+      ? (base.averageCompletionTime * base.totalOrders + overlay.averageCompletionTime * overlay.totalOrders) / total
       : null;
   } else {
-    avgTime = base.averageCompletitionTime ?? overlay.averageCompletitionTime ?? null;
+    avgTime = base.averageCompletionTime ?? overlay.averageCompletionTime ?? null;
   }
 
   return {
@@ -111,7 +111,7 @@ function mergeReports(base: Report, overlay: Report): Report {
     totalCashRevenue: num(base.totalCashRevenue) + num(overlay.totalCashRevenue),
     totalCardRevenue: num(base.totalCardRevenue) + num(overlay.totalCardRevenue),
     totalOrders: base.totalOrders + overlay.totalOrders,
-    averageCompletitionTime: avgTime,
+    averageCompletionTime: avgTime,
     categoryStats: Array.from(catMap.values()),
     cashRegisterStats: Array.from(cashMap.values()),
   };
@@ -166,7 +166,7 @@ function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: 
         totalCashRevenue: 0,
         totalCardRevenue: 0,
         totalOrders: 0,
-        averageCompletitionTime: null,
+        averageCompletionTime: null,
         categoryStats: [],
         cashRegisterStats: [],
       } as Report);
@@ -232,8 +232,8 @@ export default function AnalyticsPage() {
     const totalCardRevenue = reports.reduce((sum, r) => sum + num(r.totalCardRevenue), 0);
     const totalOrders = reports.reduce((sum, r) => sum + num(r.totalOrders), 0);
     const avgCompletionTimes = reports
-      .filter((r) => r.averageCompletitionTime != null)
-      .map((r) => num(r.averageCompletitionTime));
+      .filter((r) => r.averageCompletionTime != null)
+      .map((r) => num(r.averageCompletionTime));
     const avgCompletionTime =
       avgCompletionTimes.length > 0
         ? avgCompletionTimes.reduce((a, b) => a + b, 0) / avgCompletionTimes.length
@@ -420,8 +420,8 @@ export default function AnalyticsPage() {
     const totalCardRevenue = filteredReports.reduce((sum, r) => sum + num(r.totalCardRevenue), 0);
     const totalOrders = filteredReports.reduce((sum, r) => sum + num(r.totalOrders), 0);
     const avgCompletionTimes = filteredReports
-      .filter((r) => r.averageCompletitionTime != null)
-      .map((r) => num(r.averageCompletitionTime));
+      .filter((r) => r.averageCompletionTime != null)
+      .map((r) => num(r.averageCompletionTime));
     const avgCompletionTime =
       avgCompletionTimes.length > 0
         ? avgCompletionTimes.reduce((a, b) => a + b, 0) / avgCompletionTimes.length

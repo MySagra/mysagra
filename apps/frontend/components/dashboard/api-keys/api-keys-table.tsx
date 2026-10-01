@@ -67,7 +67,7 @@ export function ApiKeysTable({ apiKeys, onRevoke }: ApiKeysTableProps) {
               <TableCell className="font-mono text-sm hidden md:table-cell">
                 {key.prefix}
                 {"••••"}
-                {key.last_digits}
+                {key.lastDigits}
               </TableCell>
               <TableCell className="text-sm text-muted-foreground hidden md:table-cell">
                 {key.createdAt.toLocaleDateString("it-IT", { timeZone: timezone })}

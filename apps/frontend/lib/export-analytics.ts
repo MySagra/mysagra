@@ -54,7 +54,7 @@ export function exportAnalyticsToExcel(
     { v: fmtEur(num(r.totalCashRevenue)), t: "s" },
     { v: fmtEur(num(r.totalCardRevenue)), t: "s" },
     { v: r.totalOrders, t: "n" },
-    { v: r.averageCompletitionTime != null ? Math.round(num(r.averageCompletitionTime) / 60000 * 10) / 10 : "", t: r.averageCompletitionTime != null ? "n" : "s" },
+    { v: r.averageCompletionTime != null ? Math.round(num(r.averageCompletionTime) / 60000 * 10) / 10 : "", t: r.averageCompletionTime != null ? "n" : "s" },
   ]);
 
   // Totals
@@ -63,8 +63,8 @@ export function exportAnalyticsToExcel(
   const totalCard = reports.reduce((s, r) => s + num(r.totalCardRevenue), 0);
   const totalOrders = reports.reduce((s, r) => s + r.totalOrders, 0);
   const avgTimes = reports
-    .filter((r) => r.averageCompletitionTime != null)
-    .map((r) => num(r.averageCompletitionTime));
+    .filter((r) => r.averageCompletionTime != null)
+    .map((r) => num(r.averageCompletionTime));
   const avgTime = avgTimes.length > 0
     ? Math.round((avgTimes.reduce((a, b) => a + b, 0) / avgTimes.length) / 60000 * 10) / 10
     : "";

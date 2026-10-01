@@ -1,0 +1,97 @@
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PARTIAL
+  COMPLETED
+  PICKED_UP
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+}
+
+model Order {
+  id          String @id @default(cuid())
+  displayCode String @unique
+
+  // user data
+  table    String? @db.VarChar(50)
+  customer String? @db.VarChar(100)
+
+  status OrderStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subTotal  Decimal @db.Decimal(10, 2)
+  surcharge Decimal @default(0) @db.Decimal(10, 2)
+
+  orderItems     OrderItem[]
+  confirmedOrder ConfirmedOrder?
+
+  @@index([status, createdAt])
+  @@map("orders")
+}
+
+// confirmation data, exists only for confirmed orders (1:0..1 with Order)
+model ConfirmedOrder {
+  orderId String @id
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  confirmedAt DateTime  @default(now())
+  completedAt DateTime?
+
+  ticketNumber  Int
+  paymentMethod PaymentMethod
+  discount      Decimal       @default(0) @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  cashRegisterId String?
+  cashRegister   CashRegister? @relation(fields: [cashRegisterId], references: [id], onDelete: SetNull)
+
+  orderStationStates OrderStationStatus[]
+
+  @@index([ticketNumber])
+  @@map("confirmed_orders")
+}
+
+model OrderStationStatus {
+  id     String      @id @default(cuid())
+  status OrderStatus
+
+  orderId   String
+  stationId String
+
+  updatedAt DateTime @updatedAt
+
+  confirmedOrder ConfirmedOrder @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+  station        Station        @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, stationId])
+  @@map("orders_stations_states")
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  quantity Int
+
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  food   Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId String
+
+  unitPrice     Decimal @db.Decimal(10, 2)
+  unitSurcharge Decimal @default(0) @db.Decimal(10, 2)
+  total         Decimal @db.Decimal(10, 2)
+
+  notes String @default("") @db.VarChar(255) // "" = no notes, never NULL (keeps the unique constraint effective)
+
+  @@unique([orderId, foodId, notes], name: "unique_order_food_notes")
+  @@map("order_items")
+}

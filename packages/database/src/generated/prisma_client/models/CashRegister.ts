@@ -175,7 +175,7 @@ export type CashRegisterWhereInput = {
   enabled?: Prisma.BoolFilter<"CashRegister"> | boolean
   defaultPrinterId?: Prisma.StringNullableFilter<"CashRegister"> | string | null
   defaultPrinter?: Prisma.XOR<Prisma.PrinterNullableScalarRelationFilter, Prisma.PrinterWhereInput> | null
-  orders?: Prisma.OrderListRelationFilter
+  confirmedOrders?: Prisma.ConfirmedOrderListRelationFilter
 }
 
 export type CashRegisterOrderByWithRelationInput = {
@@ -184,7 +184,7 @@ export type CashRegisterOrderByWithRelationInput = {
   enabled?: Prisma.SortOrder
   defaultPrinterId?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultPrinter?: Prisma.PrinterOrderByWithRelationInput
-  orders?: Prisma.OrderOrderByRelationAggregateInput
+  confirmedOrders?: Prisma.ConfirmedOrderOrderByRelationAggregateInput
   _relevance?: Prisma.CashRegisterOrderByRelevanceInput
 }
 
@@ -197,7 +197,7 @@ export type CashRegisterWhereUniqueInput = Prisma.AtLeast<{
   enabled?: Prisma.BoolFilter<"CashRegister"> | boolean
   defaultPrinterId?: Prisma.StringNullableFilter<"CashRegister"> | string | null
   defaultPrinter?: Prisma.XOR<Prisma.PrinterNullableScalarRelationFilter, Prisma.PrinterWhereInput> | null
-  orders?: Prisma.OrderListRelationFilter
+  confirmedOrders?: Prisma.ConfirmedOrderListRelationFilter
 }, "id" | "name">
 
 export type CashRegisterOrderByWithAggregationInput = {
@@ -225,7 +225,7 @@ export type CashRegisterCreateInput = {
   name: string
   enabled?: boolean
   defaultPrinter?: Prisma.PrinterCreateNestedOneWithoutCashRegistersInput
-  orders?: Prisma.OrderCreateNestedManyWithoutCashRegisterInput
+  confirmedOrders?: Prisma.ConfirmedOrderCreateNestedManyWithoutCashRegisterInput
 }
 
 export type CashRegisterUncheckedCreateInput = {
@@ -233,7 +233,7 @@ export type CashRegisterUncheckedCreateInput = {
   name: string
   enabled?: boolean
   defaultPrinterId?: string | null
-  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCashRegisterInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedCreateNestedManyWithoutCashRegisterInput
 }
 
 export type CashRegisterUpdateInput = {
@@ -241,7 +241,7 @@ export type CashRegisterUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultPrinter?: Prisma.PrinterUpdateOneWithoutCashRegistersNestedInput
-  orders?: Prisma.OrderUpdateManyWithoutCashRegisterNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUpdateManyWithoutCashRegisterNestedInput
 }
 
 export type CashRegisterUncheckedUpdateInput = {
@@ -249,7 +249,7 @@ export type CashRegisterUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultPrinterId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  orders?: Prisma.OrderUncheckedUpdateManyWithoutCashRegisterNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedUpdateManyWithoutCashRegisterNestedInput
 }
 
 export type CashRegisterCreateManyInput = {
@@ -314,20 +314,20 @@ export type CashRegisterMinOrderByAggregateInput = {
   defaultPrinterId?: Prisma.SortOrder
 }
 
-export type CashRegisterCreateNestedOneWithoutOrdersInput = {
-  create?: Prisma.XOR<Prisma.CashRegisterCreateWithoutOrdersInput, Prisma.CashRegisterUncheckedCreateWithoutOrdersInput>
-  connectOrCreate?: Prisma.CashRegisterCreateOrConnectWithoutOrdersInput
+export type CashRegisterCreateNestedOneWithoutConfirmedOrdersInput = {
+  create?: Prisma.XOR<Prisma.CashRegisterCreateWithoutConfirmedOrdersInput, Prisma.CashRegisterUncheckedCreateWithoutConfirmedOrdersInput>
+  connectOrCreate?: Prisma.CashRegisterCreateOrConnectWithoutConfirmedOrdersInput
   connect?: Prisma.CashRegisterWhereUniqueInput
 }
 
-export type CashRegisterUpdateOneWithoutOrdersNestedInput = {
-  create?: Prisma.XOR<Prisma.CashRegisterCreateWithoutOrdersInput, Prisma.CashRegisterUncheckedCreateWithoutOrdersInput>
-  connectOrCreate?: Prisma.CashRegisterCreateOrConnectWithoutOrdersInput
-  upsert?: Prisma.CashRegisterUpsertWithoutOrdersInput
+export type CashRegisterUpdateOneWithoutConfirmedOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.CashRegisterCreateWithoutConfirmedOrdersInput, Prisma.CashRegisterUncheckedCreateWithoutConfirmedOrdersInput>
+  connectOrCreate?: Prisma.CashRegisterCreateOrConnectWithoutConfirmedOrdersInput
+  upsert?: Prisma.CashRegisterUpsertWithoutConfirmedOrdersInput
   disconnect?: Prisma.CashRegisterWhereInput | boolean
   delete?: Prisma.CashRegisterWhereInput | boolean
   connect?: Prisma.CashRegisterWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CashRegisterUpdateToOneWithWhereWithoutOrdersInput, Prisma.CashRegisterUpdateWithoutOrdersInput>, Prisma.CashRegisterUncheckedUpdateWithoutOrdersInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CashRegisterUpdateToOneWithWhereWithoutConfirmedOrdersInput, Prisma.CashRegisterUpdateWithoutConfirmedOrdersInput>, Prisma.CashRegisterUncheckedUpdateWithoutConfirmedOrdersInput>
 }
 
 export type CashRegisterCreateNestedManyWithoutDefaultPrinterInput = {
@@ -372,44 +372,44 @@ export type CashRegisterUncheckedUpdateManyWithoutDefaultPrinterNestedInput = {
   deleteMany?: Prisma.CashRegisterScalarWhereInput | Prisma.CashRegisterScalarWhereInput[]
 }
 
-export type CashRegisterCreateWithoutOrdersInput = {
+export type CashRegisterCreateWithoutConfirmedOrdersInput = {
   id?: string
   name: string
   enabled?: boolean
   defaultPrinter?: Prisma.PrinterCreateNestedOneWithoutCashRegistersInput
 }
 
-export type CashRegisterUncheckedCreateWithoutOrdersInput = {
+export type CashRegisterUncheckedCreateWithoutConfirmedOrdersInput = {
   id?: string
   name: string
   enabled?: boolean
   defaultPrinterId?: string | null
 }
 
-export type CashRegisterCreateOrConnectWithoutOrdersInput = {
+export type CashRegisterCreateOrConnectWithoutConfirmedOrdersInput = {
   where: Prisma.CashRegisterWhereUniqueInput
-  create: Prisma.XOR<Prisma.CashRegisterCreateWithoutOrdersInput, Prisma.CashRegisterUncheckedCreateWithoutOrdersInput>
+  create: Prisma.XOR<Prisma.CashRegisterCreateWithoutConfirmedOrdersInput, Prisma.CashRegisterUncheckedCreateWithoutConfirmedOrdersInput>
 }
 
-export type CashRegisterUpsertWithoutOrdersInput = {
-  update: Prisma.XOR<Prisma.CashRegisterUpdateWithoutOrdersInput, Prisma.CashRegisterUncheckedUpdateWithoutOrdersInput>
-  create: Prisma.XOR<Prisma.CashRegisterCreateWithoutOrdersInput, Prisma.CashRegisterUncheckedCreateWithoutOrdersInput>
+export type CashRegisterUpsertWithoutConfirmedOrdersInput = {
+  update: Prisma.XOR<Prisma.CashRegisterUpdateWithoutConfirmedOrdersInput, Prisma.CashRegisterUncheckedUpdateWithoutConfirmedOrdersInput>
+  create: Prisma.XOR<Prisma.CashRegisterCreateWithoutConfirmedOrdersInput, Prisma.CashRegisterUncheckedCreateWithoutConfirmedOrdersInput>
   where?: Prisma.CashRegisterWhereInput
 }
 
-export type CashRegisterUpdateToOneWithWhereWithoutOrdersInput = {
+export type CashRegisterUpdateToOneWithWhereWithoutConfirmedOrdersInput = {
   where?: Prisma.CashRegisterWhereInput
-  data: Prisma.XOR<Prisma.CashRegisterUpdateWithoutOrdersInput, Prisma.CashRegisterUncheckedUpdateWithoutOrdersInput>
+  data: Prisma.XOR<Prisma.CashRegisterUpdateWithoutConfirmedOrdersInput, Prisma.CashRegisterUncheckedUpdateWithoutConfirmedOrdersInput>
 }
 
-export type CashRegisterUpdateWithoutOrdersInput = {
+export type CashRegisterUpdateWithoutConfirmedOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultPrinter?: Prisma.PrinterUpdateOneWithoutCashRegistersNestedInput
 }
 
-export type CashRegisterUncheckedUpdateWithoutOrdersInput = {
+export type CashRegisterUncheckedUpdateWithoutConfirmedOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -420,14 +420,14 @@ export type CashRegisterCreateWithoutDefaultPrinterInput = {
   id?: string
   name: string
   enabled?: boolean
-  orders?: Prisma.OrderCreateNestedManyWithoutCashRegisterInput
+  confirmedOrders?: Prisma.ConfirmedOrderCreateNestedManyWithoutCashRegisterInput
 }
 
 export type CashRegisterUncheckedCreateWithoutDefaultPrinterInput = {
   id?: string
   name: string
   enabled?: boolean
-  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCashRegisterInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedCreateNestedManyWithoutCashRegisterInput
 }
 
 export type CashRegisterCreateOrConnectWithoutDefaultPrinterInput = {
@@ -476,14 +476,14 @@ export type CashRegisterUpdateWithoutDefaultPrinterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  orders?: Prisma.OrderUpdateManyWithoutCashRegisterNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUpdateManyWithoutCashRegisterNestedInput
 }
 
 export type CashRegisterUncheckedUpdateWithoutDefaultPrinterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  orders?: Prisma.OrderUncheckedUpdateManyWithoutCashRegisterNestedInput
+  confirmedOrders?: Prisma.ConfirmedOrderUncheckedUpdateManyWithoutCashRegisterNestedInput
 }
 
 export type CashRegisterUncheckedUpdateManyWithoutDefaultPrinterInput = {
@@ -498,11 +498,11 @@ export type CashRegisterUncheckedUpdateManyWithoutDefaultPrinterInput = {
  */
 
 export type CashRegisterCountOutputType = {
-  orders: number
+  confirmedOrders: number
 }
 
 export type CashRegisterCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  orders?: boolean | CashRegisterCountOutputTypeCountOrdersArgs
+  confirmedOrders?: boolean | CashRegisterCountOutputTypeCountConfirmedOrdersArgs
 }
 
 /**
@@ -518,8 +518,8 @@ export type CashRegisterCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types
 /**
  * CashRegisterCountOutputType without action
  */
-export type CashRegisterCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.OrderWhereInput
+export type CashRegisterCountOutputTypeCountConfirmedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ConfirmedOrderWhereInput
 }
 
 
@@ -529,7 +529,7 @@ export type CashRegisterSelect<ExtArgs extends runtime.Types.Extensions.Internal
   enabled?: boolean
   defaultPrinterId?: boolean
   defaultPrinter?: boolean | Prisma.CashRegister$defaultPrinterArgs<ExtArgs>
-  orders?: boolean | Prisma.CashRegister$ordersArgs<ExtArgs>
+  confirmedOrders?: boolean | Prisma.CashRegister$confirmedOrdersArgs<ExtArgs>
   _count?: boolean | Prisma.CashRegisterCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["cashRegister"]>
 
@@ -545,7 +545,7 @@ export type CashRegisterSelectScalar = {
 export type CashRegisterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "enabled" | "defaultPrinterId", ExtArgs["result"]["cashRegister"]>
 export type CashRegisterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   defaultPrinter?: boolean | Prisma.CashRegister$defaultPrinterArgs<ExtArgs>
-  orders?: boolean | Prisma.CashRegister$ordersArgs<ExtArgs>
+  confirmedOrders?: boolean | Prisma.CashRegister$confirmedOrdersArgs<ExtArgs>
   _count?: boolean | Prisma.CashRegisterCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -553,7 +553,7 @@ export type $CashRegisterPayload<ExtArgs extends runtime.Types.Extensions.Intern
   name: "CashRegister"
   objects: {
     defaultPrinter: Prisma.$PrinterPayload<ExtArgs> | null
-    orders: Prisma.$OrderPayload<ExtArgs>[]
+    confirmedOrders: Prisma.$ConfirmedOrderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -901,7 +901,7 @@ readonly fields: CashRegisterFieldRefs;
 export interface Prisma__CashRegisterClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   defaultPrinter<T extends Prisma.CashRegister$defaultPrinterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CashRegister$defaultPrinterArgs<ExtArgs>>): Prisma.Prisma__PrinterClient<runtime.Types.Result.GetResult<Prisma.$PrinterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  orders<T extends Prisma.CashRegister$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CashRegister$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  confirmedOrders<T extends Prisma.CashRegister$confirmedOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CashRegister$confirmedOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConfirmedOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1297,27 +1297,27 @@ export type CashRegister$defaultPrinterArgs<ExtArgs extends runtime.Types.Extens
 }
 
 /**
- * CashRegister.orders
+ * CashRegister.confirmedOrders
  */
-export type CashRegister$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type CashRegister$confirmedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Order
+   * Select specific fields to fetch from the ConfirmedOrder
    */
-  select?: Prisma.OrderSelect<ExtArgs> | null
+  select?: Prisma.ConfirmedOrderSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Order
+   * Omit specific fields from the ConfirmedOrder
    */
-  omit?: Prisma.OrderOmit<ExtArgs> | null
+  omit?: Prisma.ConfirmedOrderOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.OrderInclude<ExtArgs> | null
-  where?: Prisma.OrderWhereInput
-  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
-  cursor?: Prisma.OrderWhereUniqueInput
+  include?: Prisma.ConfirmedOrderInclude<ExtArgs> | null
+  where?: Prisma.ConfirmedOrderWhereInput
+  orderBy?: Prisma.ConfirmedOrderOrderByWithRelationInput | Prisma.ConfirmedOrderOrderByWithRelationInput[]
+  cursor?: Prisma.ConfirmedOrderWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+  distinct?: Prisma.ConfirmedOrderScalarFieldEnum | Prisma.ConfirmedOrderScalarFieldEnum[]
 }
 
 /**

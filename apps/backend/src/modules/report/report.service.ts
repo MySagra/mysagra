@@ -29,8 +29,7 @@ export class ReportService {
         const to = new Date();
 
         if (!lastReport) {
-            from = await prisma.order.findFirst({
-                where: { NOT: { confirmedAt: null } },
+            from = await prisma.confirmedOrder.findFirst({
                 orderBy: { confirmedAt: "asc" }
             }).then(async (order) => {
                 return order?.confirmedAt
@@ -110,7 +109,7 @@ export class ReportService {
                     totalCashRevenue: this._round(Number(orderStats.totalCashRevenue)),
                     totalCardRevenue: this._round(Number(orderStats.totalCardRevenue)),
                     totalOrders: Number(orderStats.totalOrders), // Convert BigInt to Number
-                    averageCompletitionTime: Math.round(orderStats.averageCompletitionTime || 0),
+                    averageCompletionTime: orderStats.averageCompletionTime != null ? Math.round(Number(orderStats.averageCompletionTime)) : null,
 
                     categoryStats: {
                         create: categoryStatsRaw.map((c: any) => ({
@@ -161,15 +160,16 @@ export class ReportService {
                 SELECT
                 ${to} as timestamp,
                 CEIL((UNIX_TIMESTAMP(${to}) - UNIX_TIMESTAMP(${from})) / 60) as intervalInMinutes,
-                IFNULL(SUM(o.total), 0) as totalRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CASH', o.total, 0)), 0) as totalCashRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CARD', o.total, 0)), 0) as totalCardRevenue,
+                IFNULL(SUM(co.total), 0) as totalRevenue,
+                IFNULL(SUM(IF(co.paymentMethod = 'CASH', co.total, 0)), 0) as totalCashRevenue,
+                IFNULL(SUM(IF(co.paymentMethod = 'CARD', co.total, 0)), 0) as totalCardRevenue,
                 COUNT(DISTINCT o.id) as totalOrders,
-                IFNULL(AVG(IF(o.completedAt IS NOT NULL, (UNIX_TIMESTAMP(o.completedAt) - UNIX_TIMESTAMP(o.createdAt)) * 1000, NULL)), 0) as averageCompletitionTime
+                AVG(IF(co.completedAt IS NOT NULL, (UNIX_TIMESTAMP(co.completedAt) - UNIX_TIMESTAMP(o.createdAt)) * 1000, NULL)) as averageCompletionTime
                 FROM orders o
-                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
-                AND o.confirmedAt >= ${from}
-                AND o.confirmedAt < ${to};
+                INNER JOIN confirmed_orders co ON co.orderId = o.id
+                WHERE o.status IN ('CONFIRMED', 'PARTIAL', 'COMPLETED', 'PICKED_UP')
+                AND co.confirmedAt >= ${from}
+                AND co.confirmedAt < ${to};
             `
     }
 
@@ -185,9 +185,10 @@ export class ReportService {
                 INNER JOIN foods f ON c.id = f.categoryId
                 INNER JOIN order_items oi ON f.id = oi.foodId
                 INNER JOIN orders o ON oi.orderId = o.id
-                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
-                AND o.confirmedAt >= ${from}
-                AND o.confirmedAt < ${to}
+                INNER JOIN confirmed_orders co ON co.orderId = o.id
+                WHERE o.status IN ('CONFIRMED', 'PARTIAL', 'COMPLETED', 'PICKED_UP')
+                AND co.confirmedAt >= ${from}
+                AND co.confirmedAt < ${to}
                 GROUP BY c.id, c.name;
             `
     }
@@ -204,10 +205,11 @@ export class ReportService {
                 FROM foods f
                 INNER JOIN order_items oi ON f.id = oi.foodId
                 INNER JOIN orders o ON oi.orderId = o.id
+                INNER JOIN confirmed_orders co ON co.orderId = o.id
                 INNER JOIN categories c ON f.categoryId = c.id
-                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
-                AND o.confirmedAt >= ${from}
-                AND o.confirmedAt < ${to}
+                WHERE o.status IN ('CONFIRMED', 'PARTIAL', 'COMPLETED', 'PICKED_UP')
+                AND co.confirmedAt >= ${from}
+                AND co.confirmedAt < ${to}
                 GROUP BY f.id, f.name;
             `
     }
@@ -218,14 +220,15 @@ export class ReportService {
                 SELECT
                 cr.id as cashRegisterId,
                 cr.name as cashRegisterName,
-                IFNULL(SUM(o.total), 0) as totalRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CARD', o.total, 0)), 0) as totalCardRevenue,
-                IFNULL(SUM(IF(o.paymentMethod = 'CASH', o.total, 0)), 0) as totalCashRevenue
+                IFNULL(SUM(co.total), 0) as totalRevenue,
+                IFNULL(SUM(IF(co.paymentMethod = 'CARD', co.total, 0)), 0) as totalCardRevenue,
+                IFNULL(SUM(IF(co.paymentMethod = 'CASH', co.total, 0)), 0) as totalCashRevenue
                 FROM cash_registers cr
-                LEFT JOIN orders o ON cr.id = o.cashRegisterId
-                WHERE o.status IN ('CONFIRMED', 'PICKED_UP', 'COMPLETED')
-                AND o.confirmedAt >= ${from}
-                AND o.confirmedAt < ${to}
+                LEFT JOIN confirmed_orders co ON cr.id = co.cashRegisterId
+                LEFT JOIN orders o ON o.id = co.orderId
+                WHERE o.status IN ('CONFIRMED', 'PARTIAL', 'COMPLETED', 'PICKED_UP')
+                AND co.confirmedAt >= ${from}
+                AND co.confirmedAt < ${to}
                 GROUP BY cr.id, cr.name;
             `
     }
@@ -283,7 +286,7 @@ export class ReportService {
             totalCashRevenue: this._round(Number(orderStats.totalCashRevenue)),
             totalCardRevenue: this._round(Number(orderStats.totalCardRevenue)),
             totalOrders: Number(orderStats.totalOrders),
-            averageCompletitionTime: orderStats.averageCompletitionTime ? Math.round(Number(orderStats.averageCompletitionTime)) : undefined,
+            averageCompletionTime: orderStats.averageCompletionTime ? Math.round(Number(orderStats.averageCompletionTime)) : undefined,
             categoryStats: realtimeStats.categoryStatsRaw.map((c: any) => ({
                 id: `realtime-cat-${c.categoryId}`,
                 reportId: `realtime-${timestamp.getTime()}`,
@@ -358,7 +361,7 @@ export class ReportService {
         }
 
         const buckets = new Map<number, Report>();
-        const bucketCompletitionTimeWeighted = new Map<number, number>();
+        const bucketCompletionTimeWeighted = new Map<number, number>();
 
         // Process only raw reports for aggregation (exclude real-time from aggregation)
         const reportsToProcess = rawReports;
@@ -378,7 +381,7 @@ export class ReportService {
                     cashRegisterStats: [],
                     intervalInMinutes: bucketKey
                 })
-                bucketCompletitionTimeWeighted.set(bucketKey, 0);
+                bucketCompletionTimeWeighted.set(bucketKey, 0);
             }
 
             const currentBucket = buckets.get(bucketKey);
@@ -392,9 +395,9 @@ export class ReportService {
             currentBucket.totalOrders += report.totalOrders;
 
             // Weighted average for completion time
-            bucketCompletitionTimeWeighted.set(
+            bucketCompletionTimeWeighted.set(
                 bucketKey,
-                (bucketCompletitionTimeWeighted.get(bucketKey) || 0) + ((report.averageCompletitionTime || 0) * report.totalOrders)
+                (bucketCompletionTimeWeighted.get(bucketKey) || 0) + ((report.averageCompletionTime || 0) * report.totalOrders)
             );
 
             // Aggregate categoryStats
@@ -509,10 +512,10 @@ export class ReportService {
         const aggregatedReports = Array.from(buckets.values())
             .map(bucket => {
                 if (bucket.totalOrders > 0) {
-                    const weightedTotal = bucketCompletitionTimeWeighted.get(bucket.timestamp.getTime());
-                    bucket.averageCompletitionTime = weightedTotal ? Math.round(weightedTotal / bucket.totalOrders) : undefined;
+                    const weightedTotal = bucketCompletionTimeWeighted.get(bucket.timestamp.getTime());
+                    bucket.averageCompletionTime = weightedTotal ? Math.round(weightedTotal / bucket.totalOrders) : undefined;
                 } else {
-                    bucket.averageCompletitionTime = undefined;
+                    bucket.averageCompletionTime = undefined;
                 }
                 return bucket;
             })

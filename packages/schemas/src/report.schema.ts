@@ -18,7 +18,7 @@ export const OrderStatsSchema = z.object({
   totalCashRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
   totalCardRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
   totalOrders: z.number(),
-  averageCompletitionTime: z.number().nullable().optional()
+  averageCompletionTime: z.number().nullable().optional()
 })
 
 export type OrderStats = z.infer<typeof OrderStatsSchema>
@@ -67,7 +67,7 @@ export const ReportSchema = z.object({
   totalCashRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
   totalCardRevenue: z.union([z.number(), z.string()]).transform(val => Number(val)),
   totalOrders: z.number(),
-  averageCompletitionTime: z.number().nullable().optional(),
+  averageCompletionTime: z.number().nullable().optional(),
   categoryStats: z.array(CategoryStatsSchema),
   cashRegisterStats: z.array(CashRegisterStatsSchema)
 })
