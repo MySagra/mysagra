@@ -294,9 +294,6 @@ export function CategoryDialog({
                     )}
                   />
                 </div>
-                <p className="-mt-2 text-xs text-muted-foreground">
-                  {t.menu.categoryPropagationHint}
-                </p>
 
                 <Field>
                   <FieldLabel>{t.categories.stationLabel}</FieldLabel>

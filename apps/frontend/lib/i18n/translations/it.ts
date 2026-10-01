@@ -354,7 +354,6 @@ export const it = {
     categoryUnavailable: "Categoria non disponibile",
     makeCategoryUnavailable: "Rendi non disponibile",
     makeCategoryAvailable: "Rendi disponibile",
-    categoryPropagationHint: "Disponibilità e stampante della categoria vengono applicate a tutti i suoi piatti.",
     extrasCountOne: "1 ingrediente",
     extrasCountMany: "{n} ingredienti",
     noExtras: "nessun ingrediente",
