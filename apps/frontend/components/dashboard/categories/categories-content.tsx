@@ -8,6 +8,7 @@ import { CategoriesTable } from "./categories-table";
 import { CategoryDialog } from "./category-dialog";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import { toast } from "sonner";
+import { arrayMove } from "@dnd-kit/sortable";
 import { useRole } from "@/hooks/use-role";
 import { CategoriesTableSkeleton } from "./categories-table-skeleton";
 
@@ -27,7 +28,7 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
-  const [hasOrderChanged, setHasOrderChanged] = useState(false);
+  const [savedOrder, setSavedOrder] = useState<string[]>(() => categories.map((c) => c.id));
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   const filteredCategories = useMemo(() => {
@@ -36,6 +37,11 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
       cat.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [categories, searchQuery]);
+
+  const hasOrderChanged = useMemo(
+    () => categories.some((cat, index) => cat.id !== savedOrder[index]),
+    [categories, savedOrder]
+  );
 
   function handleCreate() {
     setEditingCategory(null);
@@ -59,6 +65,7 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
       );
     } else {
       setCategories((prev) => [...prev, saved]);
+      setSavedOrder((prev) => [...prev, saved.id]);
     }
     setDialogOpen(false);
     setEditingCategory(null);
@@ -66,6 +73,7 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
 
   function handleDeleted(id: string) {
     setCategories((prev) => prev.filter((c) => c.id !== id));
+    setSavedOrder((prev) => prev.filter((savedId) => savedId !== id));
     setDeleteDialogOpen(false);
     setDeletingCategory(null);
   }
@@ -76,38 +84,33 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
     );
   }
 
-  function handleReorder(reordered: Category[]) {
-    setCategories(reordered);
-
-    // Verifica se l'ordine è effettivamente cambiato rispetto a quello iniziale
-    const hasChanged = reordered.some((cat, index) => {
-      const originalCategory = initialCategories.find(c => c.id === cat.id);
-      return originalCategory && originalCategory.position !== index;
+  function handleReorder(activeId: string, overId: string) {
+    setCategories((prev) => {
+      const oldIndex = prev.findIndex((c) => c.id === activeId);
+      const newIndex = prev.findIndex((c) => c.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      return arrayMove(prev, oldIndex, newIndex);
     });
-
-    setHasOrderChanged(hasChanged);
   }
 
   async function handleSaveOrder() {
     setIsSavingOrder(true);
-    try {
-      const reordered = categories.map((cat, index) => ({
-        ...cat,
-        position: index,
-      }));
-      await reorderCategories(reordered);
-      setHasOrderChanged(false);
+    const result = await reorderCategories(categories.map((c) => c.id));
+    if (result.ok) {
+      setCategories(result.data);
+      setSavedOrder(result.data.map((c) => c.id));
       toast.success("Ordine categorie salvato");
-    } catch (error) {
-      toast.error("Errore durante il salvataggio dell'ordine");
-    } finally {
-      setIsSavingOrder(false);
+    } else {
+      toast.error(result.error);
     }
+    setIsSavingOrder(false);
   }
 
   function handleResetOrder() {
-    setCategories([...initialCategories].sort((a, b) => a.position - b.position));
-    setHasOrderChanged(false);
+    setCategories((prev) => {
+      const indexById = new Map(savedOrder.map((id, index) => [id, index]));
+      return [...prev].sort((a, b) => (indexById.get(a.id) ?? Infinity) - (indexById.get(b.id) ?? Infinity));
+    });
   }
 
   if (isSessionLoading) {
@@ -138,6 +141,7 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
           onEdit={handleEdit}
           onToggle={handleToggled}
           onReorder={handleReorder}
+          isReorderDisabled={searchQuery.length > 0 || isSavingOrder}
         />
         <CategoryDialog
           open={dialogOpen}
@@ -147,7 +151,6 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
           stations={stations}
           onSaved={handleSaved}
           onDelete={canManageCategories ? handleDelete : undefined}
-          categoriesCount={categories.length}
         />
         <DeleteCategoryDialog
           open={deleteDialogOpen}

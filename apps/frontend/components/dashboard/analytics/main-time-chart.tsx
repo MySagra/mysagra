@@ -12,7 +12,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import type { Report } from "@mysagra/schemas";
+import type { Report } from "@/lib/api-schemas";
 import { TrendingUp, ShoppingBag, Layers, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 

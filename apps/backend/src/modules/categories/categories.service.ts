@@ -3,13 +3,19 @@ import {
     GetCategoriesQuery,
     GetCategoryQuery,
     PatchCategoryInput,
+    ReorderCategoriesInput,
     UpdateCategoryInput
 } from "@mysagra/schemas";
 import { prisma, Prisma } from "@mysagra/database";
 import { FoodsService } from "../foods/foods.service";
 import { ImagesService } from "../images/images.service";
 import { EventsService } from "../events/events.service";
-import { NotFoundError } from "@/common/errors";
+import { BadRequestError, NotFoundError } from "@/common/errors";
+
+const categoriesOrderBy: Prisma.CategoryOrderByWithRelationInput[] = [
+    { position: "asc" },
+    { name: "asc" }
+]
 
 export class CategoriesService {
     public static imageService = new ImagesService('categories', 'category');
@@ -17,7 +23,7 @@ export class CategoriesService {
 
     async getCategories(queryParams?: GetCategoriesQuery) {
         if (!queryParams) {
-            return await prisma.category.findMany();
+            return await prisma.category.findMany({ orderBy: categoriesOrderBy });
         }
 
         const { available, include, foodsAvailable, hasStation } = queryParams;
@@ -47,7 +53,8 @@ export class CategoriesService {
 
         const categories = await prisma.category.findMany({
             where: whereClause,
-            include: categoriesInclude
+            include: categoriesInclude,
+            orderBy: categoriesOrderBy
         });
 
         if (include !== undefined) {
@@ -118,13 +125,31 @@ export class CategoriesService {
     }
 
     async createCategory(category: CreateCategoryInput) {
-        return await prisma.category.create({
-            data: category
+        return await prisma.$transaction(async (tx) => {
+            let position = category.position;
+
+            if (position === undefined) {
+                const { _max } = await tx.category.aggregate({ _max: { position: true } });
+                position = _max.position === null ? 0 : _max.position + 1;
+            }
+
+            return await tx.category.create({
+                data: { ...category, position }
+            })
         })
     }
 
     async updateCategory(id: string, category: UpdateCategoryInput) {
-        const updatedCategory = await prisma.$transaction(async (tx) => {
+        const { updatedCategory, availabilityChanged } = await prisma.$transaction(async (tx) => {
+            const previous = await tx.category.findUnique({
+                where: { id },
+                select: { available: true }
+            })
+
+            if (!previous) {
+                throw new NotFoundError("Category not found");
+            }
+
             const updateCategory = await tx.category.update({
                 where: {
                     id
@@ -142,16 +167,21 @@ export class CategoriesService {
                 }
             }
             await tx.food.updateMany(foodUpdate)
-            return updateCategory;
+            return {
+                updatedCategory: updateCategory,
+                availabilityChanged: previous.available !== updateCategory.available
+            };
         })
 
-        this.event.broadcastEvent(
-            {
-                id: updatedCategory.id,
-                available: updatedCategory.available
-            },
-            "category-availability-changed"
-        )
+        if (availabilityChanged) {
+            this.event.broadcastEvent(
+                {
+                    id: updatedCategory.id,
+                    available: updatedCategory.available
+                },
+                "category-availability-changed"
+            )
+        }
 
         return updatedCategory;
     }
@@ -190,6 +220,26 @@ export class CategoriesService {
         }
 
         return patchedCategory;
+    }
+
+    async reorderCategories({ ids }: ReorderCategoriesInput) {
+        return await prisma.$transaction(async (tx) => {
+            const existing = await tx.category.findMany({ select: { id: true } });
+            const existingIds = new Set(existing.map(c => c.id));
+
+            if (ids.length !== existingIds.size || ids.some(id => !existingIds.has(id))) {
+                throw new BadRequestError("Ids must contain every category exactly once");
+            }
+
+            for (const [position, id] of ids.entries()) {
+                await tx.category.update({
+                    where: { id },
+                    data: { position }
+                });
+            }
+
+            return await tx.category.findMany({ orderBy: categoriesOrderBy });
+        });
     }
 
     async deleteCategory(id: string) {

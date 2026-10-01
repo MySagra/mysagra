@@ -9,6 +9,7 @@ import {
     CreateCategorySchema,
     UpdateCategorySchema,
     PatchCategorySchema,
+    ReorderCategoriesSchema,
     GetCategoriesQuerySchema,
     GetCategoryQuerySchema,
     cuidParamSchema,
@@ -77,6 +78,24 @@ export const categoriesModule = createModule({
             },
             handler: async (req, res) => {
                 res.status(201).json(await service.createCategory(req.validated.body));
+            },
+        }),
+        route({
+            method: "put",
+            path: "/order",
+            summary: "Reorder categories",
+            description:
+                "Sets the display order of all categories atomically. `ids` must contain every category exactly once; " +
+                "each category's `position` is set to its index in the array. Only `position` is changed.",
+            security: [{ cookieAuth: [] }],
+            middlewares: [authenticate(["admin", "maintainer"])],
+            body: ReorderCategoriesSchema,
+            responses: {
+                200: { description: "Categories reordered", schema: z.array(CategoryResponseSchema) },
+                400: { description: "Bad Request - Ids missing, duplicated or unknown" },
+            },
+            handler: async (req, res) => {
+                res.status(200).json(await service.reorderCategories(req.validated.body));
             },
         }),
         route({

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { decimalString } from './common.schema'
 
 
 const IngredientBase = {
@@ -30,7 +31,8 @@ export const IngredientResponseSchema = z.object({
     id: z.cuid().meta({
         description: "Unique identifier for the ingredient"
     }),
-    ...IngredientBase
+    ...IngredientBase,
+    surcharge: decimalString("surcharge for single ingredient add")
 }).meta({
     id: "IngredientResponse",
     description: "Ingredient entity with identifier"

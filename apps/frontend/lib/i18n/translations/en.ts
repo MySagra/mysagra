@@ -194,6 +194,7 @@ export const en = {
     stationSelectPlaceholder: "Select pickup station",
     noStation: "No pickup station",
     defaultPrinterLabel: "Default Printer",
+    propagationHint: "Availability and printer are applied to every food in this category.",
     printerSelectPlaceholder: "Select printer",
     noPrinter: "No printer",
     imageLabel: "Image",

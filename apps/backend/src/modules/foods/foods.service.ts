@@ -7,7 +7,6 @@ import {
     UpdateFoodInput
 } from "@mysagra/schemas";
 import { EventsService } from "../events/events.service";
-import { IngredientsService } from "../ingredients/ingredients.service";
 import { NotFoundError } from "@/common/errors";
 
 const foodWithIngredientsInclude = {
@@ -26,24 +25,13 @@ type FoodWithIngredients = Prisma.FoodGetPayload<{
 export class FoodsService {
     private event = EventsService.getInstance('cashier')
 
-    // Decimal(10,2) columns are serialized as strings by the driver,
-    // so convert price (and nested ingredient surcharges) to numbers
-    // to match the response contract.
-    private static serializeFood<T extends { price: Prisma.Decimal }>(food: T) {
-        return {
-            ...food,
-            price: food.price.toNumber(),
-        };
-    }
-
     public static formatFoodResponse(food: FoodWithIngredients) {
         const { foodIngredients, ...restOfFood } = food;
         const ingredients = foodIngredients
             .map(fi => fi.ingredient)
-            .filter(ingredient => ingredient != null)
-            .map(IngredientsService.serializeIngredient);
+            .filter(ingredient => ingredient != null);
         return {
-            ...FoodsService.serializeFood(restOfFood),
+            ...restOfFood,
             ingredients
         };
     }
@@ -81,7 +69,7 @@ export class FoodsService {
             return foods.map(food => FoodsService.formatFoodResponse(food as FoodWithIngredients));
         }
 
-        return foods.map(food => FoodsService.serializeFood(food));
+        return foods;
     }
 
     async getFoodById(id: string, queryParams: GetFoodQuery) {
@@ -110,7 +98,7 @@ export class FoodsService {
             return FoodsService.formatFoodResponse(food as FoodWithIngredients);
         }
 
-        return FoodsService.serializeFood(food);
+        return food;
     }
 
     async createFood(food: CreateFoodInput) {
@@ -176,7 +164,7 @@ export class FoodsService {
             )
         }
 
-        return FoodsService.serializeFood(newFood);
+        return newFood;
     }
 
     async updateFood(id: string, food: UpdateFoodInput) {
@@ -269,7 +257,7 @@ export class FoodsService {
             "food-availability-changed"
         )
 
-        return FoodsService.serializeFood(updatedFood);
+        return updatedFood;
     }
 
     async patchFood(id: string, food: PatchFoodInput) {
@@ -334,7 +322,7 @@ export class FoodsService {
             )
         }
 
-        return FoodsService.serializeFood(res.patchedFood);
+        return res.patchedFood;
     }
 
     async deleteFood(id: string) {

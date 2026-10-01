@@ -24,6 +24,10 @@ const CategoryBase = {
 
 export const CreateCategorySchema = z.object({
     ...CategoryBase,
+    position: CategoryBase.position.optional().meta({
+        description: "Display position/order priority. Defaults to the end of the list.",
+        example: 1
+    }),
     printerId: CategoryBase.printerId.optional()
 }).meta({
     id: "CreateCategoryRequest",
@@ -53,6 +57,20 @@ export const PatchCategorySchema = z.object({
 }).meta({
     id: "PatchCategoryRequest",
     description: "Payload to partially update a category"
+})
+
+export const ReorderCategoriesSchema = z.object({
+    ids: z.array(z.cuid()).min(1)
+        .refine(ids => new Set(ids).size === ids.length, {
+            message: "Category ids must be unique"
+        })
+        .meta({
+            description: "All category ids in the desired display order. Position is assigned from the array index.",
+            example: ["cjld2cjxh0000qzrmn831i7rn", "cjld2cyuq0000t3rmniod1foy"]
+        })
+}).meta({
+    id: "ReorderCategoriesRequest",
+    description: "Payload to reorder all categories"
 })
 
 export const UploadCategoryImageSchema = z.object({
@@ -123,6 +141,7 @@ export const CategoryResponseSchema = z.object({
 export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>
 export type UpdateCategoryInput = z.infer<typeof UpdateCategorySchema>
 export type PatchCategoryInput = z.infer<typeof PatchCategorySchema>
+export type ReorderCategoriesInput = z.infer<typeof ReorderCategoriesSchema>
 export type UploadCategoryImageInput = z.infer<typeof UploadCategoryImageSchema>
 export type GetCategoriesQuery = z.infer<typeof GetCategoriesQuerySchema>
 export type GetCategoryQuery = z.infer<typeof GetCategoryQuerySchema>
