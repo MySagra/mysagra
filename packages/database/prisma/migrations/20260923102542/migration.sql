@@ -5,4 +5,5 @@
 
 */
 -- DropTable
-DROP TABLE `DailyTicketCounter`;
+-- IF EXISTS: on case-insensitive systems (Windows) 20260323120011 already dropped it
+DROP TABLE IF EXISTS `DailyTicketCounter`;

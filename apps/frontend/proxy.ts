@@ -15,14 +15,44 @@ async function getSession(req: NextRequest) {
   }
 }
 
+// Once the setup is done it can't be undone, so stop asking the backend
+let setupDone = false;
+
+async function isSetupRequired(): Promise<boolean> {
+  if (setupDone) return false;
+  try {
+    const response = await fetch(`${process.env.API_URL}/v1/setup/status`, { cache: "no-store" });
+    if (!response.ok) return false;
+    const { required } = (await response.json()) as { required?: boolean };
+    if (!required) setupDone = true;
+    return required === true;
+  } catch {
+    // backend unreachable: let the normal pages show their errors
+    return false;
+  }
+}
+
 export default async function middleware(req: NextRequest) {
   const session = await getSession(req);
   const isLoggedIn = !!session;
   const { pathname } = req.nextUrl;
   const isOnDashboard = pathname.startsWith("/dashboard");
   const isOnSetup = pathname === "/setup";
+  // Server actions are POSTs to the current page: redirecting them returns a page instead of the
+  // action response ("An unexpected response was received from the server"). Only page navigations
+  // are redirected here; e.g. the login fired from /setup right after the setup must pass through.
+  const isPageNavigation = req.method === "GET" || req.method === "HEAD";
 
-  if ((isOnDashboard || isOnSetup) && !isLoggedIn) {
+  // New instance (no users yet): every page leads to the setup wizard
+  if (await isSetupRequired()) {
+    return isOnSetup || !isPageNavigation ? NextResponse.next() : NextResponse.redirect(new URL("/setup", req.nextUrl.origin));
+  }
+
+  if (isOnSetup && isPageNavigation) {
+    return NextResponse.redirect(new URL(isLoggedIn ? "/dashboard" : "/login", req.nextUrl.origin));
+  }
+
+  if (isOnDashboard && !isLoggedIn) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);

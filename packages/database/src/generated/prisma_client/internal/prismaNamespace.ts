@@ -405,7 +405,8 @@ export const ModelName = {
   CashRegisterStats: 'CashRegisterStats',
   CategoryStats: 'CategoryStats',
   FoodStats: 'FoodStats',
-  Sagra: 'Sagra'
+  Sagra: 'Sagra',
+  Settings: 'Settings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "role" | "user" | "session" | "apiKey" | "banner" | "orderInstruction" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "confirmedOrder" | "orderStationStatus" | "orderItem" | "station" | "printer" | "cashRegister" | "report" | "cashRegisterStats" | "categoryStats" | "foodStats" | "sagra"
+    modelProps: "role" | "user" | "session" | "apiKey" | "banner" | "orderInstruction" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "confirmedOrder" | "orderStationStatus" | "orderItem" | "station" | "printer" | "cashRegister" | "report" | "cashRegisterStats" | "categoryStats" | "foodStats" | "sagra" | "settings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1877,6 +1878,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Settings: {
+      payload: Prisma.$SettingsPayload<ExtArgs>
+      fields: Prisma.SettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.SettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload>
+        }
+        findMany: {
+          args: Prisma.SettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload>[]
+        }
+        create: {
+          args: Prisma.SettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload>
+        }
+        createMany: {
+          args: Prisma.SettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload>
+        }
+        update: {
+          args: Prisma.SettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.SettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.SettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSettings>
+        }
+        groupBy: {
+          args: Prisma.SettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SettingsCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2181,12 +2248,28 @@ export const SagraScalarFieldEnum = {
 export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
 
 
+export const SettingsScalarFieldEnum = {
+  sagraId: 'sagraId',
+  data: 'data',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const RoleOrderByRelevanceFieldEnum = {
@@ -2407,6 +2490,30 @@ export const SagraOrderByRelevanceFieldEnum = {
 export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
 
 
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const SettingsOrderByRelevanceFieldEnum = {
+  sagraId: 'sagraId'
+} as const
+
+export type SettingsOrderByRelevanceFieldEnum = (typeof SettingsOrderByRelevanceFieldEnum)[keyof typeof SettingsOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -2480,6 +2587,20 @@ export type EnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'PrinterStatus'
  */
 export type EnumPrinterStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrinterStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2606,6 +2727,7 @@ export type GlobalOmitConfig = {
   categoryStats?: Prisma.CategoryStatsOmit
   foodStats?: Prisma.FoodStatsOmit
   sagra?: Prisma.SagraOmit
+  settings?: Prisma.SettingsOmit
 }
 
 /* Types for Logging */

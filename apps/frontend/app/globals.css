@@ -145,3 +145,31 @@
     }
   }
 }
+/* Setup wizard: completion animation */
+@keyframes setup-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes setup-confetti {
+  0% {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(calc(-50% + var(--setup-x)), calc(-50% + var(--setup-y))) scale(1) rotate(160deg);
+    opacity: 0;
+  }
+}

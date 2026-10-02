@@ -208,6 +208,7 @@ export type SagraWhereInput = {
   name?: Prisma.StringFilter<"Sagra"> | string
   lastClosingAt?: Prisma.DateTimeFilter<"Sagra"> | Date | string
   statsIntervalMinutes?: Prisma.IntFilter<"Sagra"> | number
+  settings?: Prisma.XOR<Prisma.SettingsNullableScalarRelationFilter, Prisma.SettingsWhereInput> | null
 }
 
 export type SagraOrderByWithRelationInput = {
@@ -215,6 +216,7 @@ export type SagraOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   lastClosingAt?: Prisma.SortOrder
   statsIntervalMinutes?: Prisma.SortOrder
+  settings?: Prisma.SettingsOrderByWithRelationInput
   _relevance?: Prisma.SagraOrderByRelevanceInput
 }
 
@@ -226,6 +228,7 @@ export type SagraWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Sagra"> | string
   lastClosingAt?: Prisma.DateTimeFilter<"Sagra"> | Date | string
   statsIntervalMinutes?: Prisma.IntFilter<"Sagra"> | number
+  settings?: Prisma.XOR<Prisma.SettingsNullableScalarRelationFilter, Prisma.SettingsWhereInput> | null
 }, "id">
 
 export type SagraOrderByWithAggregationInput = {
@@ -255,6 +258,7 @@ export type SagraCreateInput = {
   name?: string
   lastClosingAt?: Date | string
   statsIntervalMinutes?: number
+  settings?: Prisma.SettingsCreateNestedOneWithoutSagraInput
 }
 
 export type SagraUncheckedCreateInput = {
@@ -262,6 +266,7 @@ export type SagraUncheckedCreateInput = {
   name?: string
   lastClosingAt?: Date | string
   statsIntervalMinutes?: number
+  settings?: Prisma.SettingsUncheckedCreateNestedOneWithoutSagraInput
 }
 
 export type SagraUpdateInput = {
@@ -269,6 +274,7 @@ export type SagraUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  settings?: Prisma.SettingsUpdateOneWithoutSagraNestedInput
 }
 
 export type SagraUncheckedUpdateInput = {
@@ -276,6 +282,7 @@ export type SagraUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  settings?: Prisma.SettingsUncheckedUpdateOneWithoutSagraNestedInput
 }
 
 export type SagraCreateManyInput = {
@@ -334,6 +341,69 @@ export type SagraSumOrderByAggregateInput = {
   statsIntervalMinutes?: Prisma.SortOrder
 }
 
+export type SagraScalarRelationFilter = {
+  is?: Prisma.SagraWhereInput
+  isNot?: Prisma.SagraWhereInput
+}
+
+export type SagraCreateNestedOneWithoutSettingsInput = {
+  create?: Prisma.XOR<Prisma.SagraCreateWithoutSettingsInput, Prisma.SagraUncheckedCreateWithoutSettingsInput>
+  connectOrCreate?: Prisma.SagraCreateOrConnectWithoutSettingsInput
+  connect?: Prisma.SagraWhereUniqueInput
+}
+
+export type SagraUpdateOneRequiredWithoutSettingsNestedInput = {
+  create?: Prisma.XOR<Prisma.SagraCreateWithoutSettingsInput, Prisma.SagraUncheckedCreateWithoutSettingsInput>
+  connectOrCreate?: Prisma.SagraCreateOrConnectWithoutSettingsInput
+  upsert?: Prisma.SagraUpsertWithoutSettingsInput
+  connect?: Prisma.SagraWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SagraUpdateToOneWithWhereWithoutSettingsInput, Prisma.SagraUpdateWithoutSettingsInput>, Prisma.SagraUncheckedUpdateWithoutSettingsInput>
+}
+
+export type SagraCreateWithoutSettingsInput = {
+  id?: string
+  name?: string
+  lastClosingAt?: Date | string
+  statsIntervalMinutes?: number
+}
+
+export type SagraUncheckedCreateWithoutSettingsInput = {
+  id?: string
+  name?: string
+  lastClosingAt?: Date | string
+  statsIntervalMinutes?: number
+}
+
+export type SagraCreateOrConnectWithoutSettingsInput = {
+  where: Prisma.SagraWhereUniqueInput
+  create: Prisma.XOR<Prisma.SagraCreateWithoutSettingsInput, Prisma.SagraUncheckedCreateWithoutSettingsInput>
+}
+
+export type SagraUpsertWithoutSettingsInput = {
+  update: Prisma.XOR<Prisma.SagraUpdateWithoutSettingsInput, Prisma.SagraUncheckedUpdateWithoutSettingsInput>
+  create: Prisma.XOR<Prisma.SagraCreateWithoutSettingsInput, Prisma.SagraUncheckedCreateWithoutSettingsInput>
+  where?: Prisma.SagraWhereInput
+}
+
+export type SagraUpdateToOneWithWhereWithoutSettingsInput = {
+  where?: Prisma.SagraWhereInput
+  data: Prisma.XOR<Prisma.SagraUpdateWithoutSettingsInput, Prisma.SagraUncheckedUpdateWithoutSettingsInput>
+}
+
+export type SagraUpdateWithoutSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type SagraUncheckedUpdateWithoutSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
 
 
 export type SagraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -341,6 +411,7 @@ export type SagraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   name?: boolean
   lastClosingAt?: boolean
   statsIntervalMinutes?: boolean
+  settings?: boolean | Prisma.Sagra$settingsArgs<ExtArgs>
 }, ExtArgs["result"]["sagra"]>
 
 
@@ -353,10 +424,15 @@ export type SagraSelectScalar = {
 }
 
 export type SagraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "lastClosingAt" | "statsIntervalMinutes", ExtArgs["result"]["sagra"]>
+export type SagraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  settings?: boolean | Prisma.Sagra$settingsArgs<ExtArgs>
+}
 
 export type $SagraPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Sagra"
-  objects: {}
+  objects: {
+    settings: Prisma.$SettingsPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
@@ -702,6 +778,7 @@ readonly fields: SagraFieldRefs;
  */
 export interface Prisma__SagraClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  settings<T extends Prisma.Sagra$settingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Sagra$settingsArgs<ExtArgs>>): Prisma.Prisma__SettingsClient<runtime.Types.Result.GetResult<Prisma.$SettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -752,6 +829,10 @@ export type SagraFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
+  /**
    * Filter, which Sagra to fetch.
    */
   where: Prisma.SagraWhereUniqueInput
@@ -770,6 +851,10 @@ export type SagraFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
+  /**
    * Filter, which Sagra to fetch.
    */
   where: Prisma.SagraWhereUniqueInput
@@ -787,6 +872,10 @@ export type SagraFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Sagra
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
   /**
    * Filter, which Sagra to fetch.
    */
@@ -836,6 +925,10 @@ export type SagraFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
+  /**
    * Filter, which Sagra to fetch.
    */
   where?: Prisma.SagraWhereInput
@@ -884,6 +977,10 @@ export type SagraFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
+  /**
    * Filter, which Sagras to fetch.
    */
   where?: Prisma.SagraWhereInput
@@ -927,6 +1024,10 @@ export type SagraCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
+  /**
    * The data needed to create a Sagra.
    */
   data?: Prisma.XOR<Prisma.SagraCreateInput, Prisma.SagraUncheckedCreateInput>
@@ -955,6 +1056,10 @@ export type SagraUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    * Omit specific fields from the Sagra
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
   /**
    * The data needed to update a Sagra.
    */
@@ -996,6 +1101,10 @@ export type SagraUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
+  /**
    * The filter to search for the Sagra to update in case it exists.
    */
   where: Prisma.SagraWhereUniqueInput
@@ -1022,6 +1131,10 @@ export type SagraDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
+  /**
    * Filter which Sagra to delete.
    */
   where: Prisma.SagraWhereUniqueInput
@@ -1042,6 +1155,25 @@ export type SagraDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
+ * Sagra.settings
+ */
+export type Sagra$settingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Settings
+   */
+  select?: Prisma.SettingsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Settings
+   */
+  omit?: Prisma.SettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SettingsInclude<ExtArgs> | null
+  where?: Prisma.SettingsWhereInput
+}
+
+/**
  * Sagra without action
  */
 export type SagraDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1053,4 +1185,8 @@ export type SagraDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Sagra
    */
   omit?: Prisma.SagraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SagraInclude<ExtArgs> | null
 }

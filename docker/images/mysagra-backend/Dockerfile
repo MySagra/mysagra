@@ -69,7 +69,7 @@ COPY --from=installer --chown=express:nodejs /app/packages/database/package.json
 COPY --from=installer --chown=express:nodejs /app/packages/schemas/src          ./packages/schemas/src
 COPY --from=installer --chown=express:nodejs /app/packages/schemas/package.json ./packages/schemas/package.json
 
-# ── Prisma CLI artifacts (migrate + seed on startup) ──────────────────────
+# ── Prisma CLI artifacts (migrate on startup) ─────────────────────────────
 COPY --from=installer --chown=express:nodejs /app/packages/database/prisma           ./packages/database/prisma
 COPY --from=installer --chown=express:nodejs /app/packages/database/prisma.config.ts ./packages/database/prisma.config.ts
 COPY --from=installer --chown=express:nodejs /app/packages/database/tsconfig.json    ./packages/database/tsconfig.json

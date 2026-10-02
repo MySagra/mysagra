@@ -287,6 +287,10 @@ export interface OrderInstruction {
 
 // API Endpoints
 export const API_ENDPOINTS = {
+  SETUP: {
+    STATUS: "/v1/setup/status",
+    CREATE: "/v1/setup",
+  },
   AUTH: {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",
