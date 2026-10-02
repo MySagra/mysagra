@@ -717,10 +717,11 @@ export class OrdersService {
             return { patched, updatedOrder };
         });
 
-        this.displayEvent.broadcastEvent(
+        EventsService.broadcastEvents(
+            [this.displayEvent, this.ticketEvent],
             { orderId, stationId, status },
             "order-station-status-update"
-        );
+        )
 
         if (updatedOrder) this._broadcastStatusUpdate(updatedOrder);
 
