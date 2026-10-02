@@ -16,5 +16,18 @@ model Sagra {
   lastClosingAt        DateTime @default(now())
   statsIntervalMinutes Int      @default(60)
 
+  settings Settings?
+
   @@map("sagra")
+}
+
+// 1:1 with Sagra. `data` is validated (and defaulted) by SettingsSchema in @mysagra/schemas
+model Settings {
+  sagraId String @id
+  sagra   Sagra  @relation(fields: [sagraId], references: [id], onDelete: Cascade)
+
+  data      Json
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
 }
