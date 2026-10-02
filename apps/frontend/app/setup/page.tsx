@@ -1,21 +1,16 @@
-import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { SettingsDataSchema } from "@mysagra/schemas";
+import { getSetupStatus } from "@/actions/setup";
 import { SetupWizard } from "@/components/setup/setup-wizard";
 
-export default async function SetupPage() {
-  const session = await getSession();
+export const dynamic = "force-dynamic";
 
-  if (!session) {
+export default async function SetupPage() {
+  // the setup is public but usable only on a new instance
+  if (!(await getSetupStatus())) {
     redirect("/login");
   }
 
-  if (session.user?.name !== "admin") {
-    redirect("/dashboard");
-  }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <SetupWizard />
-    </div>
-  );
+  // defaults come from the shared schema, so the wizard starts from the same values the backend applies
+  return <SetupWizard defaultSettings={SettingsDataSchema.parse({})} />;
 }

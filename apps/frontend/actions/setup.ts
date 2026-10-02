@@ -1,94 +1,62 @@
 "use server";
 
-import { fetchApi } from "@/lib/api";
-import { API_ENDPOINTS, CreateApiKeyResponse } from "@/lib/api-types";
-import { UserResponseSchema, RoleResponseSchema } from "@mysagra/schemas";
 import { z } from "zod";
+import { CreateSetupSchema } from "@mysagra/schemas";
+import { API_ENDPOINTS } from "@/lib/api-types";
 
-export async function setupNewAdmin(
-  username: string,
-  password: string,
-  options: { generatePrinterKey: boolean; generateWebappKey: boolean } = {
-    generatePrinterKey: true,
-    generateWebappKey: true,
-  }
-): Promise<{
-  success: boolean;
-  error?: string;
-  printerKey?: string;
-  webappKey?: string;
-}> {
+const API_URL = process.env.API_URL || "";
+
+export type CreateSetupInput = z.input<typeof CreateSetupSchema>;
+
+export type SetupResult =
+  | { ok: true }
+  | { ok: false; error: "invalid_token" | "already_setup" | "too_many_attempts" | "invalid_data" | "generic"; message?: string };
+
+// true when the instance has no users yet and the wizard must be shown
+export async function getSetupStatus(): Promise<boolean> {
   try {
-    // 1. Fetch all roles to find the admin role ID
-    const roles = await fetchApi<z.infer<typeof RoleResponseSchema>[]>(
-      API_ENDPOINTS.ROLES.ALL,
-      {},
-      z.array(RoleResponseSchema)
-    );
-
-    const adminRole = roles.find((r) => r.name === "admin");
-    if (!adminRole) {
-      return { success: false, error: "Ruolo amministratore non trovato" };
-    }
-
-    // 2. Fetch all users to find the default admin user ID
-    const users = await fetchApi<z.infer<typeof UserResponseSchema>[]>(
-      API_ENDPOINTS.USERS.ALL,
-      {},
-      z.array(UserResponseSchema)
-    );
-
-    const defaultAdmin = users.find((u) => u.username === "admin");
-    if (!defaultAdmin) {
-      return {
-        success: false,
-        error: "Account amministratore predefinito non trovato",
-      };
-    }
-
-    // 3. Create the new admin user
-    await fetchApi(
-      API_ENDPOINTS.USERS.ALL,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          username,
-          password,
-          roleId: adminRole.id,
-        }),
-      },
-      UserResponseSchema
-    );
-
-    // 4. Optionally generate initial API keys
-    const [printerKeyResult, webappKeyResult] = await Promise.all([
-      options.generatePrinterKey
-        ? fetchApi<CreateApiKeyResponse>(API_ENDPOINTS.API_KEYS.ALL, {
-            method: "POST",
-            body: JSON.stringify({ name: "Servizio Stampanti", type: "PRINTER" }),
-          })
-        : Promise.resolve(null),
-      options.generateWebappKey
-        ? fetchApi<CreateApiKeyResponse>(API_ENDPOINTS.API_KEYS.ALL, {
-            method: "POST",
-            body: JSON.stringify({ name: "Webapp Clienti", type: "WEBAPP" }),
-          })
-        : Promise.resolve(null),
-    ]);
-
-    // 5. Delete the default admin user only after all configuration is complete
-    await fetchApi(API_ENDPOINTS.USERS.BY_ID(defaultAdmin.id), {
-      method: "DELETE",
-    });
-
-    return {
-      success: true,
-      printerKey: printerKeyResult?.apiKey,
-      webappKey: webappKeyResult?.apiKey,
-    };
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Errore sconosciuto";
-    return { success: false, error: message };
+    const response = await fetch(`${API_URL}${API_ENDPOINTS.SETUP.STATUS}`, { cache: "no-store" });
+    if (!response.ok) return false;
+    const data = (await response.json()) as { required?: boolean };
+    return data.required === true;
+  } catch {
+    return false;
   }
+}
+
+// Plain fetch instead of fetchApi: a 401 here means "wrong setup token", not an expired session
+export async function runSetup(input: CreateSetupInput): Promise<SetupResult> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${API_ENDPOINTS.SETUP.CREATE}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+      cache: "no-store",
+    });
+  } catch {
+    return { ok: false, error: "generic" };
+  }
+
+  if (!response.ok) {
+    switch (response.status) {
+      case 401:
+        return { ok: false, error: "invalid_token" };
+      case 409:
+        return { ok: false, error: "already_setup" };
+      case 429:
+        return { ok: false, error: "too_many_attempts" };
+      case 400: {
+        const body = await response.json().catch(() => null) as { errors?: { message: string }[] } | null;
+        return { ok: false, error: "invalid_data", message: body?.errors?.[0]?.message };
+      }
+      default:
+        return { ok: false, error: "generic" };
+    }
+  }
+
+  // No sign in here: setting the session cookie inside this action would make Next.js refresh
+  // the route, and /setup (now completed) would redirect away before the completion screen.
+  // The wizard signs in when the user presses "Start".
+  return { ok: true };
 }

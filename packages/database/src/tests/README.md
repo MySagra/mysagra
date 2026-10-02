@@ -23,14 +23,8 @@ pnpm --filter @mysagra/database db:migrate
 
 Run these from the repository root (they are defined in `packages/database/package.json`).
 
-### Base seed
-
-Creates the default roles and the initial admin user.
-
-```bash
-pnpm --filter @mysagra/database db:seed
-# runs: tsx prisma/seed.ts
-```
+Default roles are created by a migration and the first admin by the initial setup
+wizard, so there is no base seed: these scripts only add test data.
 
 ### Full test seed
 
@@ -58,7 +52,6 @@ pnpm --filter @mysagra/database db:seed:orders
 If you `cd packages/database` you can drop the filter:
 
 ```bash
-pnpm db:seed
 pnpm db:seed:test
 pnpm db:seed:orders
 ```
@@ -68,7 +61,6 @@ pnpm db:seed:orders
 Any seed script can be launched directly with `tsx`:
 
 ```bash
-tsx prisma/seed.ts
 tsx src/tests/seed.test.ts
 tsx src/tests/seed.orders.ts
 ```

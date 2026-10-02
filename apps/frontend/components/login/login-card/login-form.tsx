@@ -37,12 +37,11 @@ export function LoginForm() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
-        const isDefaultAdmin = values.username === "admin" && values.password === "admin";
         try {
             const result = await loginAction(values.username, values.password);
             if (result.success) {
                 await new Promise((resolve) => setTimeout(resolve, 100));
-                window.location.href = isDefaultAdmin ? "/setup" : "/dashboard";
+                window.location.href = "/dashboard";
             } else {
                 const errorMsg =
                     result.error === "role_not_allowed"

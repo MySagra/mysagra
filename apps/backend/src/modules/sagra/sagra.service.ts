@@ -19,14 +19,8 @@ export class SagraService {
     }
 
     async loadConfig() {
-        const config = await prisma.sagra.findFirst()
-        if (!config) {
-            this.config = await prisma.sagra.create({
-                data: { name: "MySagra" }
-            })
-        }
-        this.config = config
-        return config;
+        this.config = await prisma.sagra.findFirst();
+        return this.config;
     }
 
     getConfig() {

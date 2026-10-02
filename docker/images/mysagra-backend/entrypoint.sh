@@ -21,9 +21,6 @@ if [ "$MIGRATE_ON_START" = "true" ]; then
   echo "Running Prisma migrations..."
   cd /app/packages/database
   node_modules/.bin/prisma migrate deploy
-
-  echo "Seeding database..."
-  node_modules/.bin/tsx prisma/seed.ts
 fi
 
 echo "Starting Node.js application..."

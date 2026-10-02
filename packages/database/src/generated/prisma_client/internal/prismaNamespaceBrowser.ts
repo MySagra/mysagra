@@ -72,7 +72,8 @@ export const ModelName = {
   CashRegisterStats: 'CashRegisterStats',
   CategoryStats: 'CategoryStats',
   FoodStats: 'FoodStats',
-  Sagra: 'Sagra'
+  Sagra: 'Sagra',
+  Settings: 'Settings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -356,12 +357,28 @@ export const SagraScalarFieldEnum = {
 export type SagraScalarFieldEnum = (typeof SagraScalarFieldEnum)[keyof typeof SagraScalarFieldEnum]
 
 
+export const SettingsScalarFieldEnum = {
+  sagraId: 'sagraId',
+  data: 'data',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const RoleOrderByRelevanceFieldEnum = {
@@ -580,4 +597,28 @@ export const SagraOrderByRelevanceFieldEnum = {
 } as const
 
 export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const SettingsOrderByRelevanceFieldEnum = {
+  sagraId: 'sagraId'
+} as const
+
+export type SettingsOrderByRelevanceFieldEnum = (typeof SettingsOrderByRelevanceFieldEnum)[keyof typeof SettingsOrderByRelevanceFieldEnum]
 

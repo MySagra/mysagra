@@ -151,3 +151,8 @@ export type FoodStats = Prisma.FoodStatsModel
  * 
  */
 export type Sagra = Prisma.SagraModel
+/**
+ * Model Settings
+ * 
+ */
+export type Settings = Prisma.SettingsModel

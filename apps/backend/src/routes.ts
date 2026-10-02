@@ -15,6 +15,7 @@ import { bannerModule } from "@/modules/banner/banner.route";
 import { reportModule } from "@/modules/report/report.route";
 import { orderInstructionsModule } from "@/modules/order-instructions/order-instruction.route";
 import { stationsModule } from "@/modules/station/stations.route";
+import { setupModule } from "@/modules/setup/setup.route";
 
 export default registerModules([
     authModule,
@@ -32,4 +33,5 @@ export default registerModules([
     reportModule,
     orderInstructionsModule,
     stationsModule,
+    setupModule,
 ]);

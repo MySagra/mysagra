@@ -36,6 +36,7 @@ export function generateOpenApiDocument() {
             description: 'API documentation dynamically generated with Zod and OpenAPI'
         },
         tags: [
+            { name: 'Setup', description: 'Initial configuration of a new instance (public, usable once)' },
             { name: 'Auth' },
             { name: 'API Keys' },
             { name: 'Users' },
