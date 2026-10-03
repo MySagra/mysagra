@@ -19,12 +19,11 @@ import {
   UtensilsCrossedIcon,
   ClipboardListIcon,
   PrinterIcon,
-  UsersIcon,
+  SettingsIcon,
   Coins,
   HomeIcon,
   LifeBuoyIcon,
   Github,
-  KeyRoundIcon,
   ImageIcon,
   ListOrderedIcon,
   BarChart3,
@@ -99,11 +98,9 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         url: "/dashboard/printers",
         icon: PrinterIcon,
       },
+      // sagra settings, users and API keys in one place
       ...(isAdmin
-        ? [{ title: t.nav.users, url: "/dashboard/users", icon: UsersIcon }]
-        : []),
-      ...(isAdmin
-        ? [{ title: t.nav.apiKeys, url: "/dashboard/api-keys", icon: KeyRoundIcon }]
+        ? [{ title: t.nav.settings, url: "/dashboard/settings", icon: SettingsIcon }]
         : []),
     ],
     navSecondary: [

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ApiKey } from "@/lib/api-types";
 import { ApiKeysToolbar } from "./api-keys-toolbar";
 import { ApiKeysTable } from "./api-keys-table";
@@ -16,9 +16,11 @@ import { ChevronDownIcon } from "lucide-react";
 
 interface ApiKeysContentProps {
   initialApiKeys: ApiKey[];
+  // notified when the number of active keys changes (settings tab counter)
+  onActiveCountChange?: (count: number) => void;
 }
 
-export function ApiKeysContent({ initialApiKeys }: ApiKeysContentProps) {
+export function ApiKeysContent({ initialApiKeys, onActiveCountChange }: ApiKeysContentProps) {
   const { t } = useLocale();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>(initialApiKeys);
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,6 +34,11 @@ export function ApiKeysContent({ initialApiKeys }: ApiKeysContentProps) {
   );
 
   const activeKeys = filtered.filter((k) => !k.revokedAt);
+  const activeCount = apiKeys.filter((k) => !k.revokedAt).length;
+
+  useEffect(() => {
+    onActiveCountChange?.(activeCount);
+  }, [activeCount, onActiveCountChange]);
   const revokedKeys = filtered.filter((k) => !!k.revokedAt);
 
   function handleRevoke(apiKey: ApiKey) {

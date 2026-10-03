@@ -11,6 +11,7 @@ import { login } from "@/actions/auth";
 import { useLocale } from "@/contexts/locale-context";
 import { cn } from "@/lib/utils";
 import { SetupCashierStep } from "./setup-cashier-step";
+import { validateCashierSettings } from "@/components/settings/cashier-settings";
 import { SetupSummaryStep } from "./setup-summary-step";
 import { Field } from "./setup-field";
 import { SetupLanguageSwitcher } from "./setup-language-switcher";
@@ -91,12 +92,8 @@ export function SetupWizard({ defaultSettings }: SetupWizardProps) {
       if (data.confirmPassword !== data.password) next.confirmPassword = t.setup.passwordMismatch;
     }
 
-    if (current === "cashier" && data.settings.orders.table !== "HIDDEN") {
-      const { tableInputs, maxTables } = data.settings.orders;
-      if (tableInputs.length === 0) next.tableInputs = t.setup.tableInputsRequired;
-      if (maxTables !== null && (!Number.isInteger(maxTables) || maxTables < 1)) {
-        next.maxTables = t.setup.maxTablesInvalid;
-      }
+    if (current === "cashier") {
+      Object.assign(next, validateCashierSettings(data.settings, t));
     }
 
     return next;

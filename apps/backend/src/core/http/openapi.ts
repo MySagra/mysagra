@@ -38,6 +38,7 @@ export function generateOpenApiDocument() {
         tags: [
             { name: 'Setup', description: 'Initial configuration of a new instance (public, usable once)' },
             { name: 'Auth' },
+            { name: 'Settings', description: 'Sagra name and settings, stored as a single document' },
             { name: 'API Keys' },
             { name: 'Users' },
             { name: 'Roles' },
