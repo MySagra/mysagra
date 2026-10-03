@@ -291,6 +291,7 @@ export const API_ENDPOINTS = {
     STATUS: "/v1/setup/status",
     CREATE: "/v1/setup",
   },
+  SETTINGS: "/v1/settings",
   AUTH: {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",

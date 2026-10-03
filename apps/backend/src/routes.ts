@@ -1,6 +1,7 @@
 import { registerModules } from "@/core/http";
 
 import { authModule } from "@/modules/auth/auth.route";
+import { settingsModule } from "@/modules/settings/settings.route";
 import { eventsModule } from "@/modules/events/events.route";
 import { cashRegistersModule } from "@/modules/cash-registers/cash-registers.route";
 import { categoriesModule } from "@/modules/categories/categories.route";
@@ -19,6 +20,7 @@ import { setupModule } from "@/modules/setup/setup.route";
 
 export default registerModules([
     authModule,
+    settingsModule,
     eventsModule,
     cashRegistersModule,
     categoriesModule,

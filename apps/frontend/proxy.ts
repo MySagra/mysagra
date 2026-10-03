@@ -66,7 +66,7 @@ export default async function middleware(req: NextRequest) {
 
   // Maintainer non può accedere agli utenti
   if (isLoggedIn && role === "maintainer") {
-    const restricted = ["/dashboard/users"];
+    const restricted = ["/dashboard/users", "/dashboard/api-keys", "/dashboard/settings"];
     if (restricted.some((p) => pathname.startsWith(p))) {
       return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
     }
@@ -82,6 +82,7 @@ export default async function middleware(req: NextRequest) {
       "/dashboard/stations",
       "/dashboard/printers",
       "/dashboard/cash-registers",
+      "/dashboard/account",
     ];
     const isAllowed = allowed.some((p) => pathname === p || pathname.startsWith(p + "/"));
     if (!isAllowed) {

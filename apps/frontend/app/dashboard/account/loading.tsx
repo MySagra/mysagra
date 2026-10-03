@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { SettingsContentSkeleton } from "@/components/dashboard/settings/settings-content-skeleton";
 
-export default function SettingsLoading() {
+export default function AccountLoading() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 px-4">
