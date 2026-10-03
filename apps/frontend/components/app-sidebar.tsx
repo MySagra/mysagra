@@ -25,7 +25,6 @@ import {
   LifeBuoyIcon,
   Github,
   ImageIcon,
-  ListOrderedIcon,
   BarChart3,
   UtensilsIcon,
 } from "lucide-react"
@@ -76,12 +75,10 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
           }]
         : []),
     ],
-    customerExperience: [
+    // banners and order instructions in one place
+    customerApp: [
       ...(isAdmin || isMaintainer
-        ? [{ title: t.nav.banners, url: "/dashboard/banners", icon: ImageIcon }]
-        : []),
-      ...(isAdmin || isMaintainer
-        ? [{ title: t.nav.orderInstructions, url: "/dashboard/order-instructions", icon: ListOrderedIcon }]
+        ? [{ title: t.nav.bannersAndInstructions, url: "/dashboard/customer-app", icon: ImageIcon }]
         : []),
     ],
     gestione: [
@@ -144,8 +141,8 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
             <NavMain items={navItems.ordini} />
           </div>
         )}
-        {navItems.customerExperience.length > 0 && (
-          <NavMain items={navItems.customerExperience} label={t.nav.customerExperience} />
+        {navItems.customerApp.length > 0 && (
+          <NavMain items={navItems.customerApp} label={t.nav.customerApp} />
         )}
         <NavMain items={navItems.gestione} label={t.nav.management} />
         <NavSecondary items={navItems.navSecondary} className="mt-auto" />

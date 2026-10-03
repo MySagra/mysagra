@@ -64,7 +64,7 @@ export default function DashboardPage() {
           title: t.dashboard.cardBannersTitle,
           description: t.dashboard.cardBannersDescription,
           icon: ImageIcon,
-          href: "/dashboard/banners",
+          href: "/dashboard/customer-app",
           color: "text-yellow-600",
           bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
         }]
@@ -74,7 +74,7 @@ export default function DashboardPage() {
           title: t.dashboard.cardOrderInstructionsTitle,
           description: t.dashboard.cardOrderInstructionsDescription,
           icon: ListOrderedIcon,
-          href: "/dashboard/order-instructions",
+          href: "/dashboard/customer-app?tab=instructions",
           color: "text-teal-600",
           bgColor: "bg-teal-50 dark:bg-teal-950/20",
         }]

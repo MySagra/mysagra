@@ -36,7 +36,7 @@ export async function createOrderInstruction(data: {
       },
       OrderInstructionResponseSchema
     );
-    revalidatePath("/dashboard/order-instructions");
+    revalidatePath("/dashboard/customer-app");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nella creazione dell'istruzione") };
@@ -67,7 +67,7 @@ export async function updateOrderInstruction(
       OrderInstructionResponseSchema
     );
 
-    revalidatePath("/dashboard/order-instructions");
+    revalidatePath("/dashboard/customer-app");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento dell'istruzione") };
@@ -89,7 +89,7 @@ export async function reorderOrderInstructions(
     );
     results.push(result);
   }
-  revalidatePath("/dashboard/order-instructions");
+  revalidatePath("/dashboard/customer-app");
   return results;
 }
 
@@ -98,7 +98,7 @@ export async function deleteOrderInstruction(id: string): Promise<ActionResult<v
     await fetchApi(API_ENDPOINTS.ORDER_INSTRUCTIONS.BY_ID(id), {
       method: "DELETE",
     });
-    revalidatePath("/dashboard/order-instructions");
+    revalidatePath("/dashboard/customer-app");
     return { ok: true, data: undefined };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione dell'istruzione") };

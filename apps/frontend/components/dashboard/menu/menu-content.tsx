@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   EllipsisIcon,
@@ -42,6 +42,7 @@ import { cn } from "@/lib/utils";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { AvailabilityChip } from "./availability-control";
 import { ALL_CATEGORIES, CategorySidebar, CategoryThumb } from "./category-sidebar";
 import { FoodList, type FoodGroup } from "./food-list";
@@ -84,18 +85,6 @@ interface MenuContentProps {
 
 /** Il pannello laterale fisso serve spazio: sotto questa soglia l'editor è uno sheet. */
 const WIDE_QUERY = "(min-width: 1280px)";
-
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    const update = () => setMatches(mql.matches);
-    update();
-    mql.addEventListener("change", update);
-    return () => mql.removeEventListener("change", update);
-  }, [query]);
-  return matches;
-}
 
 export function MenuContent({
   initialTab,

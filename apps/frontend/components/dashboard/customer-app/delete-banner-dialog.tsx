@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useLocale } from "@/contexts/locale-context";
+import { bannerName } from "./customer-app-utils";
 
 interface DeleteBannerDialogProps {
   open: boolean;
@@ -42,7 +43,7 @@ export function DeleteBannerDialog({
       return;
     }
     onDeleted(banner.id);
-    toast.success(`"${banner.label}" ${t.banners.toastDeleted}`);
+    toast.success(`"${bannerName(banner)}" ${t.banners.toastDeleted}`);
   }
 
   return (
@@ -51,7 +52,7 @@ export function DeleteBannerDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>{t.banners.deleteTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t.banners.deleteDescription} &quot;{banner?.label}&quot;? {t.banners.cannotUndo}
+            {t.banners.deleteDescription} &quot;{banner ? bannerName(banner) : ""}&quot;? {t.banners.cannotUndo}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

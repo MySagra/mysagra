@@ -30,7 +30,7 @@ export async function reorderBanners(
     );
     results.push(result);
   }
-  revalidatePath("/dashboard/banners");
+  revalidatePath("/dashboard/customer-app");
   return results;
 }
 
@@ -54,7 +54,7 @@ export async function createBanner(data: {
       method: "POST",
       body: JSON.stringify(data),
     }, BannerResponseSchema);
-    revalidatePath("/dashboard/banners");
+    revalidatePath("/dashboard/customer-app");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nella creazione del banner") };
@@ -84,7 +84,7 @@ export async function updateBanner(
       method: "PUT",
       body: JSON.stringify(data),
     }, BannerResponseSchema);
-    revalidatePath("/dashboard/banners");
+    revalidatePath("/dashboard/customer-app");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento del banner") };
@@ -96,7 +96,7 @@ export async function deleteBanner(id: string): Promise<ActionResult<void>> {
     await fetchApi(API_ENDPOINTS.BANNERS.BY_ID(id), {
       method: "DELETE",
     });
-    revalidatePath("/dashboard/banners");
+    revalidatePath("/dashboard/customer-app");
     return { ok: true, data: undefined };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'eliminazione del banner") };
@@ -109,7 +109,7 @@ export async function uploadBannerImage(id: string, formData: FormData): Promise
       method: "PATCH",
       body: formData,
     });
-    revalidatePath("/dashboard/banners");
+    revalidatePath("/dashboard/customer-app");
     return { ok: true, data: undefined };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nel caricamento dell'immagine") };
