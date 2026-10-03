@@ -50,6 +50,7 @@ import { FoodEditor } from "./food-editor";
 import { ExtrasTab } from "./extras-tab";
 import { IngredientEditor } from "./ingredient-editor";
 import { CategoryDialog } from "./category-dialog";
+import { CategoryEditor } from "./category-editor";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import { DeleteFoodDialog } from "./delete-food-dialog";
 import { IngredientDialog } from "./ingredient-dialog";
@@ -112,7 +113,9 @@ export function MenuContent({
   const dirtyRef = useRef(false);
   const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
 
-  const [categoryDialog, setCategoryDialog] = useState<{ category: Category | null } | null>(null);
+  // Su schermi stretti il pannello è uno sheet: la categoria si apre solo su richiesta
+  const [categoryPanelOpen, setCategoryPanelOpen] = useState(false);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [deletingFood, setDeletingFood] = useState<Food | null>(null);
   const [ingredientDialog, setIngredientDialog] = useState<IngredientDialogState>(null);
@@ -162,6 +165,7 @@ export function MenuContent({
 
   function switchTab(next: MenuTab) {
     setTab(next);
+    setCategoryPanelOpen(false);
     const url = next === "extras" ? "?tab=extras" : window.location.pathname;
     window.history.replaceState(null, "", url);
   }
@@ -181,12 +185,16 @@ export function MenuContent({
 
   function openFood(food: Food) {
     if (editor?.mode === "edit" && editor.foodId === food.id) return;
-    guarded(() => setEditor({ mode: "edit", foodId: food.id }));
+    guarded(() => {
+      setCategoryPanelOpen(false);
+      setEditor({ mode: "edit", foodId: food.id });
+    });
   }
 
   function openNewFood(categoryId?: string | null) {
     guarded(() => {
       switchTab("dishes");
+      setCategoryPanelOpen(false);
       setEditor({
         mode: "create",
         categoryId: categoryId ?? selectedCategory?.id ?? null,
@@ -260,6 +268,41 @@ export function MenuContent({
   }
 
   // ── Categories ─────────────────────────────────────────────────────
+  // Il pannello destro mostra la selezione più specifica: piatto, altrimenti categoria.
+
+  /** Filtra per categoria e deseleziona il piatto: a destra torna la categoria. */
+  function selectCategory(id: string) {
+    guarded(() => {
+      if (tab !== "dishes") switchTab("dishes");
+      setSelectedCategoryId(id);
+      setSearch("");
+      setEditor(null);
+      setCategoryPanelOpen(false);
+    });
+  }
+
+  /** Breadcrumb e "Modifica categoria": deseleziona il piatto e apre la categoria. */
+  function showCategory(category: Category) {
+    guarded(() => {
+      if (tab !== "dishes") switchTab("dishes");
+      if (category.id !== selectedCategoryId) {
+        setSelectedCategoryId(category.id);
+        setSearch("");
+      }
+      setEditor(null);
+      setCategoryPanelOpen(true);
+    });
+  }
+
+  function closeCategoryPanel(force?: boolean) {
+    if (force) {
+      dirtyRef.current = false;
+      setCategoryPanelOpen(false);
+    } else {
+      guarded(() => setCategoryPanelOpen(false));
+    }
+  }
+
   async function handleReorder(reordered: Category[]) {
     const previous = categories;
     // optimistic update, the server answers with the saved order
@@ -285,13 +328,16 @@ export function MenuContent({
     } else {
       setFoods((prev) => applyCategoryToFoods(prev, saved));
     }
-    setCategoryDialog(null);
+    setCategoryDialogOpen(false);
   }
 
   function handleCategoryDeleted(id: string) {
     setCategories((prev) => prev.filter((c) => c.id !== id));
     setFoods((prev) => prev.filter((f) => f.categoryId !== id));
-    if (selectedCategoryId === id) setSelectedCategoryId(ALL_CATEGORIES);
+    if (selectedCategoryId === id) {
+      setSelectedCategoryId(ALL_CATEGORIES);
+      setCategoryPanelOpen(false);
+    }
     if (editingFood?.categoryId === id) closeEditor(true);
     setDeletingCategory(null);
   }
@@ -379,7 +425,7 @@ export function MenuContent({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">
-          <DropdownMenuItem onSelect={() => setCategoryDialog({ category })}>
+          <DropdownMenuItem onSelect={() => showCategory(category)}>
             <PencilIcon />
             {t.menu.categorySettings}
           </DropdownMenuItem>
@@ -419,6 +465,25 @@ export function MenuContent({
       onCreateIngredient={(name, onCreated) =>
         setIngredientDialog({ ingredient: null, defaultName: name, onCreated })
       }
+      onOpenCategory={showCategory}
+    />
+  );
+
+  // Su schermi larghi la categoria selezionata è la vista di base del pannello
+  const inspectedCategory =
+    !editor && (isWide || categoryPanelOpen) ? selectedCategory : null;
+  const categoryEditorNode = inspectedCategory && (
+    <CategoryEditor
+      key={inspectedCategory.id}
+      category={inspectedCategory}
+      printers={printers}
+      stations={stations}
+      canEdit={canEditCategories}
+      canDelete={canManageCategories}
+      onSaved={handleCategorySaved}
+      onDeleteRequest={setDeletingCategory}
+      onClose={isWide ? undefined : closeCategoryPanel}
+      onDirtyChange={handleDirtyChange}
     />
   );
 
@@ -442,7 +507,7 @@ export function MenuContent({
     />
   );
 
-  const panelNode = tab === "dishes" ? editorNode : ingredientEditorNode;
+  const panelNode = tab === "dishes" ? editorNode || categoryEditorNode : ingredientEditorNode;
 
   const selectedPrinter = printers.find((p) => p.id === selectedCategory?.printerId);
   const selectedStation = stations.find((s) => s.id === selectedCategory?.stationId);
@@ -459,20 +524,6 @@ export function MenuContent({
               <TabsTrigger value="extras" className="px-3">{t.menu.tabExtras}</TabsTrigger>
             </TabsList>
           </Tabs>
-          {canEdit && tab === "dishes" && categories.length > 0 && (
-            <Button size="lg" onClick={() => openNewFood()}>
-              <PlusIcon />
-              <span className="hidden sm:inline">{t.menu.newDish}</span>
-              <span className="sr-only sm:hidden">{t.menu.newDish}</span>
-            </Button>
-          )}
-          {canEdit && tab === "extras" && (
-            <Button size="lg" onClick={openNewIngredient}>
-              <PlusIcon />
-              <span className="hidden sm:inline">{t.menu.newExtra}</span>
-              <span className="sr-only sm:hidden">{t.menu.newExtra}</span>
-            </Button>
-          )}
         </>
       }
     />
@@ -496,14 +547,10 @@ export function MenuContent({
               selectedId={selectedCategoryId}
               canReorder={canEditCategories}
               canCreate={canManageCategories}
-              onSelect={(id) => {
-                changeTab("dishes");
-                setSelectedCategoryId(id);
-                setSearch("");
-              }}
+              onSelect={selectCategory}
               onSelectIngredients={() => changeTab("extras")}
               onReorder={handleReorder}
-              onCreate={() => setCategoryDialog({ category: null })}
+              onCreate={() => setCategoryDialogOpen(true)}
             />
           </aside>
 
@@ -525,7 +572,7 @@ export function MenuContent({
               <p className="text-lg font-semibold">{t.menu.emptyMenuTitle}</p>
               <p className="max-w-sm text-sm text-muted-foreground">{t.menu.emptyMenuDescription}</p>
               {canManageCategories && (
-                <Button size="lg" onClick={() => setCategoryDialog({ category: null })}>
+                <Button size="lg" onClick={() => setCategoryDialogOpen(true)}>
                   <PlusIcon />
                   {t.menu.createFirstCategory}
                 </Button>
@@ -584,6 +631,17 @@ export function MenuContent({
               )}
             </div>
 
+            {canEdit && (
+              <button
+                type="button"
+                onClick={() => openNewFood()}
+                className="flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-primary/60 bg-primary/10 text-sm font-medium text-primary-foreground transition-colors hover:border-primary hover:bg-primary/20 dark:text-primary"
+              >
+                <PlusIcon className="size-4" />
+                {t.menu.newDish}
+              </button>
+            )}
+
             {/* Filtro categorie (mobile/tablet) */}
             <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:hidden">
               {[{ id: ALL_CATEGORIES, name: t.menu.allDishes }, ...categories].map((c) => {
@@ -592,10 +650,7 @@ export function MenuContent({
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => {
-                      setSelectedCategoryId(c.id);
-                      setSearch("");
-                    }}
+                    onClick={() => selectCategory(c.id)}
                     className={cn(
                       "h-9 shrink-0 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors",
                       active
@@ -610,7 +665,7 @@ export function MenuContent({
               {canManageCategories && (
                 <button
                   type="button"
-                  onClick={() => setCategoryDialog({ category: null })}
+                  onClick={() => setCategoryDialogOpen(true)}
                   className="flex h-9 shrink-0 items-center gap-1 rounded-full border border-dashed px-3 text-sm text-muted-foreground"
                 >
                   <PlusIcon className="size-4" />
@@ -683,15 +738,18 @@ export function MenuContent({
         open={!!panelNode && !isWide}
         onOpenChange={(open) => {
           if (open) return;
-          if (tab === "dishes") closeEditor();
-          else closeIngredientEditor();
+          if (tab === "extras") closeIngredientEditor();
+          else if (editor) closeEditor();
+          else closeCategoryPanel();
         }}
       >
         <SheetContent side="right" showCloseButton={false} className="w-full gap-0 p-0 sm:max-w-md">
           <SheetTitle className="sr-only">
-            {tab === "dishes"
-              ? editingFood?.name ?? t.menu.editorNewTitle
-              : editingIngredient?.name ?? t.menu.newExtra}
+            {tab === "extras"
+              ? editingIngredient?.name ?? t.menu.newExtra
+              : editor
+                ? editingFood?.name ?? t.menu.editorNewTitle
+                : inspectedCategory?.name}
           </SheetTitle>
           {!isWide && panelNode}
         </SheetContent>
@@ -720,13 +778,12 @@ export function MenuContent({
       </AlertDialog>
 
       <CategoryDialog
-        open={!!categoryDialog}
-        onOpenChange={(open) => !open && setCategoryDialog(null)}
-        category={categoryDialog?.category ?? null}
+        open={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+        category={null}
         printers={printers}
         stations={stations}
         onSaved={handleCategorySaved}
-        onDelete={canManageCategories ? setDeletingCategory : undefined}
       />
       <DeleteCategoryDialog
         open={!!deletingCategory}

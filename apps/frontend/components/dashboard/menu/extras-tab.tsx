@@ -68,6 +68,17 @@ export function ExtrasTab({
         )}
       </div>
 
+      {canEdit && ingredients.length > 0 && (
+        <button
+          type="button"
+          onClick={onCreate}
+          className="flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-primary/60 bg-primary/10 text-sm font-medium text-primary-foreground transition-colors hover:border-primary hover:bg-primary/20 dark:text-primary"
+        >
+          <PlusIcon className="size-4" />
+          {t.menu.newExtra}
+        </button>
+      )}
+
       <p className="text-xs text-muted-foreground">
         {fill(t.menu.ingredientsSummary, { total: ingredients.length, unused })}
       </p>

@@ -5,7 +5,7 @@ import { useForm, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { toast } from "sonner";
-import { PlusIcon, PrinterIcon, Trash2Icon, XIcon } from "lucide-react";
+import { ChevronRightIcon, PlusIcon, PrinterIcon, Trash2Icon, XIcon } from "lucide-react";
 import { Food, FoodRequest, Category, Ingredient, Printer } from "@/lib/api-types";
 import { createFood, updateFood } from "@/actions/foods";
 import { parseDecimal, formatDecimal } from "@/lib/decimal-parser";
@@ -63,6 +63,8 @@ export interface FoodEditorProps {
   onClose: (force?: boolean) => void;
   onDirtyChange: (dirty: boolean) => void;
   onCreateIngredient: (name: string, onCreated: (ingredient: Ingredient) => void) => void;
+  /** Breadcrumb: torna alle impostazioni della categoria */
+  onOpenCategory: (category: Category) => void;
 }
 
 export function FoodEditor({
@@ -79,6 +81,7 @@ export function FoodEditor({
   onClose,
   onDirtyChange,
   onCreateIngredient,
+  onOpenCategory,
 }: FoodEditorProps) {
   const { t } = useLocale();
   const isEditing = !!food;
@@ -156,6 +159,8 @@ export function FoodEditor({
   const description = watch("description");
 
   const category = categories.find((c) => c.id === categoryId);
+  // Il percorso segue la categoria salvata, non quella scelta nel form
+  const parentCategory = food ? categories.find((c) => c.id === food.categoryId) : category;
   const categoryPrinterId = category?.printerId ?? null;
   const followsCategoryPrinter = printerId === categoryPrinterId;
   const [showPrinterSelect, setShowPrinterSelect] = useState(!followsCategoryPrinter);
@@ -255,9 +260,24 @@ export function FoodEditor({
       noValidate
     >
       <div className="flex items-center gap-2 border-b px-4 py-3">
-        <h2 className="min-w-0 flex-1 truncate text-base font-semibold">
-          {food ? food.name : t.menu.editorNewTitle}
-        </h2>
+        <div className="flex min-w-0 flex-1 items-center gap-1">
+          {parentCategory && (
+            <>
+              <button
+                type="button"
+                onClick={() => onOpenCategory(parentCategory)}
+                title={fill(t.menu.openCategory, { name: parentCategory.name })}
+                className="max-w-[45%] shrink-0 truncate rounded text-base text-muted-foreground transition-colors outline-none hover:text-foreground hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                {parentCategory.name}
+              </button>
+              <ChevronRightIcon aria-hidden className="size-4 shrink-0 text-muted-foreground/70" />
+            </>
+          )}
+          <h2 className="min-w-0 truncate text-base font-semibold">
+            {food ? food.name : t.menu.editorNewTitle}
+          </h2>
+        </div>
         <Button
           type="button"
           variant="ghost"
