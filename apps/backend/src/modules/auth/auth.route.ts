@@ -5,10 +5,8 @@ import { authLimiter } from "@/middlewares/rateLimiter.middleware";
 import { env } from "@/config/env";
 import { SESSION_COOKIE } from "@/common/constants";
 import { UnauthorizedError } from "@/common/errors";
-import { AuthService } from "@/modules/auth/auth.service";
+import { authService } from "@/modules/auth/auth.service";
 import { LoginSchema, LoginResponseSchema, RevokeSessionParamsSchema } from "@mysagra/schemas";
-
-const service = new AuthService();
 
 const ErrorResponseSchema = z.object({
     message: z.string().meta({ description: "Human-readable error description", example: "Unauthorized" }),
@@ -45,7 +43,7 @@ export const authModule = createModule({
             },
             handler: async (req, res) => {
                 const { username, password } = req.validated.body;
-                const { sessionPayload, sessionId, expiresAt } = await service.login(
+                const { sessionPayload, sessionId, expiresAt } = await authService.login(
                     username,
                     password,
                     req.headers["user-agent"],
@@ -85,7 +83,7 @@ export const authModule = createModule({
                 });
 
                 if (session) {
-                    await service.logout(session);
+                    await authService.logout(session);
                 }
 
                 res.status(200).json({ message: "Logged out successfully" });
@@ -107,7 +105,7 @@ export const authModule = createModule({
             },
             handler: async (req, res) => {
                 if (!req.user) throw new UnauthorizedError("Not authorized");
-                res.status(200).json(await service.getSessions(req.user.userId));
+                res.status(200).json(await authService.getSessions(req.user.userId));
             },
         }),
         route({
@@ -128,7 +126,7 @@ export const authModule = createModule({
             },
             handler: async (req, res) => {
                 if (!req.user) throw new UnauthorizedError("Not authorized");
-                await service.revokeSession(req.user.userId, req.validated.params.sessionId);
+                await authService.revokeSession(req.user.userId, req.validated.params.sessionId);
                 res.status(204).send();
             },
         }),

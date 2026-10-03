@@ -7,7 +7,7 @@ import {
     UpdateCategoryInput
 } from "@mysagra/schemas";
 import { prisma, Prisma } from "@mysagra/database";
-import { FoodsService } from "../foods/foods.service";
+import { foodsService } from "../foods/foods.service";
 import { ImagesService } from "../images/images.service";
 import { EventsService } from "../events/events.service";
 import { BadRequestError, NotFoundError } from "@/common/errors";
@@ -17,8 +17,8 @@ const categoriesOrderBy: Prisma.CategoryOrderByWithRelationInput[] = [
     { name: "asc" }
 ]
 
-export class CategoriesService {
-    public static imageService = new ImagesService('categories', 'category');
+class CategoriesService {
+    public readonly imageService = new ImagesService('categories', 'category');
     private event = EventsService.getInstance('cashier')
 
     async getCategories(queryParams?: GetCategoriesQuery) {
@@ -62,7 +62,7 @@ export class CategoriesService {
                 ...category,
                 foods: (category as any).foods.map((food: any) => {
                     if (include === "foods.ingredients") {
-                        return FoodsService.formatFoodResponse(food);
+                        return foodsService.formatFoodResponse(food);
                     }
                     // Escludi foodIngredients dal response se non richiesto
                     const { foodIngredients, ...foodData } = food;
@@ -112,7 +112,7 @@ export class CategoriesService {
                 ...category,
                 foods: (category as any).foods.map((food: any) => {
                     if (include === "foods.ingredients") {
-                        return FoodsService.formatFoodResponse(food);
+                        return foodsService.formatFoodResponse(food);
                     }
                     // Escludi foodIngredients dal response se non richiesto
                     const { foodIngredients, ...foodData } = food;
@@ -248,7 +248,7 @@ export class CategoriesService {
         });
 
         if (category.image) {
-            CategoriesService.imageService.delete(category.image);
+            this.imageService.delete(category.image);
         }
     }
 
@@ -257,7 +257,7 @@ export class CategoriesService {
             const category = await this.getCategoryById(id, undefined, tx);
 
             if (category?.image && (category.image !== file.filename)) {
-                CategoriesService.imageService.delete(category.image)
+                this.imageService.delete(category.image)
             }
 
             return await tx.category.update({
@@ -272,3 +272,5 @@ export class CategoriesService {
     }
 
 }
+
+export const categoriesService = new CategoriesService();

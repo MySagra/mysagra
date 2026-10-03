@@ -3,10 +3,8 @@ import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
 import { BadRequestError } from "@/common/errors";
-import { BannerService } from "./banner.service";
+import { bannerService } from "./banner.service";
 import { BannerInputSchema, BannerResponseSchema, cuidParamSchema } from "@mysagra/schemas";
-
-const service = new BannerService();
 
 export const bannerModule = createModule({
     basePath: "/v1/banners",
@@ -27,7 +25,7 @@ export const bannerModule = createModule({
                 200: { description: "List of banners", schema: z.array(BannerResponseSchema) },
             },
             handler: async (_req, res) => {
-                res.status(200).json(await service.getBanners());
+                res.status(200).json(await bannerService.getBanners());
             },
         }),
         route({
@@ -42,7 +40,7 @@ export const bannerModule = createModule({
                 404: { description: "Not Found - Banner not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getBanner(req.validated.params.id));
+                res.status(200).json(await bannerService.getBanner(req.validated.params.id));
             },
         }),
         route({
@@ -57,7 +55,7 @@ export const bannerModule = createModule({
                 400: { description: "Bad Request - Invalid input or validation error" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createBanner(req.validated.body));
+                res.status(201).json(await bannerService.createBanner(req.validated.body));
             },
         }),
         route({
@@ -74,7 +72,7 @@ export const bannerModule = createModule({
                 404: { description: "Not Found - Banner not found" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.updateBanner(req.validated.params.id, req.validated.body));
+                res.status(201).json(await bannerService.updateBanner(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -82,7 +80,7 @@ export const bannerModule = createModule({
             path: "/{id}/image",
             summary: "Upload banner image",
             security: [{ cookieAuth: [] }],
-            middlewares: [authenticate(["admin", "maintainer"]), ...BannerService.imageService.upload()],
+            middlewares: [authenticate(["admin", "maintainer"]), ...bannerService.imageService.upload()],
             params: cuidParamSchema,
             responses: {
                 200: { description: "Image uploaded", schema: BannerResponseSchema },
@@ -91,7 +89,7 @@ export const bannerModule = createModule({
             },
             handler: async (req, res) => {
                 if (!req.file) throw new BadRequestError("No file provided for upload");
-                res.status(200).json(await service.uploadImage(req.validated.params.id, req.file));
+                res.status(200).json(await bannerService.uploadImage(req.validated.params.id, req.file));
             },
         }),
         route({
@@ -106,7 +104,7 @@ export const bannerModule = createModule({
                 404: { description: "Not Found - Banner not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.deleteBanner(req.validated.params.id));
+                res.status(200).json(await bannerService.deleteBanner(req.validated.params.id));
             },
         }),
     ],

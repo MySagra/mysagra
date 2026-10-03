@@ -3,7 +3,7 @@ import { prisma } from "@mysagra/database";
 import { EventsService } from "../events/events.service";
 import { NotFoundError } from "@/common/errors";
 
-export class PrintersService {
+class PrintersService {
     private cashierEvent = EventsService.getInstance('cashier');
 
     async getPrinters() {
@@ -78,3 +78,5 @@ export class PrintersService {
         })
     }
 }
+
+export const printersService = new PrintersService();

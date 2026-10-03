@@ -2,15 +2,13 @@ import { z } from "zod";
 import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
-import { IngredientsService } from "@/modules/ingredients/ingredients.service";
+import { ingredientsService } from "@/modules/ingredients/ingredients.service";
 import {
     IngredientResponseSchema,
     CreateIngredientSchema,
     UpdateIngredientSchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new IngredientsService();
 
 export const ingredientsModule = createModule({
     basePath: "/v1/ingredients",
@@ -28,7 +26,7 @@ export const ingredientsModule = createModule({
                 200: { description: "List of ingredients", schema: z.array(IngredientResponseSchema) },
             },
             handler: async (_req, res) => {
-                res.status(200).json(await service.getIngredients());
+                res.status(200).json(await ingredientsService.getIngredients());
             },
         }),
         route({
@@ -43,7 +41,7 @@ export const ingredientsModule = createModule({
                 404: { description: "Not Found - Ingredient not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getIngredientById(req.validated.params.id));
+                res.status(200).json(await ingredientsService.getIngredientById(req.validated.params.id));
             },
         }),
         route({
@@ -59,7 +57,7 @@ export const ingredientsModule = createModule({
                 409: { description: "Conflict - Ingredient name already exists" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createIngredient(req.validated.body));
+                res.status(201).json(await ingredientsService.createIngredient(req.validated.body));
             },
         }),
         route({
@@ -75,7 +73,7 @@ export const ingredientsModule = createModule({
                 404: { description: "Not Found - Ingredient not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.updateIngredient(req.validated.params.id, req.validated.body));
+                res.status(200).json(await ingredientsService.updateIngredient(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -90,7 +88,7 @@ export const ingredientsModule = createModule({
                 404: { description: "Not Found - Ingredient not found" },
             },
             handler: async (req, res) => {
-                await service.deleteIngredient(req.validated.params.id);
+                await ingredientsService.deleteIngredient(req.validated.params.id);
                 res.status(204).send();
             },
         }),

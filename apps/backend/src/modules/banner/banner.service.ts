@@ -3,8 +3,8 @@ import { BannerInput } from "@mysagra/schemas";
 import { ImagesService } from "../images/images.service";
 import { NotFoundError, BadRequestError } from "@/common/errors";
 
-export class BannerService {
-    public static imageService = new ImagesService('banners', 'banner');
+class BannerService {
+    public readonly imageService = new ImagesService('banners', 'banner');
 
     async getBanners() {
         return await prisma.banner.findMany();
@@ -60,7 +60,7 @@ export class BannerService {
             })
 
             if (banner?.image && (banner.image !== file.filename)) {
-                BannerService.imageService.delete(banner.image)
+                this.imageService.delete(banner.image)
             }
 
             return await prisma.banner.update({
@@ -74,3 +74,5 @@ export class BannerService {
         })
     }
 }
+
+export const bannerService = new BannerService();

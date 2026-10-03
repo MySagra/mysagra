@@ -2,7 +2,7 @@ import { prisma } from "@mysagra/database";
 import { StationInput, StationResponse, GetStationQuery } from "@mysagra/schemas";
 import { NotFoundError } from "@/common/errors";
 
-export class StationsService {
+class StationsService {
     private inclusions = {
         'categories': {
             categories: true
@@ -72,3 +72,5 @@ export class StationsService {
         });
     }
 }
+
+export const stationsService = new StationsService();

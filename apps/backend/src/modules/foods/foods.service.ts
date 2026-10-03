@@ -22,10 +22,10 @@ type FoodWithIngredients = Prisma.FoodGetPayload<{
     include: typeof foodWithIngredientsInclude;
 }>;
 
-export class FoodsService {
+class FoodsService {
     private event = EventsService.getInstance('cashier')
 
-    public static formatFoodResponse(food: FoodWithIngredients) {
+    public formatFoodResponse(food: FoodWithIngredients) {
         const { foodIngredients, ...restOfFood } = food;
         const ingredients = foodIngredients
             .map(fi => fi.ingredient)
@@ -66,7 +66,7 @@ export class FoodsService {
         });
 
         if (queryParams.include === 'ingredients') {
-            return foods.map(food => FoodsService.formatFoodResponse(food as FoodWithIngredients));
+            return foods.map(food => this.formatFoodResponse(food as FoodWithIngredients));
         }
 
         return foods;
@@ -95,7 +95,7 @@ export class FoodsService {
         }
 
         if (include === 'ingredients') {
-            return FoodsService.formatFoodResponse(food as FoodWithIngredients);
+            return this.formatFoodResponse(food as FoodWithIngredients);
         }
 
         return food;
@@ -151,7 +151,7 @@ export class FoodsService {
         const { newFood, categoryUpdated } = res;
 
         if (ingredients && ingredients.length > 0) {
-            return FoodsService.formatFoodResponse(newFood);
+            return this.formatFoodResponse(newFood);
         }
 
         if (categoryUpdated) {
@@ -235,7 +235,7 @@ export class FoodsService {
         const { updatedFood, categoryUpdated } = res;
 
         if (food.ingredients && food.ingredients.length > 0) {
-            return FoodsService.formatFoodResponse(updatedFood);
+            return this.formatFoodResponse(updatedFood);
         }
 
         if (categoryUpdated) {
@@ -333,3 +333,5 @@ export class FoodsService {
         })
     }
 }
+
+export const foodsService = new FoodsService();

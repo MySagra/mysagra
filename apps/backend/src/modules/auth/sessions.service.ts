@@ -6,7 +6,7 @@ import crypto from "crypto";
 const SESSION_PREFIX = "session";
 const USERS_PREFIX = "user:sessions"
 
-export class SessionsService {
+class SessionsService {
     async generateSessionId() {
         return crypto.randomBytes(32).toString("hex");
     }

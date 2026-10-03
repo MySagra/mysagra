@@ -2,7 +2,7 @@ import { CreateIngredientInput, UpdateIngredientInput } from "@mysagra/schemas";
 import { prisma } from "@mysagra/database";
 import { NotFoundError } from "@/common/errors";
 
-export class IngredientsService {
+class IngredientsService {
     async getIngredients() {
         const ingredients = await prisma.ingredient.findMany();
         return ingredients;
@@ -47,3 +47,5 @@ export class IngredientsService {
         })
     }
 }
+
+export const ingredientsService = new IngredientsService();

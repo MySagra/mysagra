@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
-import { FoodsService } from "@/modules/foods/foods.service";
+import { foodsService } from "@/modules/foods/foods.service";
 import {
     FoodResponseSchema,
     CreateFoodSchema,
@@ -12,8 +12,6 @@ import {
     GetFoodQuerySchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new FoodsService();
 
 export const foodsModule = createModule({
     basePath: "/v1/foods",
@@ -35,7 +33,7 @@ export const foodsModule = createModule({
                 200: { description: "List of food items", schema: z.array(FoodResponseSchema) },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getFoods(req.validated.query));
+                res.status(200).json(await foodsService.getFoods(req.validated.query));
             },
         }),
         route({
@@ -51,7 +49,7 @@ export const foodsModule = createModule({
                 404: { description: "Not Found - Food item not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getFoodById(req.validated.params.id, req.validated.query));
+                res.status(200).json(await foodsService.getFoodById(req.validated.params.id, req.validated.query));
             },
         }),
         route({
@@ -67,7 +65,7 @@ export const foodsModule = createModule({
                 409: { description: "Conflict - Food name already exists" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createFood(req.validated.body));
+                res.status(201).json(await foodsService.createFood(req.validated.body));
             },
         }),
         route({
@@ -84,7 +82,7 @@ export const foodsModule = createModule({
                 409: { description: "Conflict - Food name already exists" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.updateFood(req.validated.params.id, req.validated.body));
+                res.status(200).json(await foodsService.updateFood(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -100,7 +98,7 @@ export const foodsModule = createModule({
                 404: { description: "Not Found - Food item not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.patchFood(req.validated.params.id, req.validated.body));
+                res.status(200).json(await foodsService.patchFood(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -115,7 +113,7 @@ export const foodsModule = createModule({
                 404: { description: "Not Found - Food item not found" },
             },
             handler: async (req, res) => {
-                await service.deleteFood(req.validated.params.id);
+                await foodsService.deleteFood(req.validated.params.id);
                 res.status(204).send();
             },
         }),

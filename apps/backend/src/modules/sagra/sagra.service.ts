@@ -4,19 +4,9 @@ import { Sagra } from "@mysagra/schemas";
 import { Queue } from "bullmq"
 import { redisConnection } from "@/lib/redis"
 
-export class SagraService {
-    private static instance: SagraService
+class SagraService {
     private config: Sagra | null = null
     private reportQueue = new Queue('report-queue', { connection: redisConnection })
-
-    private constructor() { }
-
-    static getInstance(): SagraService {
-        if (!SagraService.instance) {
-            SagraService.instance = new SagraService()
-        }
-        return SagraService.instance
-    }
 
     async loadConfig() {
         const config = await prisma.sagra.findFirst()
@@ -99,4 +89,4 @@ export class SagraService {
     }
 }
 
-export const sagraService = SagraService.getInstance();
+export const sagraService = new SagraService();

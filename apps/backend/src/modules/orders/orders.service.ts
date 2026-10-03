@@ -113,7 +113,7 @@ function isDisplayCodeConflict(error: unknown) {
         && JSON.stringify(error.meta ?? {}).includes("displayCode");
 }
 
-export class OrdersService {
+class OrdersService {
     private cashierEvent = EventsService.getInstance('cashier');
     private displayEvent = EventsService.getInstance('display');
     private printerEvent = EventsService.getInstance('printer');
@@ -728,3 +728,5 @@ export class OrdersService {
         return patchedOrderStation;
     }
 }
+
+export const ordersService = new OrdersService();

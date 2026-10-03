@@ -3,7 +3,7 @@ import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
 import { ForbiddenError } from "@/common/errors";
-import { OrdersService } from "@/modules/orders/orders.service";
+import { ordersService } from "@/modules/orders/orders.service";
 import {
     OrderResponseSchema,
     OrderDetailResponseSchema,
@@ -17,8 +17,6 @@ import {
     PatchOrderStationStatusParamsSchema,
     PatchOrderStationInputSchema,
 } from "@mysagra/schemas";
-
-const service = new OrdersService();
 
 const PaginatedOrdersResponseSchema = z.object({
     data: OrdersResponseSchema,
@@ -52,7 +50,7 @@ export const ordersModule = createModule({
                 400: { description: "Invalid query parameters" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getOrders(req.validated.query));
+                res.status(200).json(await ordersService.getOrders(req.validated.query));
             },
         }),
         route({
@@ -70,7 +68,7 @@ export const ordersModule = createModule({
                 404: { description: "Not Found - Order not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getOrderById(req.validated.params.id));
+                res.status(200).json(await ordersService.getOrderById(req.validated.params.id));
             },
         }),
         route({
@@ -92,7 +90,7 @@ export const ordersModule = createModule({
                 if (confirm && req.apiKey && !req.user) {
                     throw new ForbiddenError("API key cannot confirm orders");
                 }
-                res.status(201).json(await service.createOrder(req.validated.body));
+                res.status(201).json(await ordersService.createOrder(req.validated.body));
             },
         }),
         route({
@@ -110,7 +108,7 @@ export const ordersModule = createModule({
                 404: { description: "Not Found - Order not found" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.confirmOrder(req.validated.params.id, req.validated.body));
+                res.status(201).json(await ordersService.confirmOrder(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -126,7 +124,7 @@ export const ordersModule = createModule({
                 404: { description: "Not Found - Order not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.updateStatus(req.validated.params.id, req.validated.body.status));
+                res.status(200).json(await ordersService.updateStatus(req.validated.params.id, req.validated.body.status));
             },
         }),
         route({
@@ -145,7 +143,7 @@ export const ordersModule = createModule({
                 404: { description: "Not Found - Order not found" },
             },
             handler: async (req, res) => {
-                await service.deleteOrder(req.validated.params.id);
+                await ordersService.deleteOrder(req.validated.params.id);
                 res.status(204).send();
             },
         }),
@@ -163,7 +161,7 @@ export const ordersModule = createModule({
                 404: { description: "Not Found - Order not found" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.reprintOrder(req.validated.params.id, req.validated.body));
+                res.status(201).json(await ordersService.reprintOrder(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -180,7 +178,7 @@ export const ordersModule = createModule({
             },
             handler: async (req, res) => {
                 const { orderId, stationId } = req.validated.params;
-                res.status(200).json(await service.updateOrderStationStatus(orderId, stationId, req.validated.body.status));
+                res.status(200).json(await ordersService.updateOrderStationStatus(orderId, stationId, req.validated.body.status));
             },
         }),
     ],

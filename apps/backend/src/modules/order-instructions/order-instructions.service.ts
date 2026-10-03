@@ -2,7 +2,7 @@ import { prisma } from "@mysagra/database";
 import { CreateOrderInstructionInput, UpdateOrderInstructionInput } from "@mysagra/schemas"
 import { NotFoundError } from "@/common/errors";
 
-export class OrderInstructionsService {
+class OrderInstructionsService {
     async getOrderInstructions() {
         return await prisma.orderInstruction.findMany({
             orderBy: {
@@ -59,3 +59,5 @@ export class OrderInstructionsService {
         })
     }
 }
+
+export const orderInstructionsService = new OrderInstructionsService();

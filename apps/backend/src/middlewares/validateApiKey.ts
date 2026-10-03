@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express"
 import { ApiKeyPrefixSchema } from "@mysagra/schemas";
-import { ApiKeysService } from "@/modules/api-keys/api-keys.service";
+import { apiKeysService } from "@/modules/api-keys/api-keys.service";
 import { redisConnection } from "@/lib/redis";
 import { prisma } from "@mysagra/database";
 import { logger } from "@/config/logger";
 import { env } from "@/config/env";
 import { BadRequestError, UnauthorizedError, ForbiddenError, InternalServerError } from "@/common/errors";
 
-const apiKeyService = new ApiKeysService();
 const LAST_USED_THROTTLE_SECONDS = 60 * 5;
 
 export async function validateApiKey(req: Request, res: Response, next: NextFunction) {
@@ -30,7 +29,7 @@ export async function validateApiKey(req: Request, res: Response, next: NextFunc
         }
 
         //check redis
-        const hash = await apiKeyService.hashApiKey(rawKey);
+        const hash = await apiKeysService.hashApiKey(rawKey);
         const redisKey = `apiKey:${hash}`
 
         const cachedKey = await redisConnection.get(redisKey);

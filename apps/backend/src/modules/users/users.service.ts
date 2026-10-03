@@ -4,7 +4,7 @@ import { CreateUserInput, PatchUserInput } from "@mysagra/schemas";
 import { NotFoundError } from "@/common/errors";
 import { sessionsService } from "../auth/sessions.service";
 
-export class UsersService {
+class UsersService {
     async getUsers() {
         return await prisma.user.findMany({
             omit: { password: true },
@@ -73,3 +73,5 @@ export class UsersService {
         await prisma.user.delete({ where: { id } });
     }
 }
+
+export const usersService = new UsersService();

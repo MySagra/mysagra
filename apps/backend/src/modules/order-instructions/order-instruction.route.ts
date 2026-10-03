@@ -2,15 +2,13 @@ import { z } from "zod";
 import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
-import { OrderInstructionsService } from "./order-instructions.service";
+import { orderInstructionsService } from "./order-instructions.service";
 import {
     CreateOrderInstructionSchema,
     UpdateOrderInstructionSchema,
     OrderInstructionResponseSchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new OrderInstructionsService();
 
 export const orderInstructionsModule = createModule({
     basePath: "/v1/order-instructions",
@@ -31,7 +29,7 @@ export const orderInstructionsModule = createModule({
                 200: { description: "List of order instructions", schema: z.array(OrderInstructionResponseSchema) },
             },
             handler: async (_req, res) => {
-                res.status(200).json(await service.getOrderInstructions());
+                res.status(200).json(await orderInstructionsService.getOrderInstructions());
             },
         }),
         route({
@@ -46,7 +44,7 @@ export const orderInstructionsModule = createModule({
                 404: { description: "Not Found - Order instruction not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getOrderInstruction(req.validated.params.id));
+                res.status(200).json(await orderInstructionsService.getOrderInstruction(req.validated.params.id));
             },
         }),
         route({
@@ -61,7 +59,7 @@ export const orderInstructionsModule = createModule({
                 400: { description: "Invalid input" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createOrderInstruction(req.validated.body));
+                res.status(201).json(await orderInstructionsService.createOrderInstruction(req.validated.body));
             },
         }),
         route({
@@ -78,7 +76,7 @@ export const orderInstructionsModule = createModule({
                 404: { description: "Not Found - Order instruction not found" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.updateOrderInstruction(req.validated.params.id, req.validated.body));
+                res.status(201).json(await orderInstructionsService.updateOrderInstruction(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -93,7 +91,7 @@ export const orderInstructionsModule = createModule({
                 404: { description: "Not Found - Order instruction not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.deleteOrderInstruction(req.validated.params.id));
+                res.status(200).json(await orderInstructionsService.deleteOrderInstruction(req.validated.params.id));
             },
         }),
     ],

@@ -4,7 +4,7 @@ import { UnauthorizedError, NotFoundError } from "@/common/errors";
 
 import { sessionsService } from "./sessions.service";
 import { RoleEnum, SessionPayload } from "@mysagra/schemas";
-export class AuthService {
+class AuthService {
     async login(username: string, password: string, userAgent?: string) {
         const user = await prisma.user.findUnique(
             {
@@ -74,3 +74,5 @@ export class AuthService {
         await sessionsService.revokeSessionBySessionId(sessionId);
     }
 }
+
+export const authService = new AuthService();
