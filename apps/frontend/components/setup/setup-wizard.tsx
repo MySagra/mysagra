@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SettingsData } from "@mysagra/schemas";
 import { InfoIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -11,7 +11,9 @@ import { login } from "@/actions/auth";
 import { useLocale } from "@/contexts/locale-context";
 import { cn } from "@/lib/utils";
 import { SetupCashierStep } from "./setup-cashier-step";
-import { validateCashierSettings } from "@/components/settings/cashier-settings";
+import { OrderIdOption, validateCashierSettings } from "@/components/settings/cashier-settings";
+import { OrderingControls, validateOrderingSettings } from "@/components/settings/ordering-settings";
+import { detectTimeZone } from "@/components/settings/general-settings";
 import { SetupSummaryStep } from "./setup-summary-step";
 import { Field } from "./setup-field";
 import { SetupLanguageSwitcher } from "./setup-language-switcher";
@@ -28,9 +30,9 @@ export type SetupData = {
 
 export type SetupErrors = Partial<Record<string, string>>;
 
-type Step = "token" | "sagra" | "account" | "cashier" | "summary";
+type Step = "token" | "sagra" | "account" | "cashier" | "general" | "summary";
 
-const STEPS: Step[] = ["token", "sagra", "account", "cashier", "summary"];
+const STEPS: Step[] = ["token", "sagra", "account", "cashier", "general", "summary"];
 const SAGRA_NAME_MAX = 100;
 const HELP_URL = "https://www.mysagra.com/";
 // the "creating" screen stays visible at least this long, then holds with every task checked
@@ -61,12 +63,22 @@ export function SetupWizard({ defaultSettings }: SetupWizardProps) {
   // all creation tasks shown as completed, right before the done screen
   const [creatingFinished, setCreatingFinished] = useState(false);
 
+  // the sagra runs where the installer is: use the browser time zone (read after mount, not during SSR)
+  useEffect(() => {
+    const timezone = detectTimeZone();
+    setData((prev) => ({
+      ...prev,
+      settings: { ...prev.settings, general: { ...prev.settings.general, timezone } },
+    }));
+  }, []);
+
   const stepIndex = STEPS.indexOf(step);
   const stepLabels: Record<Step, string> = {
     token: t.setup.stepToken,
     sagra: t.setup.stepSagra,
     account: t.setup.stepAccount,
     cashier: t.setup.stepCashier,
+    general: t.setup.stepGeneral,
     summary: t.setup.stepSummary,
   };
 
@@ -94,6 +106,10 @@ export function SetupWizard({ defaultSettings }: SetupWizardProps) {
 
     if (current === "cashier") {
       Object.assign(next, validateCashierSettings(data.settings, t));
+    }
+
+    if (current === "general") {
+      Object.assign(next, validateOrderingSettings(data.settings, t));
     }
 
     return next;
@@ -195,7 +211,7 @@ export function SetupWizard({ defaultSettings }: SetupWizardProps) {
       {/* ── Progress ── */}
       {phase === "form" && (
         <nav aria-label={t.setup.breadcrumb} className="mx-auto w-full max-w-3xl px-6">
-          <ol className="grid grid-cols-5 gap-2">
+          <ol className="grid grid-cols-6 gap-2">
             {STEPS.map((s, index) => (
               <li key={s} className="flex flex-col gap-2" aria-current={s === step ? "step" : undefined}>
                 <span
@@ -338,6 +354,31 @@ export function SetupWizard({ defaultSettings }: SetupWizardProps) {
                   setErrors({});
                 }}
               />
+            )}
+
+            {/* fundamental settings only: time zone (from the browser) and currency are changed later */}
+            {step === "general" && (
+              <StepLayout title={t.setup.generalTitle} description={t.setup.generalDescription}>
+                <OrderIdOption
+                  settings={data.settings}
+                  onChange={(settings) => setData((prev) => ({ ...prev, settings }))}
+                />
+                <div className="space-y-2">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-semibold">{t.adminSettings.orderingSection}</p>
+                    <p className="text-xs text-muted-foreground">{t.adminSettings.orderingSectionHint}</p>
+                  </div>
+                  <OrderingControls
+                    settings={data.settings}
+                    errors={errors}
+                    showTimeZone={false}
+                    onChange={(settings) => {
+                      setData((prev) => ({ ...prev, settings }));
+                      setErrors({});
+                    }}
+                  />
+                </div>
+              </StepLayout>
             )}
 
             {step === "summary" && (

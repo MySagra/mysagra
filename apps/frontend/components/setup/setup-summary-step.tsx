@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLocale } from "@/contexts/locale-context";
+import { describeOrdering } from "@/components/settings/ordering-settings";
 import type { SetupData, SetupStep } from "./setup-wizard";
 
 interface SetupSummaryStepProps {
@@ -44,7 +45,8 @@ export function SetupSummaryStep({ data, onEdit }: SetupSummaryStepProps) {
     { label: t.setup.summaryAdmin, value: data.username.trim(), step: "account" },
     { label: t.setup.summaryCustomer, value: modeLabels[orders.customer], step: "cashier" },
     { label: t.setup.summaryTable, value: describeTable(), step: "cashier" },
-    { label: t.setup.summaryTicket, value: data.settings.showTicketNumbers ? t.setup.yes : t.setup.no, step: "cashier" },
+    { label: t.setup.summaryTicket, value: data.settings.tickets.showNumbers ? t.setup.orderIdNumber : t.setup.orderIdCode, step: "general" },
+    { label: t.setup.summaryOrdering, value: describeOrdering(data.settings, t), step: "general" },
   ];
 
   // what will be sent, secrets excluded

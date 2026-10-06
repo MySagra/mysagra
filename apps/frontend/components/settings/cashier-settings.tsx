@@ -141,16 +141,51 @@ export function OrderFieldsControls({
 }
 
 // Ticket number option
-export function TicketOption({ settings, onChange }: { settings: SettingsData; onChange: (settings: SettingsData) => void }) {
+// What identifies an order on screens and prints: the display code (default, doesn't reveal
+// how many orders were placed) or the progressive ticket number. Every order gets both anyway.
+export function OrderIdOption({ settings, onChange }: { settings: SettingsData; onChange: (settings: SettingsData) => void }) {
   const { t } = useLocale();
+  const options = [
+    { showNumbers: false, title: t.setup.orderIdCode, hint: t.setup.orderIdCodeHint },
+    { showNumbers: true, title: t.setup.orderIdNumber, hint: t.setup.orderIdNumberHint },
+  ];
+
   return (
-    <OptionCard
-      id="show-ticket-numbers"
-      checked={settings.showTicketNumbers}
-      title={t.setup.ticketLabel}
-      hint={t.setup.ticketHint}
-      onCheckedChange={(checked) => onChange({ ...settings, showTicketNumbers: checked })}
-    />
+    <div className="space-y-2">
+      <p className="text-sm font-semibold">{t.setup.orderIdTitle}</p>
+      <div role="radiogroup" aria-label={t.setup.orderIdTitle} className="grid gap-3 sm:grid-cols-2">
+        {options.map((option) => {
+          const checked = settings.tickets.showNumbers === option.showNumbers;
+          return (
+            <button
+              key={String(option.showNumbers)}
+              type="button"
+              role="radio"
+              aria-checked={checked}
+              onClick={() => onChange({ ...settings, tickets: { ...settings.tickets, showNumbers: option.showNumbers } })}
+              className={cn(
+                "flex items-start gap-3 rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                checked ? "border-primary bg-primary/10" : "bg-card hover:bg-muted/50"
+              )}
+            >
+              <span
+                className={cn(
+                  "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border",
+                  checked ? "border-primary" : "border-muted-foreground/50"
+                )}
+              >
+                {checked && <span className="size-2 rounded-full bg-primary" />}
+              </span>
+              <span className="space-y-0.5">
+                <span className="block text-sm font-semibold">{option.title}</span>
+                <span className="block text-xs text-muted-foreground">{option.hint}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-xs text-muted-foreground">{t.setup.orderIdNote}</p>
+    </div>
   );
 }
 
@@ -250,11 +285,10 @@ export function CashierPreview({ settings }: { settings: SettingsData }) {
       <div className="flex items-center justify-between gap-2 p-4 pb-2">
         <div className="flex items-center gap-2">
           <p className="text-xl font-bold">{t.setup.previewCart}</p>
-          {settings.showTicketNumbers && (
-            <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">
-              {t.setup.previewTicket} 42
-            </span>
-          )}
+          {/* the identifier chosen in the settings */}
+          <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">
+            {t.setup.previewOrder} {settings.tickets.showNumbers ? "42" : "K7Q"}
+          </span>
         </div>
         <span className="rounded-md border px-2.5 py-1.5 text-xs font-medium">{t.setup.previewDailyOrders}</span>
       </div>

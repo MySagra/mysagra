@@ -24,7 +24,7 @@ export default async function SettingsPage({
   const { tab: requestedTab } = await searchParams;
   const tab: SettingsTab = SETTINGS_TABS.includes(requestedTab as SettingsTab)
     ? (requestedTab as SettingsTab)
-    : "sagra";
+    : "general";
 
   // each source fails on its own: a broken one doesn't hide the other tabs
   async function load<T>(fn: () => Promise<T>, fallback: T): Promise<T> {

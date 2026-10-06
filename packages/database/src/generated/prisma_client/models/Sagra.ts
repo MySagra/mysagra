@@ -37,6 +37,7 @@ export type SagraSumAggregateOutputType = {
 export type SagraMinAggregateOutputType = {
   id: string | null
   name: string | null
+  receiptLogo: string | null
   lastClosingAt: Date | null
   statsIntervalMinutes: number | null
 }
@@ -44,6 +45,7 @@ export type SagraMinAggregateOutputType = {
 export type SagraMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  receiptLogo: string | null
   lastClosingAt: Date | null
   statsIntervalMinutes: number | null
 }
@@ -51,6 +53,7 @@ export type SagraMaxAggregateOutputType = {
 export type SagraCountAggregateOutputType = {
   id: number
   name: number
+  receiptLogo: number
   lastClosingAt: number
   statsIntervalMinutes: number
   _all: number
@@ -68,6 +71,7 @@ export type SagraSumAggregateInputType = {
 export type SagraMinAggregateInputType = {
   id?: true
   name?: true
+  receiptLogo?: true
   lastClosingAt?: true
   statsIntervalMinutes?: true
 }
@@ -75,6 +79,7 @@ export type SagraMinAggregateInputType = {
 export type SagraMaxAggregateInputType = {
   id?: true
   name?: true
+  receiptLogo?: true
   lastClosingAt?: true
   statsIntervalMinutes?: true
 }
@@ -82,6 +87,7 @@ export type SagraMaxAggregateInputType = {
 export type SagraCountAggregateInputType = {
   id?: true
   name?: true
+  receiptLogo?: true
   lastClosingAt?: true
   statsIntervalMinutes?: true
   _all?: true
@@ -176,6 +182,7 @@ export type SagraGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type SagraGroupByOutputType = {
   id: string
   name: string
+  receiptLogo: string | null
   lastClosingAt: Date
   statsIntervalMinutes: number
   _count: SagraCountAggregateOutputType | null
@@ -206,6 +213,7 @@ export type SagraWhereInput = {
   NOT?: Prisma.SagraWhereInput | Prisma.SagraWhereInput[]
   id?: Prisma.StringFilter<"Sagra"> | string
   name?: Prisma.StringFilter<"Sagra"> | string
+  receiptLogo?: Prisma.StringNullableFilter<"Sagra"> | string | null
   lastClosingAt?: Prisma.DateTimeFilter<"Sagra"> | Date | string
   statsIntervalMinutes?: Prisma.IntFilter<"Sagra"> | number
   settings?: Prisma.XOR<Prisma.SettingsNullableScalarRelationFilter, Prisma.SettingsWhereInput> | null
@@ -214,6 +222,7 @@ export type SagraWhereInput = {
 export type SagraOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  receiptLogo?: Prisma.SortOrderInput | Prisma.SortOrder
   lastClosingAt?: Prisma.SortOrder
   statsIntervalMinutes?: Prisma.SortOrder
   settings?: Prisma.SettingsOrderByWithRelationInput
@@ -226,6 +235,7 @@ export type SagraWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SagraWhereInput[]
   NOT?: Prisma.SagraWhereInput | Prisma.SagraWhereInput[]
   name?: Prisma.StringFilter<"Sagra"> | string
+  receiptLogo?: Prisma.StringNullableFilter<"Sagra"> | string | null
   lastClosingAt?: Prisma.DateTimeFilter<"Sagra"> | Date | string
   statsIntervalMinutes?: Prisma.IntFilter<"Sagra"> | number
   settings?: Prisma.XOR<Prisma.SettingsNullableScalarRelationFilter, Prisma.SettingsWhereInput> | null
@@ -234,6 +244,7 @@ export type SagraWhereUniqueInput = Prisma.AtLeast<{
 export type SagraOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  receiptLogo?: Prisma.SortOrderInput | Prisma.SortOrder
   lastClosingAt?: Prisma.SortOrder
   statsIntervalMinutes?: Prisma.SortOrder
   _count?: Prisma.SagraCountOrderByAggregateInput
@@ -249,6 +260,7 @@ export type SagraScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SagraScalarWhereWithAggregatesInput | Prisma.SagraScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Sagra"> | string
   name?: Prisma.StringWithAggregatesFilter<"Sagra"> | string
+  receiptLogo?: Prisma.StringNullableWithAggregatesFilter<"Sagra"> | string | null
   lastClosingAt?: Prisma.DateTimeWithAggregatesFilter<"Sagra"> | Date | string
   statsIntervalMinutes?: Prisma.IntWithAggregatesFilter<"Sagra"> | number
 }
@@ -256,6 +268,7 @@ export type SagraScalarWhereWithAggregatesInput = {
 export type SagraCreateInput = {
   id?: string
   name?: string
+  receiptLogo?: string | null
   lastClosingAt?: Date | string
   statsIntervalMinutes?: number
   settings?: Prisma.SettingsCreateNestedOneWithoutSagraInput
@@ -264,6 +277,7 @@ export type SagraCreateInput = {
 export type SagraUncheckedCreateInput = {
   id?: string
   name?: string
+  receiptLogo?: string | null
   lastClosingAt?: Date | string
   statsIntervalMinutes?: number
   settings?: Prisma.SettingsUncheckedCreateNestedOneWithoutSagraInput
@@ -272,6 +286,7 @@ export type SagraUncheckedCreateInput = {
 export type SagraUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   settings?: Prisma.SettingsUpdateOneWithoutSagraNestedInput
@@ -280,6 +295,7 @@ export type SagraUpdateInput = {
 export type SagraUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   settings?: Prisma.SettingsUncheckedUpdateOneWithoutSagraNestedInput
@@ -288,6 +304,7 @@ export type SagraUncheckedUpdateInput = {
 export type SagraCreateManyInput = {
   id?: string
   name?: string
+  receiptLogo?: string | null
   lastClosingAt?: Date | string
   statsIntervalMinutes?: number
 }
@@ -295,6 +312,7 @@ export type SagraCreateManyInput = {
 export type SagraUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -302,6 +320,7 @@ export type SagraUpdateManyMutationInput = {
 export type SagraUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -315,6 +334,7 @@ export type SagraOrderByRelevanceInput = {
 export type SagraCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  receiptLogo?: Prisma.SortOrder
   lastClosingAt?: Prisma.SortOrder
   statsIntervalMinutes?: Prisma.SortOrder
 }
@@ -326,6 +346,7 @@ export type SagraAvgOrderByAggregateInput = {
 export type SagraMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  receiptLogo?: Prisma.SortOrder
   lastClosingAt?: Prisma.SortOrder
   statsIntervalMinutes?: Prisma.SortOrder
 }
@@ -333,6 +354,7 @@ export type SagraMaxOrderByAggregateInput = {
 export type SagraMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  receiptLogo?: Prisma.SortOrder
   lastClosingAt?: Prisma.SortOrder
   statsIntervalMinutes?: Prisma.SortOrder
 }
@@ -363,6 +385,7 @@ export type SagraUpdateOneRequiredWithoutSettingsNestedInput = {
 export type SagraCreateWithoutSettingsInput = {
   id?: string
   name?: string
+  receiptLogo?: string | null
   lastClosingAt?: Date | string
   statsIntervalMinutes?: number
 }
@@ -370,6 +393,7 @@ export type SagraCreateWithoutSettingsInput = {
 export type SagraUncheckedCreateWithoutSettingsInput = {
   id?: string
   name?: string
+  receiptLogo?: string | null
   lastClosingAt?: Date | string
   statsIntervalMinutes?: number
 }
@@ -393,6 +417,7 @@ export type SagraUpdateToOneWithWhereWithoutSettingsInput = {
 export type SagraUpdateWithoutSettingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -400,6 +425,7 @@ export type SagraUpdateWithoutSettingsInput = {
 export type SagraUncheckedUpdateWithoutSettingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptLogo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastClosingAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statsIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -409,6 +435,7 @@ export type SagraUncheckedUpdateWithoutSettingsInput = {
 export type SagraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  receiptLogo?: boolean
   lastClosingAt?: boolean
   statsIntervalMinutes?: boolean
   settings?: boolean | Prisma.Sagra$settingsArgs<ExtArgs>
@@ -419,11 +446,12 @@ export type SagraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type SagraSelectScalar = {
   id?: boolean
   name?: boolean
+  receiptLogo?: boolean
   lastClosingAt?: boolean
   statsIntervalMinutes?: boolean
 }
 
-export type SagraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "lastClosingAt" | "statsIntervalMinutes", ExtArgs["result"]["sagra"]>
+export type SagraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "receiptLogo" | "lastClosingAt" | "statsIntervalMinutes", ExtArgs["result"]["sagra"]>
 export type SagraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   settings?: boolean | Prisma.Sagra$settingsArgs<ExtArgs>
 }
@@ -436,6 +464,7 @@ export type $SagraPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    receiptLogo: string | null
     lastClosingAt: Date
     statsIntervalMinutes: number
   }, ExtArgs["result"]["sagra"]>
@@ -810,6 +839,7 @@ export interface Prisma__SagraClient<T, Null = never, ExtArgs extends runtime.Ty
 export interface SagraFieldRefs {
   readonly id: Prisma.FieldRef<"Sagra", 'String'>
   readonly name: Prisma.FieldRef<"Sagra", 'String'>
+  readonly receiptLogo: Prisma.FieldRef<"Sagra", 'String'>
   readonly lastClosingAt: Prisma.FieldRef<"Sagra", 'DateTime'>
   readonly statsIntervalMinutes: Prisma.FieldRef<"Sagra", 'Int'>
 }

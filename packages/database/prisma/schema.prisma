@@ -9,8 +9,10 @@ datasource db {
 
 //TODO: implement tenancy settings in future
 model Sagra {
-  id   String @id @default(cuid())
-  name String @default("MySagra") @db.VarChar(100)
+  id String @id @default(cuid())
+
+  name        String  @default("MySagra") @db.VarChar(100)
+  receiptLogo String?
 
   // stats settings and data
   lastClosingAt        DateTime @default(now())

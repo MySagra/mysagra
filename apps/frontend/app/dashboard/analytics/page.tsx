@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { GeneralClosureButton } from "@/components/dashboard/general-closure-dialog";
 import { useLocale } from "@/contexts/locale-context";
+import { useTimezone } from "@/contexts/timezone-context";
+import { useSagraSettings } from "@/contexts/sagra-settings-context";
+import { floorToHoursInZone } from "@/lib/timezone";
 import { getReports } from "@/actions/reports";
 import type { GroupInterval } from "@mysagra/schemas";
 import type { Report, CategoryStats, FoodStats, CashRegisterStats } from "@/lib/api-schemas";
@@ -34,28 +37,14 @@ function intervalToMs(groupBy: GroupInterval): number {
   }
 }
 
-// Floor a timestamp (ms) to the nearest interval boundary (local time)
-function floorToInterval(tsMs: number, groupBy: GroupInterval): number {
-  const d = new Date(tsMs);
+// Floor a timestamp (ms) to the interval boundary, in the sagra time zone (not the browser's)
+function floorToInterval(tsMs: number, groupBy: GroupInterval, timeZone: string): number {
   switch (groupBy) {
-    case "1h":
-      d.setMinutes(0, 0, 0);
-      return d.getTime();
-    case "4h": {
-      const h = d.getHours();
-      d.setHours(h - (h % 4), 0, 0, 0);
-      return d.getTime();
-    }
-    case "12h": {
-      const h = d.getHours();
-      d.setHours(h - (h % 12), 0, 0, 0);
-      return d.getTime();
-    }
-    case "day":
-      d.setHours(0, 0, 0, 0);
-      return d.getTime();
-    case "all":
-      return tsMs;
+    case "1h":  return floorToHoursInZone(tsMs, 1, timeZone);
+    case "4h":  return floorToHoursInZone(tsMs, 4, timeZone);
+    case "12h": return floorToHoursInZone(tsMs, 12, timeZone);
+    case "day": return floorToHoursInZone(tsMs, 24, timeZone);
+    case "all": return tsMs;
   }
 }
 
@@ -119,7 +108,7 @@ function mergeReports(base: Report, overlay: Report): Report {
 }
 
 // Fill in missing time slots with zero-value entries so charts show continuous time series
-function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: GroupInterval): Report[] {
+function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: GroupInterval, timeZone: string): Report[] {
   const stepMs = intervalToMs(groupBy);
   // "all" = single bucket, no gaps to fill
   if (stepMs === 0 || reports.length === 0) return reports;
@@ -128,7 +117,7 @@ function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: 
   // When two reports share a key (e.g. a processed day-report + a realtime entry), merge them.
   const reportMap = new Map<number, Report>();
   for (const r of reports) {
-    const key = floorToInterval(new Date(r.timestamp).getTime(), groupBy);
+    const key = floorToInterval(new Date(r.timestamp).getTime(), groupBy, timeZone);
     const existing = reportMap.get(key);
     if (existing) {
       const isRealtime = String(r.id).startsWith("realtime-");
@@ -146,11 +135,11 @@ function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: 
     const v = r.totalOrders;
     return (typeof v === "number" ? v : Number(v) || 0) > 0;
   });
-  const fromMs = floorToInterval(dateFrom.getTime(), groupBy);
+  const fromMs = floorToInterval(dateFrom.getTime(), groupBy, timeZone);
   const startMs = firstWithOrders
-    ? Math.max(floorToInterval(new Date(firstWithOrders.timestamp).getTime(), groupBy) - stepMs, fromMs)
-    : floorToInterval(new Date(reports[0].timestamp).getTime(), groupBy);
-  const endMs = floorToInterval(dateTo.getTime(), groupBy);
+    ? Math.max(floorToInterval(new Date(firstWithOrders.timestamp).getTime(), groupBy, timeZone) - stepMs, fromMs)
+    : floorToInterval(new Date(reports[0].timestamp).getTime(), groupBy, timeZone);
+  const endMs = floorToInterval(dateTo.getTime(), groupBy, timeZone);
 
   // Generate all expected slots
   const result: Report[] = [];
@@ -180,6 +169,8 @@ function fillTimeGaps(reports: Report[], dateFrom: Date, dateTo: Date, groupBy: 
 
 export default function AnalyticsPage() {
   const { t, locale } = useLocale();
+  const timezone = useTimezone();
+  const { general } = useSagraSettings();
 
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -219,9 +210,9 @@ export default function AnalyticsPage() {
   // Fill time gaps so charts show continuous time series
   const effectiveDateTo = dateTo ?? new Date();
   const filledReports = useMemo(
-    () => fillTimeGaps(reports, dateFrom, effectiveDateTo, groupBy),
+    () => fillTimeGaps(reports, dateFrom, effectiveDateTo, groupBy, timezone),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [reports, dateFrom, dateTo, groupBy]
+    [reports, dateFrom, dateTo, groupBy, timezone]
   );
 
   // Calculate aggregated stats (unfiltered, for the sidebar)
@@ -457,7 +448,7 @@ export default function AnalyticsPage() {
           onGroupByChange={setGroupBy}
           onRefresh={fetchData}
           loading={loading}
-          onExport={() => exportAnalyticsToExcel(reports, t, locale, `report_${dateFrom.toISOString().slice(0,10)}_${(dateTo ?? new Date()).toISOString().slice(0,10)}`)}
+          onExport={() => exportAnalyticsToExcel(reports, t, locale, `report_${dateFrom.toISOString().slice(0,10)}_${(dateTo ?? new Date()).toISOString().slice(0,10)}`, { currency: general.currency, timeZone: timezone })}
           canExport={reports.length > 0 && !loading}
         />
 

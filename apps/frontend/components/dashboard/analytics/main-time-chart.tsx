@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import { useLocale } from "@/contexts/locale-context";
 import { useTimezone } from "@/contexts/timezone-context";
+import { useCurrencyFormatter } from "@/contexts/sagra-settings-context";
+import { formatTimeDay } from "@/lib/timezone";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +30,8 @@ interface MainTimeChartProps {
 export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterFilter }: MainTimeChartProps) {
   const { t } = useLocale();
   const timezone = useTimezone();
+  const formatCurrency = useCurrencyFormatter();
+  const formatAxis = useCurrencyFormatter({ compact: true });
   const [mode, setMode] = useState<ChartMode>("revenue");
   const [hiddenPayment, setHiddenPayment] = useState<{ cash: boolean; card: boolean }>({ cash: false, card: false });
 
@@ -49,17 +53,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
     () =>
       reports.map((r) => {
         const date = new Date(r.timestamp);
-        const dtf = new Intl.DateTimeFormat("it-IT", {
-          timeZone: timezone,
-          hour: "2-digit",
-          minute: "2-digit",
-          day: "2-digit",
-          month: "2-digit",
-        });
-        const parts = dtf.formatToParts(date);
-        const timeMap = new Map<string, string>();
-        parts.forEach(p => timeMap.set(p.type, p.value));
-        const timeStr = `${timeMap.get("hour")}:${timeMap.get("minute")} ${timeMap.get("day")}/${timeMap.get("month")}`;
+        const timeStr = formatTimeDay(date, timezone);
         return {
           time: timeStr,
           totalRevenue: Number(r.totalRevenue) || 0,
@@ -164,8 +158,8 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
               </defs>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="time" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => `€${v}`} />
-              <ChartTooltip content={<ChartTooltipContent formatter={(value) => `€${Number(value).toFixed(2)}`} />} />
+              <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={formatAxis} />
+              <ChartTooltip content={<ChartTooltipContent formatter={(value) => formatCurrency(Number(value))} />} />
               <Area type="monotone" dataKey="totalRevenue" stroke={revenueColor} fill="url(#mainRevenueGradient)" strokeWidth={2} />
             </AreaChart>
           </ChartContainer>
@@ -207,7 +201,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="time" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => `€${v}`} />
+                <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={formatAxis} />
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
@@ -218,7 +212,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
                             <div className="h-2.5 w-2.5 shrink-0 rounded-[2px]" style={{ backgroundColor: cfg?.color }} />
                             <span className="text-muted-foreground">{cfg?.label}</span>
                             <span className="ml-auto font-mono font-medium tabular-nums text-foreground">
-                              €{Number(value).toFixed(2)}
+                              {formatCurrency(Number(value))}
                             </span>
                           </div>
                         );
@@ -241,7 +235,7 @@ export function MainTimeChart({ reports, isFiltered, filterName, isCashRegisterF
               const total = totalCash + totalCard;
               const cashPct = total > 0 ? ((totalCash / total) * 100).toFixed(1) : "0";
               const cardPct = total > 0 ? ((totalCard / total) * 100).toFixed(1) : "0";
-              const fmt = (v: number) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(v);
+              const fmt = formatCurrency;
               return (
                 <div className="flex items-center justify-center gap-6 mt-1">
                   <button

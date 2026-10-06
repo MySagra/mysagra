@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/chart";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import type { Report } from "@/lib/api-schemas";
-import { format } from "date-fns";
-import { it as itLocale } from "date-fns/locale";
+import { useTimezone } from "@/contexts/timezone-context";
+import { formatTimeDay } from "@/lib/timezone";
 import { Clock } from "lucide-react";
 
 interface AvgCompletionChartProps {
@@ -19,8 +19,8 @@ interface AvgCompletionChartProps {
 }
 
 export function AvgCompletionChart({ reports }: AvgCompletionChartProps) {
-  const { t, locale } = useLocale();
-  const dateLocale = locale === "it" ? itLocale : undefined;
+  const { t } = useLocale();
+  const timezone = useTimezone();
 
   const chartConfig: ChartConfig = {
     avgTime: {
@@ -32,7 +32,7 @@ export function AvgCompletionChart({ reports }: AvgCompletionChartProps) {
   const data = reports
     .filter((r) => r.averageCompletionTime != null)
     .map((r) => ({
-      time: format(new Date(r.timestamp), "HH:mm dd/MM", { locale: dateLocale }),
+      time: formatTimeDay(new Date(r.timestamp), timezone),
       avgTime: Math.round((r.averageCompletionTime ?? 0) / 60000 * 10) / 10, // Convert ms to minutes
     }));
 

@@ -5,6 +5,10 @@ import { getSession } from "@/lib/auth";
 import { Metadata } from "next";
 import { DashboardLayoutSkeleton } from "@/components/dashboard/layout-skeleton";
 import { SidebarWrapper } from "@/components/dashboard/sidebar-wrapper";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { SettingsDataSchema, type SettingsData } from "@mysagra/schemas";
+import { getSettings } from "@/actions/settings";
+import { SagraSettingsProvider } from "@/contexts/sagra-settings-context";
 
 export const metadata: Metadata = {
   title: "MyAmministratore - Dashboard",
@@ -25,7 +29,17 @@ export default async function DashboardLayout({
   };
   const role = (session?.user?.role as "admin" | "maintainer" | "operator" | null) ?? null;
 
+  // sagra settings (currency, time zone, ...) for every page; defaults if they can't be loaded
+  let settings: SettingsData;
+  try {
+    settings = (await getSettings()).settings;
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    settings = SettingsDataSchema.parse({});
+  }
+
   return (
+    <SagraSettingsProvider settings={settings}>
     <TooltipProvider>
       <SidebarProvider>
         <SidebarWrapper user={user} userRole={role} />
@@ -36,5 +50,6 @@ export default async function DashboardLayout({
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>
+    </SagraSettingsProvider>
   );
 }

@@ -1,7 +1,8 @@
 import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
-import { settingService } from "@/modules/settings/settings.service";
+import { SettingService, settingService } from "@/modules/settings/settings.service";
+import { BadRequestError } from "@/common/errors";
 import { SettingsResponseSchema, UpdateSettingsSchema } from "@mysagra/schemas";
 
 export const settingsModule = createModule({
@@ -45,6 +46,40 @@ export const settingsModule = createModule({
             },
             handler: async (req, res) => {
                 res.status(200).json(await settingService.updateSettings(req.validated.body));
+            },
+        }),
+        route({
+            method: "patch",
+            path: "/logo",
+            summary: "Upload the receipt logo",
+            description:
+                "Uploads the black and white logo printed on receipts (`multipart/form-data`, field `image`, max 5MB). " +
+                "Replaces the previous logo, which is deleted. Admin only.",
+            security: [{ cookieAuth: [] }],
+            middlewares: [authenticate(["admin"]), ...SettingService.imageService.upload()],
+            responses: {
+                200: { description: "Logo uploaded, returns the updated settings", schema: SettingsResponseSchema },
+                400: { description: "Bad request - no file provided, or not a supported image" },
+                404: { description: "Not Found - The sagra is not configured yet" },
+            },
+            handler: async (req, res) => {
+                if (!req.file) throw new BadRequestError("No file provided for upload");
+                res.status(200).json(await settingService.updateReceiptLogo(req.file));
+            },
+        }),
+        route({
+            method: "delete",
+            path: "/logo",
+            summary: "Remove the receipt logo",
+            description: "Deletes the receipt logo: receipts are printed without it. Admin only.",
+            security: [{ cookieAuth: [] }],
+            middlewares: [authenticate(["admin"])],
+            responses: {
+                200: { description: "Logo removed, returns the updated settings", schema: SettingsResponseSchema },
+                404: { description: "Not Found - The sagra is not configured yet" },
+            },
+            handler: async (_req, res) => {
+                res.status(200).json(await settingService.deleteReceiptLogo());
             },
         }),
     ],
