@@ -2,7 +2,7 @@
 
 import type { SettingsData } from "@mysagra/schemas";
 import { useLocale } from "@/contexts/locale-context";
-import { CashierPreview, OrderFieldsControls, TicketOption, type CashierSettingsErrors } from "@/components/settings/cashier-settings";
+import { CashierPreview, OrderFieldsControls, type CashierSettingsErrors } from "@/components/settings/cashier-settings";
 
 interface SetupCashierStepProps {
   settings: SettingsData;
@@ -22,7 +22,6 @@ export function SetupCashierStep({ settings, errors, onChange }: SetupCashierSte
         </div>
 
         <OrderFieldsControls settings={settings} errors={errors} onChange={onChange} />
-        <TicketOption settings={settings} onChange={onChange} />
       </div>
 
       <aside className="space-y-3 lg:sticky lg:top-8 lg:self-start" aria-label={t.setup.previewTitle}>

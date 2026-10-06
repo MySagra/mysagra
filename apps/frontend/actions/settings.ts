@@ -8,7 +8,7 @@ import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 // SettingsResponse as received over JSON: dates are strings
 export type SagraSettings = {
-  sagra: { name: string };
+  sagra: { name: string; receiptLogo: string | null };
   settings: SettingsData;
   updatedAt: string | null;
 };
@@ -23,7 +23,8 @@ export async function updateSettings(data: UpdateSettings): Promise<ActionResult
       method: "PUT",
       body: JSON.stringify(data),
     });
-    revalidatePath("/dashboard/settings");
+    // the dashboard layout provides the settings to every page
+    revalidatePath("/dashboard", "layout");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nel salvataggio delle impostazioni") };

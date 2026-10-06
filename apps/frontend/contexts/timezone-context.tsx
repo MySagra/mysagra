@@ -1,14 +1,8 @@
 "use client";
 
-import { useLocale } from "@/contexts/locale-context";
-import type { Locale } from "@/lib/i18n";
+import { useSagraSettings } from "@/contexts/sagra-settings-context";
 
-const localeToTimezone: Record<Locale, string> = {
-  it: "Europe/Rome",
-  en: "Europe/Rome",
-};
-
+// Time zone of the sagra (settings → general), used to show dates and times
 export function useTimezone(): string {
-  const { locale } = useLocale();
-  return localeToTimezone[locale];
+  return useSagraSettings().general.timezone;
 }

@@ -2241,6 +2241,7 @@ export type FoodStatsScalarFieldEnum = (typeof FoodStatsScalarFieldEnum)[keyof t
 export const SagraScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  receiptLogo: 'receiptLogo',
   lastClosingAt: 'lastClosingAt',
   statsIntervalMinutes: 'statsIntervalMinutes'
 } as const
@@ -2484,7 +2485,8 @@ export type FoodStatsOrderByRelevanceFieldEnum = (typeof FoodStatsOrderByRelevan
 
 export const SagraOrderByRelevanceFieldEnum = {
   id: 'id',
-  name: 'name'
+  name: 'name',
+  receiptLogo: 'receiptLogo'
 } as const
 
 export type SagraOrderByRelevanceFieldEnum = (typeof SagraOrderByRelevanceFieldEnum)[keyof typeof SagraOrderByRelevanceFieldEnum]

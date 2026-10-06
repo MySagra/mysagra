@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useLocale } from "@/contexts/locale-context";
+import { useCurrencyFormatter } from "@/contexts/sagra-settings-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,8 +105,7 @@ export function AnalyticsSidebar({
   const [cashRegisterSearch, setCashRegisterSearch] = useState("");
 
   const totalRevenue = categories.reduce((sum, c) => sum + c.revenue, 0);
-  const formatCurrency = (val: number) =>
-    new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(val);
+  const formatCurrency = useCurrencyFormatter();
 
   // Filter categories by search, then limit to 5 unless searching
   const displayedCategories = useMemo(() => {

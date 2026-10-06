@@ -18,6 +18,8 @@ import {
     PatchOrderStationInputSchema,
 } from "@mysagra/schemas";
 
+import { settingService } from "../settings/settings.service";
+
 const service = new OrdersService();
 
 const PaginatedOrdersResponseSchema = z.object({
@@ -86,11 +88,19 @@ export const ordersModule = createModule({
             responses: {
                 201: { description: "Order created", schema: OrderResponseSchema },
                 400: { description: "Bad Request - Invalid input or validation error" },
+                403: { description: "Forbidden - API key orders outside the ordering hours (settings `ordering`), or API key trying to confirm" },
             },
             handler: async (req, res) => {
                 const { confirm } = req.validated.body;
-                if (confirm && req.apiKey && !req.user) {
+                const fromWebapp = !!req.apiKey && !req.user;
+
+                if (confirm && fromWebapp) {
                     throw new ForbiddenError("API key cannot confirm orders");
+                }
+
+                // the ordering hours limit only the customer webapp, cash desks can always order
+                if (fromWebapp && !(await settingService.isOrderingOpen())) {
+                    throw new ForbiddenError("Ordering is closed right now");
                 }
                 res.status(201).json(await service.createOrder(req.validated.body));
             },

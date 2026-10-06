@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { KeyRoundIcon, SlidersHorizontalIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import { KeyRoundIcon, ShoppingCartIcon, SlidersHorizontalIcon, UsersIcon, type LucideIcon } from "lucide-react";
 import type { SagraSettings } from "@/actions/settings";
 import { ApiKeysContent } from "@/components/dashboard/api-keys/api-keys-content";
 import { useLocale } from "@/contexts/locale-context";
 import type { ApiKey, Role, User } from "@/lib/api-types";
 import { cn } from "@/lib/utils";
-import { SagraSettingsTab } from "./sagra-settings-tab";
+import { CashierSettingsTab } from "./cashier-settings-tab";
+import { GeneralSettingsTab } from "./general-settings-tab";
+import { SettingsSaveBar, useSettingsForm, type SettingsFormErrors } from "./settings-form";
 import { SETTINGS_TABS, type SettingsTab } from "./settings-tabs";
 import { UsersTab } from "./users-tab";
 
@@ -29,9 +31,12 @@ export function SettingsHub({ tab, settings, users, roles, apiKeys }: SettingsHu
   const [apiKeyCount, setApiKeyCount] = useState(apiKeys.filter((k) => !k.revokedAt).length);
   const onUserCount = useCallback((n: number) => setUserCount(n), []);
   const onApiKeyCount = useCallback((n: number) => setApiKeyCount(n), []);
+  // one form for the general and cash desk tabs (same settings document, single save)
+  const form = useSettingsForm(settings);
 
   const tabs: Record<SettingsTab, { label: string; icon: LucideIcon; count?: number }> = {
-    sagra: { label: t.adminSettings.tabSagra, icon: SlidersHorizontalIcon },
+    general: { label: t.adminSettings.tabGeneral, icon: SlidersHorizontalIcon },
+    cashier: { label: t.adminSettings.tabCashier, icon: ShoppingCartIcon },
     users: { label: t.adminSettings.tabUsers, icon: UsersIcon, count: userCount },
     "api-keys": { label: t.adminSettings.tabApiKeys, icon: KeyRoundIcon, count: apiKeyCount },
   };
@@ -41,9 +46,16 @@ export function SettingsHub({ tab, settings, users, roles, apiKeys }: SettingsHu
   function select(next: SettingsTab) {
     setActive(next);
     const url = new URL(window.location.href);
-    if (next === "sagra") url.searchParams.delete("tab");
+    if (next === "general") url.searchParams.delete("tab");
     else url.searchParams.set("tab", next);
     window.history.replaceState(null, "", url);
+  }
+
+  // the save button may be pressed from either tab: show the one holding the errors
+  async function save() {
+    const errors: SettingsFormErrors = await form.save();
+    if (errors.name || errors.closesAt) select("general");
+    else if (errors.tableInputs || errors.maxTables) select("cashier");
   }
 
   // arrow keys move between tabs (WAI-ARIA tabs pattern)
@@ -98,12 +110,12 @@ export function SettingsHub({ tab, settings, users, roles, apiKeys }: SettingsHu
           })}
         </div>
 
-        <TabPanel value="sagra" active={active}>
-          {settings ? (
-            <SagraSettingsTab initial={settings} />
-          ) : (
-            <p className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">{t.adminSettings.loadError}</p>
-          )}
+        <TabPanel value="general" active={active}>
+          {form.settings ? <GeneralSettingsTab form={form} settings={form.settings} /> : <LoadError />}
+        </TabPanel>
+
+        <TabPanel value="cashier" active={active}>
+          {form.settings ? <CashierSettingsTab form={form} settings={form.settings} /> : <LoadError />}
         </TabPanel>
 
         <TabPanel value="users" active={active}>
@@ -114,9 +126,19 @@ export function SettingsHub({ tab, settings, users, roles, apiKeys }: SettingsHu
         <TabPanel value="api-keys" active={active} className="[&>div]:p-0 [&>div>div]:max-w-none">
           <ApiKeysContent initialApiKeys={apiKeys} onActiveCountChange={onApiKeyCount} />
         </TabPanel>
+
+        {/* bottom space while the floating save bar covers the end of the page */}
+        {form.isDirty && <div aria-hidden className="h-20" />}
       </div>
+
+      <SettingsSaveBar form={form} onSave={save} />
     </div>
   );
+}
+
+function LoadError() {
+  const { t } = useLocale();
+  return <p className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">{t.adminSettings.loadError}</p>;
 }
 
 function TabPanel({

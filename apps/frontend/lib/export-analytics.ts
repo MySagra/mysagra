@@ -8,9 +8,6 @@ function num(v: unknown): number {
   return 0;
 }
 
-function fmtEur(v: number): string {
-  return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(v);
-}
 
 const headerStyle: XLSX.CellStyle = {
   font: { bold: true, color: { rgb: "FFFFFF" } },
@@ -33,10 +30,14 @@ export function exportAnalyticsToExcel(
   reports: Report[],
   t: Translations,
   locale: string,
-  filename: string = "report_analytics"
+  filename: string = "report_analytics",
+  // sagra settings: amounts in its currency, times in its time zone
+  { currency, timeZone }: { currency: string; timeZone: string } = { currency: "EUR", timeZone: "Europe/Rome" }
 ) {
   const wb = XLSX.utils.book_new();
   const dateLocale = locale === "it" ? "it-IT" : "en-GB";
+  const money = new Intl.NumberFormat(dateLocale, { style: "currency", currency });
+  const fmtEur = (v: number) => money.format(v);
 
   // ── Sheet 1: OrderStats ──
   const headers = [
@@ -49,7 +50,7 @@ export function exportAnalyticsToExcel(
   ];
 
   const dataRows: XLSX.CellObject[][] = reports.map((r) => [
-    { v: new Date(r.timestamp).toLocaleString(dateLocale), t: "s" },
+    { v: new Date(r.timestamp).toLocaleString(dateLocale, { timeZone }), t: "s" },
     { v: fmtEur(num(r.totalRevenue)), t: "s" },
     { v: fmtEur(num(r.totalCashRevenue)), t: "s" },
     { v: fmtEur(num(r.totalCardRevenue)), t: "s" },

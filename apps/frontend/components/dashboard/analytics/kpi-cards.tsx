@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale } from "@/contexts/locale-context";
+import { INTL_LOCALE, useCurrencyFormatter } from "@/contexts/sagra-settings-context";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   DollarSign,
@@ -19,10 +20,8 @@ interface KpiCardsProps {
 }
 
 export function KpiCards({ stats }: KpiCardsProps) {
-  const { t } = useLocale();
-
-  const formatCurrency = (val: number) =>
-    new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(val);
+  const { t, locale } = useLocale();
+  const formatCurrency = useCurrencyFormatter();
 
   const formatTime = (ms: number | null) => {
     if (ms === null) return "—";
@@ -43,7 +42,7 @@ export function KpiCards({ stats }: KpiCardsProps) {
     },
     {
       title: t.analytics.kpiOrders,
-      value: stats.totalOrders.toLocaleString("it-IT"),
+      value: stats.totalOrders.toLocaleString(INTL_LOCALE[locale]),
       icon: ShoppingBag,
       gradient: "from-blue-500/20 to-blue-600/5",
       iconColor: "text-blue-600 dark:text-blue-400",

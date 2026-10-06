@@ -7,6 +7,7 @@ import { ConflictError, UnauthorizedError } from "@/common/errors";
 import { createHashPassword } from "@/lib/hashPassword";
 import { sagraService } from "../sagra/sagra.service";
 import { reportService } from "../report/report.service";
+import { settingService } from "../settings/settings.service";
 
 // compares in constant time; timingSafeEqual throws on different lengths, so check them first
 function safeEqual(a: string, b: string) {
@@ -93,6 +94,9 @@ export class SetupService {
     private async startMySagra() {
         //load configuration
         await sagraService.loadConfig();
+
+        // settings are read on every order: keep them in memory from the start
+        await settingService.loadSettings();
 
         // initialize report service (backfills missing reports) before worker starts
         await reportService.initReports();
