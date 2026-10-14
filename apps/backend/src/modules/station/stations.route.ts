@@ -3,15 +3,13 @@ import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
 import { NotFoundError } from "@/common/errors";
-import { StationsService } from "./stations.service";
+import { stationsService } from "./stations.service";
 import {
     StationResponseSchema,
     StationInputSchema,
     GetStationQuerySchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new StationsService();
 
 export const stationsModule = createModule({
     basePath: "/v1/stations",
@@ -34,7 +32,7 @@ export const stationsModule = createModule({
                 200: { description: "List of stations", schema: z.array(StationResponseSchema) },
             },
             handler: async (req, res) => {
-                const stations = await service.getStations(req.validated.query);
+                const stations = await stationsService.getStations(req.validated.query);
                 if (!stations) throw new NotFoundError("No stations found");
                 res.status(200).json(stations);
             },
@@ -53,7 +51,7 @@ export const stationsModule = createModule({
                 404: { description: "Not Found - Station not found" },
             },
             handler: async (req, res) => {
-                const station = await service.getStationById(req.validated.params.id, req.validated.query);
+                const station = await stationsService.getStationById(req.validated.params.id, req.validated.query);
                 if (!station) throw new NotFoundError("Station not found");
                 res.status(200).json(station);
             },
@@ -70,7 +68,7 @@ export const stationsModule = createModule({
                 400: { description: "Bad Request - Invalid input or validation error" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createStation(req.validated.body));
+                res.status(201).json(await stationsService.createStation(req.validated.body));
             },
         }),
         route({
@@ -87,7 +85,7 @@ export const stationsModule = createModule({
                 409: { description: "Conflict - Duplicate station name or constraint violation" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.updateStation(req.validated.params.id, req.validated.body));
+                res.status(200).json(await stationsService.updateStation(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -102,7 +100,7 @@ export const stationsModule = createModule({
                 404: { description: "Not Found - Station not found" },
             },
             handler: async (req, res) => {
-                await service.deleteStation(req.validated.params.id);
+                await stationsService.deleteStation(req.validated.params.id);
                 res.status(204).send();
             },
         }),

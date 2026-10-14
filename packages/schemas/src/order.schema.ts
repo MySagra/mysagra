@@ -69,9 +69,6 @@ const ConfirmationDataSchema = z.object({
     cashRegisterId: z.cuid().meta({
         description: "Cash register processing the order"
     }),
-    userId: z.cuid().optional().meta({
-        description: "User confirming the order"
-    }),
     discount: z.number().min(0).default(0).meta({
         description: "Discount amount applied"
     }),

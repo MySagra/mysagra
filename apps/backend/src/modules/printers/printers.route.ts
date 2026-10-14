@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
-import { PrintersService } from "@/modules/printers/printers.service";
+import { printersService } from "@/modules/printers/printers.service";
 import {
     PrinterResponseSchema,
     CreatePrinterSchema,
@@ -10,8 +10,6 @@ import {
     PatchPrinterSchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new PrintersService();
 
 export const printersModule = createModule({
     basePath: "/v1/printers",
@@ -29,7 +27,7 @@ export const printersModule = createModule({
                 200: { description: "List of printers", schema: z.array(PrinterResponseSchema) },
             },
             handler: async (_req, res) => {
-                res.status(200).json(await service.getPrinters());
+                res.status(200).json(await printersService.getPrinters());
             },
         }),
         route({
@@ -44,7 +42,7 @@ export const printersModule = createModule({
                 404: { description: "Not Found - Printer not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getPrinterById(req.validated.params.id));
+                res.status(200).json(await printersService.getPrinterById(req.validated.params.id));
             },
         }),
         route({
@@ -59,7 +57,7 @@ export const printersModule = createModule({
                 400: { description: "Bad Request - Invalid input or validation error" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createPrinter(req.validated.body));
+                res.status(201).json(await printersService.createPrinter(req.validated.body));
             },
         }),
         route({
@@ -75,7 +73,7 @@ export const printersModule = createModule({
                 404: { description: "Not Found - Printer not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.updatePrinter(req.validated.params.id, req.validated.body));
+                res.status(200).json(await printersService.updatePrinter(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -92,7 +90,7 @@ export const printersModule = createModule({
                 404: { description: "Not Found - Printer not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.patchPrinter(req.validated.params.id, req.validated.body));
+                res.status(200).json(await printersService.patchPrinter(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -107,7 +105,7 @@ export const printersModule = createModule({
                 404: { description: "Not Found - Printer not found" },
             },
             handler: async (req, res) => {
-                await service.deletePrinter(req.validated.params.id);
+                await printersService.deletePrinter(req.validated.params.id);
                 res.status(204).send();
             },
         }),

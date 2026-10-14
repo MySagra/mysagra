@@ -3,15 +3,13 @@ import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
 import { ForbiddenError, UnauthorizedError } from "@/common/errors";
-import { UsersService } from "@/modules/users/users.service";
+import { usersService } from "@/modules/users/users.service";
 import {
     UserResponseSchema,
     CreateUserSchema,
     PatchUserSchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new UsersService();
 
 export const usersModule = createModule({
     basePath: "/v1/users",
@@ -29,7 +27,7 @@ export const usersModule = createModule({
                 200: { description: "List of users", schema: z.array(UserResponseSchema) },
             },
             handler: async (_req, res) => {
-                res.status(200).json(await service.getUsers());
+                res.status(200).json(await usersService.getUsers());
             },
         }),
         route({
@@ -48,7 +46,7 @@ export const usersModule = createModule({
                 if (req.user!.role !== "admin" && req.user!.userId !== id) {
                     throw new ForbiddenError("Cannot access another user's profile");
                 }
-                res.status(200).json(await service.getUserById(id));
+                res.status(200).json(await usersService.getUserById(id));
             },
         }),
         route({
@@ -64,7 +62,7 @@ export const usersModule = createModule({
                 409: { description: "Conflict - Username already exists" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createUser(req.validated.body));
+                res.status(201).json(await usersService.createUser(req.validated.body));
             },
         }),
         route({
@@ -89,7 +87,7 @@ export const usersModule = createModule({
                 if (req.validated.body.role && req.user.role !== "admin") {
                     throw new ForbiddenError("Cannot modify your own role");
                 }
-                res.status(200).json(await service.patchUser(id, req.validated.body));
+                res.status(200).json(await usersService.patchUser(id, req.validated.body));
             },
         }),
         route({
@@ -104,7 +102,7 @@ export const usersModule = createModule({
                 404: { description: "Not Found - User not found" },
             },
             handler: async (req, res) => {
-                await service.deleteUser(req.validated.params.id);
+                await usersService.deleteUser(req.validated.params.id);
                 res.status(204).send();
             },
         }),

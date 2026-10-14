@@ -1,5 +1,6 @@
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthSecret } from "./lib/auth-secret";
 
 const USER_COOKIE = "myamministratore_user";
 
@@ -7,7 +8,7 @@ async function getSession(req: NextRequest) {
   const token = req.cookies.get(USER_COOKIE)?.value;
   if (!token) return null;
   try {
-    const secret = new TextEncoder().encode(process.env.AUTH_SECRET!);
+    const secret = getAuthSecret();
     const { payload } = await jwtVerify(token, secret);
     return payload as { userId: string; username: string; role: string };
   } catch {

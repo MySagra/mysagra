@@ -20,21 +20,11 @@ type SagraWithSettings = {
     settings: { data: unknown; updatedAt: Date } | null;
 };
 
-export class SettingService {
-    public static imageService = new ImagesService(RECEIPT_LOGO_FOLDER, 'receipt-logo');
-    private static instance: SettingService
+class SettingService {
+    public readonly imageService = new ImagesService(RECEIPT_LOGO_FOLDER, 'receipt-logo');
 
     // settings are read on every order: kept in memory, replaced as a whole on update
     private cache: SettingsResponse | null = null;
-
-    private constructor() { }
-
-    static getInstance(): SettingService {
-        if (!SettingService.instance) {
-            SettingService.instance = new SettingService()
-        }
-        return SettingService.instance
-    }
 
     private getSagraId(): string {
         const sagraId = sagraService.getConfig()?.id;
@@ -56,7 +46,7 @@ export class SettingService {
         };
     }
 
-    // called at startup (and right after the setup) by SetupService.startMySagra
+    // called at startup (and right after the setup) by setupService.startMySagra
     async loadSettings(): Promise<SettingsResponse> {
         const sagra = await prisma.sagra.findUniqueOrThrow({
             where: { id: this.getSagraId() },
@@ -136,12 +126,12 @@ export class SettingService {
             });
         } catch (error) {
             // the upload middleware already saved the file: don't leave it orphaned
-            SettingService.imageService.delete(file.filename);
+            this.imageService.delete(file.filename);
             throw error;
         }
 
         // removed only once the DB points to the new file
-        if (oldLogo && oldLogo !== file.filename) SettingService.imageService.delete(oldLogo);
+        if (oldLogo && oldLogo !== file.filename) this.imageService.delete(oldLogo);
 
         this.cache = this.toResponse(sagra);
         return this.cache;
@@ -156,11 +146,11 @@ export class SettingService {
             select: settingsSelect
         });
 
-        if (oldLogo) SettingService.imageService.delete(oldLogo);
+        if (oldLogo) this.imageService.delete(oldLogo);
 
         this.cache = this.toResponse(sagra);
         return this.cache;
     }
 }
 
-export const settingService = SettingService.getInstance();
+export const settingService = new SettingService();
