@@ -40,8 +40,8 @@ export const foodsModule = createModule({
             method: "get",
             path: "/{id}",
             summary: "Get food item by ID",
-            security: [{ cookieAuth: [] }],
-            middlewares: [],
+            security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_wb_"])],
             params: cuidParamSchema,
             query: GetFoodQuerySchema,
             responses: {

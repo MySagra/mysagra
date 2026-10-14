@@ -90,7 +90,7 @@ export const ordersModule = createModule({
                 if (confirm && req.apiKey && !req.user) {
                     throw new ForbiddenError("API key cannot confirm orders");
                 }
-                res.status(201).json(await ordersService.createOrder(req.validated.body));
+                res.status(201).json(await ordersService.createOrder(req.validated.body, req.user?.userId));
             },
         }),
         route({
@@ -108,7 +108,7 @@ export const ordersModule = createModule({
                 404: { description: "Not Found - Order not found" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await ordersService.confirmOrder(req.validated.params.id, req.validated.body));
+                res.status(201).json(await ordersService.confirmOrder(req.validated.params.id, req.validated.body, req.user!.userId));
             },
         }),
         route({
