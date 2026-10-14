@@ -14,6 +14,7 @@ services:
       - API_URL=http://mysagra-backend:4300
       - AUTH_URL=http://localhost:3000
       - ENABLE_TABLE_SERVICE=true
+      - AUTH_SECRET=${AUTH_SECRET}
     restart: unless-stopped
 
   mysagra-backend:

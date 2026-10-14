@@ -14,7 +14,7 @@ export const UserBase = {
 
 export const CreateUserSchema = z.object({
     ...UserBase,
-    password: z.string().min(8).max(100).meta({
+    password: z.string().min(8).max(72).meta({
         description: "User's password",
         example: "Super_secret_password!"
     })
@@ -44,7 +44,7 @@ export const PatchUserSchema = z.object({
         example: "john_doe"
     }).optional(),
 
-    password: z.string().min(8).max(100).meta({
+    password: z.string().min(8).max(72).meta({
         description: "User's password",
         example: "Super_secret_password!"
     }).optional()

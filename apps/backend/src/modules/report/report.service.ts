@@ -15,18 +15,8 @@ type ReportWithStats = Prisma.ReportGetPayload<{ include: typeof reportWithStats
 
 const ZERO = new Prisma.Decimal(0)
 
-export class ReportService {
-    private static instance: ReportService
+class ReportService {
     private printerEvent = EventsService.getInstance('printer');
-
-    private constructor() { }
-
-    static getInstance(): ReportService {
-        if (!ReportService.instance) {
-            ReportService.instance = new ReportService()
-        }
-        return ReportService.instance
-    }
 
     async initReports() {
         const lastReport = await prisma.report.findFirst({
@@ -487,4 +477,4 @@ export class ReportService {
     }
 }
 
-export const reportService = ReportService.getInstance()
+export const reportService = new ReportService();
