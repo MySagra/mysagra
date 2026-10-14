@@ -1,7 +1,7 @@
 import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
-import { SettingService, settingService } from "@/modules/settings/settings.service";
+import { settingService } from "@/modules/settings/settings.service";
 import { BadRequestError } from "@/common/errors";
 import { SettingsResponseSchema, UpdateSettingsSchema } from "@mysagra/schemas";
 
@@ -56,7 +56,7 @@ export const settingsModule = createModule({
                 "Uploads the black and white logo printed on receipts (`multipart/form-data`, field `image`, max 5MB). " +
                 "Replaces the previous logo, which is deleted. Admin only.",
             security: [{ cookieAuth: [] }],
-            middlewares: [authenticate(["admin"]), ...SettingService.imageService.upload()],
+            middlewares: [authenticate(["admin"]), ...settingService.imageService.upload()],
             responses: {
                 200: { description: "Logo uploaded, returns the updated settings", schema: SettingsResponseSchema },
                 400: { description: "Bad request - no file provided, or not a supported image" },

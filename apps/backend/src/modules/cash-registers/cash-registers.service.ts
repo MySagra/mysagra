@@ -8,7 +8,7 @@ import {
 import { NotFoundError } from "@/common/errors";
 import { EventsService } from "../events/events.service";
 
-export class CashRegistersService {
+class CashRegistersService {
     private printerEvent = EventsService.getInstance('printer');
     
     async getCashRegisters(queryParams?: GetCashRegisterQuery) {
@@ -103,3 +103,5 @@ export class CashRegistersService {
         return cashRegister;
     }
 }
+
+export const cashRegistersService = new CashRegistersService();

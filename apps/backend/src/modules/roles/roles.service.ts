@@ -1,7 +1,7 @@
 import { prisma } from "@mysagra/database";
 import { NotFoundError } from "@/common/errors";
 
-export class RolesService {
+class RolesService {
     async getRoles() {
         return await prisma.role.findMany();
     }
@@ -55,3 +55,5 @@ export class RolesService {
         })
     }
 }
+
+export const rolesService = new RolesService();

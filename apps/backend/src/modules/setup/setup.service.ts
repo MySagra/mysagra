@@ -55,22 +55,14 @@ function printSetupBanner(token: string, fromEnv: boolean) {
     process.stdout.write(lines.join("\n") + "\n");
 }
 
-export class SetupService {
-    private static instance: SetupService
+class SetupService {
 
     private isSetup: boolean
     private token: string | null
 
-    private constructor() {
+    constructor() {
         this.isSetup = true;
         this.token = null;
-    }
-
-    static getInstance(): SetupService {
-        if (!SetupService.instance) {
-            SetupService.instance = new SetupService();
-        }
-        return SetupService.instance
     }
 
     async init() {
@@ -186,4 +178,4 @@ export class SetupService {
 
 }
 
-export const setupService = SetupService.getInstance();
+export const setupService = new SetupService();

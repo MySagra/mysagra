@@ -3,7 +3,7 @@ import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
 import { ForbiddenError, BadRequestError } from "@/common/errors";
-import { CategoriesService } from "@/modules/categories/categories.service";
+import { categoriesService } from "@/modules/categories/categories.service";
 import {
     CategoryResponseSchema,
     CreateCategorySchema,
@@ -14,8 +14,6 @@ import {
     GetCategoryQuerySchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new CategoriesService();
 
 export const categoriesModule = createModule({
     basePath: "/v1/categories",
@@ -44,7 +42,7 @@ export const categoriesModule = createModule({
                 if (req.apiKey && !req.user && (available !== true || foodsAvailable !== true)) {
                     throw new ForbiddenError("API key can only access available categories with available foods");
                 }
-                res.status(200).json(await service.getCategories(req.validated.query));
+                res.status(200).json(await categoriesService.getCategories(req.validated.query));
             },
         }),
         route({
@@ -60,7 +58,7 @@ export const categoriesModule = createModule({
                 404: { description: "Not Found - Category not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getCategoryById(req.validated.params.id, req.validated.query));
+                res.status(200).json(await categoriesService.getCategoryById(req.validated.params.id, req.validated.query));
             },
         }),
         route({
@@ -77,7 +75,7 @@ export const categoriesModule = createModule({
                 400: { description: "Bad Request - Invalid input or validation error" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createCategory(req.validated.body));
+                res.status(201).json(await categoriesService.createCategory(req.validated.body));
             },
         }),
         route({
@@ -95,7 +93,7 @@ export const categoriesModule = createModule({
                 400: { description: "Bad Request - Ids missing, duplicated or unknown" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.reorderCategories(req.validated.body));
+                res.status(200).json(await categoriesService.reorderCategories(req.validated.body));
             },
         }),
         route({
@@ -116,7 +114,7 @@ export const categoriesModule = createModule({
                 409: { description: "Conflict - Duplicate category name or constraint violation" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.updateCategory(req.validated.params.id, req.validated.body));
+                res.status(200).json(await categoriesService.updateCategory(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -135,7 +133,7 @@ export const categoriesModule = createModule({
                 404: { description: "Not Found - Category not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.patchCategory(req.validated.params.id, req.validated.body));
+                res.status(200).json(await categoriesService.patchCategory(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -143,7 +141,7 @@ export const categoriesModule = createModule({
             path: "/{id}/image",
             summary: "Upload category image",
             security: [{ cookieAuth: [] }],
-            middlewares: [authenticate(["admin", "maintainer"]), ...CategoriesService.imageService.upload()],
+            middlewares: [authenticate(["admin", "maintainer"]), ...categoriesService.imageService.upload()],
             params: cuidParamSchema,
             responses: {
                 200: { description: "Image uploaded", schema: CategoryResponseSchema },
@@ -152,7 +150,7 @@ export const categoriesModule = createModule({
             },
             handler: async (req, res) => {
                 if (!req.file) throw new BadRequestError("No file provided for upload");
-                res.status(200).json(await service.uploadImage(req.validated.params.id, req.file));
+                res.status(200).json(await categoriesService.uploadImage(req.validated.params.id, req.file));
             },
         }),
         route({
@@ -167,7 +165,7 @@ export const categoriesModule = createModule({
                 404: { description: "Not Found - Category not found" },
             },
             handler: async (req, res) => {
-                await service.deleteCategory(req.validated.params.id);
+                await categoriesService.deleteCategory(req.validated.params.id);
                 res.status(204).send();
             },
         }),

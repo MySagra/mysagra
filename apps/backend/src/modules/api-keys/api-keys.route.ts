@@ -2,15 +2,13 @@ import { z } from "zod";
 import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
-import { ApiKeysService } from "./api-keys.service";
+import { apiKeysService } from "./api-keys.service";
 import {
     ApiKeyBaseResponseSchema,
     CreateApiKeySchema,
     CreateApiKeyResponseSchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new ApiKeysService();
 
 export const apiKeysModule = createModule({
     basePath: "/v1/api-keys",
@@ -28,7 +26,7 @@ export const apiKeysModule = createModule({
                 200: { description: "List of API keys", schema: z.array(ApiKeyBaseResponseSchema) },
             },
             handler: async (_req, res) => {
-                res.status(200).json(await service.getAPIKeys());
+                res.status(200).json(await apiKeysService.getAPIKeys());
             },
         }),
         route({
@@ -43,7 +41,7 @@ export const apiKeysModule = createModule({
                 404: { description: "API key not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.getAPIKey(req.validated.params.id));
+                res.status(200).json(await apiKeysService.getAPIKey(req.validated.params.id));
             },
         }),
         route({
@@ -60,7 +58,7 @@ export const apiKeysModule = createModule({
                 400: { description: "Invalid input" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createApiKey(req.validated.body));
+                res.status(201).json(await apiKeysService.createApiKey(req.validated.body));
             },
         }),
         route({
@@ -75,7 +73,7 @@ export const apiKeysModule = createModule({
                 404: { description: "API key not found" },
             },
             handler: async (req, res) => {
-                await service.revokeApiKey(req.validated.params.id);
+                await apiKeysService.revokeApiKey(req.validated.params.id);
                 res.status(204).send();
             },
         }),
