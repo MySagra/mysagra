@@ -116,7 +116,7 @@ function isDisplayCodeConflict(error: unknown) {
         && JSON.stringify(error.meta ?? {}).includes("displayCode");
 }
 
-export class OrdersService {
+class OrdersService {
     private cashierEvent = EventsService.getInstance('cashier');
     private displayEvent = EventsService.getInstance('display');
     private printerEvent = EventsService.getInstance('printer');
@@ -486,7 +486,7 @@ export class OrdersService {
         };
     }
 
-    async createOrder(input: CreateOrderInput) {
+    async createOrder(input: CreateOrderInput, actingUserId?: string) {
         const { orderItems, confirm } = input;
 
         const priced = await this._priceItems(orderItems, Boolean(confirm));
@@ -499,7 +499,8 @@ export class OrdersService {
                 ticketNumber: ticketNumber!,
                 completedAt: completedAtFor(status),
                 paymentMethod: confirm.paymentMethod,
-                userId: confirm.userId ?? null,
+                // recorded from the authenticated session, never from the client body
+                userId: actingUserId ?? null,
                 cashRegisterId: confirm.cashRegisterId,
                 ...this._computeTotals(priced.subTotal, priced.surcharge, confirm.discount),
                 orderStationStates: {
@@ -538,7 +539,7 @@ export class OrdersService {
         };
     }
 
-    async confirmOrder(orderId: string, confirm: ConfirmOrderInput) {
+    async confirmOrder(orderId: string, confirm: ConfirmOrderInput, actingUserId: string) {
         const { orderStationStates, ...confirmedOrder } = await prisma.$transaction(async (tx) => {
             // Claiming the order with a conditional update makes concurrent confirmations fail.
             const claimed = await tx.order.updateMany({
@@ -603,7 +604,8 @@ export class OrdersService {
                             ticketNumber: await this._getNextTicketNumber(),
                             completedAt: completedAtFor(status),
                             paymentMethod: confirm.paymentMethod,
-                            userId: confirm.userId ?? null,
+                            // recorded from the authenticated session, never from the client body
+                userId: actingUserId ?? null,
                             cashRegisterId: confirm.cashRegisterId,
                             ...this._computeTotals(subTotal, surcharge, confirm.discount),
                             orderStationStates: {
@@ -826,13 +828,16 @@ export class OrdersService {
             return { patched, updatedOrder };
         });
 
-        this.displayEvent.broadcastEvent(
+        EventsService.broadcastEvents(
+            [this.displayEvent, this.ticketEvent],
             { orderId, stationId, status },
             "order-station-status-update"
-        );
+        )
 
         if (updatedOrder) this._broadcastStatusUpdate(updatedOrder);
 
         return patchedOrderStation;
     }
 }
+
+export const ordersService = new OrdersService();

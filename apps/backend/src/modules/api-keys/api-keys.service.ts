@@ -3,7 +3,7 @@ import { CreateApiKeyInput, ApiKeyPrefixSchema, CreateApiKeyResponse } from "@my
 import { randomBytes, createHmac } from 'node:crypto'
 import { env } from '@/config/env'
 import { redisConnection } from "@/lib/redis"
-export class ApiKeysService {
+class ApiKeysService {
 
     async getAPIKeys() {
         return await prisma.apiKey.findMany({
@@ -64,3 +64,5 @@ export class ApiKeysService {
         return randomBytes(32).toString('base64url')
     }
 }
+
+export const apiKeysService = new ApiKeysService();

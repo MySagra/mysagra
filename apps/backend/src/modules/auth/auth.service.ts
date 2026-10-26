@@ -4,7 +4,12 @@ import { UnauthorizedError, NotFoundError } from "@/common/errors";
 
 import { sessionsService } from "./sessions.service";
 import { RoleEnum, SessionPayload } from "@mysagra/schemas";
-export class AuthService {
+
+// Precomputed bcrypt hash (cost 10) compared when the username doesn't exist, so a failed login
+// takes the same time whether or not the user is real: defeats username enumeration by timing.
+const DUMMY_PASSWORD_HASH = "$2b$10$WUxoDjJMHipUlLujRlnt6enRKjCHcs4WdCuBGmYgDsiZPlLK4gS7O";
+
+class AuthService {
     async login(username: string, password: string, userAgent?: string) {
         const user = await prisma.user.findUnique(
             {
@@ -13,6 +18,8 @@ export class AuthService {
             }
         );
         if (!user) {
+            // run a hash comparison anyway to keep the timing constant vs. the valid-user path
+            await checkHashPassword(password, DUMMY_PASSWORD_HASH);
             throw new UnauthorizedError("Invalid credentials");
         }
 
@@ -74,3 +81,5 @@ export class AuthService {
         await sessionsService.revokeSessionBySessionId(sessionId);
     }
 }
+
+export const authService = new AuthService();

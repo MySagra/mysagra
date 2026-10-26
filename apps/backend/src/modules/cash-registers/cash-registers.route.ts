@@ -3,7 +3,7 @@ import { createModule, route, AUTH_RESPONSES } from "@/core/http";
 import { authenticate } from "@/middlewares/authenticate";
 import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
 import { NotFoundError } from "@/common/errors";
-import { CashRegistersService } from "@/modules/cash-registers/cash-registers.service";
+import { cashRegistersService } from "@/modules/cash-registers/cash-registers.service";
 import {
     CashRegisterResponseSchema,
     CreateCashRegisterSchema,
@@ -12,8 +12,6 @@ import {
     GetCashRegisterQuerySchema,
     cuidParamSchema,
 } from "@mysagra/schemas";
-
-const service = new CashRegistersService();
 
 const OpenDrawerResponseSchema = z.object({
     cashRegisterId: z.string().meta({ example: "cjld2cyuq0000t3rmniod1foy" }),
@@ -41,7 +39,7 @@ export const cashRegistersModule = createModule({
                 const query = req.user?.role === "operator"
                     ? { ...req.validated.query, enabled: true }
                     : req.validated.query;
-                res.status(200).json(await service.getCashRegisters(query));
+                res.status(200).json(await cashRegistersService.getCashRegisters(query));
             },
         }),
         route({
@@ -57,7 +55,7 @@ export const cashRegistersModule = createModule({
                 404: { description: "Not Found - Cash register not found" },
             },
             handler: async (req, res) => {
-                const cashRegister = await service.getCashRegisterById(req.validated.params.id, req.validated.query);
+                const cashRegister = await cashRegistersService.getCashRegisterById(req.validated.params.id, req.validated.query);
                 if (req.user?.role === "operator" && !cashRegister.enabled) {
                     throw new NotFoundError("Cash register not found");
                 }
@@ -76,7 +74,7 @@ export const cashRegistersModule = createModule({
                 400: { description: "Invalid input" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.createCashRegister(req.validated.body));
+                res.status(201).json(await cashRegistersService.createCashRegister(req.validated.body));
             },
         }),
         route({
@@ -92,7 +90,7 @@ export const cashRegistersModule = createModule({
                 404: { description: "Not Found - Cash register not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.updateCashRegister(req.validated.params.id, req.validated.body));
+                res.status(200).json(await cashRegistersService.updateCashRegister(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -108,7 +106,7 @@ export const cashRegistersModule = createModule({
                 404: { description: "Not Found - Cash register not found" },
             },
             handler: async (req, res) => {
-                res.status(200).json(await service.patchCashRegister(req.validated.params.id, req.validated.body));
+                res.status(200).json(await cashRegistersService.patchCashRegister(req.validated.params.id, req.validated.body));
             },
         }),
         route({
@@ -123,7 +121,7 @@ export const cashRegistersModule = createModule({
                 404: { description: "Not Found - Cash register not found" },
             },
             handler: async (req, res) => {
-                await service.deleteCashRegister(req.validated.params.id);
+                await cashRegistersService.deleteCashRegister(req.validated.params.id);
                 res.status(204).send();
             },
         }),
@@ -139,7 +137,7 @@ export const cashRegistersModule = createModule({
                 404: { description: "Not Found - Cash register not found" },
             },
             handler: async (req, res) => {
-                res.status(201).json(await service.openDrawer(req.validated.params.id));
+                res.status(201).json(await cashRegistersService.openDrawer(req.validated.params.id));
             },
         }),
     ],

@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { getAuthSecret } from "./auth-secret";
 
 export const SESSION_COOKIE = "myamministratore_session";
 export const USER_COOKIE = "myamministratore_user";
@@ -24,7 +25,7 @@ export function getSessionMaxAge(): number {
 }
 
 function getSecret() {
-  return new TextEncoder().encode(process.env.AUTH_SECRET!);
+  return getAuthSecret();
 }
 
 export async function signUserJwt(payload: SessionUser): Promise<string> {
