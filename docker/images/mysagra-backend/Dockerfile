@@ -1,7 +1,8 @@
 # ────────────────────────────────────────────────────
-# base: minimal Node LTS / Alpine
+# base: Node 26 LTS / Alpine (pinned major; Node 25+ no longer bundles corepack,
+# so it is installed from npm in pnpm_base)
 # ────────────────────────────────────────────────────
-FROM node:lts-alpine AS base
+FROM node:26-alpine AS base
 
 # ────────────────────────────────────────────────────
 # pnpm_base: pnpm 12 (shared by builder + installer)
@@ -9,7 +10,7 @@ FROM node:lts-alpine AS base
 # overrides in pnpm-workspace.yaml and the lockfile are read correctly.
 # ────────────────────────────────────────────────────
 FROM base AS pnpm_base
-RUN corepack enable && corepack prepare pnpm@12.3.4 --activate
+RUN npm install -g corepack@0.36.0 && corepack enable && corepack prepare pnpm@12.3.4 --activate
 
 # ────────────────────────────────────────────────────
 # builder: minimal monorepo snapshot via turbo prune

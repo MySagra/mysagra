@@ -1,10 +1,10 @@
-FROM node:lts-alpine AS base
+FROM node:26-alpine AS base
  
 FROM base AS builder
 RUN apk add --no-cache libc6-compat
 # pnpm 12 must match the root package.json "packageManager" field so that the
 # pnpm-workspace.yaml overrides and the lockfile are read correctly.
-RUN corepack enable && corepack prepare pnpm@12.3.4 --activate
+RUN npm install -g corepack@0.36.0 && corepack enable && corepack prepare pnpm@12.3.4 --activate
 # Set working directory
 WORKDIR /app
 COPY . .
@@ -15,7 +15,7 @@ RUN pnpm dlx turbo@2.10.12 prune mysagra-frontend --docker
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
 RUN apk add --no-cache libc6-compat
-RUN corepack enable && corepack prepare pnpm@12.3.4 --activate
+RUN npm install -g corepack@0.36.0 && corepack enable && corepack prepare pnpm@12.3.4 --activate
 WORKDIR /app
  
 # First install the dependencies (as they change less often)
