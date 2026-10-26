@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/contexts/locale-context";
 import { AvailabilityChip } from "./availability-control";
-import { fill, formatPrice } from "./menu-utils";
+import { fill } from "./menu-utils";
+import { useCurrencyFormatter } from "@/contexts/sagra-settings-context";
 
 /** Stile condiviso delle righe selezionabili (piatti e ingredienti) */
 export function listRowClassName(selected: boolean) {
@@ -114,6 +115,7 @@ function FoodRow({
   onToggle: (food: Food) => void;
 }) {
   const { t } = useLocale();
+  const formatPrice = useCurrencyFormatter();
   const extras = food.ingredients?.length ?? 0;
   const extrasLabel =
     extras === 0

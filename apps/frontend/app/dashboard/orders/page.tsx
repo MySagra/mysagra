@@ -1,4 +1,6 @@
 import { getOrders } from "@/actions/orders";
+import { getSettings } from "@/actions/settings";
+import { SettingsDataSchema } from "@mysagra/schemas";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { OrdersContent } from "@/components/dashboard/orders/orders-content";
 import { parsePageState, pageStateToQuery } from "@/components/dashboard/orders/advanced-filters";
@@ -12,8 +14,6 @@ export default async function OrdersPage({
 }) {
   // Search/filters live in the URL: a reload sends the same GET to the backend
   const pageState = parsePageState(await searchParams);
-  // Server-only env var: show the ticket number instead of the display code
-  const showNumbers = process.env.SHOW_NUMBERS === "true";
 
   let ordersData: PaginatedOrders = {
     data: [],
@@ -25,7 +25,14 @@ export default async function OrdersPage({
   };
 
   try {
-    ordersData = await getOrders({ ...pageStateToQuery(pageState), page: pageState.page, limit: 20 });
+    // "today"/date ranges are resolved in the sagra time zone
+    const timeZone = await getSettings()
+      .then((r) => r.settings.general.timezone)
+      .catch((error) => {
+        if (isRedirectError(error)) throw error;
+        return SettingsDataSchema.parse({}).general.timezone;
+      });
+    ordersData = await getOrders({ ...pageStateToQuery(pageState, timeZone), page: pageState.page, limit: 20 });
   } catch (error) {
     if (isRedirectError(error)) throw error;
     // fallback to empty
@@ -34,7 +41,7 @@ export default async function OrdersPage({
   return (
     <>
       <DashboardHeader navKey="orders" />
-      <OrdersContent initialData={ordersData} initialState={pageState} showNumbers={showNumbers} />
+      <OrdersContent initialData={ordersData} initialState={pageState} />
     </>
   );
 }

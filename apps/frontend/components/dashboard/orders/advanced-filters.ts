@@ -44,9 +44,6 @@ export const EMPTY_ADVANCED_FILTERS: AdvancedOrderFilters = {
   datePreset: "any",
 };
 
-// Day boundaries ("today", ranges) follow the event timezone, not the server/browser one
-export const ORDERS_TIMEZONE = "Europe/Rome";
-
 const ORDER_STATUSES: OrderStatus[] = ["PENDING", "CONFIRMED", "PARTIAL", "COMPLETED", "PICKED_UP", "CANCELLED"];
 const DATE_PRESETS: DatePreset[] = ["any", "today", "yesterday", "range"];
 const SORT_FIELDS: OrdersSortBy[] = ["createdAt", "confirmedAt", "completedAt"];
@@ -108,10 +105,13 @@ function dayBounds(y: number, m: number, d: number, timeZone: string) {
   return { start, end };
 }
 
-/** Resolves the date preset into absolute bounds at request time. */
+/**
+ * Resolves the date preset into absolute bounds at request time.
+ * Day boundaries ("today", ranges) follow the sagra time zone, not the server/browser one.
+ */
 export function resolveDateBounds(
   f: AdvancedOrderFilters,
-  timeZone = ORDERS_TIMEZONE,
+  timeZone: string,
   now = new Date(),
 ): { dateFrom?: string; dateTo?: string } {
   switch (f.datePreset) {
@@ -141,7 +141,7 @@ export function resolveDateBounds(
 
 // ─── Query ───────────────────────────────────────────────────────────────────
 
-export function toOrdersQuery(f: AdvancedOrderFilters): OrdersQuery {
+export function toOrdersQuery(f: AdvancedOrderFilters, timeZone: string): OrdersQuery {
   const code = f.displayCode.trim().toUpperCase();
   const ticket = parseInt(f.ticketNumber, 10);
   return {
@@ -150,13 +150,13 @@ export function toOrdersQuery(f: AdvancedOrderFilters): OrdersQuery {
     status: f.status.length > 0 ? f.status : undefined,
     onlyDiscounted: f.onlyDiscounted || undefined,
     sortBy: f.sortBy !== "createdAt" ? f.sortBy : undefined,
-    ...resolveDateBounds(f),
+    ...resolveDateBounds(f, timeZone),
   };
 }
 
 /** Params sent to GET /orders for a page state (advanced filters win over the plain search). */
-export function pageStateToQuery(state: OrdersPageState): OrdersQuery {
-  if (state.advanced) return toOrdersQuery(state.advanced);
+export function pageStateToQuery(state: OrdersPageState, timeZone: string): OrdersQuery {
+  if (state.advanced) return toOrdersQuery(state.advanced, timeZone);
   return state.search ? { search: state.search } : {};
 }
 

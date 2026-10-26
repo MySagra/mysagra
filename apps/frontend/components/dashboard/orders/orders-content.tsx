@@ -18,6 +18,8 @@ import {
 } from "./advanced-filters";
 import { getOrders } from "@/actions/orders";
 import { toast } from "sonner";
+import { useTimezone } from "@/contexts/timezone-context";
+import { useLocale } from "@/contexts/locale-context";
 
 const MIN_LOADING_MS = 250;
 
@@ -25,11 +27,11 @@ interface OrdersContentProps {
   initialData: PaginatedOrders;
   /** Page state parsed from the URL by the server page (same filters as initialData) */
   initialState: OrdersPageState;
-  /** Show the ticket number instead of the display code (SHOW_NUMBERS env var) */
-  showNumbers?: boolean;
 }
 
-export function OrdersContent({ initialData, initialState, showNumbers = false }: OrdersContentProps) {
+export function OrdersContent({ initialData, initialState }: OrdersContentProps) {
+  const { t } = useLocale();
+  const timezone = useTimezone();
   const [orders, setOrders] = useState<OrderListResponse[]>(
     initialData?.data ?? []
   );
@@ -63,7 +65,7 @@ export function OrdersContent({ initialData, initialState, showNumbers = false }
     try {
       // Minimum wait so the loading state never flickers on fast responses
       const [data] = await Promise.all([
-        getOrders({ ...pageStateToQuery(state), page: state.page, limit: 20 }),
+        getOrders({ ...pageStateToQuery(state, timezone), page: state.page, limit: 20 }),
         new Promise((resolve) => setTimeout(resolve, MIN_LOADING_MS)),
       ]);
       // A newer search started meanwhile: drop this stale response
@@ -71,7 +73,7 @@ export function OrdersContent({ initialData, initialState, showNumbers = false }
       setOrders(data.data);
       setPagination(data.pagination);
     } catch {
-      if (requestId === latestRequest.current) toast.error("Error loading orders");
+      if (requestId === latestRequest.current) toast.error(t.orders.toastErrorLoadList);
     } finally {
       if (requestId === latestRequest.current) setIsLoading(false);
     }
@@ -137,7 +139,6 @@ export function OrdersContent({ initialData, initialState, showNumbers = false }
           isLoading={isLoading}
           onViewDetail={handleViewDetail}
           onPageChange={handlePageChange}
-          showNumbers={showNumbers}
         />
       </div>
       <OrderDetailDialog
@@ -145,7 +146,6 @@ export function OrdersContent({ initialData, initialState, showNumbers = false }
         onOpenChange={setDetailOpen}
         orderId={selectedOrderId}
         onOrderUpdated={handleRefresh}
-        showNumbers={showNumbers}
       />
       <OrdersAdvancedSearchDialog
         open={advancedOpen}

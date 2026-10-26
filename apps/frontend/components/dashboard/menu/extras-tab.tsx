@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocale } from "@/contexts/locale-context";
 import { listRowClassName } from "./food-list";
-import { fill, formatPrice, matchesQuery } from "./menu-utils";
+import { fill, matchesQuery } from "./menu-utils";
+import { useCurrencyFormatter } from "@/contexts/sagra-settings-context";
 
 interface ExtrasTabProps {
   ingredients: Ingredient[];
@@ -28,6 +29,7 @@ export function ExtrasTab({
   onSelect,
 }: ExtrasTabProps) {
   const { t } = useLocale();
+  const formatPrice = useCurrencyFormatter();
   const [search, setSearch] = useState("");
 
   const usage = useMemo(() => {

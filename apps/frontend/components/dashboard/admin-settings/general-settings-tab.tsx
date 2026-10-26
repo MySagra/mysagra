@@ -8,11 +8,20 @@ import { OrderingControls } from "@/components/settings/ordering-settings";
 import { OrderIdOption } from "@/components/settings/cashier-settings";
 import { useLocale } from "@/contexts/locale-context";
 import { SettingsSection, type SettingsForm } from "./settings-form";
+import { ReceiptLogoField } from "./receipt-logo-field";
 
 const SAGRA_NAME_MAX = 100;
 
-// Sagra name, order identifier, ordering app hours, time zone and currency
-export function GeneralSettingsTab({ form, settings }: { form: SettingsForm; settings: SettingsData }) {
+// Sagra name, receipt logo, order identifier, ordering app hours, time zone and currency
+export function GeneralSettingsTab({
+  form,
+  settings,
+  receiptLogo,
+}: {
+  form: SettingsForm;
+  settings: SettingsData;
+  receiptLogo: string | null;
+}) {
   const { t } = useLocale();
 
   function setGeneral(patch: Partial<SettingsData["general"]>) {
@@ -32,6 +41,11 @@ export function GeneralSettingsTab({ form, settings }: { form: SettingsForm; set
             aria-invalid={!!form.errors.name}
           />
         </Field>
+      </SettingsSection>
+
+      {/* uploaded on its own, not with the save bar */}
+      <SettingsSection title={t.adminSettings.receiptLogoSection} hint={t.adminSettings.receiptLogoSectionHint}>
+        <ReceiptLogoField receiptLogo={receiptLogo} />
       </SettingsSection>
 
       {/* shown by every app and on receipts, not only at the cash desk */}

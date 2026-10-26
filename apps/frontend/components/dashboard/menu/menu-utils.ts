@@ -7,15 +7,6 @@ export function fill(template: string, vars: Record<string, string | number>): s
   );
 }
 
-const priceFormatter = new Intl.NumberFormat("it-IT", {
-  style: "currency",
-  currency: "EUR",
-});
-
-export function formatPrice(value: number | string): string {
-  return priceFormatter.format(Number(value));
-}
-
 export function sortCategories(categories: Category[]): Category[] {
   return [...categories].sort((a, b) => a.position - b.position);
 }

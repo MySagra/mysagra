@@ -26,6 +26,8 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 import { useLocale } from "@/contexts/locale-context";
+import { useCurrencySymbol } from "@/contexts/sagra-settings-context";
+import { fill } from "./menu-utils";
 import { useRole } from "@/hooks/use-role";
 
 type IngredientFormValues = {
@@ -55,6 +57,7 @@ export function IngredientDialog({
   usageCount = 0,
 }: IngredientDialogProps) {
   const { t } = useLocale();
+  const currencySymbol = useCurrencySymbol();
   const { canDelete } = useRole();
   const isEditing = !!ingredient;
 
@@ -142,7 +145,7 @@ export function IngredientDialog({
                   render={({ field }) => (
                     <FormItem>
                       <Field>
-                        <FieldLabel required>{t.ingredients.sovraprezzoLabel}</FieldLabel>
+                        <FieldLabel required>{fill(t.ingredients.sovraprezzoLabel, { currency: currencySymbol })}</FieldLabel>
                         <FormControl>
                           <Input
                             {...field}

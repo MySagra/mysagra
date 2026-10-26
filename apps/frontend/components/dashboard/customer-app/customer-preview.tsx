@@ -15,6 +15,7 @@ import { Banner, BannerType } from "@/lib/api-types";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/contexts/locale-context";
 import { useTimezone } from "@/contexts/timezone-context";
+import { useCurrencyFormatter } from "@/contexts/sagra-settings-context";
 import { fill } from "@/components/dashboard/menu/menu-utils";
 import { bannerImageUrl, normalizeHex, type PreviewCategory } from "./customer-app-utils";
 
@@ -549,6 +550,7 @@ function InlineMarkdown({ text }: { text: string }) {
 
 export function InstructionsPreview({ steps, activeIndex }: { steps: string[]; activeIndex: number | null }) {
   const { t } = useLocale();
+  const formatCurrency = useCurrencyFormatter();
   return (
     <PhoneFrame>
       <div className="flex min-h-full flex-col justify-center p-4">
@@ -558,7 +560,7 @@ export function InstructionsPreview({ steps, activeIndex }: { steps: string[]; a
           <p className="mb-8 text-xl font-bold text-foreground">{t.customerApp.previewOrderCodeSubtitle}</p>
           <div className="mb-8 font-mono text-8xl font-black tracking-wider text-primary">PDW</div>
           <div className="mb-8">
-            <p className="mb-2 text-2xl font-bold text-foreground">{fill(t.customerApp.previewPay, { amount: "15.50€" })}</p>
+            <p className="mb-2 text-2xl font-bold text-foreground">{fill(t.customerApp.previewPay, { amount: formatCurrency(15.5) })}</p>
             <p className="text-sm text-muted-foreground">{t.customerApp.previewPayHint}</p>
           </div>
 

@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { EyeIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon, ArrowUpDownIcon, Clock, CircleCheck, PackageCheck, ShoppingBag, XIcon, GitMerge } from "lucide-react";
 import { useLocale } from "@/contexts/locale-context";
 import { useTimezone } from "@/contexts/timezone-context";
+import { INTL_LOCALE, useCurrencyFormatter, useSagraSettings } from "@/contexts/sagra-settings-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface OrdersTableProps {
@@ -27,7 +28,6 @@ interface OrdersTableProps {
   isLoading: boolean;
   onViewDetail: (order: OrderListResponse) => void;
   onPageChange: (page: number) => void;
-  showNumbers?: boolean;
 }
 
 type SortColumn = "displayCode" | "ticketNumber" | "customer" | "table" | "total" | "discount" | "status" | "createdAt" | null;
@@ -48,10 +48,13 @@ export function OrdersTable({
   isLoading,
   onViewDetail,
   onPageChange,
-  showNumbers = false,
 }: OrdersTableProps) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const timezone = useTimezone();
+  const formatCurrency = useCurrencyFormatter();
+  // settings → tickets: progressive ticket number or display code
+  const { showNumbers } = useSagraSettings().tickets;
+  const idColumn: SortColumn = showNumbers ? "ticketNumber" : "displayCode";
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -68,12 +71,14 @@ export function OrdersTable({
     const savedColumn = localStorage.getItem("orders-table-sort-column");
     const savedDirection = localStorage.getItem("orders-table-sort-direction");
     if (savedColumn) {
-      setSortColumn(savedColumn as SortColumn);
+      // the hidden identifier column: sort by the one shown
+      const isIdColumn = savedColumn === "displayCode" || savedColumn === "ticketNumber";
+      setSortColumn(isIdColumn ? idColumn : (savedColumn as SortColumn));
     }
     if (savedDirection) {
       setSortDirection(savedDirection as SortDirection);
     }
-  }, []);
+  }, [idColumn]);
 
   useEffect(() => {
     if (sortColumn) {
@@ -149,7 +154,7 @@ export function OrdersTable({
   }, [orders, sortColumn, sortDirection]);
 
   function formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleString("it-IT", {
+    return new Date(dateStr).toLocaleString(INTL_LOCALE[locale], {
       timeZone: timezone,
       day: "2-digit",
       month: "2-digit",
@@ -160,7 +165,7 @@ export function OrdersTable({
   }
 
   function formatDateShort(dateStr: string): string {
-    return new Date(dateStr).toLocaleString("it-IT", {
+    return new Date(dateStr).toLocaleString(INTL_LOCALE[locale], {
       timeZone: timezone,
       day: "2-digit",
       month: "2-digit",
@@ -194,23 +199,14 @@ export function OrdersTable({
                   <SortIcon column="status" />
                 </button>
               </TableHead>
-              {/* Mobile shows only one of code/ticket (SHOW_NUMBERS), desktop shows both */}
-              <TableHead className={showNumbers ? "w-20 hidden sm:table-cell" : "w-20"}>
+              {/* only the order identifier chosen in the settings */}
+              <TableHead className="w-20">
                 <button
-                  onClick={() => handleSort("displayCode")}
+                  onClick={() => handleSort(idColumn)}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
                 >
-                  {t.orders.columnCode}
-                  <SortIcon column="displayCode" />
-                </button>
-              </TableHead>
-              <TableHead className={showNumbers ? "w-20" : "w-20 hidden sm:table-cell"}>
-                <button
-                  onClick={() => handleSort("ticketNumber")}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  {t.orders.detailTicket}
-                  <SortIcon column="ticketNumber" />
+                  {showNumbers ? t.orders.detailTicket : t.orders.columnCode}
+                  <SortIcon column={idColumn} />
                 </button>
               </TableHead>
               <TableHead className="hidden sm:table-cell">
@@ -264,13 +260,13 @@ export function OrdersTable({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <p className="text-muted-foreground">{t.common.loading}</p>
                 </TableCell>
               </TableRow>
             ) : !sortedOrders || sortedOrders.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={9} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <p className="text-muted-foreground text-sm">{t.orders.noOrdersFound}</p>
                 </TableCell>
               </TableRow>
@@ -291,14 +287,9 @@ export function OrdersTable({
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell className={showNumbers ? "hidden sm:table-cell" : undefined}>
-                    <Badge variant="outline" className="font-mono">
-                      {order.displayCode}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className={showNumbers ? undefined : "hidden sm:table-cell"}>
+                  <TableCell>
                     <Badge variant="outline" className="font-mono min-w-10">
-                      {order.ticketNumber ?? "—"}
+                      {showNumbers ? (order.ticketNumber ?? "—") : order.displayCode}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium max-w-48 hidden sm:table-cell">
@@ -306,10 +297,10 @@ export function OrdersTable({
                   </TableCell>
                   <TableCell className="text-center hidden sm:table-cell">{order.table ?? "—"}</TableCell>
                   <TableCell className="text-right text-muted-foreground text-sm hidden md:table-cell">
-                    {parseFloat(order.discount) > 0 ? `-€${order.discount}` : "—"}
+                    {parseFloat(order.discount) > 0 ? `-${formatCurrency(order.discount)}` : "—"}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    €{order.total}
+                    {formatCurrency(order.total)}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     <span className="hidden sm:inline">{formatDate(order.createdAt)}</span>

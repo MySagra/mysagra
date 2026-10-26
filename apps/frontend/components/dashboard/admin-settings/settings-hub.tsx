@@ -111,7 +111,7 @@ export function SettingsHub({ tab, settings, users, roles, apiKeys }: SettingsHu
         </div>
 
         <TabPanel value="general" active={active}>
-          {form.settings ? <GeneralSettingsTab form={form} settings={form.settings} /> : <LoadError />}
+          {form.settings ? <GeneralSettingsTab form={form} settings={form.settings} receiptLogo={settings?.sagra.receiptLogo ?? null} /> : <LoadError />}
         </TabPanel>
 
         <TabPanel value="cashier" active={active}>

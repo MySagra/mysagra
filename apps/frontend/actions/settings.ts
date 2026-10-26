@@ -30,3 +30,27 @@ export async function updateSettings(data: UpdateSettings): Promise<ActionResult
     return { ok: false, error: extractErrorMessage(error, "Errore nel salvataggio delle impostazioni") };
   }
 }
+
+// Receipt logo: multipart field `image`, already converted to black and white by the browser
+export async function uploadReceiptLogo(formData: FormData): Promise<ActionResult<SagraSettings>> {
+  try {
+    const result = await fetchApi<SagraSettings>(`${API_ENDPOINTS.SETTINGS}/logo`, {
+      method: "PATCH",
+      body: formData,
+    });
+    revalidatePath("/dashboard", "layout");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nel caricamento del logo") };
+  }
+}
+
+export async function deleteReceiptLogo(): Promise<ActionResult<SagraSettings>> {
+  try {
+    const result = await fetchApi<SagraSettings>(`${API_ENDPOINTS.SETTINGS}/logo`, { method: "DELETE" });
+    revalidatePath("/dashboard", "layout");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nella rimozione del logo") };
+  }
+}

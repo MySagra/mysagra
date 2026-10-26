@@ -31,7 +31,8 @@ import {
 } from "@/components/ui/command";
 import { useLocale } from "@/contexts/locale-context";
 import { AvailabilitySegmented } from "./availability-control";
-import { fill, formatPrice } from "./menu-utils";
+import { fill } from "./menu-utils";
+import { useCurrencyFormatter, useCurrencySymbol } from "@/contexts/sagra-settings-context";
 
 const CATEGORY_PRINTER = "__category";
 const NO_PRINTER = "__none";
@@ -84,6 +85,8 @@ export function FoodEditor({
   onOpenCategory,
 }: FoodEditorProps) {
   const { t } = useLocale();
+  const formatPrice = useCurrencyFormatter();
+  const currencySymbol = useCurrencySymbol();
   const isEditing = !!food;
 
   const schema = z.object({
@@ -316,14 +319,15 @@ export function FoodEditor({
             <Label htmlFor="food-price">{t.menu.priceLabel}</Label>
             <div className="relative">
               <span className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-sm text-muted-foreground">
-                €
+                {currencySymbol}
               </span>
               <Input
                 id="food-price"
                 inputMode="decimal"
                 autoComplete="off"
                 placeholder="0,00"
-                className="pl-6 tabular-nums"
+                className="tabular-nums"
+                style={{ paddingLeft: `calc(${currencySymbol.length}ch + 1rem)` }}
                 aria-invalid={!!errors.price}
                 {...register("price")}
               />
@@ -507,6 +511,7 @@ function ExtrasPicker({
   onCreate: (name: string) => void;
 }) {
   const { t } = useLocale();
+  const formatPrice = useCurrencyFormatter();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 

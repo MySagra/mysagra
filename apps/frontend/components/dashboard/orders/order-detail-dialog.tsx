@@ -20,10 +20,12 @@ import {
   PackageCheck, Activity, ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { fill } from '@/components/dashboard/menu/menu-utils';
 import { toast } from 'sonner';
 import { getOrderById, deleteOrder, reprintOrder } from '@/actions/orders';
 import { useLocale } from '@/contexts/locale-context';
 import { useTimezone } from '@/contexts/timezone-context';
+import { INTL_LOCALE, useCurrencyFormatter, useSagraSettings } from '@/contexts/sagra-settings-context';
 import { useRole } from '@/hooks/use-role';
 import { statusConfig } from './order-status';
 
@@ -102,7 +104,7 @@ function ReprintDialog({ open, onOpenChange, orderId, categorizedItems, onSucces
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium">{catItem.category.name}</span>
                       <span className="text-xs text-muted-foreground ml-2">
-                        ({catItem.items.length} {catItem.items.length === 1 ? 'prodotto' : 'prodotti'})
+                        ({fill(catItem.items.length === 1 ? t.orders.productCountOne : t.orders.productCountOther, { count: catItem.items.length })})
                       </span>
                     </div>
                   </label>
@@ -163,12 +165,13 @@ interface OrderDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOrderUpdated?: () => void;
-  showNumbers?: boolean;
 }
 
-export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated, showNumbers = false }: OrderDetailDialogProps) {
-  const { t } = useLocale();
+export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated }: OrderDetailDialogProps) {
+  const { t, locale } = useLocale();
   const timezone = useTimezone();
+  const formatCurrency = useCurrencyFormatter();
+  const { showNumbers } = useSagraSettings().tickets;
   const { canDelete } = useRole();
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -218,7 +221,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
     switch (status) {
       case 'PENDING':   return t.orders.statusPending;
       case 'CONFIRMED': return t.orders.statusConfirmed;
-      case 'COMPLETED': return t.orders.statusCompleted ?? 'Completato';
+      case 'COMPLETED': return t.orders.statusCompleted;
       case 'PICKED_UP': return t.orders.statusPickedUp;
       case 'CANCELLED': return t.orders.statusCancelled;
       case 'PARTIAL':   return t.orders.statusPartial;
@@ -227,7 +230,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
   }
 
   function fmtDate(iso: string) {
-    return new Date(iso).toLocaleString('it-IT', {
+    return new Date(iso).toLocaleString(INTL_LOCALE[locale], {
       timeZone: timezone,
       day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
@@ -235,7 +238,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
   }
 
   function fmtTime(iso: string) {
-    return new Date(iso).toLocaleTimeString('it-IT', {
+    return new Date(iso).toLocaleTimeString(INTL_LOCALE[locale], {
       timeZone: timezone,
       hour: '2-digit', minute: '2-digit',
     });
@@ -266,7 +269,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                       {order.customer && <span className="text-muted-foreground/30">·</span>}
                       <span className="flex items-center gap-1">
                         <LayoutGrid className="h-3.5 w-3.5 shrink-0" />
-                        <span>Tavolo {order.table}</span>
+                        <span>{fill(t.orders.tableValue, { table: order.table })}</span>
                       </span>
                     </>
                   )}
@@ -288,7 +291,7 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                   const cfg = statusConfig[order.status];
                   const totalUnits = order.categorizedItems?.flatMap(c => c.items).reduce((sum, i) => sum + i.quantity, 0) ?? 0;
                   const totalProducts = order.categorizedItems?.flatMap(c => c.items).length ?? 0;
-                  const paymentLabel = order.paymentMethod === 'CARD' ? 'CARTA' : order.paymentMethod === 'CASH' ? 'CONTANTI' : null;
+                  const paymentLabel = order.paymentMethod === 'CARD' ? t.orders.paymentCard : order.paymentMethod === 'CASH' ? t.orders.paymentCash : null;
 
                   return (
                     <div className={cn('rounded-xl border px-4 py-3.5', cfg?.bgClass ?? 'bg-muted border-border')}>
@@ -312,10 +315,10 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 tabular-nums leading-none tracking-tight whitespace-nowrap">
-                            {parseFloat(order.total || order.subTotal).toFixed(2)} €
+                            {formatCurrency(order.total || order.subTotal)}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1.5 tabular-nums whitespace-nowrap">
-                            {totalProducts} {totalProducts === 1 ? 'prodotto' : 'prodotti'} · {totalUnits} {totalUnits === 1 ? 'unità' : 'unità'}
+                            {fill(totalProducts === 1 ? t.orders.productCountOne : t.orders.productCountOther, { count: totalProducts })} · {fill(totalUnits === 1 ? t.orders.unitCountOne : t.orders.unitCountOther, { count: totalUnits })}
                           </p>
                         </div>
                       </div>
@@ -359,16 +362,19 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                 {/* ── Info grid ────────────────────────────────────── */}
                 {(() => {
                   const cells = [
-                    { icon: <Hash className="h-3 w-3" />,         label: t.orders.detailCode,                                value: order.displayCode,                  mono: true  },
-                    { icon: <Ticket className="h-3 w-3" />,       label: t.orders.detailTicket,                              value: String(order.ticketNumber ?? 'N/A'), mono: true  },
-                    { icon: <MonitorCheck className="h-3 w-3" />, label: t.orders.detailCashRegister.replace(':', '').trim(), value: order.cashRegister?.name ?? 'N/A',  mono: false },
-                    { icon: <User className="h-3 w-3" />,         label: t.orders.detailConfirmedBy,                         value: order.user?.username ?? 'N/A',       mono: false },
+                    // only the order identifier chosen in the settings (tickets → showNumbers)
+                    showNumbers
+                      ? { icon: <Ticket className="h-3 w-3" />,   label: t.orders.detailTicket,                              value: String(order.ticketNumber ?? t.orders.notAvailable), mono: true }
+                      : { icon: <Hash className="h-3 w-3" />,     label: t.orders.detailCode,                                value: order.displayCode,                                   mono: true },
+                    { icon: <MonitorCheck className="h-3 w-3" />, label: t.orders.detailCashRegister.replace(':', '').trim(), value: order.cashRegister?.name ?? t.orders.notAvailable,  mono: false },
+                    { icon: <User className="h-3 w-3" />,         label: t.orders.detailConfirmedBy,                         value: order.user?.username ?? t.orders.notAvailable,       mono: false },
                   ];
 
                   return (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border">
-                      {cells.map(({ icon, label, value, mono }) => (
-                        <div key={label} className="flex min-w-0 flex-col gap-1 bg-background p-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-border rounded-lg overflow-hidden border">
+                      {cells.map(({ icon, label, value, mono }, index) => (
+                        // 3 cells on 2 mobile columns: the last one takes the whole row
+                        <div key={label} className={cn('flex min-w-0 flex-col gap-1 bg-background p-3', index === cells.length - 1 && 'col-span-2 sm:col-span-1')}>
                           <div className="flex min-w-0 items-center gap-1 text-muted-foreground">
                             <span className="shrink-0">{icon}</span>
                             <span className="truncate text-[10px] uppercase tracking-wider font-semibold">{label}</span>
@@ -424,11 +430,11 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                               </div>
                               <div className="text-right shrink-0">
                                 <p className="font-bold text-sm tabular-nums">
-                                  {parseFloat(item.total.toString()).toFixed(2)} €
+                                  {formatCurrency(item.total.toString())}
                                 </p>
                                 {unitSurcharge > 0 && (
                                   <p className="text-xs text-amber-600 dark:text-amber-400 tabular-nums">
-                                    +{unitSurcharge.toFixed(2)} €
+                                    +{formatCurrency(unitSurcharge)}
                                   </p>
                                 )}
                               </div>
@@ -445,25 +451,25 @@ export function OrderDetailDialog({ orderId, open, onOpenChange, onOrderUpdated,
                   <div className="divide-y">
                     <div className="flex items-center justify-between px-4 py-2.5 text-sm">
                       <span className="text-muted-foreground">{t.orders.detailSubtotal}</span>
-                      <span className="font-medium tabular-nums">{parseFloat(order.subTotal).toFixed(2)} €</span>
+                      <span className="font-medium tabular-nums">{formatCurrency(order.subTotal)}</span>
                     </div>
                     <div className="flex items-center justify-between px-4 py-2.5 text-sm">
                       <span className="text-muted-foreground">{t.orders.detailTotalSurcharges}</span>
                       <span className="font-medium text-amber-600 dark:text-amber-400 tabular-nums">
-                        +{parseFloat(order.surcharge?.toString() || '0').toFixed(2)} €
+                        +{formatCurrency(order.surcharge?.toString() || '0')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between px-4 py-2.5 text-sm">
                       <span className="text-muted-foreground">{t.orders.detailDiscount}</span>
                       <span className="font-medium text-green-600 dark:text-green-400 tabular-nums">
-                        -{parseFloat(order.discount?.toString() || '0').toFixed(2)} €
+                        -{formatCurrency(order.discount?.toString() || '0')}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between px-4 py-3.5 bg-amber-500/10 border-t border-amber-500/20">
                     <span className="font-bold text-sm">{t.orders.detailTotal}</span>
                     <span className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">
-                      {parseFloat(order.total || order.subTotal).toFixed(2)} €
+                      {formatCurrency(order.total || order.subTotal)}
                     </span>
                   </div>
                 </div>

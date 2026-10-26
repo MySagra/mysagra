@@ -42,3 +42,14 @@ export function useCurrencyFormatter({ compact = false }: { compact?: boolean } 
 
   return useCallback((value: number | string) => formatter.format(Number(value) || 0), [formatter]);
 }
+
+// Symbol of the sagra currency in the panel language ("€", "CHF", "US$"), for input prefixes
+export function useCurrencySymbol(): string {
+  const { general } = useSagraSettings();
+  const { locale } = useLocale();
+
+  return useMemo(() => {
+    const parts = new Intl.NumberFormat(INTL_LOCALE[locale], { style: "currency", currency: general.currency }).formatToParts(0);
+    return parts.find((p) => p.type === "currency")?.value ?? general.currency;
+  }, [locale, general.currency]);
+}

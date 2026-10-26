@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/contexts/locale-context";
 import { fill } from "./menu-utils";
+import { useCurrencySymbol } from "@/contexts/sagra-settings-context";
 
 type IngredientFormValues = {
   name: string;
@@ -49,6 +50,7 @@ export function IngredientEditor({
   onOpenFood,
 }: IngredientEditorProps) {
   const { t } = useLocale();
+  const currencySymbol = useCurrencySymbol();
   const isEditing = !!ingredient;
 
   const schema = z.object({
@@ -144,14 +146,15 @@ export function IngredientEditor({
               <Label htmlFor="ingredient-surcharge">{t.menu.columnSurcharge}</Label>
               <div className="relative">
                 <span className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-sm text-muted-foreground">
-                  €
+                  {currencySymbol}
                 </span>
                 <Input
                   id="ingredient-surcharge"
                   inputMode="decimal"
                   autoComplete="off"
                   placeholder="0,50"
-                  className="pl-6 tabular-nums"
+                  className="tabular-nums"
+                  style={{ paddingLeft: `calc(${currencySymbol.length}ch + 1rem)` }}
                   aria-invalid={!!errors.surcharge}
                   {...register("surcharge")}
                 />
