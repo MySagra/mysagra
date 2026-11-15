@@ -2,66 +2,66 @@
 
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/contexts/locale-context";
+import { Switch } from "@/components/ui/switch";
 
-interface AvailabilityChipProps {
+interface AvailabilityToggleProps {
   available: boolean;
-  /** Omit to render a static, non-interactive chip */
+  /** Omit to render a static, non-interactive status chip */
   onToggle?: () => void;
   pending?: boolean;
   className?: string;
 }
 
 /**
- * Chip di stato: il testo dice lo stato attuale, un tap lo inverte.
- * Più leggibile di uno switch durante il servizio.
+ * Switch di disponibilità con lo stato scritto accanto: lo switch dice che si può
+ * cambiare, il testo dice lo stato attuale. In sola lettura resta solo il chip di stato.
  */
-export function AvailabilityChip({ available, onToggle, pending, className }: AvailabilityChipProps) {
+export function AvailabilityToggle({ available, onToggle, pending, className }: AvailabilityToggleProps) {
   const { t } = useLocale();
   const label = available ? t.menu.available : t.menu.unavailable;
-  const classes = cn(
-    "inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-medium whitespace-nowrap transition-colors",
-    available
-      ? "border-emerald-600/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-      : "border-destructive/25 bg-destructive/10 text-destructive",
-    onToggle && "cursor-pointer hover:brightness-95 dark:hover:brightness-125 focus-visible:ring-3 focus-visible:ring-ring/50 outline-none",
-    pending && "opacity-60",
-    className
-  );
-  const dot = (
-    <span
-      aria-hidden
-      className={cn(
-        "size-1.5 rounded-full",
-        available ? "bg-emerald-500" : "bg-destructive",
-        pending && "animate-pulse"
-      )}
-    />
-  );
 
   if (!onToggle) {
     return (
-      <span className={classes}>
-        {dot}
+      <span
+        className={cn(
+          "inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-medium whitespace-nowrap",
+          available
+            ? "border-emerald-600/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+            : "border-destructive/25 bg-destructive/10 text-destructive",
+          className
+        )}
+      >
+        <span aria-hidden className={cn("size-1.5 rounded-full", available ? "bg-emerald-500" : "bg-destructive")} />
         {label}
       </span>
     );
   }
 
   return (
-    <button
-      type="button"
-      className={classes}
-      disabled={pending}
-      aria-pressed={available}
+    // la riga apre l'editor: il click sul controllo non deve arrivarci
+    <label
+      className={cn("inline-flex shrink-0 cursor-pointer items-center gap-2", pending && "opacity-60", className)}
       title={t.menu.changeAvailability}
-      onClick={(e) => {
-        e.stopPropagation();
-        onToggle();
-      }}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => e.stopPropagation()}
     >
-      {dot}
-      {label}
-    </button>
+      {/* larghezza fissa: il testo cambia lunghezza, gli switch restano in colonna */}
+      <span
+        className={cn(
+          "hidden w-24 text-right text-xs font-medium sm:block",
+          available ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"
+        )}
+      >
+        {label}
+      </span>
+      <Switch
+        checked={available}
+        disabled={pending}
+        onCheckedChange={() => onToggle()}
+        aria-label={t.menu.changeAvailability}
+        className="data-[state=checked]:bg-emerald-600"
+      />
+    </label>
   );
 }
 

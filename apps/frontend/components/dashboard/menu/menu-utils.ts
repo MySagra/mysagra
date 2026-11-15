@@ -12,13 +12,21 @@ export function sortCategories(categories: Category[]): Category[] {
 }
 
 /**
- * Il backend applica `available` e `printerId` della categoria a tutti i suoi
- * piatti a ogni PUT/PATCH della categoria: replica lo stesso effetto in locale.
+ * Il backend applica `available` e `printerId` della categoria ai suoi piatti
+ * solo quando cambiano: replica lo stesso effetto in locale.
  */
-export function applyCategoryToFoods(foods: Food[], category: Category): Food[] {
+export function applyCategoryToFoods(foods: Food[], previous: Category, category: Category): Food[] {
+  const availableChanged = previous.available !== category.available;
+  const printerChanged = (previous.printerId ?? null) !== (category.printerId ?? null);
+  if (!availableChanged && !printerChanged) return foods;
+
   return foods.map((f) =>
     f.categoryId === category.id
-      ? { ...f, available: category.available, printerId: category.printerId ?? null }
+      ? {
+          ...f,
+          ...(availableChanged && { available: category.available }),
+          ...(printerChanged && { printerId: category.printerId ?? null }),
+        }
       : f
   );
 }

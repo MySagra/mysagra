@@ -5,7 +5,7 @@ import { useForm, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ChevronRightIcon, PlusIcon, PrinterIcon, Trash2Icon, XIcon } from "lucide-react";
+import { ChevronRightIcon, PlusIcon, PrinterIcon, TicketIcon, Trash2Icon, XIcon } from "lucide-react";
 import { Food, FoodRequest, Category, Ingredient, Printer } from "@/lib/api-types";
 import { createFood, updateFood } from "@/actions/foods";
 import { parseDecimal, formatDecimal } from "@/lib/decimal-parser";
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -45,6 +46,7 @@ type FoodFormValues = {
   available: boolean;
   ingredientIds: string[];
   printerId: string | null;
+  separateTicket: boolean;
 };
 
 export interface FoodEditorProps {
@@ -89,6 +91,11 @@ export function FoodEditor({
   const currencySymbol = useCurrencySymbol();
   const isEditing = !!food;
 
+  function categoryHasSeparateTicket(categoryId: string | undefined) {
+    const siblings = foods.filter((f) => f.categoryId === categoryId);
+    return siblings.length > 0 && siblings.every((f) => f.separateTicket);
+  }
+
   const schema = z.object({
     name: z.string().trim().min(1, t.foods.nameRequired).max(100),
     price: z.string().refine((v) => parseDecimal(v) >= 0.01, t.menu.priceInvalid),
@@ -97,6 +104,7 @@ export function FoodEditor({
     available: z.boolean(),
     ingredientIds: z.array(z.string()),
     printerId: z.string().nullable(),
+    separateTicket: z.boolean(),
   });
 
   const defaultValues = useMemo<FoodFormValues>(() => {
@@ -109,8 +117,10 @@ export function FoodEditor({
         available: food.available,
         ingredientIds: food.ingredients?.map((i) => i.id) ?? [],
         printerId: food.printerId ?? null,
+        separateTicket: food.separateTicket,
       };
     }
+    // un piatto nuovo segue gli altri piatti della categoria solo se lo hanno tutti
     const category = categories.find((c) => c.id === defaultCategoryId) ?? categories[0];
     return {
       name: "",
@@ -120,6 +130,7 @@ export function FoodEditor({
       available: category?.available ?? true,
       ingredientIds: [],
       printerId: category?.printerId ?? null,
+      separateTicket: categoryHasSeparateTicket(category?.id),
     };
     // Il parent rimonta l'editor (key) quando cambia piatto
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,10 +149,17 @@ export function FoodEditor({
 
   useEffect(() => () => onDirtyChange(false), [onDirtyChange]);
 
-  // Disponibilità e stampante possono cambiare da fuori (chip in lista,
+  // Disponibilità, stampante e ticket separato possono cambiare da fuori (chip in lista,
   // impostazioni categoria): aggiorna i campi se l'utente non li ha toccati.
   const externalAvailable = food?.available;
   const externalPrinterId = food?.printerId ?? null;
+  const externalSeparateTicket = food?.separateTicket;
+  useEffect(() => {
+    if (externalSeparateTicket === undefined) return;
+    if (!form.getFieldState("separateTicket").isDirty) {
+      form.resetField("separateTicket", { defaultValue: externalSeparateTicket });
+    }
+  }, [externalSeparateTicket, form]);
   useEffect(() => {
     if (externalAvailable === undefined) return;
     if (!form.getFieldState("available").isDirty) {
@@ -159,6 +177,7 @@ export function FoodEditor({
   const available = watch("available");
   const ingredientIds = watch("ingredientIds");
   const printerId = watch("printerId");
+  const separateTicket = watch("separateTicket");
   const description = watch("description");
 
   const category = categories.find((c) => c.id === categoryId);
@@ -186,6 +205,7 @@ export function FoodEditor({
     }
     if (!isEditing) {
       setValue("available", next.available, { shouldDirty: true });
+      setValue("separateTicket", categoryHasSeparateTicket(next.id), { shouldDirty: true });
     }
   }
 
@@ -225,6 +245,7 @@ export function FoodEditor({
       categoryId: values.categoryId,
       available: values.available,
       printerId: values.printerId,
+      separateTicket: values.separateTicket,
       ingredients: values.ingredientIds.map((id) => ({ id })),
     };
 
@@ -466,6 +487,19 @@ export function FoodEditor({
               </SelectContent>
             </Select>
           )}
+          <div className="flex items-start gap-2.5 border-t pt-2">
+            <TicketIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+            <label htmlFor="food-separate-ticket" className="flex-1 space-y-0.5">
+              <span className="block text-sm">{t.foods.separateTicketLabel}</span>
+              <span className="block text-xs text-muted-foreground">{t.foods.separateTicketHint}</span>
+            </label>
+            <Switch
+              id="food-separate-ticket"
+              checked={separateTicket}
+              disabled={!canEdit}
+              onCheckedChange={(v) => setValue("separateTicket", v, { shouldDirty: true })}
+            />
+          </div>
         </div>
       </fieldset>
 

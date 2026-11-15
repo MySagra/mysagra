@@ -108,8 +108,7 @@ export async function setCategorySeparateTicket(
       method: "PATCH",
       body: JSON.stringify({ separateTicket }),
     }, z.array(FoodSchema) as z.ZodType<Food[]>);
-    revalidatePath("/dashboard/categories");
-    revalidatePath("/dashboard/foods");
+    revalidatePath("/dashboard/menu");
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento dei ticket separati") };

@@ -5,8 +5,8 @@ import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { toast } from "sonner";
-import { InfoIcon, Trash2Icon, XIcon } from "lucide-react";
-import { Category, Printer, Station } from "@/lib/api-types";
+import { InfoIcon, TicketIcon, Trash2Icon, XIcon } from "lucide-react";
+import { Category, Food, Printer, Station } from "@/lib/api-types";
 import {
   checkCategoryNameExists,
   getCategoryById,
@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -27,6 +28,7 @@ import { useLocale } from "@/contexts/locale-context";
 import { AvailabilitySegmented } from "./availability-control";
 import { CategoryThumb } from "./category-sidebar";
 import { CategoryImageField, getCategoryImageUrl } from "./category-image-field";
+import { fill } from "./menu-utils";
 
 const NONE = "none";
 
@@ -48,6 +50,11 @@ export interface CategoryEditorProps {
   /** Omit when the panel is the default view and cannot be closed. force = skip the unsaved-changes guard */
   onClose?: (force?: boolean) => void;
   onDirtyChange: (dirty: boolean) => void;
+  /** Piatti della categoria: il ticket separato vive su di loro, non sulla categoria */
+  foods: Food[];
+  ticketPending: boolean;
+  /** Applicato subito a tutti i piatti, fuori dal salvataggio del form */
+  onSeparateTicketChange: (separateTicket: boolean) => void;
 }
 
 /** Impostazioni categoria nel pannello laterale, stessa struttura dell'editor del piatto. */
@@ -61,8 +68,21 @@ export function CategoryEditor({
   onDeleteRequest,
   onClose,
   onDirtyChange,
+  foods,
+  ticketPending,
+  onSeparateTicketChange,
 }: CategoryEditorProps) {
   const { t } = useLocale();
+  const separateCount = foods.filter((f) => f.separateTicket).length;
+  const allSeparate = foods.length > 0 && separateCount === foods.length;
+  const ticketSummary =
+    foods.length === 0
+      ? t.menu.separateTicketNoDishes
+      : separateCount === 0
+        ? t.menu.separateTicketNone
+        : allSeparate
+          ? t.menu.separateTicketAll
+          : fill(t.menu.separateTicketSome, { n: separateCount, total: foods.length });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -252,6 +272,20 @@ export function CategoryEditor({
           <InfoIcon className="mt-px size-3.5 shrink-0" />
           {t.categories.propagationHint}
         </p>
+
+        <div className="flex items-start gap-2.5 rounded-lg border bg-muted/30 p-3">
+          <TicketIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <label htmlFor="category-separate-ticket" className="flex-1 space-y-0.5">
+            <span className="block text-sm">{t.foods.separateTicketLabel}</span>
+            <span className="block text-xs text-muted-foreground">{ticketSummary}</span>
+          </label>
+          <Switch
+            id="category-separate-ticket"
+            checked={allSeparate}
+            disabled={!canEdit || ticketPending || foods.length === 0}
+            onCheckedChange={(v) => onSeparateTicketChange(v)}
+          />
+        </div>
 
         <div className="space-y-1.5">
           <Label>{t.categories.imageLabel}</Label>

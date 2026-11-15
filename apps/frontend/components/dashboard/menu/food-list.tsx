@@ -2,11 +2,12 @@
 
 import type { ReactNode } from "react";
 import { PlusIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Category, Food } from "@/lib/api-types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/contexts/locale-context";
-import { AvailabilityChip } from "./availability-control";
+import { AvailabilityToggle } from "./availability-control";
 import { fill } from "./menu-utils";
 import { useCurrencyFormatter } from "@/contexts/sagra-settings-context";
 
@@ -33,6 +34,7 @@ interface FoodListProps {
   renderGroupActions?: (category: Category) => ReactNode;
   onSelect: (food: Food) => void;
   onToggle: (food: Food) => void;
+  onToggleTicket: (food: Food) => void;
   onAddDish: (categoryId: string) => void;
 }
 
@@ -45,6 +47,7 @@ export function FoodList({
   renderGroupActions,
   onSelect,
   onToggle,
+  onToggleTicket,
   onAddDish,
 }: FoodListProps) {
   const { t } = useLocale();
@@ -89,6 +92,7 @@ export function FoodList({
                   canEdit={canEdit}
                   onSelect={onSelect}
                   onToggle={onToggle}
+                  onToggleTicket={onToggleTicket}
                 />
               ))}
             </ul>
@@ -106,6 +110,7 @@ function FoodRow({
   canEdit,
   onSelect,
   onToggle,
+  onToggleTicket,
 }: {
   food: Food;
   selected: boolean;
@@ -113,6 +118,7 @@ function FoodRow({
   canEdit: boolean;
   onSelect: (food: Food) => void;
   onToggle: (food: Food) => void;
+  onToggleTicket: (food: Food) => void;
 }) {
   const { t } = useLocale();
   const formatPrice = useCurrencyFormatter();
@@ -157,11 +163,54 @@ function FoodRow({
           )}
         </p>
       </div>
-      <AvailabilityChip
+      <SeparateTicketToggle
+        active={food.separateTicket}
+        pending={pending}
+        onToggle={canEdit ? () => onToggleTicket(food) : undefined}
+      />
+      <AvailabilityToggle
         available={food.available}
         pending={pending}
         onToggle={canEdit ? () => onToggle(food) : undefined}
       />
     </li>
+  );
+}
+
+/**
+ * Ticket separato in lista, solo da desktop: su schermi stretti si cambia dall'editor.
+ * Checkbox con etichetta, così non si confonde con lo switch della disponibilità.
+ */
+function SeparateTicketToggle({
+  active,
+  pending,
+  onToggle,
+}: {
+  active: boolean;
+  pending: boolean;
+  onToggle?: () => void;
+}) {
+  const { t } = useLocale();
+
+  return (
+    // la riga apre l'editor: il click sul controllo non deve arrivarci
+    <label
+      className={cn(
+        "hidden shrink-0 items-center gap-2 rounded-md px-2 py-1 text-xs whitespace-nowrap md:inline-flex",
+        active ? "text-foreground" : "text-muted-foreground",
+        onToggle ? "cursor-pointer hover:bg-muted" : "cursor-default",
+        pending && "opacity-60"
+      )}
+      title={t.foods.separateTicketHint}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => e.stopPropagation()}
+    >
+      <Checkbox
+        checked={active}
+        disabled={!onToggle || pending}
+        onCheckedChange={() => onToggle?.()}
+      />
+      {t.foods.separateTicketLabel}
+    </label>
   );
 }

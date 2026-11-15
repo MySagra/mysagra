@@ -83,8 +83,7 @@ export async function toggleFoodSeparateTicket(
     method: "PATCH",
     body: JSON.stringify({ separateTicket }),
   }, FoodSchema);
-  revalidatePath("/dashboard/foods");
-  revalidatePath("/dashboard/categories");
+  revalidatePath("/dashboard/menu");
   return result;
 }
 

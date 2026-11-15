@@ -9,14 +9,15 @@ import {
   PencilIcon,
   CirclePauseIcon,
   CirclePlayIcon,
+  TicketIcon,
   Trash2Icon,
   UtensilsCrossedIcon,
   WheatIcon,
   XIcon,
 } from "lucide-react";
 import { Category, Food, Ingredient, Printer, Station } from "@/lib/api-types";
-import { toggleFoodAvailability } from "@/actions/foods";
-import { reorderCategories, toggleCategoryAvailability } from "@/actions/categories";
+import { toggleFoodAvailability, toggleFoodSeparateTicket } from "@/actions/foods";
+import { reorderCategories, setCategorySeparateTicket, toggleCategoryAvailability } from "@/actions/categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,7 +44,7 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { useLocale } from "@/contexts/locale-context";
 import { useRole } from "@/hooks/use-role";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { AvailabilityChip } from "./availability-control";
+import { AvailabilityToggle } from "./availability-control";
 import { ALL_CATEGORIES, CategorySidebar, CategoryThumb } from "./category-sidebar";
 import { FoodList, type FoodGroup } from "./food-list";
 import { FoodEditor } from "./food-editor";
@@ -259,7 +260,7 @@ export function MenuContent({
     if (result.ok) {
       const updated = result.data;
       setCategories((prev) => prev.map((c) => (c.id === updated.id ? { ...c, ...updated } : c)));
-      setFoods((prev) => applyCategoryToFoods(prev, updated));
+      setFoods((prev) => applyCategoryToFoods(prev, category, updated));
       toast.success(fill(next ? t.menu.toastNowAvailable : t.menu.toastNowUnavailable, { name: category.name }));
     } else {
       toast.error(result.error || t.categories.toastErrorUpdate);
@@ -318,17 +319,51 @@ export function MenuContent({
   }
 
   function handleCategorySaved(saved: Category) {
-    const isNew = !categories.some((c) => c.id === saved.id);
+    const previous = categories.find((c) => c.id === saved.id);
     setCategories((prev) =>
-      sortCategories(isNew ? [...prev, saved] : prev.map((c) => (c.id === saved.id ? saved : c)))
+      sortCategories(previous ? prev.map((c) => (c.id === saved.id ? saved : c)) : [...prev, saved])
     );
-    if (isNew) {
+    if (previous) {
+      setFoods((prev) => applyCategoryToFoods(prev, previous, saved));
+    } else {
       setSelectedCategoryId(saved.id);
       setSearch("");
-    } else {
-      setFoods((prev) => applyCategoryToFoods(prev, saved));
     }
     setCategoryDialogOpen(false);
+  }
+
+  // ── Separate ticket ────────────────────────────────────────────────
+  async function toggleFoodTicket(food: Food) {
+    const next = !food.separateTicket;
+    setPending(food.id, true);
+    setFoods((prev) => prev.map((f) => (f.id === food.id ? { ...f, separateTicket: next } : f)));
+    try {
+      await toggleFoodSeparateTicket(food.id, next);
+      toast.success(fill(next ? t.menu.toastSeparateTicketOn : t.menu.toastSeparateTicketOff, { name: food.name }));
+    } catch {
+      setFoods((prev) => prev.map((f) => (f.id === food.id ? { ...f, separateTicket: food.separateTicket } : f)));
+      toast.error(t.foods.toastErrorUpdate);
+    } finally {
+      setPending(food.id, false);
+    }
+  }
+
+  // Il flag vive sui piatti: la categoria lo imposta su tutti in un colpo
+  async function setCategoryTicket(category: Category, separateTicket: boolean) {
+    setPending(category.id, true);
+    const result = await setCategorySeparateTicket(category.id, separateTicket);
+    if (result.ok) {
+      const updated = new Map(result.data.map((f) => [f.id, f.separateTicket]));
+      setFoods((prev) =>
+        prev.map((f) => (updated.has(f.id) ? { ...f, separateTicket: updated.get(f.id)! } : f))
+      );
+      toast.success(
+        fill(separateTicket ? t.menu.toastSeparateTicketOn : t.menu.toastSeparateTicketOff, { name: category.name })
+      );
+    } else {
+      toast.error(result.error || t.categories.toastErrorUpdate);
+    }
+    setPending(category.id, false);
   }
 
   function handleCategoryDeleted(id: string) {
@@ -417,6 +452,8 @@ export function MenuContent({
   // ── Render helpers ─────────────────────────────────────────────────
   function renderCategoryMenu(category: Category) {
     if (!canEditCategories) return null;
+    const categoryFoods = foods.filter((f) => f.categoryId === category.id);
+    const allSeparate = categoryFoods.length > 0 && categoryFoods.every((f) => f.separateTicket);
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -432,6 +469,13 @@ export function MenuContent({
           <DropdownMenuItem onSelect={() => toggleCategory(category)}>
             {category.available ? <CirclePauseIcon /> : <CirclePlayIcon />}
             {category.available ? t.menu.makeCategoryUnavailable : t.menu.makeCategoryAvailable}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={categoryFoods.length === 0}
+            onSelect={() => setCategoryTicket(category, !allSeparate)}
+          >
+            <TicketIcon />
+            {allSeparate ? t.menu.separateTicketOffAll : t.menu.separateTicketOnAll}
           </DropdownMenuItem>
           {canManageCategories && (
             <>
@@ -484,6 +528,9 @@ export function MenuContent({
       onDeleteRequest={setDeletingCategory}
       onClose={isWide ? undefined : closeCategoryPanel}
       onDirtyChange={handleDirtyChange}
+      foods={foods.filter((f) => f.categoryId === inspectedCategory.id)}
+      ticketPending={pendingIds.has(inspectedCategory.id)}
+      onSeparateTicketChange={(value) => setCategoryTicket(inspectedCategory, value)}
     />
   );
 
@@ -598,7 +645,7 @@ export function MenuContent({
                       .join(" · ")}
                   </p>
                 </div>
-                <AvailabilityChip
+                <AvailabilityToggle
                   available={selectedCategory.available}
                   pending={pendingIds.has(selectedCategory.id)}
                   onToggle={canEditCategories ? () => toggleCategory(selectedCategory) : undefined}
@@ -693,6 +740,7 @@ export function MenuContent({
                 renderGroupActions={renderCategoryMenu}
                 onSelect={openFood}
                 onToggle={toggleFood}
+                onToggleTicket={toggleFoodTicket}
                 onAddDish={openNewFood}
               />
             )}
