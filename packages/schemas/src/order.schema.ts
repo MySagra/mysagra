@@ -253,6 +253,7 @@ export const FoodDetailSchema = z.object({
     description: z.string().nullish().meta({ description: "Food item description" }),
     price: decimalString("Food item base price"),
     printerId: z.string().nullish().meta({ description: "Printer assigned to this food item" }),
+    separateTicket: z.boolean().meta({ description: "Whether the printer prints this item on its own pickup ticket" }),
     ingredients: z.array(IngredientSchema).meta({ description: "List of ingredients" })
 }).meta({
     id: "FoodDetail",

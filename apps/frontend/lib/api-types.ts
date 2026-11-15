@@ -87,6 +87,7 @@ export interface Food {
   categoryId: string;
   printerId?: string | null;
   available: boolean;
+  separateTicket: boolean;
   category?: {
     id: string;
     name: string;
@@ -103,6 +104,7 @@ export interface FoodRequest {
   categoryId: string;
   printerId?: string | null;
   available: boolean;
+  separateTicket?: boolean;
   ingredients?: { id: string }[];
 }
 
@@ -308,6 +310,7 @@ export const API_ENDPOINTS = {
     ORDER: "/v1/categories/order",
     BY_ID: (id: string) => `/v1/categories/${id}`,
     IMAGE: (id: string) => `/v1/categories/${id}/image`,
+    FOODS: (id: string) => `/v1/categories/${id}/foods`,
   },
   FOODS: {
     ALL: "/v1/foods",

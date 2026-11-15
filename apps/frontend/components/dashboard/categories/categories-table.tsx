@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Category, Printer, Station } from "@/lib/api-types";
-import { toggleCategoryAvailability } from "@/actions/categories";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { Category, Food, Printer, Station } from "@/lib/api-types";
+import { setCategorySeparateTicket, toggleCategoryAvailability } from "@/actions/categories";
 import {
   Table,
   TableBody,
@@ -43,10 +43,12 @@ function getCategoryImageUrl(filename: string) {
 
 interface CategoriesTableProps {
   categories: Category[];
+  foods: Food[];
   printers: Printer[];
   stations: Station[];
   onEdit: (category: Category) => void;
   onToggle: (updated: Category) => void;
+  onFoodsUpdated: (categoryId: string, foods: Food[]) => void;
   onReorder: (activeId: string, overId: string) => void;
   isReorderDisabled?: boolean;
 }
@@ -83,6 +85,51 @@ function ImageCell({ image, name }: { image?: string | null; name: string }) {
   );
 }
 
+// The flag lives on the foods: all of them set, none, or only some ("indeterminate").
+// null when the category has no foods, so there is nothing to set.
+type SeparateTicketState = boolean | "indeterminate" | null;
+
+function separateTicketStates(foods: Food[]): Map<string, SeparateTicketState> {
+  const counts = new Map<string, { total: number; separate: number }>();
+  for (const food of foods) {
+    const count = counts.get(food.categoryId) ?? { total: 0, separate: 0 };
+    count.total++;
+    if (food.separateTicket) count.separate++;
+    counts.set(food.categoryId, count);
+  }
+
+  const states = new Map<string, SeparateTicketState>();
+  for (const [categoryId, { total, separate }] of counts) {
+    states.set(categoryId, separate === 0 ? false : separate === total ? true : "indeterminate");
+  }
+  return states;
+}
+
+function SeparateTicketCell({
+  state,
+  disabled,
+  title,
+  onChange,
+}: {
+  state: SeparateTicketState;
+  disabled: boolean;
+  title: string;
+  onChange: (separateTicket: boolean) => void;
+}) {
+  return (
+    <TableCell className="hidden sm:table-cell text-center">
+      <div className="flex justify-center" title={title}>
+        <Checkbox
+          checked={state ?? false}
+          disabled={disabled || state === null}
+          // a partial category becomes fully set
+          onCheckedChange={() => onChange(state !== true)}
+        />
+      </div>
+    </TableCell>
+  );
+}
+
 function TableHeaders({ t }: { t: any }) {
   return (
     <TableRow className="bg-muted/50">
@@ -92,6 +139,9 @@ function TableHeaders({ t }: { t: any }) {
       <TableHead className="hidden lg:table-cell font-medium">{t.categories.columnStation}</TableHead>
       <TableHead className="hidden md:table-cell font-medium">{t.categories.columnPrinter}</TableHead>
       <TableHead className="w-32 text-center font-medium">{t.categories.columnAvailable}</TableHead>
+      <TableHead className="hidden sm:table-cell w-32 text-center font-medium" title={t.categories.separateTicketHint}>
+        {t.categories.columnSeparateTicket}
+      </TableHead>
       <TableHead className="w-10 text-right" />
     </TableRow>
   );
@@ -102,8 +152,11 @@ function SortableRow({
   printers,
   stations,
   togglingId,
+  separateTicket,
+  separateTicketTitle,
   onEdit,
   handleToggle,
+  handleSeparateTicket,
   dragLabel,
   isReadOnly,
   isSessionLoading,
@@ -113,8 +166,11 @@ function SortableRow({
   printers: Printer[];
   stations: Station[];
   togglingId: string | null;
+  separateTicket: SeparateTicketState;
+  separateTicketTitle: string;
   onEdit: (category: Category) => void;
   handleToggle: (category: Category) => void;
+  handleSeparateTicket: (category: Category, separateTicket: boolean) => void;
   dragLabel: string;
   isReadOnly: boolean;
   isSessionLoading: boolean;
@@ -171,6 +227,12 @@ function SortableRow({
           />
         </div>
       </TableCell>
+      <SeparateTicketCell
+        state={separateTicket}
+        disabled={isReadOnly || togglingId === category.id}
+        title={separateTicketTitle}
+        onChange={(value) => !isReadOnly && handleSeparateTicket(category, value)}
+      />
       <TableCell className="w-10 text-right">
         {isSessionLoading
           ? <Skeleton className="h-6 w-4 rounded-md mx-auto" />
@@ -193,10 +255,12 @@ function SortableRow({
 
 export function CategoriesTable({
   categories,
+  foods,
   printers,
   stations,
   onEdit,
   onToggle,
+  onFoodsUpdated,
   onReorder,
   isReorderDisabled = false,
 }: CategoriesTableProps) {
@@ -207,6 +271,14 @@ export function CategoriesTable({
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const activeCategory = categories.find((c) => c.id === activeId) ?? null;
+  const separateTickets = useMemo(() => separateTicketStates(foods), [foods]);
+
+  function separateTicketTitle(categoryId: string) {
+    const state = separateTickets.get(categoryId) ?? null;
+    if (state === null) return t.categories.separateTicketNoFoods;
+    if (state === "indeterminate") return t.categories.separateTicketPartial;
+    return t.categories.separateTicketHint;
+  }
 
   useEffect(() => {
     setMounted(true);
@@ -221,6 +293,18 @@ export function CategoriesTable({
     const result = await toggleCategoryAvailability(category.id, !category.available);
     if (result.ok) {
       onToggle(result.data);
+      toast.success(`"${category.name}" ${t.categories.toastUpdated}`);
+    } else {
+      toast.error(result.error || t.categories.toastErrorUpdate);
+    }
+    setTogglingId(null);
+  }
+
+  async function handleSeparateTicket(category: Category, separateTicket: boolean) {
+    setTogglingId(category.id);
+    const result = await setCategorySeparateTicket(category.id, separateTicket);
+    if (result.ok) {
+      onFoodsUpdated(category.id, result.data);
       toast.success(`"${category.name}" ${t.categories.toastUpdated}`);
     } else {
       toast.error(result.error || t.categories.toastErrorUpdate);
@@ -290,6 +374,12 @@ export function CategoriesTable({
                     />
                   </div>
                 </TableCell>
+                <SeparateTicketCell
+                  state={separateTickets.get(category.id) ?? null}
+                  disabled={isReadOnly || togglingId === category.id}
+                  title={separateTicketTitle(category.id)}
+                  onChange={(value) => !isReadOnly && handleSeparateTicket(category, value)}
+                />
                 <TableCell className="w-10 text-right">
                   {isSessionLoading
                     ? <Skeleton className="h-6 w-4 rounded-md mx-auto" />
@@ -334,8 +424,11 @@ export function CategoriesTable({
                   printers={printers}
                   stations={stations}
                   togglingId={togglingId}
+                  separateTicket={separateTickets.get(category.id) ?? null}
+                  separateTicketTitle={separateTicketTitle(category.id)}
                   onEdit={onEdit}
                   handleToggle={handleToggle}
+                  handleSeparateTicket={handleSeparateTicket}
                   dragLabel={t.categories.dragToReorder}
                   isReadOnly={isReadOnly}
                   isSessionLoading={isSessionLoading}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Category, Printer, Station } from "@/lib/api-types";
+import { Category, Food, Printer, Station } from "@/lib/api-types";
 import { reorderCategories } from "@/actions/categories";
 import { CategoriesToolbar } from "./categories-toolbar";
 import { CategoriesTable } from "./categories-table";
@@ -14,15 +14,17 @@ import { CategoriesTableSkeleton } from "./categories-table-skeleton";
 
 interface CategoriesContentProps {
   initialCategories: Category[];
+  initialFoods: Food[];
   printers: Printer[];
   stations: Station[];
 }
 
-export function CategoriesContent({ initialCategories, printers, stations }: CategoriesContentProps) {
+export function CategoriesContent({ initialCategories, initialFoods, printers, stations }: CategoriesContentProps) {
   const { canManageCategories, isSessionLoading } = useRole();
   const [categories, setCategories] = useState<Category[]>(
     [...initialCategories].sort((a, b) => a.position - b.position)
   );
+  const [foods, setFoods] = useState<Food[]>(initialFoods);
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -84,6 +86,11 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
     );
   }
 
+  // the bulk edit returns every food of the category
+  function handleFoodsUpdated(categoryId: string, updated: Food[]) {
+    setFoods((prev) => [...prev.filter((f) => f.categoryId !== categoryId), ...updated]);
+  }
+
   function handleReorder(activeId: string, overId: string) {
     setCategories((prev) => {
       const oldIndex = prev.findIndex((c) => c.id === activeId);
@@ -136,10 +143,12 @@ export function CategoriesContent({ initialCategories, printers, stations }: Cat
         />
         <CategoriesTable
           categories={filteredCategories}
+          foods={foods}
           printers={printers}
           stations={stations}
           onEdit={handleEdit}
           onToggle={handleToggled}
+          onFoodsUpdated={handleFoodsUpdated}
           onReorder={handleReorder}
           isReorderDisabled={searchQuery.length > 0 || isSavingOrder}
         />

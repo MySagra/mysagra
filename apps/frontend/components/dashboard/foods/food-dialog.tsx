@@ -77,6 +77,7 @@ export function FoodDialog({
     price: z.coerce.number().min(0.01, t.foods.priceMin),
     categoryId: z.string().min(1, t.foods.categoryRequired),
     available: z.boolean(),
+    separateTicket: z.boolean(),
   });
   type FoodFormValues = z.output<typeof foodSchema>;
 
@@ -95,6 +96,7 @@ export function FoodDialog({
       price: 0.01,
       categoryId: categories[0]?.id || "",
       available: true,
+      separateTicket: false,
     },
   });
 
@@ -112,6 +114,7 @@ export function FoodDialog({
         price: food.price,
         categoryId: food.categoryId,
         available: food.available,
+        separateTicket: food.separateTicket,
       });
       setSelectedIngredients(food.ingredients?.map(ing => ing.id) || []);
       setSelectedPrinterId(food.printerId || null);
@@ -124,6 +127,7 @@ export function FoodDialog({
         price: 0.01,
         categoryId: defaultCategory?.id || "",
         available: defaultCategory?.available ?? true,
+        separateTicket: false,
       });
       setSelectedIngredients([]);
       setSelectedPrinterId(defaultCategory?.printerId || null);
@@ -158,6 +162,7 @@ export function FoodDialog({
       price: values.price as number,
       categoryId: values.categoryId,
       available: values.available,
+      separateTicket: values.separateTicket,
       ingredients: selectedIngredients.map(id => ({ id })),
       printerId: selectedPrinterId,
     };
@@ -214,6 +219,25 @@ export function FoodDialog({
                         <FormControl>
                           <Checkbox
                             id="available"
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FieldLabel htmlFor="separateTicket" className="mb-0 ml-4" title={t.foods.separateTicketHint}>
+                    {t.foods.separateTicketLabel}
+                  </FieldLabel>
+                  <FormField
+                    control={form.control}
+                    name="separateTicket"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Checkbox
+                            id="separateTicket"
                             checked={field.value}
                             onCheckedChange={field.onChange}
                           />

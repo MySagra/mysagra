@@ -2087,6 +2087,7 @@ export const FoodScalarFieldEnum = {
   description: 'description',
   price: 'price',
   available: 'available',
+  separateTicket: 'separateTicket',
   categoryId: 'categoryId',
   printerId: 'printerId'
 } as const

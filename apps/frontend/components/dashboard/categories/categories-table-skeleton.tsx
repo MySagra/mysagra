@@ -26,6 +26,7 @@ export function CategoriesTableSkeleton() {
               <TableHead className="hidden lg:table-cell"><Skeleton className="h-4 w-24" /></TableHead>
               <TableHead className="hidden md:table-cell"><Skeleton className="h-4 w-20" /></TableHead>
               <TableHead className="w-32 text-center"><Skeleton className="h-4 w-20 mx-auto" /></TableHead>
+              <TableHead className="hidden sm:table-cell w-32 text-center"><Skeleton className="h-4 w-20 mx-auto" /></TableHead>
               <TableHead className="w-10" />
             </TableRow>
           </TableHeader>
@@ -38,6 +39,9 @@ export function CategoriesTableSkeleton() {
                 <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
                 <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell className="text-center">
+                  <Skeleton className="h-4 w-4 mx-auto rounded-sm" />
+                </TableCell>
+                <TableCell className="hidden sm:table-cell text-center">
                   <Skeleton className="h-4 w-4 mx-auto rounded-sm" />
                 </TableCell>
                 <TableCell />

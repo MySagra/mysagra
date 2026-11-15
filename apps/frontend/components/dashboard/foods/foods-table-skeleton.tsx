@@ -28,6 +28,7 @@ export function FoodsTableSkeleton() {
               <TableHead className="text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableHead>
               <TableHead className="hidden md:table-cell w-28"><Skeleton className="h-4 w-14 ml-auto" /></TableHead>
               <TableHead className="hidden md:table-cell w-32"><Skeleton className="h-4 w-20" /></TableHead>
+              <TableHead className="hidden lg:table-cell w-36"><Skeleton className="h-4 w-24 mx-auto" /></TableHead>
               <TableHead className="w-32"><Skeleton className="h-4 w-20 mx-auto" /></TableHead>
             </TableRow>
           </TableHeader>
@@ -44,6 +45,9 @@ export function FoodsTableSkeleton() {
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <Skeleton className="h-4 w-24" />
+                </TableCell>
+                <TableCell className="hidden lg:table-cell text-center">
+                  <Skeleton className="h-4 w-4 mx-auto rounded-sm" />
                 </TableCell>
                 <TableCell className="text-center">
                   <Skeleton className="h-4 w-4 mx-auto rounded-sm" />

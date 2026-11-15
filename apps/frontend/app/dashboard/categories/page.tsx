@@ -1,13 +1,15 @@
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { CategoriesContent } from "@/components/dashboard/categories/categories-content";
 import { getCategories } from "@/actions/categories";
+import { getFoods } from "@/actions/foods";
 import { getPrinters } from "@/actions/printers";
 import { getStations } from "@/actions/stations";
-import { Category, Printer, Station } from "@/lib/api-types";
+import { Category, Food, Printer, Station } from "@/lib/api-types";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default async function CategoriesPage() {
   let categories: Category[] = [];
+  let foods: Food[] = [];
   let printers: Printer[] = [];
   let stations: Station[] = [];
 
@@ -16,6 +18,14 @@ export default async function CategoriesPage() {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     categories = [];
+  }
+
+  // the separate ticket flag lives on the foods: the table shows it per category from these
+  try {
+    foods = await getFoods();
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    foods = [];
   }
 
   try {
@@ -35,7 +45,7 @@ export default async function CategoriesPage() {
   return (
     <>
       <DashboardHeader navKey="categories" />
-      <CategoriesContent initialCategories={categories} printers={printers} stations={stations} />
+      <CategoriesContent initialCategories={categories} initialFoods={foods} printers={printers} stations={stations} />
     </>
   );
 }

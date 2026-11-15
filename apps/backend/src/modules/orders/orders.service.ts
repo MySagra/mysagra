@@ -58,6 +58,7 @@ const orderWithItemsInclude = {
                     id: true,
                     name: true,
                     printerId: true,
+                    separateTicket: true,
                     category: {
                         select: {
                             id: true,

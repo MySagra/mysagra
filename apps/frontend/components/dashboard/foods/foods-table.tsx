@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Food, Printer } from "@/lib/api-types";
-import { toggleFoodAvailability } from "@/actions/foods";
+import { toggleFoodAvailability, toggleFoodSeparateTicket } from "@/actions/foods";
 import { getPrinters } from "@/actions/printers";
 import {
   Table,
@@ -27,7 +27,7 @@ interface FoodsTableProps {
   onToggle: (updated: Food) => void;
 }
 
-type SortColumn = "name" | "category" | "price" | "printer" | "available" | null;
+type SortColumn = "name" | "category" | "price" | "printer" | "separateTicket" | "available" | null;
 type SortDirection = "asc" | "desc";
 
 export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
@@ -109,6 +109,10 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
           aValue = printers.find(p => p.id === a.printerId)?.name?.toLowerCase() || "";
           bValue = printers.find(p => p.id === b.printerId)?.name?.toLowerCase() || "";
           break;
+        case "separateTicket":
+          aValue = a.separateTicket ? 1 : 0;
+          bValue = b.separateTicket ? 1 : 0;
+          break;
         case "available":
           aValue = a.available ? 1 : 0;
           bValue = b.available ? 1 : 0;
@@ -131,6 +135,19 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
       toast.success(
         `"${food.name}" ${updated.available ? t.foods.toastUpdated : t.foods.toastUpdated}`
       );
+    } catch (error) {
+      toast.error(t.foods.toastErrorUpdate);
+    } finally {
+      setTogglingId(null);
+    }
+  }
+
+  async function handleSeparateTicketToggle(food: Food) {
+    setTogglingId(food.id);
+    try {
+      const updated = await toggleFoodSeparateTicket(food.id, !food.separateTicket);
+      onToggle({ ...food, separateTicket: updated.separateTicket });
+      toast.success(`"${food.name}" ${t.foods.toastUpdated}`);
     } catch (error) {
       toast.error(t.foods.toastErrorUpdate);
     } finally {
@@ -206,6 +223,16 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
                 <SortIcon column="printer" />
               </button>
             </TableHead>
+            <TableHead className="hidden lg:table-cell w-36">
+              <button
+                onClick={() => handleSort("separateTicket")}
+                className="flex items-center mx-auto hover:text-foreground transition-colors font-medium"
+                title={t.foods.separateTicketHint}
+              >
+                {t.foods.columnSeparateTicket}
+                <SortIcon column="separateTicket" />
+              </button>
+            </TableHead>
             <TableHead className="w-32">
               <button
                 onClick={() => handleSort("available")}
@@ -273,6 +300,16 @@ export function FoodsTable({ foods, onEdit, onToggle }: FoodsTableProps) {
               </TableCell>
               <TableCell className="hidden md:table-cell text-sm">
                 {food.printerId ? printers.find(p => p.id === food.printerId)?.name || food.printerId : "—"}
+              </TableCell>
+              <TableCell className="hidden lg:table-cell text-center">
+                <div className="flex justify-center">
+                  <Checkbox
+                    checked={food.separateTicket}
+                    disabled={isReadOnly || togglingId === food.id}
+                    onCheckedChange={() => !isReadOnly && handleSeparateTicketToggle(food)}
+                    aria-label={t.foods.columnSeparateTicket}
+                  />
+                </div>
               </TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center">

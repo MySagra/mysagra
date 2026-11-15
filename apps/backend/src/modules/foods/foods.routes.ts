@@ -88,7 +88,7 @@ export const foodsModule = createModule({
         route({
             method: "patch",
             path: "/{id}",
-            summary: "Patch food availability or printer",
+            summary: "Patch food availability, printer or separate ticket",
             security: [{ cookieAuth: [] }],
             middlewares: [authenticate(["admin", "maintainer"])],
             params: cuidParamSchema,
