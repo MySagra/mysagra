@@ -269,10 +269,16 @@ class FoodsService {
                 data: {
                     printerId: food.printerId,
                     available: food.available,
+                    separateTicket: food.separateTicket,
                 }
             })
 
             let categoryUpdated = null;
+
+            // the category availability follows the foods only when the availability is patched
+            if (food.available === undefined) {
+                return { patchedFood, categoryUpdated };
+            }
 
             const hasDifferentAvailability = await tx.food.count({
                 where: {

@@ -28,20 +28,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
 
-      - uses: pnpm/action-setup@v3
-        with:
-            version: 8
+      # pnpm version is read from the root package.json "packageManager" field
+      # (same pnpm 12.3.4 used by the Docker images)
+      - uses: pnpm/action-setup@v4
 
-      - name: Setupe NodeJs Environment
+      - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 26 # keep in sync with docker/images/*/Dockerfile
           cache: 'pnpm'
+
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
-        run: pnpm --filter mysagra-backend exec prisma generate
+        run: pnpm --filter @mysagra/database run generate
  
       - name: Build
         run: pnpm build

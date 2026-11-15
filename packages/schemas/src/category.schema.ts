@@ -59,6 +59,16 @@ export const PatchCategorySchema = z.object({
     description: "Payload to partially update a category"
 })
 
+// Bulk edit of the category foods: the flag lives on each food, the category has no copy of it
+export const PatchCategoryFoodsSchema = z.object({
+    separateTicket: z.boolean().meta({
+        description: "Set whether every food of the category is printed on its own pickup ticket"
+    })
+}).meta({
+    id: "PatchCategoryFoodsRequest",
+    description: "Payload to update every food of a category at once"
+})
+
 export const ReorderCategoriesSchema = z.object({
     ids: z.array(z.cuid()).min(1)
         .refine(ids => new Set(ids).size === ids.length, {
@@ -141,7 +151,8 @@ export const CategoryResponseSchema = z.object({
 export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>
 export type UpdateCategoryInput = z.infer<typeof UpdateCategorySchema>
 export type PatchCategoryInput = z.infer<typeof PatchCategorySchema>
-export type ReorderCategoriesInput = z.infer<typeof ReorderCategoriesSchema>
+export type PatchCategoryFoodsInput = z.infer<typeof PatchCategoryFoodsSchema>
+export type ReorderCategoriesInput =z.infer<typeof ReorderCategoriesSchema>
 export type UploadCategoryImageInput = z.infer<typeof UploadCategoryImageSchema>
 export type GetCategoriesQuery = z.infer<typeof GetCategoriesQuerySchema>
 export type GetCategoryQuery = z.infer<typeof GetCategoryQuerySchema>

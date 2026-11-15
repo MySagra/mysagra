@@ -75,6 +75,19 @@ export async function toggleFoodAvailability(
   return result;
 }
 
+export async function toggleFoodSeparateTicket(
+  id: string,
+  separateTicket: boolean
+): Promise<Food> {
+  const result = await fetchApi<Food>(API_ENDPOINTS.FOODS.BY_ID(id), {
+    method: "PATCH",
+    body: JSON.stringify({ separateTicket }),
+  }, FoodSchema);
+  revalidatePath("/dashboard/foods");
+  revalidatePath("/dashboard/categories");
+  return result;
+}
+
 export async function deleteFood(id: string): Promise<ActionResult<void>> {
   try {
     await fetchApi(API_ENDPOINTS.FOODS.BY_ID(id), {

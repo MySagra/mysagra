@@ -3,6 +3,7 @@ import {
     GetCategoriesQuery,
     GetCategoryQuery,
     PatchCategoryInput,
+    PatchCategoryFoodsInput,
     ReorderCategoriesInput,
     UpdateCategoryInput
 } from "@mysagra/schemas";
@@ -139,11 +140,28 @@ class CategoriesService {
         })
     }
 
+    // Copies to the foods only the fields that changed: an edit of other fields (name, station...)
+    // must not overwrite the availability or the printer set on a single food.
+    private async propagateToFoods(
+        tx: Prisma.TransactionClient,
+        id: string,
+        previous: { available: boolean; printerId: string | null },
+        updated: { available: boolean; printerId: string | null }
+    ) {
+        const data: Prisma.FoodUncheckedUpdateManyInput = {};
+        if (previous.available !== updated.available) data.available = updated.available;
+        if (previous.printerId !== updated.printerId) data.printerId = updated.printerId;
+
+        if (Object.keys(data).length > 0) {
+            await tx.food.updateMany({ where: { categoryId: id }, data });
+        }
+    }
+
     async updateCategory(id: string, category: UpdateCategoryInput) {
         const { updatedCategory, availabilityChanged } = await prisma.$transaction(async (tx) => {
             const previous = await tx.category.findUnique({
                 where: { id },
-                select: { available: true }
+                select: { available: true, printerId: true }
             })
 
             if (!previous) {
@@ -157,16 +175,7 @@ class CategoriesService {
                 data: category
             })
 
-            const foodUpdate: Prisma.FoodUpdateManyArgs = {
-                where: {
-                    categoryId: id,
-                },
-                data: {
-                    available: category.available,
-                    printerId: category.printerId
-                }
-            }
-            await tx.food.updateMany(foodUpdate)
+            await this.propagateToFoods(tx, id, previous, updateCategory);
             return {
                 updatedCategory: updateCategory,
                 availabilityChanged: previous.available !== updateCategory.available
@@ -188,6 +197,15 @@ class CategoriesService {
 
     async patchCategory(id: string, category: PatchCategoryInput) {
         const patchedCategory = await prisma.$transaction(async (tx) => {
+            const previous = await tx.category.findUnique({
+                where: { id },
+                select: { available: true, printerId: true }
+            })
+
+            if (!previous) {
+                throw new NotFoundError("Category not found");
+            }
+
             const patchCategory = await tx.category.update({
                 where: {
                     id
@@ -195,17 +213,7 @@ class CategoriesService {
                 data: category
             });
 
-            const foodUpdate: Prisma.FoodUpdateManyArgs = {
-                where: {
-                    categoryId: id,
-                },
-                data: {
-                    available: patchCategory.available,
-                    printerId: patchCategory.printerId
-                }
-            }
-
-            await tx.food.updateMany(foodUpdate)
+            await this.propagateToFoods(tx, id, previous, patchCategory);
             return patchCategory;
         })
 
@@ -220,6 +228,26 @@ class CategoriesService {
         }
 
         return patchedCategory;
+    }
+
+    // Sets the flag on every food of the category: the category itself is not changed
+    async patchCategoryFoods(id: string, { separateTicket }: PatchCategoryFoodsInput) {
+        return await prisma.$transaction(async (tx) => {
+            const category = await tx.category.findUnique({ where: { id }, select: { id: true } });
+            if (!category) {
+                throw new NotFoundError("Category not found");
+            }
+
+            await tx.food.updateMany({
+                where: { categoryId: id },
+                data: { separateTicket }
+            });
+
+            return await tx.food.findMany({
+                where: { categoryId: id },
+                orderBy: { name: "asc" }
+            });
+        });
     }
 
     async reorderCategories({ ids }: ReorderCategoriesInput) {

@@ -9,6 +9,8 @@ import {
     CreateCategorySchema,
     UpdateCategorySchema,
     PatchCategorySchema,
+    PatchCategoryFoodsSchema,
+    FoodResponseSchema,
     ReorderCategoriesSchema,
     GetCategoriesQuerySchema,
     GetCategoryQuerySchema,
@@ -103,6 +105,7 @@ export const categoriesModule = createModule({
             description:
                 "Updates a category. Changing `available` also updates all associated foods' availability. " +
                 "Changing `printerId` (or setting it to null) propagates to all associated foods. " +
+                "Unchanged values are not propagated, so foods keep their own availability and printer. " +
                 "Can update station association via `stationId`.",
             security: [{ cookieAuth: [] }],
             middlewares: [authenticate(["admin", "maintainer"])],
@@ -122,7 +125,8 @@ export const categoriesModule = createModule({
             path: "/{id}",
             summary: "Partially update a category",
             description:
-                "Partially updates a category. Changing `available` or `printerId` propagates to all associated foods. " +
+                "Partially updates a category. Changing `available` or `printerId` propagates to all associated foods; " +
+                "unchanged values are not propagated. " +
                 "Can update station association via `stationId`.",
             security: [{ cookieAuth: [] }],
             middlewares: [authenticate(["admin", "maintainer"])],
@@ -134,6 +138,25 @@ export const categoriesModule = createModule({
             },
             handler: async (req, res) => {
                 res.status(200).json(await categoriesService.patchCategory(req.validated.params.id, req.validated.body));
+            },
+        }),
+        route({
+            method: "patch",
+            path: "/{id}/foods",
+            summary: "Update every food of a category",
+            description:
+                "Sets `separateTicket` on every food of the category. The category itself is not changed: " +
+                "the flag lives on the foods, so single foods can still be changed afterwards. Returns the updated foods.",
+            security: [{ cookieAuth: [] }],
+            middlewares: [authenticate(["admin", "maintainer"])],
+            params: cuidParamSchema,
+            body: PatchCategoryFoodsSchema,
+            responses: {
+                200: { description: "Foods updated", schema: z.array(FoodResponseSchema) },
+                404: { description: "Not Found - Category not found" },
+            },
+            handler: async (req, res) => {
+                res.status(200).json(await categoriesService.patchCategoryFoods(req.validated.params.id, req.validated.body));
             },
         }),
         route({

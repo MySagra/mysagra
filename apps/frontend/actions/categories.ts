@@ -1,10 +1,10 @@
 "use server";
 
 import { fetchApi } from "@/lib/api";
-import { API_ENDPOINTS, Category } from "@/lib/api-types";
+import { API_ENDPOINTS, Category, Food } from "@/lib/api-types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { CategorySchema as CategoryResponseSchema } from "@/lib/api-schemas";
+import { CategorySchema as CategoryResponseSchema, FoodSchema } from "@/lib/api-schemas";
 import { ActionResult, extractErrorMessage } from "@/lib/action-result";
 
 export async function getCategories(): Promise<Category[]> {
@@ -95,6 +95,24 @@ export async function toggleCategoryAvailability(
     return { ok: true, data: result };
   } catch (error) {
     return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento della disponibilità") };
+  }
+}
+
+// Sets the flag on every food of the category, returns the updated foods
+export async function setCategorySeparateTicket(
+  id: string,
+  separateTicket: boolean
+): Promise<ActionResult<Food[]>> {
+  try {
+    const result = await fetchApi<Food[]>(API_ENDPOINTS.CATEGORIES.FOODS(id), {
+      method: "PATCH",
+      body: JSON.stringify({ separateTicket }),
+    }, z.array(FoodSchema) as z.ZodType<Food[]>);
+    revalidatePath("/dashboard/categories");
+    revalidatePath("/dashboard/foods");
+    return { ok: true, data: result };
+  } catch (error) {
+    return { ok: false, error: extractErrorMessage(error, "Errore nell'aggiornamento dei ticket separati") };
   }
 }
 

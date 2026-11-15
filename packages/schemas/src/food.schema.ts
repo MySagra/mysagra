@@ -27,6 +27,10 @@ const FoodBase = {
     available: z.boolean().default(true).meta({
         description: "Whether item is available for ordering"
     }),
+    // optional, not defaulted: a PUT that leaves it out must not reset it
+    separateTicket: z.boolean().optional().meta({
+        description: "Whether the printer prints this item on its own pickup ticket. Default: false"
+    }),
     categoryId: z.cuid().meta({
         description: "Category identifier"
     }),
@@ -73,6 +77,9 @@ export const PatchFoodSchema = z.object({
     }),
     printerId: z.cuid().nullable().optional().meta({
         description: "Update assigned printer"
+    }),
+    separateTicket: z.boolean().optional().meta({
+        description: "Update whether the item is printed on its own pickup ticket"
     })
 }).refine(data => Object.keys(data).length > 0, {
     message: "At least one field must be provided"
@@ -115,6 +122,9 @@ export const FoodResponseSchema = z.object({
     }),
     ...FoodBase,
     price: decimalString("Price in currency units"),
+    separateTicket: z.boolean().meta({
+        description: "Whether the printer prints this item on its own pickup ticket"
+    }),
     // description column is nullable in the DB, so the API may return null
     description: z.string().max(250).optional().nullable().meta({
         description: "Food item description"
