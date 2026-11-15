@@ -5,9 +5,13 @@ import { Switch } from "@/components/ui/switch";
 import { useLocale } from "@/contexts/locale-context";
 import { SettingsSection, type SettingsForm } from "./settings-form";
 
-// How the stations (mycomanda monitor, pickup tickets on the printer) handle the orders they prepare
+// "Comande" tab: order preparation (mycomanda monitor) and what the stations get (pickup tickets)
 export function StationsSettingsTab({ form, settings }: { form: SettingsForm; settings: SettingsData }) {
   const { t } = useLocale();
+
+  function setPreparation(patch: Partial<SettingsData["preparation"]>) {
+    form.setSettings({ ...settings, preparation: { ...settings.preparation, ...patch } });
+  }
 
   function setStations(patch: Partial<SettingsData["stations"]>) {
     form.setSettings({ ...settings, stations: { ...settings.stations, ...patch } });
@@ -17,11 +21,11 @@ export function StationsSettingsTab({ form, settings }: { form: SettingsForm; se
     <div className="max-w-3xl divide-y">
       <SettingsSection title={t.adminSettings.monitorSection} hint={t.adminSettings.monitorSectionHint}>
         <SwitchRow
-          id="settings-auto-complete"
-          label={t.adminSettings.autoCompleteLabel}
-          hint={t.adminSettings.autoCompleteHint}
-          checked={settings.stations.autoComplete}
-          onCheckedChange={(autoComplete) => setStations({ autoComplete })}
+          id="settings-sync-completion"
+          label={t.adminSettings.syncCompletionLabel}
+          hint={t.adminSettings.syncCompletionHint}
+          checked={settings.preparation.syncCompletion}
+          onCheckedChange={(syncCompletion) => setPreparation({ syncCompletion })}
         />
       </SettingsSection>
 

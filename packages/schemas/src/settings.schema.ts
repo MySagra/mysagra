@@ -56,8 +56,10 @@ const SETTINGS_EXAMPLE = {
         opensAt: "18:30",
         closesAt: "01:00",
     },
+    preparation: {
+        syncCompletion: true,
+    },
     stations: {
-        autoComplete: true,
         pickupTickets: true,
     },
 }
@@ -124,18 +126,23 @@ export const SettingsDataSchema = z.object({
         description: "Ordering hours of the customer webapp (myclienti). Cash desks are not affected",
         example: SETTINGS_EXAMPLE.ordering
     }),
-    stations: z.object({
-        autoComplete: z.boolean().default(false).meta({
-            description: "true: an order completed at a station (e.g. mycomanda monitor) is marked as completed on the server, " +
-                "so the other apps see it, and leaves the monitor. false: the server is not updated and the order stays " +
-                "in the monitor, moved to the end of the list. Default: false"
+    preparation: z.object({
+        syncCompletion: z.boolean().default(false).meta({
+            description: "true: an order completed in the preparation monitor (e.g. mycomanda) is marked as completed " +
+                "on the server, so the other apps see it, and leaves the monitor. false: the server is not updated and " +
+                "the order stays in the monitor, moved to the end of the list. Default: false"
         }),
+    }).prefault({}).meta({
+        description: "How orders are handled while they are prepared (e.g. the mycomanda monitor)",
+        example: SETTINGS_EXAMPLE.preparation
+    }),
+    stations: z.object({
         pickupTickets: z.boolean().default(false).meta({
             description: "true: the printer prints, together with the receipt, one pickup ticket for each station " +
                 "of the order. Default: false"
         }),
     }).prefault({}).meta({
-        description: "How the stations (e.g. mycomanda) handle the orders they prepare",
+        description: "What the pickup stations get besides the order",
         example: SETTINGS_EXAMPLE.stations
     }),
 }).meta({
