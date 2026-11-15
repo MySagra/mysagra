@@ -56,6 +56,10 @@ const SETTINGS_EXAMPLE = {
         opensAt: "18:30",
         closesAt: "01:00",
     },
+    stations: {
+        autoComplete: true,
+        pickupTickets: true,
+    },
 }
 
 // Stored as a single JSON document (settings.data): every field has a default, so documents
@@ -119,6 +123,20 @@ export const SettingsDataSchema = z.object({
     }).meta({
         description: "Ordering hours of the customer webapp (myclienti). Cash desks are not affected",
         example: SETTINGS_EXAMPLE.ordering
+    }),
+    stations: z.object({
+        autoComplete: z.boolean().default(false).meta({
+            description: "true: an order completed at a station (e.g. mycomanda monitor) is marked as completed on the server, " +
+                "so the other apps see it, and leaves the monitor. false: the server is not updated and the order stays " +
+                "in the monitor, moved to the end of the list. Default: false"
+        }),
+        pickupTickets: z.boolean().default(false).meta({
+            description: "true: the printer prints, together with the receipt, one pickup ticket for each station " +
+                "of the order. Default: false"
+        }),
+    }).prefault({}).meta({
+        description: "How the stations (e.g. mycomanda) handle the orders they prepare",
+        example: SETTINGS_EXAMPLE.stations
     }),
 }).meta({
     id: "SettingsData",

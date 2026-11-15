@@ -4,6 +4,7 @@ import { NotFoundError } from "@/common/errors";
 import { sagraService } from "../sagra/sagra.service";
 import { ImagesService } from "../images/images.service";
 import path from "path";
+import { EventsService } from "../events/events.service";
 
 const RECEIPT_LOGO_FOLDER = "receipt_logo";
 
@@ -110,6 +111,8 @@ class SettingService {
         // the sagra name is cached by sagraService too
         await sagraService.loadConfig();
 
+        EventsService.globalEvent(this.cache, "settings-update");
+
         return this.cache;
     }
 
@@ -134,6 +137,7 @@ class SettingService {
         if (oldLogo && oldLogo !== file.filename) this.imageService.delete(oldLogo);
 
         this.cache = this.toResponse(sagra);
+        EventsService.globalEvent(this.cache, "settings-update");
         return this.cache;
     }
 
@@ -149,6 +153,7 @@ class SettingService {
         if (oldLogo) this.imageService.delete(oldLogo);
 
         this.cache = this.toResponse(sagra);
+        EventsService.globalEvent(this.cache, "settings-update");
         return this.cache;
     }
 }

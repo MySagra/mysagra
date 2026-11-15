@@ -143,6 +143,12 @@ export class EventsService {
         return size;
     }
 
+    static globalEvent<T>(data: T, eventName: EventName) {
+        for (const service of this.instances.values()) {
+            service.broadcastEvent(data, eventName);
+        }
+    }
+
     static broadcastEvents<T>(events: Array<EventsService>, data: T, eventName: EventName) {
         for (const event of events) {
             event.broadcastEvent(data, eventName);

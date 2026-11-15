@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { KeyRoundIcon, ShoppingCartIcon, SlidersHorizontalIcon, UsersIcon, type LucideIcon } from "lucide-react";
+import { KeyRoundIcon, ShoppingCartIcon, SlidersHorizontalIcon, UsersIcon, UtensilsIcon, type LucideIcon } from "lucide-react";
 import type { SagraSettings } from "@/actions/settings";
 import { ApiKeysContent } from "@/components/dashboard/api-keys/api-keys-content";
 import { useLocale } from "@/contexts/locale-context";
@@ -11,6 +11,7 @@ import { CashierSettingsTab } from "./cashier-settings-tab";
 import { GeneralSettingsTab } from "./general-settings-tab";
 import { SettingsSaveBar, useSettingsForm, type SettingsFormErrors } from "./settings-form";
 import { SETTINGS_TABS, type SettingsTab } from "./settings-tabs";
+import { StationsSettingsTab } from "./stations-settings-tab";
 import { UsersTab } from "./users-tab";
 
 interface SettingsHubProps {
@@ -31,12 +32,13 @@ export function SettingsHub({ tab, settings, users, roles, apiKeys }: SettingsHu
   const [apiKeyCount, setApiKeyCount] = useState(apiKeys.filter((k) => !k.revokedAt).length);
   const onUserCount = useCallback((n: number) => setUserCount(n), []);
   const onApiKeyCount = useCallback((n: number) => setApiKeyCount(n), []);
-  // one form for the general and cash desk tabs (same settings document, single save)
+  // one form for the general, cash desk and stations tabs (same settings document, single save)
   const form = useSettingsForm(settings);
 
   const tabs: Record<SettingsTab, { label: string; icon: LucideIcon; count?: number }> = {
     general: { label: t.adminSettings.tabGeneral, icon: SlidersHorizontalIcon },
     cashier: { label: t.adminSettings.tabCashier, icon: ShoppingCartIcon },
+    stations: { label: t.adminSettings.tabStations, icon: UtensilsIcon },
     users: { label: t.adminSettings.tabUsers, icon: UsersIcon, count: userCount },
     "api-keys": { label: t.adminSettings.tabApiKeys, icon: KeyRoundIcon, count: apiKeyCount },
   };
@@ -116,6 +118,10 @@ export function SettingsHub({ tab, settings, users, roles, apiKeys }: SettingsHu
 
         <TabPanel value="cashier" active={active}>
           {form.settings ? <CashierSettingsTab form={form} settings={form.settings} /> : <LoadError />}
+        </TabPanel>
+
+        <TabPanel value="stations" active={active}>
+          {form.settings ? <StationsSettingsTab form={form} settings={form.settings} /> : <LoadError />}
         </TabPanel>
 
         <TabPanel value="users" active={active}>
