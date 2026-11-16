@@ -115,16 +115,28 @@ export function SetupWizard({ defaultSettings }: SetupWizardProps) {
     return next;
   }
 
+  // going back is always allowed; going forward needs every step in between to be valid
+  function goTo(target: Step) {
+    const targetIndex = STEPS.indexOf(target);
+    for (const s of STEPS.slice(stepIndex, Math.max(stepIndex, targetIndex))) {
+      const found = validate(s);
+      if (Object.keys(found).length > 0) {
+        // stop on the first invalid step and show what is missing there
+        setStep(s);
+        setErrors(found);
+        return;
+      }
+    }
+    setErrors({});
+    setStep(target);
+  }
+
   function goNext() {
-    const found = validate(step);
-    setErrors(found);
-    if (Object.keys(found).length > 0) return;
-    setStep(STEPS[stepIndex + 1]);
+    goTo(STEPS[stepIndex + 1]);
   }
 
   function goBack() {
-    setErrors({});
-    setStep(STEPS[stepIndex - 1]);
+    goTo(STEPS[stepIndex - 1]);
   }
 
   // sign in only now: doing it inside the setup action would refresh /setup and skip the done screen
@@ -213,21 +225,37 @@ export function SetupWizard({ defaultSettings }: SetupWizardProps) {
         <nav aria-label={t.setup.breadcrumb} className="mx-auto w-full max-w-3xl px-6">
           <ol className="grid grid-cols-6 gap-2">
             {STEPS.map((s, index) => (
-              <li key={s} className="flex flex-col gap-2" aria-current={s === step ? "step" : undefined}>
-                <span
-                  className={cn(
-                    "h-1 rounded-full transition-colors",
-                    index <= stepIndex ? "bg-primary" : "bg-muted"
-                  )}
-                />
-                <span
-                  className={cn(
-                    "text-xs truncate",
-                    s === step ? "font-semibold text-foreground" : index < stepIndex ? "text-foreground/80" : "text-muted-foreground"
-                  )}
+              <li key={s}>
+                <button
+                  type="button"
+                  onClick={() => goTo(s)}
+                  disabled={isSubmitting}
+                  aria-current={s === step ? "step" : undefined}
+                  className="group flex w-full cursor-pointer flex-col gap-2 rounded-sm py-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed aria-[current=step]:cursor-default"
                 >
-                  {stepLabels[s]}
-                </span>
+                  <span
+                    className={cn(
+                      "h-1 w-full rounded-full transition-colors",
+                      index < stepIndex
+                        ? "bg-primary group-hover:bg-primary/70"
+                        : index === stepIndex
+                          ? "bg-primary"
+                          : "bg-muted group-hover:bg-muted-foreground/40"
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "text-xs truncate transition-colors",
+                      s === step
+                        ? "font-semibold text-foreground"
+                        : index < stepIndex
+                          ? "text-foreground/80 group-hover:text-foreground group-hover:underline underline-offset-4"
+                          : "text-muted-foreground group-hover:text-foreground"
+                    )}
+                  >
+                    {stepLabels[s]}
+                  </span>
+                </button>
               </li>
             ))}
           </ol>
