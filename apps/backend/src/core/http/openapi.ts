@@ -48,6 +48,7 @@ export function generateOpenApiDocument() {
             { name: 'Ingredients' },
             { name: 'Orders' },
             { name: 'Printers' },
+            { name: 'Displays' },
             { name: 'CashRegisters' },
             { name: 'Reports' },
             { name: 'Banners' },

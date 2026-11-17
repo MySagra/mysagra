@@ -63,6 +63,21 @@ export interface StationRequest {
   name: string;
 }
 
+// Displays
+export type DisplayView = "READY" | "PREPARING" | "HYBRID";
+
+export interface Display {
+  id: string;
+  name: string;
+  description: string | null;
+  view: DisplayView;
+  showAlert: boolean;
+  autoScroll: boolean;
+  stationIds: string[];
+}
+
+export type DisplayRequest = Omit<Display, "id">;
+
 // Categories
 export interface Category {
   id: string;
@@ -304,6 +319,10 @@ export const API_ENDPOINTS = {
   STATIONS: {
     ALL: "/v1/stations",
     BY_ID: (id: string) => `/v1/stations/${id}`,
+  },
+  DISPLAYS: {
+    ALL: "/v1/displays",
+    BY_ID: (id: string) => `/v1/displays/${id}`,
   },
   CATEGORIES: {
     ALL: "/v1/categories",

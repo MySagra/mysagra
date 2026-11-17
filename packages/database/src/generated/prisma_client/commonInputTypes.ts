@@ -287,6 +287,23 @@ export type EnumPrinterStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPrinterStatusFilter<$PrismaModel>
 }
 
+export type EnumDisplayViewFilter<$PrismaModel = never> = {
+  equals?: $Enums.DisplayView | Prisma.EnumDisplayViewFieldRefInput<$PrismaModel>
+  in?: $Enums.DisplayView[]
+  notIn?: $Enums.DisplayView[]
+  not?: Prisma.NestedEnumDisplayViewFilter<$PrismaModel> | $Enums.DisplayView
+}
+
+export type EnumDisplayViewWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DisplayView | Prisma.EnumDisplayViewFieldRefInput<$PrismaModel>
+  in?: $Enums.DisplayView[]
+  notIn?: $Enums.DisplayView[]
+  not?: Prisma.NestedEnumDisplayViewWithAggregatesFilter<$PrismaModel> | $Enums.DisplayView
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDisplayViewFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDisplayViewFilter<$PrismaModel>
+}
+
 export type IntNullableFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
   in?: number[] | null
@@ -653,6 +670,23 @@ export type NestedEnumPrinterStatusWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPrinterStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPrinterStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumDisplayViewFilter<$PrismaModel = never> = {
+  equals?: $Enums.DisplayView | Prisma.EnumDisplayViewFieldRefInput<$PrismaModel>
+  in?: $Enums.DisplayView[]
+  notIn?: $Enums.DisplayView[]
+  not?: Prisma.NestedEnumDisplayViewFilter<$PrismaModel> | $Enums.DisplayView
+}
+
+export type NestedEnumDisplayViewWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DisplayView | Prisma.EnumDisplayViewFieldRefInput<$PrismaModel>
+  in?: $Enums.DisplayView[]
+  notIn?: $Enums.DisplayView[]
+  not?: Prisma.NestedEnumDisplayViewWithAggregatesFilter<$PrismaModel> | $Enums.DisplayView
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDisplayViewFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDisplayViewFilter<$PrismaModel>
 }
 
 export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {

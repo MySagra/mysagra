@@ -52,3 +52,12 @@ export const PrinterStatus = {
 } as const
 
 export type PrinterStatus = (typeof PrinterStatus)[keyof typeof PrinterStatus]
+
+
+export const DisplayView = {
+  READY: 'READY',
+  PREPARING: 'PREPARING',
+  HYBRID: 'HYBRID'
+} as const
+
+export type DisplayView = (typeof DisplayView)[keyof typeof DisplayView]

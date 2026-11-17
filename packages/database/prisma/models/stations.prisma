@@ -4,6 +4,7 @@ model Station {
 
   categories         Category[]
   orderStationStates OrderStationStatus[]
+  displays           Display[]
 
   @@map("stations")
 }
@@ -40,4 +41,25 @@ model CashRegister {
   confirmedOrders ConfirmedOrder[]
 
   @@map("cash_registers")
+}
+
+enum DisplayView {
+  READY
+  PREPARING
+  HYBRID
+}
+
+model Display {
+  id          String  @id @default(cuid())
+  name        String  @unique @db.VarChar(100)
+  description String? @db.VarChar(250)
+
+  // settings
+  view       DisplayView @default(READY)
+  showAlert  Boolean     @default(true)
+  autoScroll Boolean     @default(true)
+
+  stations Station[]
+
+  @@map("displays")
 }

@@ -68,6 +68,7 @@ export const ModelName = {
   Station: 'Station',
   Printer: 'Printer',
   CashRegister: 'CashRegister',
+  Display: 'Display',
   Report: 'Report',
   CashRegisterStats: 'CashRegisterStats',
   CategoryStats: 'CategoryStats',
@@ -295,6 +296,18 @@ export const CashRegisterScalarFieldEnum = {
 } as const
 
 export type CashRegisterScalarFieldEnum = (typeof CashRegisterScalarFieldEnum)[keyof typeof CashRegisterScalarFieldEnum]
+
+
+export const DisplayScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  view: 'view',
+  showAlert: 'showAlert',
+  autoScroll: 'autoScroll'
+} as const
+
+export type DisplayScalarFieldEnum = (typeof DisplayScalarFieldEnum)[keyof typeof DisplayScalarFieldEnum]
 
 
 export const ReportScalarFieldEnum = {
@@ -554,6 +567,15 @@ export const CashRegisterOrderByRelevanceFieldEnum = {
 } as const
 
 export type CashRegisterOrderByRelevanceFieldEnum = (typeof CashRegisterOrderByRelevanceFieldEnum)[keyof typeof CashRegisterOrderByRelevanceFieldEnum]
+
+
+export const DisplayOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description'
+} as const
+
+export type DisplayOrderByRelevanceFieldEnum = (typeof DisplayOrderByRelevanceFieldEnum)[keyof typeof DisplayOrderByRelevanceFieldEnum]
 
 
 export const ReportOrderByRelevanceFieldEnum = {
