@@ -25,6 +25,9 @@ export function useRole() {
     // Create/delete printers — admin only
     canCreatePrinters: role === "admin",
     canCreateCashRegisters: role === "admin",
+    // Displays — admin creates, admin and maintainer edit (PUT/PATCH)
+    canCreateDisplays: role === "admin",
+    canEditDisplays: role === "admin" || role === "maintainer",
     // Edit full printer record (PUT) — admin only; PATCH (status) is shared
     canEditPrinters: role === "admin",
     // API Keys management — admin only

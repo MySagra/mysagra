@@ -401,6 +401,7 @@ export const ModelName = {
   Station: 'Station',
   Printer: 'Printer',
   CashRegister: 'CashRegister',
+  Display: 'Display',
   Report: 'Report',
   CashRegisterStats: 'CashRegisterStats',
   CategoryStats: 'CategoryStats',
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "role" | "user" | "session" | "apiKey" | "banner" | "orderInstruction" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "confirmedOrder" | "orderStationStatus" | "orderItem" | "station" | "printer" | "cashRegister" | "report" | "cashRegisterStats" | "categoryStats" | "foodStats" | "sagra" | "settings"
+    modelProps: "role" | "user" | "session" | "apiKey" | "banner" | "orderInstruction" | "category" | "ingredient" | "food" | "foodIngredient" | "order" | "confirmedOrder" | "orderStationStatus" | "orderItem" | "station" | "printer" | "cashRegister" | "display" | "report" | "cashRegisterStats" | "categoryStats" | "foodStats" | "sagra" | "settings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1548,6 +1549,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Display: {
+      payload: Prisma.$DisplayPayload<ExtArgs>
+      fields: Prisma.DisplayFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DisplayFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DisplayFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload>
+        }
+        findFirst: {
+          args: Prisma.DisplayFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DisplayFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload>
+        }
+        findMany: {
+          args: Prisma.DisplayFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload>[]
+        }
+        create: {
+          args: Prisma.DisplayCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload>
+        }
+        createMany: {
+          args: Prisma.DisplayCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.DisplayDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload>
+        }
+        update: {
+          args: Prisma.DisplayUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload>
+        }
+        deleteMany: {
+          args: Prisma.DisplayDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DisplayUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.DisplayUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DisplayPayload>
+        }
+        aggregate: {
+          args: Prisma.DisplayAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDisplay>
+        }
+        groupBy: {
+          args: Prisma.DisplayGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DisplayGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DisplayCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DisplayCountAggregateOutputType> | number
+        }
+      }
+    }
     Report: {
       payload: Prisma.$ReportPayload<ExtArgs>
       fields: Prisma.ReportFieldRefs
@@ -2188,6 +2255,18 @@ export const CashRegisterScalarFieldEnum = {
 export type CashRegisterScalarFieldEnum = (typeof CashRegisterScalarFieldEnum)[keyof typeof CashRegisterScalarFieldEnum]
 
 
+export const DisplayScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  view: 'view',
+  showAlert: 'showAlert',
+  autoScroll: 'autoScroll'
+} as const
+
+export type DisplayScalarFieldEnum = (typeof DisplayScalarFieldEnum)[keyof typeof DisplayScalarFieldEnum]
+
+
 export const ReportScalarFieldEnum = {
   id: 'id',
   timestamp: 'timestamp',
@@ -2447,6 +2526,15 @@ export const CashRegisterOrderByRelevanceFieldEnum = {
 export type CashRegisterOrderByRelevanceFieldEnum = (typeof CashRegisterOrderByRelevanceFieldEnum)[keyof typeof CashRegisterOrderByRelevanceFieldEnum]
 
 
+export const DisplayOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description'
+} as const
+
+export type DisplayOrderByRelevanceFieldEnum = (typeof DisplayOrderByRelevanceFieldEnum)[keyof typeof DisplayOrderByRelevanceFieldEnum]
+
+
 export const ReportOrderByRelevanceFieldEnum = {
   id: 'id'
 } as const
@@ -2594,6 +2682,13 @@ export type EnumPrinterStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
+ * Reference to a field of type 'DisplayView'
+ */
+export type EnumDisplayViewFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DisplayView'>
+    
+
+
+/**
  * Reference to a field of type 'Json'
  */
 export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -2725,6 +2820,7 @@ export type GlobalOmitConfig = {
   station?: Prisma.StationOmit
   printer?: Prisma.PrinterOmit
   cashRegister?: Prisma.CashRegisterOmit
+  display?: Prisma.DisplayOmit
   report?: Prisma.ReportOmit
   cashRegisterStats?: Prisma.CashRegisterStatsOmit
   categoryStats?: Prisma.CategoryStatsOmit

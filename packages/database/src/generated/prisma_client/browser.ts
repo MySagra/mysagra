@@ -103,6 +103,11 @@ export type Printer = Prisma.PrinterModel
  */
 export type CashRegister = Prisma.CashRegisterModel
 /**
+ * Model Display
+ * 
+ */
+export type Display = Prisma.DisplayModel
+/**
  * Model Report
  * 
  */

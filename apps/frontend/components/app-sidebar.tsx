@@ -27,6 +27,7 @@ import {
   ImageIcon,
   BarChart3,
   UtensilsIcon,
+  MonitorIcon,
 } from "lucide-react"
 import { useLocale } from "@/contexts/locale-context"
 
@@ -94,6 +95,11 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
         title: t.nav.printers,
         url: "/dashboard/printers",
         icon: PrinterIcon,
+      },
+      {
+        title: t.nav.displays,
+        url: "/dashboard/displays",
+        icon: MonitorIcon,
       },
       // sagra settings, users and API keys in one place
       ...(isAdmin
