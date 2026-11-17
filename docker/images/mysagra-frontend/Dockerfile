@@ -48,9 +48,9 @@ COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/.next/standalone 
 COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/.next/static ./apps/frontend/.next/static
 COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/public ./apps/frontend/public
 
-EXPOSE 3000
+EXPOSE 3030
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3030
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "apps/frontend/server.js"]

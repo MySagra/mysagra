@@ -26,7 +26,7 @@ export function SetupCreating({ sagraName, finished }: { sagraName: string; fini
       <div className="relative flex size-28 items-center justify-center">
         <span className="absolute inset-0 rounded-full border-4 border-muted" />
         <span className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary motion-safe:animate-spin" />
-        <img src="/logo.svg" alt="" className="h-14 w-auto motion-safe:animate-pulse" />
+        <img src="/logo-amministratore.svg" alt="" className="h-14 w-auto motion-safe:animate-pulse" />
       </div>
 
       <div className="space-y-2">

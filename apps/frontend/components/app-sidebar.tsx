@@ -122,7 +122,7 @@ export function AppSidebar({ user, userRole, ...props }: AppSidebarProps) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
                 <div className="flex aspect-square size-16 items-center justify-center rounded-lg overflow-hidden">
-                  <img src="/icona.png" alt="MySagra Logo" className="object-contain p-2 w-full h-full" />
+                  <img src="/logo-amministratore.svg" alt="MyAmministratore Logo" className="object-contain p-2 w-full h-full" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-bold text-2xl">MySagra</span>

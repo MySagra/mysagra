@@ -9,10 +9,10 @@ services:
       mysagra-backend:
         condition: service_healthy
     ports:
-      - "3000:3000"
+      - "3030:3030"
     environment:
       - API_URL=http://mysagra-backend:4300
-      - AUTH_URL=http://localhost:3000
+      - AUTH_URL=http://localhost:3030
       - ENABLE_TABLE_SERVICE=true
       - AUTH_SECRET=${AUTH_SECRET}
     restart: unless-stopped

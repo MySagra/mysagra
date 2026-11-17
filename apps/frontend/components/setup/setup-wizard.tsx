@@ -193,7 +193,7 @@ export function SetupWizard({ defaultSettings }: SetupWizardProps) {
       {/* ── Header ── */}
       <header className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
-          <img src="/logo.svg" alt="" className="h-9 w-auto select-none" />
+          <img src="/logo-amministratore.svg" alt="" className="h-9 w-auto select-none" />
           <span className="font-semibold">MySagra</span>
           <span className="text-muted-foreground">/</span>
           <span className="text-sm text-muted-foreground">{t.setup.breadcrumb}</span>

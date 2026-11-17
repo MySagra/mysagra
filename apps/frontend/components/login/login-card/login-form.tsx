@@ -83,7 +83,7 @@ export function LoginForm() {
                         onSubmit={form.handleSubmit(onSubmit, onError)}
                     >
                         <img
-                            src="/logo.svg"
+                            src="/logo-amministratore.svg"
                             alt="Logo"
                             className="mx-auto h-20 sm:h-24 md:h-28 w-auto select-none"
                         />

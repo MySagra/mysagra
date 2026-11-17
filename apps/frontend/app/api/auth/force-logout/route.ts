@@ -27,7 +27,7 @@ export async function GET(req: Request) {
     }
   }
 
-  const loginUrl = new URL("/login", process.env.AUTH_URL || "http://localhost:5000");
+  const loginUrl = new URL("/login", process.env.AUTH_URL || "http://localhost:3030");
   if (reason) loginUrl.searchParams.set("reason", reason);
 
   const response = NextResponse.redirect(loginUrl);

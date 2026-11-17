@@ -20,7 +20,7 @@ export default defineConfig({
             DATABASE_URL: "mysql://user:pass@localhost:3306/test",
             PEPPER: "test-pepper",
             REDIS_URL: "redis://localhost:6379",
-            ALLOWED_ORIGINS: "http://localhost:3000",
+            ALLOWED_ORIGINS: "http://localhost:3030",
             FILE_BASE_PATH: ".",
         },
         coverage: {
