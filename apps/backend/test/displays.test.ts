@@ -27,6 +27,7 @@ import { registerModules } from "@/core/http";
 import { errorHandler } from "@/middlewares/errorHandler";
 import { displaysModule } from "@/modules/displays/displays.route";
 import { generateOpenApiDocument } from "@/core/http/openapi";
+import { EventsService } from "@/modules/events/events.service";
 
 const DISPLAY_ID = "clv1abc2defghijklmnopqrst";
 const STATION_A = "clv1def2ghijklmnopqrstuvw";
@@ -70,8 +71,12 @@ function buildApp(role: SessionPayload["role"] | null = "admin") {
     return app;
 }
 
+const displayEvent = EventsService.getInstance("display");
+
 beforeEach(() => {
+    vi.restoreAllMocks();
     vi.clearAllMocks();
+    vi.spyOn(displayEvent, "broadcastEvent").mockImplementation(() => {});
 });
 
 describe("display schemas", () => {
@@ -355,6 +360,43 @@ describe("DELETE /v1/displays/{id}", () => {
 
         expect(res.status).toBe(403);
         expect(display.delete).not.toHaveBeenCalled();
+    });
+});
+
+describe("display-update event", () => {
+    it("is broadcast on the display channel with the updated display after a PUT", async () => {
+        display.update.mockResolvedValue({ ...dbDisplay, view: "HYBRID" });
+
+        const res = await request(buildApp()).put(`/v1/displays/${DISPLAY_ID}`).send(validBody);
+
+        expect(displayEvent.broadcastEvent).toHaveBeenCalledOnce();
+        expect(displayEvent.broadcastEvent).toHaveBeenCalledWith(res.body, "display-update");
+        expect(res.body).toMatchObject({ id: DISPLAY_ID, view: "HYBRID", stationIds: [STATION_A, STATION_B] });
+    });
+
+    it("is broadcast after a PATCH", async () => {
+        display.update.mockResolvedValue({ ...dbDisplay, autoScroll: false });
+
+        const res = await request(buildApp()).patch(`/v1/displays/${DISPLAY_ID}`).send({ autoScroll: false });
+
+        expect(displayEvent.broadcastEvent).toHaveBeenCalledOnce();
+        expect(displayEvent.broadcastEvent).toHaveBeenCalledWith(res.body, "display-update");
+    });
+
+    it("is not broadcast when the update fails", async () => {
+        display.update.mockRejectedValue(prismaError("P2025"));
+
+        await request(buildApp()).patch(`/v1/displays/${DISPLAY_ID}`).send({ autoScroll: false });
+
+        expect(displayEvent.broadcastEvent).not.toHaveBeenCalled();
+    });
+
+    it("is not broadcast on create", async () => {
+        display.create.mockResolvedValue(dbDisplay);
+
+        await request(buildApp()).post("/v1/displays").send({ name: "Display ingresso" });
+
+        expect(displayEvent.broadcastEvent).not.toHaveBeenCalled();
     });
 });
 

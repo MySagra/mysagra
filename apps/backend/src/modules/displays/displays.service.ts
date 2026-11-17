@@ -6,6 +6,7 @@ import {
     GetDisplayQuery,
 } from "@mysagra/schemas";
 import { NotFoundError } from "@/common/errors";
+import { EventsService } from "../events/events.service";
 
 type DisplayWithStations = Prisma.DisplayGetPayload<{ include: { stations: true } }>;
 
@@ -23,6 +24,14 @@ function toStationRefs(stationIds: string[]) {
 }
 
 class DisplaysService {
+    private event = EventsService.getInstance('display')
+
+    // Every display receives the event and applies it only when the id is its own
+    private broadcastUpdate(display: ReturnType<typeof toResponse>) {
+        this.event.broadcastEvent(display, "display-update");
+        return display;
+    }
+
     async getDisplays(query: GetDisplayQuery = {}) {
         const displays = await prisma.display.findMany({
             include: { stations: true },
@@ -67,7 +76,7 @@ class DisplaysService {
             include: { stations: true }
         });
 
-        return toResponse(updatedDisplay);
+        return this.broadcastUpdate(toResponse(updatedDisplay));
     }
 
     async patchDisplay(id: string, { stationIds, ...settings }: PatchDisplayInput) {
@@ -80,7 +89,7 @@ class DisplaysService {
             include: { stations: true }
         });
 
-        return toResponse(patchedDisplay);
+        return this.broadcastUpdate(toResponse(patchedDisplay));
     }
 
     async deleteDisplay(id: string) {
