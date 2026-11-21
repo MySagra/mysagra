@@ -20,8 +20,18 @@ export type DisplayModel = runtime.Types.Result.DefaultSelection<Prisma.$Display
 
 export type AggregateDisplay = {
   _count: DisplayCountAggregateOutputType | null
+  _avg: DisplayAvgAggregateOutputType | null
+  _sum: DisplaySumAggregateOutputType | null
   _min: DisplayMinAggregateOutputType | null
   _max: DisplayMaxAggregateOutputType | null
+}
+
+export type DisplayAvgAggregateOutputType = {
+  zoom: number | null
+}
+
+export type DisplaySumAggregateOutputType = {
+  zoom: number | null
 }
 
 export type DisplayMinAggregateOutputType = {
@@ -31,6 +41,8 @@ export type DisplayMinAggregateOutputType = {
   view: $Enums.DisplayView | null
   showAlert: boolean | null
   autoScroll: boolean | null
+  zoom: number | null
+  alert: string | null
 }
 
 export type DisplayMaxAggregateOutputType = {
@@ -40,6 +52,8 @@ export type DisplayMaxAggregateOutputType = {
   view: $Enums.DisplayView | null
   showAlert: boolean | null
   autoScroll: boolean | null
+  zoom: number | null
+  alert: string | null
 }
 
 export type DisplayCountAggregateOutputType = {
@@ -49,9 +63,19 @@ export type DisplayCountAggregateOutputType = {
   view: number
   showAlert: number
   autoScroll: number
+  zoom: number
+  alert: number
   _all: number
 }
 
+
+export type DisplayAvgAggregateInputType = {
+  zoom?: true
+}
+
+export type DisplaySumAggregateInputType = {
+  zoom?: true
+}
 
 export type DisplayMinAggregateInputType = {
   id?: true
@@ -60,6 +84,8 @@ export type DisplayMinAggregateInputType = {
   view?: true
   showAlert?: true
   autoScroll?: true
+  zoom?: true
+  alert?: true
 }
 
 export type DisplayMaxAggregateInputType = {
@@ -69,6 +95,8 @@ export type DisplayMaxAggregateInputType = {
   view?: true
   showAlert?: true
   autoScroll?: true
+  zoom?: true
+  alert?: true
 }
 
 export type DisplayCountAggregateInputType = {
@@ -78,6 +106,8 @@ export type DisplayCountAggregateInputType = {
   view?: true
   showAlert?: true
   autoScroll?: true
+  zoom?: true
+  alert?: true
   _all?: true
 }
 
@@ -119,6 +149,18 @@ export type DisplayAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: DisplayAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: DisplaySumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: DisplayMinAggregateInputType
@@ -149,6 +191,8 @@ export type DisplayGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: DisplayCountAggregateInputType | true
+  _avg?: DisplayAvgAggregateInputType
+  _sum?: DisplaySumAggregateInputType
   _min?: DisplayMinAggregateInputType
   _max?: DisplayMaxAggregateInputType
 }
@@ -160,7 +204,11 @@ export type DisplayGroupByOutputType = {
   view: $Enums.DisplayView
   showAlert: boolean
   autoScroll: boolean
+  zoom: number
+  alert: string | null
   _count: DisplayCountAggregateOutputType | null
+  _avg: DisplayAvgAggregateOutputType | null
+  _sum: DisplaySumAggregateOutputType | null
   _min: DisplayMinAggregateOutputType | null
   _max: DisplayMaxAggregateOutputType | null
 }
@@ -190,6 +238,8 @@ export type DisplayWhereInput = {
   view?: Prisma.EnumDisplayViewFilter<"Display"> | $Enums.DisplayView
   showAlert?: Prisma.BoolFilter<"Display"> | boolean
   autoScroll?: Prisma.BoolFilter<"Display"> | boolean
+  zoom?: Prisma.IntFilter<"Display"> | number
+  alert?: Prisma.StringNullableFilter<"Display"> | string | null
   stations?: Prisma.StationListRelationFilter
 }
 
@@ -200,6 +250,8 @@ export type DisplayOrderByWithRelationInput = {
   view?: Prisma.SortOrder
   showAlert?: Prisma.SortOrder
   autoScroll?: Prisma.SortOrder
+  zoom?: Prisma.SortOrder
+  alert?: Prisma.SortOrderInput | Prisma.SortOrder
   stations?: Prisma.StationOrderByRelationAggregateInput
   _relevance?: Prisma.DisplayOrderByRelevanceInput
 }
@@ -214,6 +266,8 @@ export type DisplayWhereUniqueInput = Prisma.AtLeast<{
   view?: Prisma.EnumDisplayViewFilter<"Display"> | $Enums.DisplayView
   showAlert?: Prisma.BoolFilter<"Display"> | boolean
   autoScroll?: Prisma.BoolFilter<"Display"> | boolean
+  zoom?: Prisma.IntFilter<"Display"> | number
+  alert?: Prisma.StringNullableFilter<"Display"> | string | null
   stations?: Prisma.StationListRelationFilter
 }, "id" | "name">
 
@@ -224,9 +278,13 @@ export type DisplayOrderByWithAggregationInput = {
   view?: Prisma.SortOrder
   showAlert?: Prisma.SortOrder
   autoScroll?: Prisma.SortOrder
+  zoom?: Prisma.SortOrder
+  alert?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DisplayCountOrderByAggregateInput
+  _avg?: Prisma.DisplayAvgOrderByAggregateInput
   _max?: Prisma.DisplayMaxOrderByAggregateInput
   _min?: Prisma.DisplayMinOrderByAggregateInput
+  _sum?: Prisma.DisplaySumOrderByAggregateInput
 }
 
 export type DisplayScalarWhereWithAggregatesInput = {
@@ -239,6 +297,8 @@ export type DisplayScalarWhereWithAggregatesInput = {
   view?: Prisma.EnumDisplayViewWithAggregatesFilter<"Display"> | $Enums.DisplayView
   showAlert?: Prisma.BoolWithAggregatesFilter<"Display"> | boolean
   autoScroll?: Prisma.BoolWithAggregatesFilter<"Display"> | boolean
+  zoom?: Prisma.IntWithAggregatesFilter<"Display"> | number
+  alert?: Prisma.StringNullableWithAggregatesFilter<"Display"> | string | null
 }
 
 export type DisplayCreateInput = {
@@ -248,6 +308,8 @@ export type DisplayCreateInput = {
   view?: $Enums.DisplayView
   showAlert?: boolean
   autoScroll?: boolean
+  zoom?: number
+  alert?: string | null
   stations?: Prisma.StationCreateNestedManyWithoutDisplaysInput
 }
 
@@ -258,6 +320,8 @@ export type DisplayUncheckedCreateInput = {
   view?: $Enums.DisplayView
   showAlert?: boolean
   autoScroll?: boolean
+  zoom?: number
+  alert?: string | null
   stations?: Prisma.StationUncheckedCreateNestedManyWithoutDisplaysInput
 }
 
@@ -268,6 +332,8 @@ export type DisplayUpdateInput = {
   view?: Prisma.EnumDisplayViewFieldUpdateOperationsInput | $Enums.DisplayView
   showAlert?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoScroll?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zoom?: Prisma.IntFieldUpdateOperationsInput | number
+  alert?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stations?: Prisma.StationUpdateManyWithoutDisplaysNestedInput
 }
 
@@ -278,6 +344,8 @@ export type DisplayUncheckedUpdateInput = {
   view?: Prisma.EnumDisplayViewFieldUpdateOperationsInput | $Enums.DisplayView
   showAlert?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoScroll?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zoom?: Prisma.IntFieldUpdateOperationsInput | number
+  alert?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stations?: Prisma.StationUncheckedUpdateManyWithoutDisplaysNestedInput
 }
 
@@ -288,6 +356,8 @@ export type DisplayCreateManyInput = {
   view?: $Enums.DisplayView
   showAlert?: boolean
   autoScroll?: boolean
+  zoom?: number
+  alert?: string | null
 }
 
 export type DisplayUpdateManyMutationInput = {
@@ -297,6 +367,8 @@ export type DisplayUpdateManyMutationInput = {
   view?: Prisma.EnumDisplayViewFieldUpdateOperationsInput | $Enums.DisplayView
   showAlert?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoScroll?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zoom?: Prisma.IntFieldUpdateOperationsInput | number
+  alert?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DisplayUncheckedUpdateManyInput = {
@@ -306,6 +378,8 @@ export type DisplayUncheckedUpdateManyInput = {
   view?: Prisma.EnumDisplayViewFieldUpdateOperationsInput | $Enums.DisplayView
   showAlert?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoScroll?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zoom?: Prisma.IntFieldUpdateOperationsInput | number
+  alert?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DisplayListRelationFilter = {
@@ -331,6 +405,12 @@ export type DisplayCountOrderByAggregateInput = {
   view?: Prisma.SortOrder
   showAlert?: Prisma.SortOrder
   autoScroll?: Prisma.SortOrder
+  zoom?: Prisma.SortOrder
+  alert?: Prisma.SortOrder
+}
+
+export type DisplayAvgOrderByAggregateInput = {
+  zoom?: Prisma.SortOrder
 }
 
 export type DisplayMaxOrderByAggregateInput = {
@@ -340,6 +420,8 @@ export type DisplayMaxOrderByAggregateInput = {
   view?: Prisma.SortOrder
   showAlert?: Prisma.SortOrder
   autoScroll?: Prisma.SortOrder
+  zoom?: Prisma.SortOrder
+  alert?: Prisma.SortOrder
 }
 
 export type DisplayMinOrderByAggregateInput = {
@@ -349,6 +431,12 @@ export type DisplayMinOrderByAggregateInput = {
   view?: Prisma.SortOrder
   showAlert?: Prisma.SortOrder
   autoScroll?: Prisma.SortOrder
+  zoom?: Prisma.SortOrder
+  alert?: Prisma.SortOrder
+}
+
+export type DisplaySumOrderByAggregateInput = {
+  zoom?: Prisma.SortOrder
 }
 
 export type DisplayCreateNestedManyWithoutStationsInput = {
@@ -400,6 +488,8 @@ export type DisplayCreateWithoutStationsInput = {
   view?: $Enums.DisplayView
   showAlert?: boolean
   autoScroll?: boolean
+  zoom?: number
+  alert?: string | null
 }
 
 export type DisplayUncheckedCreateWithoutStationsInput = {
@@ -409,6 +499,8 @@ export type DisplayUncheckedCreateWithoutStationsInput = {
   view?: $Enums.DisplayView
   showAlert?: boolean
   autoScroll?: boolean
+  zoom?: number
+  alert?: string | null
 }
 
 export type DisplayCreateOrConnectWithoutStationsInput = {
@@ -442,6 +534,8 @@ export type DisplayScalarWhereInput = {
   view?: Prisma.EnumDisplayViewFilter<"Display"> | $Enums.DisplayView
   showAlert?: Prisma.BoolFilter<"Display"> | boolean
   autoScroll?: Prisma.BoolFilter<"Display"> | boolean
+  zoom?: Prisma.IntFilter<"Display"> | number
+  alert?: Prisma.StringNullableFilter<"Display"> | string | null
 }
 
 export type DisplayUpdateWithoutStationsInput = {
@@ -451,6 +545,8 @@ export type DisplayUpdateWithoutStationsInput = {
   view?: Prisma.EnumDisplayViewFieldUpdateOperationsInput | $Enums.DisplayView
   showAlert?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoScroll?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zoom?: Prisma.IntFieldUpdateOperationsInput | number
+  alert?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DisplayUncheckedUpdateWithoutStationsInput = {
@@ -460,6 +556,8 @@ export type DisplayUncheckedUpdateWithoutStationsInput = {
   view?: Prisma.EnumDisplayViewFieldUpdateOperationsInput | $Enums.DisplayView
   showAlert?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoScroll?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zoom?: Prisma.IntFieldUpdateOperationsInput | number
+  alert?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DisplayUncheckedUpdateManyWithoutStationsInput = {
@@ -469,6 +567,8 @@ export type DisplayUncheckedUpdateManyWithoutStationsInput = {
   view?: Prisma.EnumDisplayViewFieldUpdateOperationsInput | $Enums.DisplayView
   showAlert?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoScroll?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  zoom?: Prisma.IntFieldUpdateOperationsInput | number
+  alert?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -509,6 +609,8 @@ export type DisplaySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   view?: boolean
   showAlert?: boolean
   autoScroll?: boolean
+  zoom?: boolean
+  alert?: boolean
   stations?: boolean | Prisma.Display$stationsArgs<ExtArgs>
   _count?: boolean | Prisma.DisplayCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["display"]>
@@ -522,9 +624,11 @@ export type DisplaySelectScalar = {
   view?: boolean
   showAlert?: boolean
   autoScroll?: boolean
+  zoom?: boolean
+  alert?: boolean
 }
 
-export type DisplayOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "view" | "showAlert" | "autoScroll", ExtArgs["result"]["display"]>
+export type DisplayOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "view" | "showAlert" | "autoScroll" | "zoom" | "alert", ExtArgs["result"]["display"]>
 export type DisplayInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   stations?: boolean | Prisma.Display$stationsArgs<ExtArgs>
   _count?: boolean | Prisma.DisplayCountOutputTypeDefaultArgs<ExtArgs>
@@ -542,6 +646,8 @@ export type $DisplayPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     view: $Enums.DisplayView
     showAlert: boolean
     autoScroll: boolean
+    zoom: number
+    alert: string | null
   }, ExtArgs["result"]["display"]>
   composites: {}
 }
@@ -918,6 +1024,8 @@ export interface DisplayFieldRefs {
   readonly view: Prisma.FieldRef<"Display", 'DisplayView'>
   readonly showAlert: Prisma.FieldRef<"Display", 'Boolean'>
   readonly autoScroll: Prisma.FieldRef<"Display", 'Boolean'>
+  readonly zoom: Prisma.FieldRef<"Display", 'Int'>
+  readonly alert: Prisma.FieldRef<"Display", 'String'>
 }
     
 

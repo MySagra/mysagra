@@ -59,6 +59,9 @@ model Display {
   showAlert  Boolean     @default(true)
   autoScroll Boolean     @default(true)
 
+  zoom  Int     @default(100)
+  alert String? @db.VarChar(250)
+
   stations Station[]
 
   @@map("displays")
