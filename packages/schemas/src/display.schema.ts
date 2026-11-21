@@ -8,6 +8,9 @@ export const DisplayViewEnum = z.enum(["READY", "PREPARING", "HYBRID"]).meta({
     example: "READY"
 })
 
+export const DISPLAY_ZOOM_MIN = 50
+export const DISPLAY_ZOOM_MAX = 200
+
 const DisplayBase = {
     name: z.string().min(1).max(100).meta({
         description: "Name of the display",
@@ -24,6 +27,14 @@ const DisplayBase = {
     autoScroll: z.boolean().meta({
         description: "Automatically scroll through the order pages"
     }),
+    zoom: z.number().int().min(DISPLAY_ZOOM_MIN).max(DISPLAY_ZOOM_MAX).meta({
+        description: `Size of the order numbers on the display, as a percentage (${DISPLAY_ZOOM_MIN}-${DISPLAY_ZOOM_MAX})`,
+        example: 100
+    }),
+    alert: z.string().max(250).nullable().meta({
+        description: "Alert message shown on the display, null for none",
+        example: "La cucina chiude alle 22:30"
+    }),
     stationIds: z.array(z.cuid()).meta({
         description: "Identifiers of the stations whose orders are shown on the display"
     })
@@ -35,6 +46,8 @@ export const CreateDisplaySchema = z.object({
     view: DisplayBase.view.default("READY"),
     showAlert: DisplayBase.showAlert.default(true),
     autoScroll: DisplayBase.autoScroll.default(true),
+    zoom: DisplayBase.zoom.default(100),
+    alert: DisplayBase.alert.optional(),
     stationIds: DisplayBase.stationIds.default([])
 }).meta({
     id: "CreateDisplayRequest",
@@ -52,6 +65,8 @@ export const PatchDisplaySchema = z.object({
     view: DisplayBase.view.optional(),
     showAlert: DisplayBase.showAlert.optional(),
     autoScroll: DisplayBase.autoScroll.optional(),
+    zoom: DisplayBase.zoom.optional(),
+    alert: DisplayBase.alert.optional(),
     stationIds: DisplayBase.stationIds.optional()
 }).meta({
     id: "PatchDisplayRequest",

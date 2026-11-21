@@ -304,7 +304,9 @@ export const DisplayScalarFieldEnum = {
   description: 'description',
   view: 'view',
   showAlert: 'showAlert',
-  autoScroll: 'autoScroll'
+  autoScroll: 'autoScroll',
+  zoom: 'zoom',
+  alert: 'alert'
 } as const
 
 export type DisplayScalarFieldEnum = (typeof DisplayScalarFieldEnum)[keyof typeof DisplayScalarFieldEnum]
@@ -572,7 +574,8 @@ export type CashRegisterOrderByRelevanceFieldEnum = (typeof CashRegisterOrderByR
 export const DisplayOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
-  description: 'description'
+  description: 'description',
+  alert: 'alert'
 } as const
 
 export type DisplayOrderByRelevanceFieldEnum = (typeof DisplayOrderByRelevanceFieldEnum)[keyof typeof DisplayOrderByRelevanceFieldEnum]

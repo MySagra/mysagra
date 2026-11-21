@@ -73,6 +73,8 @@ export interface Display {
   view: DisplayView;
   showAlert: boolean;
   autoScroll: boolean;
+  zoom: number;
+  alert: string | null;
   stationIds: string[];
 }
 

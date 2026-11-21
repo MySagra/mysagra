@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `displays` ADD COLUMN `alert` VARCHAR(191) NULL,
+    ADD COLUMN `zoom` INTEGER NOT NULL DEFAULT 100;

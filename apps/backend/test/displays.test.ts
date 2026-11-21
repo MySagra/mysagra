@@ -43,6 +43,8 @@ const dbDisplay = {
     view: "READY",
     showAlert: true,
     autoScroll: true,
+    zoom: 100,
+    alert: null,
     stations: [stationA, stationB],
 };
 
@@ -52,6 +54,8 @@ const validBody = {
     view: "HYBRID",
     showAlert: false,
     autoScroll: true,
+    zoom: 120,
+    alert: "La cucina chiude alle 22:30",
     stationIds: [STATION_A, STATION_B],
 };
 
@@ -86,6 +90,7 @@ describe("display schemas", () => {
             view: "READY",
             showAlert: true,
             autoScroll: true,
+            zoom: 100,
             stationIds: [],
         });
     });
@@ -114,6 +119,19 @@ describe("display schemas", () => {
         expect(UpdateDisplaySchema.safeParse(withoutStations).success).toBe(false);
     });
 
+    it("rejects a zoom outside 50-200 or not an integer", () => {
+        for (const zoom of [49, 201, 100.5]) {
+            expect(CreateDisplaySchema.safeParse({ name: "Display", zoom }).success).toBe(false);
+        }
+        expect(CreateDisplaySchema.safeParse({ name: "Display", zoom: 50 }).success).toBe(true);
+        expect(CreateDisplaySchema.safeParse({ name: "Display", zoom: 200 }).success).toBe(true);
+    });
+
+    it("accepts a null alert and rejects one longer than the column", () => {
+        expect(PatchDisplaySchema.parse({ alert: null })).toEqual({ alert: null });
+        expect(PatchDisplaySchema.safeParse({ alert: "x".repeat(192) }).success).toBe(false);
+    });
+
     it("accepts partial settings on patch", () => {
         expect(PatchDisplaySchema.parse({})).toEqual({});
         expect(PatchDisplaySchema.parse({ view: "PREPARING" })).toEqual({ view: "PREPARING" });
@@ -134,6 +152,8 @@ describe("GET /v1/displays", () => {
             view: "READY",
             showAlert: true,
             autoScroll: true,
+            zoom: 100,
+            alert: null,
             stationIds: [STATION_A, STATION_B],
         }]);
         expect(display.findMany).toHaveBeenCalledWith({
@@ -222,6 +242,7 @@ describe("POST /v1/displays", () => {
                 view: "READY",
                 showAlert: true,
                 autoScroll: true,
+                zoom: 100,
                 stations: { connect: [{ id: STATION_A }] },
             },
             include: { stations: true },
@@ -277,6 +298,8 @@ describe("PUT /v1/displays/{id}", () => {
                 view: "HYBRID",
                 showAlert: false,
                 autoScroll: true,
+                zoom: 120,
+                alert: "La cucina chiude alle 22:30",
                 stations: { set: [{ id: STATION_A }, { id: STATION_B }] },
             },
             include: { stations: true },
