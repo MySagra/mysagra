@@ -250,8 +250,8 @@ export interface CashRegisterRequest {
 }
 
 // API Keys
-export type ApiKeyType = "PRINTER" | "WEBAPP";
-export type ApiKeyPrefix = "ms_pt_" | "ms_wb_";
+export type ApiKeyType = "PRINTER" | "WEBAPP" | "DISPLAY";
+export type ApiKeyPrefix = "ms_pt_" | "ms_wb_" | "ms_ds_";
 
 export interface ApiKey {
   id: string;

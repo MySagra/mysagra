@@ -4,6 +4,7 @@ import { apiLimiter } from "@/middlewares/rateLimiter.middleware";
 import { env } from "@/config/env";
 import { EventsService } from "@/modules/events/events.service";
 import { eventSchema } from "@mysagra/schemas";
+import { ForbiddenError } from "@/common/errors";
 
 const routes: RouteDefinition[] = [
     route({
@@ -13,9 +14,10 @@ const routes: RouteDefinition[] = [
         description:
             "Establishes a persistent SSE connection to receive real-time updates for the specified channel " +
             "(`cashier`, `display`, `printer`, `ticket`). Keep-alive comments are sent every 15 seconds; data messages are " +
-            "delivered as `data: {JSON}\\n\\n`.",
+            "delivered as `data: {JSON}\\n\\n`. The PRINTER API key (`ms_pt_`) can only subscribe to the `printer` channel, " +
+            "the DISPLAY API key (`ms_ds_`) only to the `display` channel.",
         security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
-        middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_"])],
+        middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_", "ms_ds_"])],
         params: eventSchema,
         responses: {
             200: { description: "SSE stream established. Connection stays open until the client disconnects." },
@@ -25,6 +27,14 @@ const routes: RouteDefinition[] = [
         },
         handler: (req, res) => {
             const { channel } = req.validated.params;
+
+            if (req.apiKey?.prefix === "ms_pt_" && channel !== "printer") {
+                throw new ForbiddenError("PRINTER API key can only subscribe to the printer channel");
+            }
+
+            if (req.apiKey?.prefix === "ms_ds_" && channel !== "display") {
+                throw new ForbiddenError("DISPLAY API key can only subscribe to the display channel");
+            }
 
             res.setHeader("Content-Type", "text/event-stream");
             res.setHeader("Cache-Control", "no-cache");

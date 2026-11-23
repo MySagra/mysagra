@@ -41,6 +41,7 @@ model Session {
 enum KeyTypes {
   PRINTER
   WEBAPP
+  DISPLAY
 }
 
 model ApiKey {

@@ -1,8 +1,17 @@
 import { prisma } from "@mysagra/database"
-import { CreateApiKeyInput, ApiKeyPrefixSchema, CreateApiKeyResponse } from "@mysagra/schemas"
+import { CreateApiKeyInput, CreateApiKeyResponse, ApiKeyPrefix, ApiKeyType } from "@mysagra/schemas"
 import { randomBytes, createHmac } from 'node:crypto'
 import { env } from '@/config/env'
 import { redisConnection } from "@/lib/redis"
+
+function typeToPrefix(type: ApiKeyType): ApiKeyPrefix {
+    switch (type) {
+        case "PRINTER": return "ms_pt_";
+        case "WEBAPP": return "ms_wb_";
+        case "DISPLAY": return "ms_ds_";
+    }
+}
+
 class ApiKeysService {
 
     async getAPIKeys() {
@@ -20,7 +29,7 @@ class ApiKeysService {
 
     async createApiKey(input: CreateApiKeyInput): Promise<CreateApiKeyResponse> {
         const key = await this.generateApiKey();
-        const prefix = input.type === "WEBAPP" ? ApiKeyPrefixSchema.enum.ms_wb_ : ApiKeyPrefixSchema.enum.ms_pt_
+        const prefix = typeToPrefix(input.type);
 
         const newKey = await prisma.apiKey.create({
             data: {

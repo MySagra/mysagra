@@ -853,6 +853,8 @@ export const it = {
     typePrinterDesc: "Per i servizi di stampa",
     typeWebapp: "Webapp clienti",
     typeWebappDesc: "Per l'app rivolta ai clienti",
+    typeDisplay: "Display",
+    typeDisplayDesc: "Per i monitor numeri ordini",
     noApiKeysFound: "Nessuna API key trovata",
     columnName: "Nome",
     columnType: "Tipo",

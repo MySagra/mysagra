@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm, FormProvider, type Resolver } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
-import { ApiKey, CreateApiKeyResponse } from "@/lib/api-types";
+import { ApiKey, ApiKeyPrefix, CreateApiKeyResponse } from "@/lib/api-types";
 import { createApiKey } from "@/actions/api-keys";
 import {
   Dialog,
@@ -32,6 +32,7 @@ import {
   EyeOffIcon,
   PrinterIcon,
   MonitorIcon,
+  TvIcon,
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -39,7 +40,7 @@ import { useLocale } from "@/contexts/locale-context";
 import { cn } from "@/lib/utils";
 
 type Step = "form" | "reveal";
-type ApiKeyType = "PRINTER" | "WEBAPP";
+type ApiKeyType = "PRINTER" | "WEBAPP" | "DISPLAY";
 
 interface CreateApiKeyDialogProps {
   open: boolean;
@@ -47,10 +48,17 @@ interface CreateApiKeyDialogProps {
   onCreated: (apiKey: ApiKey) => void;
 }
 
-const TYPE_OPTIONS: { value: ApiKeyType; icon: React.ElementType; labelKey: "typePrinter" | "typeWebapp"; descKey: "typePrinterDesc" | "typeWebappDesc" }[] = [
+const TYPE_OPTIONS: { value: ApiKeyType; icon: React.ElementType; labelKey: "typePrinter" | "typeWebapp" | "typeDisplay"; descKey: "typePrinterDesc" | "typeWebappDesc" | "typeDisplayDesc" }[] = [
   { value: "PRINTER", icon: PrinterIcon, labelKey: "typePrinter", descKey: "typePrinterDesc" },
   { value: "WEBAPP", icon: MonitorIcon, labelKey: "typeWebapp", descKey: "typeWebappDesc" },
+  { value: "DISPLAY", icon: TvIcon, labelKey: "typeDisplay", descKey: "typeDisplayDesc" },
 ];
+
+const PREFIX_BY_TYPE: Record<ApiKeyType, ApiKeyPrefix> = {
+  PRINTER: "ms_pt_",
+  WEBAPP: "ms_wb_",
+  DISPLAY: "ms_ds_",
+};
 
 export function CreateApiKeyDialog({
   open,
@@ -65,7 +73,7 @@ export function CreateApiKeyDialog({
 
   const createSchema = z.object({
     name: z.string().min(1, t.apiKeys.nameRequired),
-    type: z.enum(["PRINTER", "WEBAPP"]),
+    type: z.enum(["PRINTER", "WEBAPP", "DISPLAY"]),
   });
   type CreateFormValues = z.output<typeof createSchema>;
 
@@ -95,7 +103,7 @@ export function CreateApiKeyDialog({
     onCreated({
       id: apiKeyRes.id,
       type: apiKeyRes.type,
-      prefix: apiKeyRes.type === "PRINTER" ? "ms_pt_" : "ms_wb_",
+      prefix: PREFIX_BY_TYPE[apiKeyRes.type],
       lastDigits: apiKeyRes.apiKey.slice(-4),
       name: values.name.trim(),
       createdAt: new Date(apiKeyRes.createdAt),
@@ -159,7 +167,7 @@ export function CreateApiKeyDialog({
                         <Field>
                           <FieldLabel required>{t.apiKeys.typeLabel}</FieldLabel>
                           <FormControl>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               {TYPE_OPTIONS.map(({ value, icon: Icon, labelKey, descKey }) => (
                                 <button
                                   key={value}

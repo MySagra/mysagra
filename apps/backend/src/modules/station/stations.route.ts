@@ -25,8 +25,8 @@ export const stationsModule = createModule({
                 "Returns all stations with optional inclusion of categories. " +
                 "Query parameters: `include` (categories, categories.foods, categories.foods.ingredients). " +
                 "'categories.foods' and 'categories.foods.ingredients' include both levels.",
-            security: [{ cookieAuth: [] }],
-            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_"])],
+            security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_", "ms_ds_"])],
             query: GetStationQuerySchema,
             responses: {
                 200: { description: "List of stations", schema: z.array(StationResponseSchema) },
@@ -42,8 +42,8 @@ export const stationsModule = createModule({
             path: "/{id}",
             summary: "Get station by ID",
             description: "Returns a single station with optional inclusion of categories and related foods.",
-            security: [{ cookieAuth: [] }],
-            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_"])],
+            security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_", "ms_ds_"])],
             params: cuidParamSchema,
             query: GetStationQuerySchema,
             responses: {

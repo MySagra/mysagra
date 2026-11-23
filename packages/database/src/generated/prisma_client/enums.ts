@@ -11,7 +11,8 @@
 
 export const KeyTypes = {
   PRINTER: 'PRINTER',
-  WEBAPP: 'WEBAPP'
+  WEBAPP: 'WEBAPP',
+  DISPLAY: 'DISPLAY'
 } as const
 
 export type KeyTypes = (typeof KeyTypes)[keyof typeof KeyTypes]

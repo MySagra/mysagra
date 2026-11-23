@@ -17,10 +17,10 @@ export const settingsModule = createModule({
             summary: "Get the sagra settings",
             description:
                 "Returns the sagra name and its settings, with the defaults applied to any missing field. " +
-                "Accessible by every role and by the WEBAPP (`ms_wb_`) and PRINTER (`ms_pt_`) API keys, " +
+                "Accessible by every role and by the WEBAPP (`ms_wb_`), PRINTER (`ms_pt_`) and DISPLAY (`ms_ds_`) API keys, " +
                 "since the clients apply these rules (e.g. customer and table fields at the cash desk).",
             security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
-            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_wb_", "ms_pt_"])],
+            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_wb_", "ms_pt_", "ms_ds_"])],
             responses: {
                 200: { description: "Current settings", schema: SettingsResponseSchema },
                 404: { description: "Not Found - The sagra is not configured yet" },

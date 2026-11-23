@@ -21,14 +21,20 @@ interface ApiKeysTableProps {
   onRevoke: (apiKey: ApiKey) => void;
 }
 
-const typeVariants: Record<string, "default" | "secondary"> = {
+const typeVariants: Record<string, "default" | "secondary" | "outline"> = {
   PRINTER: "default",
   WEBAPP: "secondary",
+  DISPLAY: "outline",
 };
 
 export function ApiKeysTable({ apiKeys, onRevoke }: ApiKeysTableProps) {
   const { t } = useLocale();
   const timezone = useTimezone();
+  const typeLabels: Record<string, string> = {
+    PRINTER: t.apiKeys.typePrinter,
+    WEBAPP: t.apiKeys.typeWebapp,
+    DISPLAY: t.apiKeys.typeDisplay,
+  };
   const { canManageApiKeys } = useRole();
 
   if (apiKeys.length === 0) {
@@ -61,7 +67,7 @@ export function ApiKeysTable({ apiKeys, onRevoke }: ApiKeysTableProps) {
               </TableCell>
               <TableCell className="hidden sm:table-cell">
                 <Badge variant={typeVariants[key.type]}>
-                  {key.type === "PRINTER" ? t.apiKeys.typePrinter : t.apiKeys.typeWebapp}
+                  {typeLabels[key.type]}
                 </Badge>
               </TableCell>
               <TableCell className="font-mono text-sm hidden md:table-cell">

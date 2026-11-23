@@ -853,6 +853,8 @@ export const en = {
     typePrinterDesc: "For printing services",
     typeWebapp: "Customer webapp",
     typeWebappDesc: "For customer-facing app",
+    typeDisplay: "Display",
+    typeDisplayDesc: "For order number monitors",
     noApiKeysFound: "No API keys found",
     columnName: "Name",
     columnType: "Type",

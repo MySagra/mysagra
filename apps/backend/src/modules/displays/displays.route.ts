@@ -27,7 +27,7 @@ export const displaysModule = createModule({
                 "Returns all the public displays with their settings (view, alert, auto scroll) and the ids of their stations. " +
                 "Query parameters: `include` (stations) to also return the full stations.",
             security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
-            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_"])],
+            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_", "ms_ds_"])],
             query: GetDisplayQuerySchema,
             responses: {
                 200: { description: "List of displays", schema: z.array(DisplayWithStationsResponseSchema) },
@@ -42,7 +42,7 @@ export const displaysModule = createModule({
             summary: "Get display by ID",
             description: "Returns a single display with its settings, with optional inclusion of the full stations.",
             security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
-            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_"])],
+            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_pt_", "ms_ds_"])],
             params: cuidParamSchema,
             query: GetDisplayQuerySchema,
             responses: {

@@ -42,9 +42,10 @@ export const ordersModule = createModule({
             path: "",
             summary: "Get orders (paginated)",
             description:
-                "Returns a paginated and filtered list of orders. Use `GET /v1/orders/{id}` for full order details.",
-            security: [{ cookieAuth: [] }],
-            middlewares: [authenticate(["admin", "maintainer", "operator"])],
+                "Returns a paginated and filtered list of orders. Use `GET /v1/orders/{id}` for full order details. " +
+                "Also accessible via DISPLAY API key (`ms_ds_`), read-only.",
+            security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+            middlewares: [authenticate(["admin", "maintainer", "operator"], ["ms_ds_"])],
             query: GetOrdersQuerySchema,
             responses: {
                 200: { description: "Paginated list of orders", schema: PaginatedOrdersResponseSchema },

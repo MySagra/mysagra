@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const ApiKeyTypeSchema = z.enum(["PRINTER", "WEBAPP"]);
-export const ApiKeyPrefixSchema = z.enum(["ms_pt_", "ms_wb_"])
+export const ApiKeyTypeSchema = z.enum(["PRINTER", "WEBAPP", "DISPLAY"]);
+export const ApiKeyPrefixSchema = z.enum(["ms_pt_", "ms_wb_", "ms_ds_"])
 
 export const ApiKeyBaseResponseSchema = z.object({
     id: z.cuid(),
